@@ -1,0 +1,21 @@
+<Solution>
+  <PropertyGroup Name="simciv" Version="2.3.1.1" Type="CocosStudio" />
+  <SolutionFolder>
+    <Group ctype="ResourceGroup">
+      <RootFolder Name=".">
+        <Project Name="MainScene.csd" Type="Scene" />
+        <TmxFile Name="simciv.tmx" />
+        <Folder Name="img">
+          <Image Name="Bakery_icon.png" />
+          <Image Name="factory_blue.png" />
+          <Image Name="factory_green.png" />
+          <Image Name="factory_red.png" />
+          <Image Name="factory_yellow.png" />
+          <PlistInfo Name="Plist.csi" Type="Plist" />
+        </Folder>
+        <Project Name="AnimalBrowser.csd" Type="Node" />
+        <Project Name="Layer.csd" Type="Layer" />
+      </RootFolder>
+    </Group>
+  </SolutionFolder>
+</Solution>

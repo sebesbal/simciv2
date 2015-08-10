@@ -1,0 +1,13 @@
+<PlistInfoProjectFile>
+  <PropertyGroup Type="Plist" Name="Plist" ID="23eabc57-99d6-4ad3-8155-d577d3c94f20" Version="2.3.1.1" />
+  <Content ExportType="Png" SortAlgorithm="MaxRects" PicturePadding="0" AllowRotation="True" AllowAnySize="False" AllowTrim="False" ctype="PlistInfoData">
+    <ImageFiles>
+      <FilePathData Path="img/Bakery_icon.png" />
+      <FilePathData Path="img/factory_blue.png" />
+      <FilePathData Path="img/factory_green.png" />
+      <FilePathData Path="img/factory_red.png" />
+      <FilePathData Path="img/factory_yellow.png" />
+    </ImageFiles>
+    <MaxSize Width="1024" Height="1024" />
+  </Content>
+</PlistInfoProjectFile>
