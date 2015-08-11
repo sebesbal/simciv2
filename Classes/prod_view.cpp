@@ -22,6 +22,7 @@ std::string mine_strings[4] = {
 ProdView* ProdView::create(WorldModel* model)
 {
 	ProdView* result = new ProdView();
+	result->right_menu = NULL;
 	result->_model = model;
 	if (result && result->init())
 	{
@@ -42,14 +43,14 @@ bool ProdView::init()
 		return false;
 	}
 
-	auto visibleSize = Director::getInstance()->getVisibleSize();
-	auto w = visibleSize.width;
-	auto h = visibleSize.height;
+	//auto visibleSize = Director::getInstance()->getVisibleSize();
+	//auto w = visibleSize.width;
+	//auto h = visibleSize.height;
 
-	Vec2 topLeft = Vec2(visibleSize.width / 2.0f, visibleSize.height / 2.0f);
+	//Vec2 topLeft = Vec2(visibleSize.width / 2.0f, visibleSize.height / 2.0f);
 
 	// right menu
-	auto right_menu = VBox::create();
+	right_menu = VBox::create();
 
 	auto s = Size(20, 20);
 	LinearLayoutParameter* p = LinearLayoutParameter::create();
@@ -91,7 +92,8 @@ bool ProdView::init()
 	}
 
 	this->addChild(right_menu);
-	right_menu->setPosition(Vec2(w - 50, h));
+	// auto size = this->getContentSize();
+	//right_menu->setPosition(Vec2(size.width - 50, size.height));
 
 	// left menu
 	// auto 
@@ -141,7 +143,7 @@ bool ProdView::init()
 	left_menu->addChild(cb_transport);
 
 	left_menu->setAnchorPoint(Vec2(0, 1));
-	left_menu->setPosition(Vec2(0, h - 50));
+	//left_menu->setPosition(Vec2(0, size.height - 50));
 
 	this->addChild(left_menu);
 
@@ -153,12 +155,12 @@ bool ProdView::init()
 	//Node*
 	_items = Node::create(); 
 	_items->setAnchorPoint(Vec2(0, 0));
-	_items->setPosition(Vec2(visibleSize / 2) - _table / 2);
+	//_items->setPosition(Vec2(size / 2) - _table / 2);
 	//_items->setPosition(Vec2(0, 0));
 	
 	this->addChild(_items, 0, 1);
 	_items->setLocalZOrder(1);
-	_items->setContentSize(_table);
+	//_items->setContentSize(_table);
 
 	//auto cb = [](float f) {};
 	// _draw_tiles.schedule(schedule_selector(WorldUI::tick), this, 0.1, kRepeatForever, 0, false);
@@ -169,7 +171,19 @@ bool ProdView::init()
 	add_item(IT_FACTORY, _table.width / 3, _table.height / 2);
 	add_item(IT_MINE, 2 * _table.width / 3, _table.height / 2);
 
+
+
 	return true;
+}
+
+void ProdView::setContentSize(const Size& contentSize)
+{
+	MapView::setContentSize(contentSize);
+	if (right_menu)
+	{
+		right_menu->setPosition(Vec2(contentSize.width - 50, contentSize.height));
+		left_menu->setPosition(Vec2(0, contentSize.height - 50));
+	}
 }
 
 bool is_map_point(cocos2d::Vec2& p)
@@ -227,12 +241,12 @@ void ProdView::onTouchEnded(Touch* touch, Event  *event)
 
 void ProdView::onTouchMoved(Touch* touch, Event  *event)
 {
-	if (is_map_point(touch->getLocationInView()))
-	{
-		auto diff = touch->getDelta();
-		_map->setPosition(_map->getPosition() + diff);
-		_items->setPosition(_items->getPosition() + diff);
-	}
+	//if (is_map_point(touch->getLocationInView()))
+	//{
+	//	auto diff = touch->getDelta();
+	//	_map->setPosition(_map->getPosition() + diff);
+	//	_items->setPosition(_items->getPosition() + diff);
+	//}
 }
 
 void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
@@ -400,6 +414,5 @@ void ProdView::set_sup_con_mode(int i)
 	}
 	_show_sup_con_mode = i;
 }
-
 
 }

@@ -43,7 +43,7 @@ public:
     Rect get_rect(int x, int y);
 
 protected:
-	static const int cs = 50; // cell size
+	static const int cs = 33; // cell size
 	Size _table;
 	cocos2d::Node* _map;
 	WorldModel* _model;
@@ -58,6 +58,7 @@ public:
 	void onTouchEnded(Touch* touch, Event  *event) override;
 	void onTouchMoved(Touch* touch, Event  *event) override;
 protected:
+	ui::VBox* right_menu;
 	ui::VBox* left_menu;
 	int _product_id;
 	int _show_price_vol_mode;
@@ -72,7 +73,7 @@ protected:
 	
 	std::vector<ui::Widget*> _cb_price_vol_mode;
 	std::vector<ui::Widget*> _cb_sup_con_mode;
-
+	virtual void setContentSize(const Size& contentSize) override;
 	void set_price_vol_mode(int i);
 	void set_sup_con_mode(int i);
 };
@@ -141,8 +142,13 @@ public:
 protected:
 	int view_mode, new_view_mode;
 	std::vector<Node*> views;
+	cocos2d::Node* _map;
 	WorldModel _model;
 	void tick(float f);
+	void load_from_tmx(std::string tmx);
+	virtual bool onTouchBegan(Touch* touch, Event  *event);
+	virtual void onTouchEnded(Touch* touch, Event  *event);
+	virtual void onTouchMoved(Touch* touch, Event  *event);
 };
 
 }

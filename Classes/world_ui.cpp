@@ -34,9 +34,11 @@ Scene* WorldUI::createScene()
 // on "init" you need to initialize your instance
 bool WorldUI::init()
 {
-	auto rootNode = CSLoader::createNode("MainScene.csb");
+	// auto rootNode = CSLoader::createNode("MainScene.csb");
+	// addChild(rootNode);
 
-	addChild(rootNode);
+	//auto tileMap = TMXTiledMap::create("simciv.tmx"); // createWithXML(, "./");
+	//addChild(tileMap);
 
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	auto w = visibleSize.width;
@@ -61,17 +63,27 @@ bool WorldUI::init()
 	//this->addChild(left_menu);
 	//this->addChild(ui::Text::create("lofusz", "arial", 12));
 
-	_model.create_map(30, 20, 4);
 
-	Node* v = ProdView::create(&_model);
-	v->setVisible(true);
-	views.push_back(v);
-	this->addChild(v);
 
-	v = AnimalView::create(&_model);
-	v->setVisible(false);
-	views.push_back(v);
-	this->addChild(v);
+	//_model.create_map(30, 20, 4);
+
+	//Node* v = ProdView::create(&_model);
+	//v->setVisible(true);
+	//views.push_back(v);
+	//this->addChild(v);
+
+	//v = AnimalView::create(&_model);
+	//v->setVisible(false);
+	//views.push_back(v);
+	//this->addChild(v);
+
+	auto listener = EventListenerTouchOneByOne::create();
+	listener->onTouchBegan = CC_CALLBACK_2(WorldUI::onTouchBegan, this);
+	listener->onTouchEnded = CC_CALLBACK_2(WorldUI::onTouchEnded, this);
+	listener->onTouchMoved = CC_CALLBACK_2(WorldUI::onTouchMoved, this);
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
+
+	load_from_tmx("simciv.tmx");
 
     return true;
 }
@@ -89,6 +101,34 @@ void WorldUI::tick(float f)
 	}
 
 	_model.end_turn();
+}
+
+void WorldUI::load_from_tmx(std::string tmx)
+{
+	_map = TMXTiledMap::create(tmx);
+	TMXTiledMap* m = (TMXTiledMap*)_map;
+	auto size = m->getMapSize();
+	m->setAnchorPoint(Vec2(0, 0));
+	this->addChild(_map);
+	_map->setPosition(0, 0);
+
+	_model.create_map(size.width, size.height, 4);
+
+	Node* v = ProdView::create(&_model);
+	v->setVisible(true);
+	v->setAnchorPoint(Vec2(0, 0));
+	v->setPosition(Vec2(0, 0));
+	v->setContentSize(_map->getContentSize());
+	views.push_back(v);
+	_map->addChild(v);
+
+	v = AnimalView::create(&_model);
+	v->setVisible(false);
+	v->setAnchorPoint(Vec2(0, 0));
+	v->setPosition(Vec2(0, 0));
+	v->setContentSize(_map->getContentSize());
+	views.push_back(v);
+	_map->addChild(v);
 }
 
 void WorldUI::onEnter()
@@ -110,5 +150,24 @@ void WorldUI::menuCloseCallback(Ref* sender)
 #endif
 }
 
+bool WorldUI::onTouchBegan(Touch* touch, Event  *event)
+{
+	return true;
+}
+
+void WorldUI::onTouchEnded(Touch* touch, Event  *event)
+{
+
+}
+
+void WorldUI::onTouchMoved(Touch* touch, Event  *event)
+{
+	//if (is_map_point(touch->getLocationInView()))
+	{
+		auto diff = touch->getDelta();
+		_map->setPosition(_map->getPosition() + diff);
+		//_items->setPosition(_items->getPosition() + diff);
+	}
+}
 
 }

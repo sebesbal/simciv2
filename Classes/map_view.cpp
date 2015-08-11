@@ -25,18 +25,19 @@ MapView* MapView::create(WorldModel* model)
 
 bool MapView::init()
 {
-	if ( !Layer::init() )
-    {
-        return false;
-    }
+	if (!Layer::init())
+	{
+		return false;
+	}
+
 	auto visibleSize = Director::getInstance()->getVisibleSize();
     _map = Sprite::create("map.png");
-	_table = _map->getContentSize();
+	_table = getContentSize();
 
     // position the sprite on the center of the screen
 	//_map->setAnchorPoint(Vec2(0, 0));
-    _map->setPosition(Vec2(visibleSize / 2));
-	_map->setScale(1);
+    // _map->setPosition(Vec2(visibleSize / 2));
+	// _map->setScale(1);
     // add the sprite as a child to this layer
     this->addChild(_map, 0, 0);
 	_map->setLocalZOrder(-1);
@@ -48,6 +49,8 @@ bool MapView::init()
 	listener->onTouchEnded = CC_CALLBACK_2(MapView::onTouchEnded, this);
 	listener->onTouchMoved = CC_CALLBACK_2(MapView::onTouchMoved, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
+
+	return true;
 }
 
 void MapView::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
@@ -75,7 +78,8 @@ void MapView::draw_rect_green(int x, int y, double rate, double alpha)
 
 Rect MapView::get_rect(int x, int y)
 {
-	auto b = _map->getBoundingBox();
+	// auto b = _map->getBoundingBox();
+	auto b = getBoundingBox();
 	return Rect(b.getMinX() + cs * x, b.getMinY() + cs * y, cs, cs);
 }
 
@@ -96,12 +100,12 @@ void MapView::onTouchEnded(Touch* touch, Event  *event)
 
 void MapView::onTouchMoved(Touch* touch, Event  *event)
 {
-	//if (is_map_point(touch->getLocationInView()))
-	{
-		auto diff = touch->getDelta();
-		_map->setPosition(_map->getPosition() + diff);
-		//_items->setPosition(_items->getPosition() + diff);
-	}
+	////if (is_map_point(touch->getLocationInView()))
+	//{
+	//	auto diff = touch->getDelta();
+	//	_map->setPosition(_map->getPosition() + diff);
+	//	//_items->setPosition(_items->getPosition() + diff);
+	//}
 }
 
 }
