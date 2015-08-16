@@ -79,10 +79,10 @@ protected:
 };
 
 
-class AnimalView : public MapView
+class AnimalMapLayer : public MapView
 {
 public:
-	static AnimalView* create(WorldModel* model);
+	static AnimalMapLayer* create(WorldModel* model);
 	virtual bool init() override;
 	void onTouchEnded(Touch* touch, Event  *event) override;
 	void onTouchMoved(Touch* touch, Event  *event) override;
@@ -108,21 +108,7 @@ protected:
 };
 
 
-ui::Layout* labelled_cb(std::string text, bool checked, ui::CheckBox::ccCheckBoxCallback cb);
 
-class RadioBox: public ui::HBox
-{
-public:
-	RadioBox (int* data, std::vector<std::string> labels, int hh, int marginy);
-	void setSelected(int i);
-	static RadioBox* create(int* data, std::vector<std::string> labels, int hh, int marginy);
-	ui::Layout* labelled_radio(std::string text, ui::CheckBox::ccCheckBoxCallback cb);
-	ui::Layout* image_radio(std::string img, ui::CheckBox::ccCheckBoxCallback cb);
-	int hh;
-	int marginy;
-	std::vector<ui::Widget*> items;
-	int* data;
-};
 
 /// The main ui
 class WorldUI : public cocos2d::Layer

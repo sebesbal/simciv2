@@ -10,7 +10,7 @@ namespace simciv
 	class Route;
 	const double max_price = 100000000000;
 
-	typedef std::vector<double> t_prods;
+	typedef std::vector<double> MaterialVec;
 
 	struct Area
 	{
@@ -27,7 +27,7 @@ namespace simciv
 		Road(int pc, double t_price);
 		Area* a;
 		Area* b;
-		t_prods t; // transport
+		MaterialVec t; // transport
 		double t_price;
 		Area* other(Area* a) { return a == this->a ? b : this->a; }
 	};

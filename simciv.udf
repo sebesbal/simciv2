@@ -32,8 +32,9 @@
           <FilePathData Path="img/Plist.csi" />
           <FilePathData Path="AnimalBrowser.csd" />
           <FilePathData Path="Layer.csd" />
+          <FilePathData Path="LayersMenu.csd" />
         </OpenedDocuments>
-        <ActiveDocument Path="MainScene.csd" />
+        <ActiveDocument Path="LayersMenu.csd" />
       </Value>
     </Item>
   </Properties>

@@ -151,7 +151,6 @@ xcopy /Y /Q "$(COCOS_FRAMEWORKS)\cocos2d-x-3.7\prebuilt\win32\*.*" "$(OutDir)"
     <ClCompile Include="..\Classes\AppDelegate.cpp" />
     <ClCompile Include="..\Classes\controls.cpp" />
     <ClCompile Include="..\Classes\economy.cpp" />
-    <ClCompile Include="..\Classes\HelloWorldScene.cpp" />
     <ClCompile Include="..\Classes\map_view.cpp" />
     <ClCompile Include="..\Classes\prod_view.cpp" />
     <ClCompile Include="..\Classes\world_model.cpp" />
@@ -161,11 +160,10 @@ xcopy /Y /Q "$(COCOS_FRAMEWORKS)\cocos2d-x-3.7\prebuilt\win32\*.*" "$(OutDir)"
   <ItemGroup>
     <ClInclude Include="..\Classes\animals.h" />
     <ClInclude Include="..\Classes\AppDelegate.h" />
-    <ClInclude Include="..\Classes\common.h" />
     <ClInclude Include="..\Classes\economy.h" />
-    <ClInclude Include="..\Classes\HelloWorldScene.h" />
     <ClInclude Include="..\Classes\world_model.h" />
     <ClInclude Include="..\Classes\world_ui.h" />
+    <ClInclude Include="..\Classes\controls.h" />
     <ClInclude Include="main.h" />
   </ItemGroup>
   <ItemGroup>

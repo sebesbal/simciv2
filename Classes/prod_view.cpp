@@ -1,5 +1,6 @@
 #include "world_ui.h"
 #include "economy.h"
+#include "controls.h"
 
 namespace simciv
 {

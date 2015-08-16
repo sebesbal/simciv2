@@ -23,9 +23,9 @@ using namespace std;
 using namespace ui;
 
 
-AnimalView* AnimalView::create(WorldModel* model)
+AnimalMapLayer* AnimalMapLayer::create(WorldModel* model)
 {
-	AnimalView* result = new AnimalView();
+	AnimalMapLayer* result = new AnimalMapLayer();
 	result->_model = model;
 	if (result && result->init())
 	{
@@ -39,7 +39,7 @@ AnimalView* AnimalView::create(WorldModel* model)
 	}
 }
 
-bool AnimalView::init()
+bool AnimalMapLayer::init()
 {
 	if (!MapView::init())
 	{
@@ -56,12 +56,12 @@ bool AnimalView::init()
 	p->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
 }
 
-bool AnimalView::is_map_point(cocos2d::Vec2& p)
+bool AnimalMapLayer::is_map_point(cocos2d::Vec2& p)
 {
 	return p.x > 370 || p.y > 222;
 }
 
-void AnimalView::onTouchEnded(Touch* touch, Event  *event)
+void AnimalMapLayer::onTouchEnded(Touch* touch, Event  *event)
 {
 	auto s = touch->getStartLocation();
 	auto p = touch->getLocation();
@@ -73,7 +73,7 @@ void AnimalView::onTouchEnded(Touch* touch, Event  *event)
 }
 
 
-void AnimalView::onTouchMoved(Touch* touch, Event  *event)
+void AnimalMapLayer::onTouchMoved(Touch* touch, Event  *event)
 {
 	if (is_map_point(touch->getLocationInView()))
 	{
@@ -83,7 +83,7 @@ void AnimalView::onTouchMoved(Touch* touch, Event  *event)
 	}
 }
 
-void AnimalView::onDraw(const Mat4 &transform, uint32_t flags)
+void AnimalMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 {
 	// calculate roads
 	//_model->products()[_product_id]->routes_to_areas(_product_id);

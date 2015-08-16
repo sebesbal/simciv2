@@ -15,6 +15,7 @@
         </Folder>
         <Project Name="AnimalBrowser.csd" Type="Node" />
         <Project Name="Layer.csd" Type="Layer" />
+        <Project Name="LayersMenu.csd" Type="Node" />
       </RootFolder>
     </Group>
   </SolutionFolder>

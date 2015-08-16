@@ -6,8 +6,9 @@ namespace simciv
 
 	struct Species
 	{
-		t_prods production; //< products materials form materials
-		t_prods reproduction; //< cost of reproduction = const * self-preservation
+		MaterialVec production;			///< products materials form materials
+		MaterialVec build_cost;			///< cost of build a new instance
+		MaterialVec maintenance_cost;	///< cost of maintain the instance
 	};
 
 	struct Animal

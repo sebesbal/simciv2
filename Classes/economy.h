@@ -4,6 +4,11 @@
 
 namespace simciv
 {
+	struct Material
+	{
+
+	};
+
 	/// Represents one single product's volumes and prices on an area
 	struct AreaProd
 	{

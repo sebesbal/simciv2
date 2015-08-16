@@ -1,4 +1,5 @@
 #include "world_ui.h"
+#include "controls.h"
 
 namespace simciv
 {
@@ -183,6 +184,10 @@ Layout* RadioBox::image_radio(string img, CheckBox::ccCheckBoxCallback cb)
 	l->setLayoutParameter(pp);
 
 	return l;
+}
+
+SpeciesView::SpeciesView()
+{
 }
 
 }

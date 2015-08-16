@@ -21,7 +21,7 @@ namespace simciv
 				double d = (double)rand() / RAND_MAX;
 				s.production.push_back(2 * d - 1);
 				double e = (double)rand() / RAND_MAX;
-				s.reproduction.push_back(e);
+				s.maintenance_cost.push_back(e);
 			}
 			species.push_back(s);
 		}

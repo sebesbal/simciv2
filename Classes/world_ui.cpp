@@ -9,6 +9,7 @@
 #include "base\ccTypes.h"
 #include <algorithm>
 #include "economy.h"
+#include "controls.h"
 
 namespace simciv
 {
@@ -72,7 +73,7 @@ bool WorldUI::init()
 	//views.push_back(v);
 	//this->addChild(v);
 
-	//v = AnimalView::create(&_model);
+	//v = AnimalMapLayer::create(&_model);
 	//v->setVisible(false);
 	//views.push_back(v);
 	//this->addChild(v);
@@ -122,7 +123,7 @@ void WorldUI::load_from_tmx(std::string tmx)
 	views.push_back(v);
 	_map->addChild(v);
 
-	v = AnimalView::create(&_model);
+	v = AnimalMapLayer::create(&_model);
 	v->setVisible(false);
 	v->setAnchorPoint(Vec2(0, 0));
 	v->setPosition(Vec2(0, 0));
