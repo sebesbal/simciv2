@@ -4,14 +4,17 @@
 #include "cocos2d.h"
 #include "economy.h"
 #include "animals.h"
+#include "ui/UIImageView.h"
 
 USING_NS_CC;
 
 namespace simciv
 {
-	class ProductionView;
+	class MaterialStringView;
 
 	ui::Layout* labelled_cb(std::string text, bool checked, ui::CheckBox::ccCheckBoxCallback cb);
+
+	std::string get_animal_texture(int id);
 
 	class RadioBox : public ui::HBox
 	{
@@ -34,43 +37,58 @@ namespace simciv
 
 
 	/// Choose animal
-	class SpeciesBrowser
+	class SpeciesBrowser: public ui::VBox
 	{
+	public:
+		SpeciesBrowser();
+		static SpeciesBrowser* create();
 	};
 
 
 	/// Show one species
-	class SpeciesView : ui::HBox
+	class SpeciesView : public CCLayer
 	{
 	public:
 		SpeciesView();
+		static SpeciesView* create();
+		bool init() override;
 		void set_species(Species* species);
 	protected:
-		ui::VBox* _left;
-		ProductionView* _production_view;
+		void add_prod_row(MaterialVec& prod);
+		virtual void setContentSize(const Size & var) override;
+		CCLayerColor* _bck;
+		Sprite* _icon;
+		ui::VBox* _production_view;
+		MaterialStringView* _build_cost;
+		MaterialStringView* _maintenance_cost;
 		Species* _species;
 	};
 
-	/// Show production alternatives. Rows of MaterialStrings
-	class ProductionView : ui::VBox
-	{
-	public:
-		void add_row(MaterialVec& prod);
-	};
-
-	///// Show one animals properties
-	//class AnimalMapLayer
+	///// Show production alternatives. Rows of MaterialStrings
+	//class ProductionView : public ui::VBox
 	//{
-
+	//public:
+	//	ProductionView();
+	//	static ProductionView* create();
+	//	void add_row(MaterialVec& prod);
 	//};
 
-	class MaterialSprite: Sprite
+	///// Show one animals properties
+	class AnimalView
 	{
 
 	};
 
-	class MaterialStringView
+	class MaterialSprite : public ui::ImageView
 	{
+	public:
+		static MaterialSprite* create(int id, int size);
+	};
 
+	class MaterialStringView : public CCLayer
+	{
+	public:
+		static MaterialStringView* create();
+		void set_vector(const MaterialVec& v, int size);
 	};
 }

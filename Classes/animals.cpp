@@ -16,6 +16,7 @@ namespace simciv
 		for (int i = 0; i < species_count; ++i)
 		{
 			Species s;
+			s.id = i;
 			for (int j = 0; j < _products.size(); ++j)
 			{
 				double d = (double)rand() / RAND_MAX;

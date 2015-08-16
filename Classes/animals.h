@@ -6,6 +6,7 @@ namespace simciv
 
 	struct Species
 	{
+		int id;
 		MaterialVec production;			///< products materials form materials
 		MaterialVec build_cost;			///< cost of build a new instance
 		MaterialVec maintenance_cost;	///< cost of maintain the instance

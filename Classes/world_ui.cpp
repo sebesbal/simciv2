@@ -32,52 +32,9 @@ Scene* WorldUI::createScene()
     return scene;
 }
 
-// on "init" you need to initialize your instance
-bool WorldUI::init()
+WorldUI::WorldUI()
 {
-	// auto rootNode = CSLoader::createNode("MainScene.csb");
-	// addChild(rootNode);
-
-	//auto tileMap = TMXTiledMap::create("simciv.tmx"); // createWithXML(, "./");
-	//addChild(tileMap);
-
-	auto visibleSize = Director::getInstance()->getVisibleSize();
-	auto w = visibleSize.width;
-	auto h = visibleSize.height;
-
 	this->schedule(schedule_selector(WorldUI::tick), 0.05, kRepeatForever, 0);
-
-	int hh = 30;
-	int marginy = 20;
-	view_mode = 0;
-	new_view_mode = 0;
-	defvec(vec9, "Prods", "Animals");
-	auto rb = RadioBox::create(&new_view_mode, vec9, hh, marginy);
-	rb->setZOrder(10);
-
-	//auto left_menu = ui::VBox::create();
-	rb->setAnchorPoint(Vec2(0, 1));
-	rb->setPosition(Vec2(0, h));
-	//left_menu->setSize(Size(100, 100));
-	//left_menu->setContentSize(Size(100, 100));
-	this->addChild(rb);
-	//this->addChild(left_menu);
-	//this->addChild(ui::Text::create("lofusz", "arial", 12));
-
-
-
-	//_model.create_map(30, 20, 4);
-
-	//Node* v = ProdView::create(&_model);
-	//v->setVisible(true);
-	//views.push_back(v);
-	//this->addChild(v);
-
-	//v = AnimalMapLayer::create(&_model);
-	//v->setVisible(false);
-	//views.push_back(v);
-	//this->addChild(v);
-
 	auto listener = EventListenerTouchOneByOne::create();
 	listener->onTouchBegan = CC_CALLBACK_2(WorldUI::onTouchBegan, this);
 	listener->onTouchEnded = CC_CALLBACK_2(WorldUI::onTouchEnded, this);
@@ -86,7 +43,22 @@ bool WorldUI::init()
 
 	load_from_tmx("simciv.tmx");
 
-    return true;
+	auto sv = SpeciesView::create();
+	this->addChild(sv);
+	sv->setPosition(Vec2(500, 500));
+
+	auto s = new Species();
+	s->id = 0;
+	s->build_cost.push_back(9);
+	s->build_cost.push_back(8);
+	s->build_cost.push_back(7);
+	s->build_cost.push_back(6);
+	s->build_cost.push_back(5);
+	s->build_cost.push_back(4);
+	//s->build_cost.push_back(3);
+	//s->build_cost.push_back(2);
+	//s->build_cost.push_back(1);
+	sv->set_species(s);
 }
 
 void WorldUI::tick(float f)
@@ -134,6 +106,7 @@ void WorldUI::load_from_tmx(std::string tmx)
 
 void WorldUI::onEnter()
 {
+	setContentSize(Size(500, 500));
 	Layer::onEnter();
 }
 

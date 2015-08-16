@@ -11,11 +11,11 @@ using namespace ui;
 
 
 std::string factory_strings[4] = {
-	"factory_red.png", "factory_blue.png", "factory_green.png", "factory_yellow.png"
+	"img/factory_red.png", "img/factory_blue.png", "img/factory_green.png", "img/factory_yellow.png"
 };
 
 std::string mine_strings[4] = {
-	"mine_red.png", "mine_blue.png", "mine_green.png", "mine_yellow.png"
+	"img/mine_red.png", "img/mine_blue.png", "img/mine_green.png", "img/mine_yellow.png"
 };
 
 
@@ -108,7 +108,7 @@ bool ProdView::init()
 
 	// ==============================================================================================
 	// PRODUCT
-	defvec(vec0, "_factory_red.png", "_factory_blue.png", "_factory_green.png", "_factory_yellow.png")
+	defvec(vec0, "img/_factory_red.png", "img/_factory_blue.png", "img/_factory_green.png", "img/_factory_yellow.png")
 	auto rb = RadioBox::create(&_product_id, vec0, hh, marginy);
 	left_menu->addChild(rb);
 

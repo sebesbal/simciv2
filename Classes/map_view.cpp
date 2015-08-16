@@ -31,7 +31,7 @@ bool MapView::init()
 	}
 
 	auto visibleSize = Director::getInstance()->getVisibleSize();
-    _map = Sprite::create("map.png");
+    _map = Sprite::create("img/map.png");
 	_table = getContentSize();
 
     // position the sprite on the center of the screen
