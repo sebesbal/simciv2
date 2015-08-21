@@ -36,14 +36,49 @@ namespace simciv
 	};
 
 
+	class MenuButton : public ui::Button
+	{
+	public:
+		MenuButton();
+		static MenuButton* create(Size size, std::string image, std::string bck_normal, std::string bck_selected, std::string bck_disabled);
+		void set_toggle(bool toggle) { _is_toggle = toggle; }
+		void set_selected(bool selected) { if (selected) onPressStateChangedToPressed(); else onPressStateChangedToNormal(); }
+	protected:
+		bool _is_toggle;
+		ui::ImageView* _bck;
+		ui::ImageView* _img;
+		std::string _bck_normal, _bck_selected, _bck_disabled;
+		virtual void onPressStateChangedToNormal() override;
+		virtual void onPressStateChangedToPressed() override;
+		virtual void onPressStateChangedToDisabled() override;
+		virtual void onTouchEnded(Touch *touch, Event *unusedEvent) override;
+	};
+
+	class RadioMenu : public CCLayer
+	{
+	public:
+		RadioMenu();
+		static RadioMenu* create();
+		MenuButton* get_selected_btn() { return _selected; }
+		void set_selected_btn(MenuButton* btn);
+		int find_btn(MenuButton* btn);
+	protected:
+		MenuButton* _selected;
+		void add_radio_button(MenuButton* btn);
+	};
+
 	/// Choose animal
-	class SpeciesBrowser: public ui::VBox
+	class SpeciesBrowser : public RadioMenu
 	{
 	public:
 		SpeciesBrowser();
 		static SpeciesBrowser* create();
 	};
 
+	class MainMenu : public RadioMenu
+	{
+
+	};
 
 	/// Show one species
 	class SpeciesView : public CCLayer
@@ -57,8 +92,10 @@ namespace simciv
 		void add_prod_row(MaterialVec& prod);
 		virtual void setContentSize(const Size & var) override;
 		CCLayerColor* _bck;
-		Sprite* _icon;
+		ui::ImageView* _icon;
+		ui::Text* _name_label;
 		ui::VBox* _production_view;
+		ui::Text* _build_cost_label;
 		MaterialStringView* _build_cost;
 		MaterialStringView* _maintenance_cost;
 		Species* _species;

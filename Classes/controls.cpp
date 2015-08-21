@@ -8,6 +8,11 @@ USING_NS_CC;
 using namespace std;
 using namespace ui;
 
+const string def_font = "verdana";
+const int def_font_size = 12;
+const int spec_count = 6;
+const int mat_count = 6;
+
 Layout* labelled_cb(std::string text, bool checked, CheckBox::ccCheckBoxCallback cb)
 {
 	auto l = HBox::create();
@@ -109,10 +114,6 @@ std::string get_plant_texture(int id)
 
 	return "img/plants/" + files[id];
 }
-
-
-
-
 
 Layout* combobox(const std::string* labels)
 {
@@ -252,9 +253,141 @@ Layout* RadioBox::image_radio(string img, CheckBox::ccCheckBoxCallback cb)
 	return l;
 }
 
+MenuButton::MenuButton() : _is_toggle(false)
+{
+	
+}
+
+MenuButton* MenuButton::create(Size size, std::string image, std::string bck_normal, std::string bck_selected, std::string bck_disabled)
+{
+	MenuButton* result = new MenuButton();
+	if (result->init())
+	{
+		result->autorelease();
+		result->setContentSize(size);
+		result->_bck_normal = "img/" + bck_normal;
+		result->_bck_selected = "img/" + bck_selected;
+		result->_bck_disabled = "img/" + bck_disabled;
+		
+		//result->togg
+		auto b = ImageView::create(result->_bck_normal);
+		
+		result->_bck = b;
+		b->ignoreContentAdaptWithSize(false);
+		b->setContentSize(size);
+		b->setPosition(size / 2);
+		result->addChild(b);
+
+		result->_img = ui::ImageView::create();
+		result->_img->ignoreContentAdaptWithSize(false);
+		int m = 25;
+		result->_img->setContentSize(Size(size.width - m, size.height - m));
+		result->_img->loadTexture(image);
+		result->_img->setPosition(size / 2);
+		result->addChild(result->_img);
+
+		return result;
+	}
+	else
+	{
+		CC_SAFE_DELETE(result);
+		return nullptr;
+	}
+}
+
+void MenuButton::onPressStateChangedToNormal()
+{
+	Button::onPressStateChangedToNormal();
+	_bck->loadTexture(_bck_normal);
+}
+
+void MenuButton::onPressStateChangedToPressed()
+{
+	Button::onPressStateChangedToPressed();
+	_bck->loadTexture(_bck_selected);
+}
+
+void MenuButton::onPressStateChangedToDisabled()
+{
+	Button::onPressStateChangedToDisabled();
+	_bck->loadTexture(_bck_disabled);
+}
+
+void MenuButton::onTouchEnded(Touch *touch, Event *unusedEvent)
+{
+	if (_is_toggle)
+	{
+		// Skip change back to normal
+	}
+	else
+	{
+		Button::onTouchEnded(touch, unusedEvent);
+	}
+}
+
+RadioMenu::RadioMenu() : _selected(NULL)
+{
+}
+
+RadioMenu* RadioMenu::create()
+{
+	RadioMenu* result = new RadioMenu();
+	if (result && result->init())
+	{
+		result->autorelease();
+		return result;
+	}
+	else
+	{
+		CC_SAFE_DELETE(result);
+		return nullptr;
+	}
+}
+
+void RadioMenu::set_selected_btn(MenuButton* btn)
+{
+	if (_selected)
+	{
+		_selected->set_selected(false);
+	}
+	btn->set_selected(true);
+	_selected = btn;
+}
+ 
+int RadioMenu::find_btn(MenuButton* btn)
+{
+	int i = 0;
+	for (auto child : getChildren())
+	{
+		if (child == btn) return i;
+		++i;
+	}
+}
+
+void RadioMenu::add_radio_button(MenuButton* btn)
+{
+	btn->set_toggle(true);
+	btn->addTouchEventListener([this, btn](Ref*, Widget::TouchEventType type)
+	{
+		this->set_selected_btn(btn);
+	});
+	addChild(btn);
+}
+
 SpeciesBrowser::SpeciesBrowser()
 {
+	int space = 15;
+	int h = getContentSize().height;
+	for (int i = 0; i < spec_count; ++i)
+	{
+		auto btn = MenuButton::create(Size(64, 64), get_animal_texture(i), "Circle_Orange2.png", "Circle_Orange2_sel.png", "Circle_Blue2.png");
+		btn->setAnchorPoint(Vec2(0, 1));
+		btn->ignoreContentAdaptWithSize(false);
+		btn->setPosition(Vec2(0, -i * (64 + space)));
 
+		// addChild(btn);
+		add_radio_button(btn);
+	}
 }
 
 SpeciesBrowser* SpeciesBrowser::create()
@@ -274,18 +407,31 @@ SpeciesBrowser* SpeciesBrowser::create()
 
 SpeciesView::SpeciesView()
 {
-	_bck = CCLayerColor::create(Color4B(0, 0, 255, 255));
+	//_bck = CCLayerColor::create(Color4B(0, 0, 255, 255));
+	_bck = CCLayerColor::create(Color4B::BLACK);
 	this->addChild(_bck);
 
 	_production_view = VBox::create();
 	addChild(_production_view);
 
-	_icon = Sprite::create();
+	_icon = ImageView::create();
 	_icon->setAnchorPoint(Vec2(0, 1));
+	_icon->ignoreContentAdaptWithSize(false);
+	_icon->setContentSize(Size(50, 50));
 	addChild(_icon);
+
+	_name_label = Text::create("Giraffe", def_font, 20);
+	_name_label->setAnchorPoint(Vec2(0, 1));
+	_name_label->setTextHorizontalAlignment(TextHAlignment::LEFT);
+	addChild(_name_label);
 
 	_build_cost = MaterialStringView::create();
 	addChild(_build_cost);
+
+	_build_cost_label = Text::create("Build cost", def_font, def_font_size);
+	_build_cost_label->setAnchorPoint(Vec2(0, 1));
+	_build_cost_label->setTextHorizontalAlignment(TextHAlignment::LEFT);
+	addChild(_build_cost_label);
 
 	//LinearLayoutParameter* p = LinearLayoutParameter::create();
 	//p->setGravity(LinearLayoutParameter::LinearGravity::TOP);
@@ -312,7 +458,7 @@ bool SpeciesView::init()
 {
 	if (Layer::init())
 	{
-		setContentSize(Size(200, 200));
+		setContentSize(Size(300, 500));
 		return true;
 	}
 	return false;
@@ -323,11 +469,16 @@ void SpeciesView::set_species(Species* species)
 	this->_species = species;
 	if (species)
 	{
-		_icon->setTexture(get_animal_texture(species->id));
-		auto t = _icon->getTexture();
-		_icon->setScale(50.0 / std::max(t->getPixelsWide(), t->getPixelsHigh()));
+		_icon->loadTexture(get_animal_texture(species->id));
+
+		//_icon->setTexture(get_animal_texture(species->id));
+		//auto t = _icon->getTexture();
+		//_icon->setScale(50.0 / std::max(t->getPixelsWide(), t->getPixelsHigh()));
 
 		_build_cost->set_vector(species->build_cost, 30);
+
+		auto s = getContentSize();
+		setContentSize(s);
 	}
 }
 
@@ -338,14 +489,27 @@ void SpeciesView::add_prod_row(MaterialVec& prod)
 
 void SpeciesView::setContentSize(const Size & var)
 {
+	CCLayer::setContentSize(var);
+
 	_bck->setContentSize(var);
-	_production_view->setContentSize(Size(var.width / 2, var.height));
-	_production_view->setPosition(Vec2(var.width / 2, 0));
 
 	int m = 5;
-	_icon->setPosition(m, var.height - m);
+	int y = var.height;
+	_icon->setPosition(Vec2(m, var.height - m));
+	_name_label->setPosition(Vec2(m + 50 + 10, var.height - m));
 
-	_build_cost->setPosition(Vec2(0, 0));
+	y -= _icon->getContentSize().height + 30;
+
+	_build_cost_label->setPosition(Vec2(20, y));
+	
+	//_build_cost_label->ignoreContentAdaptWithSize(false);
+	//_build_cost_label->setContentSize(Size(200, 50));
+	y -= 30;
+
+	_build_cost->setPosition(Vec2(20, y));
+
+	_production_view->setContentSize(Size(var.width / 2, var.height - 100));
+	_production_view->setPosition(Vec2(var.width / 2, 0));
 }
 
 MaterialSprite* MaterialSprite::create(int id, int size)

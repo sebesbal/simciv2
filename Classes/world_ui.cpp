@@ -34,6 +34,10 @@ Scene* WorldUI::createScene()
 
 WorldUI::WorldUI()
 {
+	auto visibleSize = Director::getInstance()->getVisibleSize();
+	auto w = visibleSize.width;
+	auto h = visibleSize.height;
+
 	this->schedule(schedule_selector(WorldUI::tick), 0.05, kRepeatForever, 0);
 	auto listener = EventListenerTouchOneByOne::create();
 	listener->onTouchBegan = CC_CALLBACK_2(WorldUI::onTouchBegan, this);
@@ -59,6 +63,12 @@ WorldUI::WorldUI()
 	//s->build_cost.push_back(2);
 	//s->build_cost.push_back(1);
 	sv->set_species(s);
+
+
+	int m = 20;
+	auto sb = SpeciesBrowser::create();
+	this->addChild(sb);
+	sb->setPosition(Vec2(m + 25, h - m));
 }
 
 void WorldUI::tick(float f)
