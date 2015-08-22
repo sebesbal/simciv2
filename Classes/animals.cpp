@@ -21,7 +21,9 @@ namespace simciv
 			for (int j = 0; j < _products.size(); ++j)
 			{
 				double d = (double)rand() / RAND_MAX;
-				s.production.push_back(2 * d - 1);
+				int n = 2;
+				int k = std::floor((2 * n + 1) * d - n);
+				s.production.push_back(k);
 				double e = (double)rand() / RAND_MAX;
 				s.maintenance_cost.push_back(e);
 			}

@@ -100,6 +100,7 @@ namespace simciv
 		ui::Text* _build_cost_label;
 		MaterialStringView* _build_cost;
 		MaterialStringView* _maintenance_cost;
+
 		Species* _species;
 	};
 
@@ -115,7 +116,7 @@ namespace simciv
 		static MaterialSprite* create(int id, int size);
 	};
 
-	class MaterialStringView : public CCLayer
+	class MaterialStringView : public ui::Layout
 	{
 	public:
 		static MaterialStringView* create();

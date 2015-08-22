@@ -428,6 +428,7 @@ SpeciesView::SpeciesView()
 	this->addChild(_bck);
 
 	_production_view = VBox::create();
+	_production_view->setAnchorPoint(Vec2(0, 1));
 	addChild(_production_view);
 
 	_icon = ImageView::create();
@@ -487,13 +488,36 @@ void SpeciesView::set_species(Species* species)
 	this->_species = species;
 	if (species)
 	{
-		_icon->loadTexture(get_animal_texture(species->id));
+		string file = get_animal_texture(species->id);
+		_icon->loadTexture(file);
+
+		_name_label->setText(file.substr(12, file.length() - 4 - 12));
 
 		//_icon->setTexture(get_animal_texture(species->id));
 		//auto t = _icon->getTexture();
 		//_icon->setScale(50.0 / std::max(t->getPixelsWide(), t->getPixelsHigh()));
 
 		_build_cost->set_vector(species->build_cost, 30);
+
+
+		_production_view->removeAllChildrenWithCleanup(true);
+		MaterialVec pos, neg;
+		bisect(species->production, pos, neg);
+
+		Size ss = getContentSize();
+
+		HBox* h = HBox::create();
+		h->setContentSize(Size(ss.width, 30));
+		auto left = MaterialStringView::create();
+		left->set_vector(neg, 30);
+		left->setContentSize(Size(ss.width / 2, 30));
+		auto right = MaterialStringView::create();
+		right->set_vector(pos, 30);
+
+		h->addChild(left);
+		h->addChild(right);
+
+		_production_view->addChild(h);
 
 		auto s = getContentSize();
 		setContentSize(s);
@@ -525,9 +549,10 @@ void SpeciesView::setContentSize(const Size & var)
 	y -= 30;
 
 	_build_cost->setPosition(Vec2(20, y));
+	y -= 30;
 
-	_production_view->setContentSize(Size(var.width / 2, var.height - 100));
-	_production_view->setPosition(Vec2(var.width / 2, 0));
+	_production_view->setContentSize(Size(var.width, var.height - 100));
+	_production_view->setPosition(Vec2(0, y));
 }
 
 MaterialSprite* MaterialSprite::create(int id, int size)
@@ -567,7 +592,7 @@ MaterialStringView* MaterialStringView::create()
 void MaterialStringView::set_vector(const MaterialVec& v, int size)
 {
 	int i = 0;
-	int x = 0;
+	int x = size / 2;
 	for (auto& d : v)
 	{
 		int m = d;
