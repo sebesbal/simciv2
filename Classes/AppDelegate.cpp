@@ -27,11 +27,15 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // initialize director
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
-	auto size = Size(1200, 1024);
+	auto size = Size(1400, 1100);
+	//auto size = Size(1200, 1024);
+	//auto size = director->getWinSizeInPixels();
 
     if(!glview) {
         // glview = GLViewImpl::createWithRect("simciv", Rect(0, 0, 960, 640));
 		glview = GLViewImpl::createWithRect("simciv", Rect(0, 0, size.width, size.height));
+		//glview = GLViewImpl::createWithFullScreen("simciv");
+		//glview = GLViewImpl::create("simciv");
         director->setOpenGLView(glview);
     }
 

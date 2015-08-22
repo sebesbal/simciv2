@@ -10,8 +10,6 @@ using namespace ui;
 
 const string def_font = "verdana";
 const int def_font_size = 12;
-const int spec_count = 6;
-const int mat_count = 6;
 
 Layout* labelled_cb(std::string text, bool checked, CheckBox::ccCheckBoxCallback cb)
 {
@@ -258,6 +256,14 @@ MenuButton::MenuButton() : _is_toggle(false)
 	
 }
 
+MenuButton* MenuButton::create(std::string texture)
+{
+	auto btn = MenuButton::create(Size(64, 64), texture, "Circle_Orange2.png", "Circle_Orange2_sel.png", "Circle_Blue2.png");
+	btn->setAnchorPoint(Vec2(0, 1));
+	btn->ignoreContentAdaptWithSize(false);
+	return btn;
+}
+
 MenuButton* MenuButton::create(Size size, std::string image, std::string bck_normal, std::string bck_selected, std::string bck_disabled)
 {
 	MenuButton* result = new MenuButton();
@@ -325,7 +331,7 @@ void MenuButton::onTouchEnded(Touch *touch, Event *unusedEvent)
 	}
 }
 
-RadioMenu::RadioMenu() : _selected(NULL)
+RadioMenu::RadioMenu() : _selected(NULL), _space(15), _toggle(false)
 {
 }
 
@@ -350,10 +356,37 @@ void RadioMenu::set_selected_btn(MenuButton* btn)
 	{
 		_selected->set_selected(false);
 	}
-	btn->set_selected(true);
 	_selected = btn;
+
+	if (btn)
+	{
+		btn->set_selected(true);
+		if (_on_changed)
+		{
+			_on_changed(find_btn(btn));
+		}
+	}
+	else
+	{
+		if (_on_changed)
+		{
+			_on_changed(-1);
+		}
+	}
 }
- 
+
+void RadioMenu::set_selected_btn(int id)
+{
+	if (id > -1)
+	{
+		set_selected_btn((MenuButton*)getChildren().at(id));
+	}
+	else
+	{
+		set_selected_btn((MenuButton*)NULL);
+	}
+}
+
 int RadioMenu::find_btn(MenuButton* btn)
 {
 	int i = 0;
@@ -367,41 +400,23 @@ int RadioMenu::find_btn(MenuButton* btn)
 void RadioMenu::add_radio_button(MenuButton* btn)
 {
 	btn->set_toggle(true);
-	btn->addTouchEventListener([this, btn](Ref*, Widget::TouchEventType type)
-	{
-		this->set_selected_btn(btn);
-	});
+	btn->addTouchEventListener(CC_CALLBACK_2(RadioMenu::on_btn_clicked, this));
 	addChild(btn);
 }
 
-SpeciesBrowser::SpeciesBrowser()
+void RadioMenu::on_btn_clicked(Ref* btn, Widget::TouchEventType type)
 {
-	int space = 15;
-	int h = getContentSize().height;
-	for (int i = 0; i < spec_count; ++i)
+	if (type == Widget::TouchEventType::BEGAN)
 	{
-		auto btn = MenuButton::create(Size(64, 64), get_animal_texture(i), "Circle_Orange2.png", "Circle_Orange2_sel.png", "Circle_Blue2.png");
-		btn->setAnchorPoint(Vec2(0, 1));
-		btn->ignoreContentAdaptWithSize(false);
-		btn->setPosition(Vec2(0, -i * (64 + space)));
-
-		// addChild(btn);
-		add_radio_button(btn);
-	}
-}
-
-SpeciesBrowser* SpeciesBrowser::create()
-{
-	SpeciesBrowser* result = new SpeciesBrowser();
-	if (result && result->init())
-	{
-		result->autorelease();
-		return result;
-	}
-	else
-	{
-		CC_SAFE_DELETE(result);
-		return nullptr;
+		MenuButton* b = (MenuButton*)btn;
+		if (_toggle && _selected == b)
+		{
+			set_selected_btn(-1);
+		}
+		else
+		{
+			set_selected_btn(b);
+		}
 	}
 }
 
@@ -437,6 +452,8 @@ SpeciesView::SpeciesView()
 	//p->setGravity(LinearLayoutParameter::LinearGravity::TOP);
 	//p->setMargin(Margin(2, 2, 2, 2));
 	//_left->setLayoutParameter(p);
+
+	
 }
 
 SpeciesView* SpeciesView::create()
@@ -456,7 +473,7 @@ SpeciesView* SpeciesView::create()
 
 bool SpeciesView::init()
 {
-	if (Layer::init())
+	if (Layout::init())
 	{
 		setContentSize(Size(300, 500));
 		return true;
@@ -489,7 +506,7 @@ void SpeciesView::add_prod_row(MaterialVec& prod)
 
 void SpeciesView::setContentSize(const Size & var)
 {
-	CCLayer::setContentSize(var);
+	Layout::setContentSize(var);
 
 	_bck->setContentSize(var);
 

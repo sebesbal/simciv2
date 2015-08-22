@@ -5,6 +5,7 @@
 #include "economy.h"
 #include "animals.h"
 #include "ui/UIImageView.h"
+#include "ui/UILayout.h"
 
 USING_NS_CC;
 
@@ -15,6 +16,9 @@ namespace simciv
 	ui::Layout* labelled_cb(std::string text, bool checked, ui::CheckBox::ccCheckBoxCallback cb);
 
 	std::string get_animal_texture(int id);
+
+	// typedef void(*int_cb)(int id);
+	typedef std::function<void(int)> int_cb;
 
 	class RadioBox : public ui::HBox
 	{
@@ -40,6 +44,7 @@ namespace simciv
 	{
 	public:
 		MenuButton();
+		static MenuButton* create(std::string texture);
 		static MenuButton* create(Size size, std::string image, std::string bck_normal, std::string bck_selected, std::string bck_disabled);
 		void set_toggle(bool toggle) { _is_toggle = toggle; }
 		void set_selected(bool selected) { if (selected) onPressStateChangedToPressed(); else onPressStateChangedToNormal(); }
@@ -54,34 +59,28 @@ namespace simciv
 		virtual void onTouchEnded(Touch *touch, Event *unusedEvent) override;
 	};
 
-	class RadioMenu : public CCLayer
+	class RadioMenu : public ui::VBox
 	{
 	public:
 		RadioMenu();
 		static RadioMenu* create();
 		MenuButton* get_selected_btn() { return _selected; }
 		void set_selected_btn(MenuButton* btn);
+		void set_selected_btn(int id);
 		int find_btn(MenuButton* btn);
-	protected:
-		MenuButton* _selected;
 		void add_radio_button(MenuButton* btn);
-	};
-
-	/// Choose animal
-	class SpeciesBrowser : public RadioMenu
-	{
-	public:
-		SpeciesBrowser();
-		static SpeciesBrowser* create();
-	};
-
-	class MainMenu : public RadioMenu
-	{
-
+		void set_on_changed(int_cb cb) { _on_changed = cb; }
+		void set_toggle(bool toggle) { _toggle = toggle; }
+	protected:
+		int _space;
+		bool _toggle;
+		MenuButton* _selected;
+		int_cb _on_changed;
+		void on_btn_clicked(Ref* btn, Widget::TouchEventType type);
 	};
 
 	/// Show one species
-	class SpeciesView : public CCLayer
+	class SpeciesView : public ui::Layout
 	{
 	public:
 		SpeciesView();

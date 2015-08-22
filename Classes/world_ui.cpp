@@ -17,6 +17,9 @@ namespace simciv
 USING_NS_CC;
 using namespace std;
 
+const int spec_count = 6;
+const int mat_count = 6;
+
 Scene* WorldUI::createScene()
 {
     // 'scene' is an autorelease object
@@ -32,7 +35,7 @@ Scene* WorldUI::createScene()
     return scene;
 }
 
-WorldUI::WorldUI()
+WorldUI::WorldUI() : _menu_size(64, 64)
 {
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	auto w = visibleSize.width;
@@ -47,10 +50,20 @@ WorldUI::WorldUI()
 
 	load_from_tmx("simciv.tmx");
 
-	auto sv = SpeciesView::create();
-	this->addChild(sv);
-	sv->setPosition(Vec2(500, 500));
 
+
+	_left_menu = create_left_menu();
+	this->addChild(_left_menu);
+	
+
+	_species_browser = create_species_browser();
+	_species_browser->setVisible(false);
+	this->addChild(_species_browser);
+
+
+	_species_view = SpeciesView::create();
+	_species_view->setAnchorPoint(Vec2(1, 1));
+	this->addChild(_species_view);
 	auto s = new Species();
 	s->id = 0;
 	s->build_cost.push_back(9);
@@ -59,16 +72,7 @@ WorldUI::WorldUI()
 	s->build_cost.push_back(6);
 	s->build_cost.push_back(5);
 	s->build_cost.push_back(4);
-	//s->build_cost.push_back(3);
-	//s->build_cost.push_back(2);
-	//s->build_cost.push_back(1);
-	sv->set_species(s);
-
-
-	int m = 20;
-	auto sb = SpeciesBrowser::create();
-	this->addChild(sb);
-	sb->setPosition(Vec2(m + 25, h - m));
+	_species_view->set_species(s);
 }
 
 void WorldUI::tick(float f)
@@ -116,7 +120,7 @@ void WorldUI::load_from_tmx(std::string tmx)
 
 void WorldUI::onEnter()
 {
-	setContentSize(Size(500, 500));
+	// setContentSize(Size(500, 500));
 	Layer::onEnter();
 }
 
@@ -152,6 +156,55 @@ void WorldUI::onTouchMoved(Touch* touch, Event  *event)
 		_map->setPosition(_map->getPosition() + diff);
 		//_items->setPosition(_items->getPosition() + diff);
 	}
+}
+
+RadioMenu* WorldUI::create_left_menu()
+{
+	RadioMenu* result = RadioMenu::create();
+	result->set_toggle(true);
+
+	auto btn = MenuButton::create(get_animal_texture(0));
+	result->add_radio_button(btn);
+	btn = MenuButton::create("img/layers.png");
+	result->add_radio_button(btn);
+
+	result->set_on_changed([this](int id) {
+		if (id == 0)
+		{
+			this->_species_browser->setVisible(true);
+		}
+		else
+		{
+			this->_species_browser->setVisible(false);
+		}
+	});
+
+	return result;
+}
+
+RadioMenu* WorldUI::create_species_browser()
+{
+	RadioMenu* result = RadioMenu::create();
+	for (int i = 0; i < spec_count; ++i)
+	{
+		auto btn = MenuButton::create(get_animal_texture(i));
+		result->add_radio_button(btn);
+	}
+	result->set_selected_btn(0);
+	return result;
+}
+
+void WorldUI::setContentSize(const Size & var)
+{
+	Layer::setContentSize(var);
+	auto s = Director::getInstance()->getWinSize();
+	int h = var.height;
+
+	int m = 20;
+	_left_menu->setPosition(Vec2(m, h - m));
+	_species_browser->setPosition(Vec2(m + 64 + 10, h - m));
+	_species_view->setPosition(Vec2(var.width, h - m));
+
 }
 
 }

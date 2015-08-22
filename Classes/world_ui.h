@@ -12,6 +12,7 @@
 #include "ui\UIButton.h"
 
 #include "base\ccTypes.h"
+#include "controls.h"
 namespace simciv
 {
 
@@ -108,6 +109,7 @@ protected:
 };
 
 
+//void(*alma)(int id);
 
 
 /// The main ui
@@ -125,15 +127,24 @@ public:
     // implement the "static node()" method manually
     CREATE_FUNC(WorldUI);
 protected:
+	Size _menu_size;
+	int _menu_space;
 	int view_mode, new_view_mode;
 	std::vector<Node*> views;
 	cocos2d::Node* _map;
 	WorldModel _model;
+	RadioMenu* _left_menu;
+	RadioMenu* _species_browser;
+	RadioMenu* _layer_browser;
+	SpeciesView* _species_view;
 	void tick(float f);
 	void load_from_tmx(std::string tmx);
 	virtual bool onTouchBegan(Touch* touch, Event  *event);
 	virtual void onTouchEnded(Touch* touch, Event  *event);
 	virtual void onTouchMoved(Touch* touch, Event  *event);
+	RadioMenu* create_left_menu();
+	RadioMenu* create_species_browser();
+	virtual void setContentSize(const Size & var) override;
 };
 
 }
