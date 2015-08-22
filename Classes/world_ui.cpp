@@ -19,7 +19,7 @@ using namespace std;
 using namespace ui;
 
 const int spec_count = 6;
-const int mat_count = 6;
+const int mat_count = 4;
 
 
 Scene* WorldUI::createScene()
@@ -72,7 +72,8 @@ WorldUI::WorldUI() : _menu_size(64, 64)
 	s->build_cost.push_back(6);
 	s->build_cost.push_back(5);
 	s->build_cost.push_back(4);
-	_species_view->set_species(s);
+	//_species_view->set_species(s);
+	_species_view->set_species(&_model.get_species().at(0));
 
 	_layers_panel = create_layers_panel();
 	_layers_panel->setAnchorPoint(Vec2(1, 1));
@@ -108,7 +109,7 @@ void WorldUI::load_from_tmx(std::string tmx)
 
 	_model.create_map(size.width, size.height, 4);
 
-	Node* v = _product_view = PlantMapLayer::create(&_model, info);
+	Node* v = _plant_layer = PlantMapLayer::create(&_model, info);
 	v->setVisible(true);
 	v->setAnchorPoint(Vec2(0, 0));
 	v->setPosition(Vec2(0, 0));
@@ -225,6 +226,7 @@ RadioMenu* WorldUI::create_species_browser()
 	result->set_selected_btn(0);
 	result->set_on_changed([this](int id) {
 		this->info.animal_id = id;
+		_species_view->set_species(&_model.get_species().at(id));
 	});
 	return result;
 }
@@ -239,7 +241,8 @@ RadioMenu* WorldUI::create_plants_browser()
 	}
 	result->set_selected_btn(0);
 	result->set_on_changed([this](int id) {
-		this->info.plant_id = id;
+		info.plant_id = id;
+		set_state(_state);
 	});
 	return result;
 }
@@ -325,14 +328,6 @@ void WorldUI::setContentSize(const Size & var)
 
 }
 
-void WorldUI::update_panels(bool animals, bool plants)
-{
-	_species_browser->setVisible(animals);
-	_species_view->setVisible(animals);
-	_layers_panel->setVisible(plants);
-	_product_view->setVisible(plants);
-}
-
 void WorldUI::set_state(UIState state)
 {
 	_state = state;
@@ -342,7 +337,7 @@ void WorldUI::set_state(UIState state)
 	_species_view->setVisible(animals);
 	_plants_browser->setVisible(plants);
 	_layers_panel->setVisible(plants);
-	_product_view->setVisible(plants);
+	_plant_layer->setVisible(info.plant_id > -1);
 }
 
 }

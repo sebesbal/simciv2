@@ -61,7 +61,8 @@ struct UIStateData
 		price_vol_mode(0),
 		produce_consume_mode(2),
 		show_grid(false),
-		show_transport(true)
+		show_transport(true),
+		show_plants(true)
 	{
 
 	}
@@ -71,6 +72,7 @@ struct UIStateData
 	int produce_consume_mode;
 	bool show_grid;
 	bool show_transport;
+	bool show_plants;
 };
 
 /// Draw mines and factories
@@ -141,7 +143,7 @@ protected:
 	RadioMenu* _plants_browser;
 
 	SpeciesView* _species_view;
-	PlantMapLayer* _product_view;
+	PlantMapLayer* _plant_layer;
 	AnimalMapLayer* _animal_view;
 	Node* _layers_panel;
 	void tick(float f);

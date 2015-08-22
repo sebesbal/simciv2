@@ -3,7 +3,7 @@
 
 namespace simciv
 {
-	const int species_count = 5;
+	const int species_count = 6;
 
 	void AnimalWorld::create_map(int width, int height, int prod_count)
 	{
@@ -21,7 +21,9 @@ namespace simciv
 			for (int j = 0; j < _products.size(); ++j)
 			{
 				double d = (double)rand() / RAND_MAX;
-				s.production.push_back(2 * d - 1);
+				int n = 3;
+				int k = std::floor((2 * n + 1) * d - n);
+				s.production.push_back(k);
 				double e = (double)rand() / RAND_MAX;
 				s.maintenance_cost.push_back(e);
 			}

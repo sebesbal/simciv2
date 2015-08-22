@@ -9,6 +9,23 @@ namespace simciv
 {
 	//const double trans_price = 1.0;
 
+	void bisect(const MaterialVec& v, MaterialVec& pos, MaterialVec& neg)
+	{
+		for (double d : v)
+		{
+			if (d < 0)
+			{
+				pos.push_back(0);
+				neg.push_back(-d);
+			}
+			else
+			{
+				pos.push_back(d);
+				neg.push_back(0);
+			}
+		}
+	}
+
 	Area::Area(int pc, int index): index(index)
 	{
 		//for (int i = 0; i < pc; ++i)

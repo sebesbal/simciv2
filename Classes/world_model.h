@@ -12,6 +12,8 @@ namespace simciv
 
 	typedef std::vector<double> MaterialVec;
 
+	void bisect(const MaterialVec& v, MaterialVec& pos, MaterialVec& neg);
+
 	struct Area
 	{
 		Area(int index, int pc);
