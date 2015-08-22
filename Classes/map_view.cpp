@@ -83,6 +83,13 @@ Rect MapView::get_rect(int x, int y)
 	return Rect(b.getMinX() + cs * x, b.getMinY() + cs * y, cs, cs);
 }
 
+Area* MapView::get_area(Vec2 p)
+{
+	int x = p.x / cs;
+	int y = p.y / cs;
+	return _model->get_area(x, y);
+}
+
 void MapView::onDraw(const Mat4 &transform, uint32_t flags)
 {
 

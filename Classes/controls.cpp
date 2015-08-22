@@ -17,11 +17,11 @@ Layout* labelled_cb(std::string text, bool checked, CheckBox::ccCheckBoxCallback
 	auto p = LinearLayoutParameter::create();
 	p->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
 
-	CheckBox* chb = CheckBox::create("cocosui/check_box_normal.png",
-		"cocosui/check_box_normal_press.png",
-		"cocosui/check_box_active.png",
-		"cocosui/check_box_normal_disable.png",
-		"cocosui/check_box_active_disable.png");
+	CheckBox* chb = CheckBox::create("ui/check_box_normal.png",
+		"ui/check_box_normal_press.png",
+		"ui/check_box_active.png",
+		"ui/check_box_normal_disable.png",
+		"ui/check_box_active_disable.png");
 	chb->setSelectedState(checked);
 	chb->addEventListener(cb);
 	chb->setLayoutParameter(p);
@@ -166,8 +166,8 @@ RadioBox* RadioBox::create(int* data, std::vector<std::string> labels, int hh, i
 	}
 }
 
-#define RBON "cocosui/Radio_button_on.png"
-#define RBOFF "cocosui/Radio_button_off.png"
+#define RBON "ui/Radio_button_on.png"
+#define RBOFF "ui/Radio_button_off.png"
 
 Layout* RadioBox::labelled_radio(std::string text, CheckBox::ccCheckBoxCallback cb)
 {
@@ -423,7 +423,8 @@ void RadioMenu::on_btn_clicked(Ref* btn, Widget::TouchEventType type)
 SpeciesView::SpeciesView()
 {
 	//_bck = CCLayerColor::create(Color4B(0, 0, 255, 255));
-	_bck = CCLayerColor::create(Color4B(40, 0, 60, 255));
+	//_bck = CCLayerColor::create(Color4B(40, 0, 60, 255));
+	_bck = CCLayerColor::create(def_bck_color4B);
 	this->addChild(_bck);
 
 	_production_view = VBox::create();

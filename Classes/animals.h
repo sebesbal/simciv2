@@ -27,8 +27,10 @@ namespace simciv
 		virtual void create_map(int width, int height, int prod_count) override;
 		void generate_species();
 		void generate_animals();
-	protected:
 		Animal* create_animal(Area* a, Species& species);
+		Animal* find_animal(Area* a);
+		std::vector<Animal*>& get_animals() { return animals; }
+	protected:
 		void move_animal(Animal* ani, Area* new_area);
 		void add_producers(Area* a, Species& species);
 		void remove_producers(Area* a, Species& species);

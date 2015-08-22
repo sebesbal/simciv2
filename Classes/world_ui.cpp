@@ -16,9 +16,11 @@ namespace simciv
 
 USING_NS_CC;
 using namespace std;
+using namespace ui;
 
 const int spec_count = 6;
 const int mat_count = 6;
+
 
 Scene* WorldUI::createScene()
 {
@@ -50,16 +52,11 @@ WorldUI::WorldUI() : _menu_size(64, 64)
 
 	load_from_tmx("simciv.tmx");
 
-
-
 	_left_menu = create_left_menu();
 	this->addChild(_left_menu);
-	
 
 	_species_browser = create_species_browser();
-	_species_browser->setVisible(false);
 	this->addChild(_species_browser);
-
 
 	_species_view = SpeciesView::create();
 	_species_view->setAnchorPoint(Vec2(1, 1));
@@ -73,6 +70,13 @@ WorldUI::WorldUI() : _menu_size(64, 64)
 	s->build_cost.push_back(5);
 	s->build_cost.push_back(4);
 	_species_view->set_species(s);
+
+	_layers_panel = create_layers_panel();
+	_layers_panel->setAnchorPoint(Vec2(1, 1));
+	this->addChild(_layers_panel);
+
+	//update_panels(false, false);
+	set_state(UIS_NONE);
 }
 
 void WorldUI::tick(float f)
@@ -101,7 +105,7 @@ void WorldUI::load_from_tmx(std::string tmx)
 
 	_model.create_map(size.width, size.height, 4);
 
-	Node* v = ProdView::create(&_model);
+	Node* v = _product_view = ProdView::create(&_model);
 	v->setVisible(true);
 	v->setAnchorPoint(Vec2(0, 0));
 	v->setPosition(Vec2(0, 0));
@@ -109,8 +113,9 @@ void WorldUI::load_from_tmx(std::string tmx)
 	views.push_back(v);
 	_map->addChild(v);
 
-	v = AnimalMapLayer::create(&_model);
-	v->setVisible(false);
+	v = _animal_view = AnimalMapLayer::create(&_model);
+	_animal_view->create_sprites_from_model();
+	v->setVisible(true);
 	v->setAnchorPoint(Vec2(0, 0));
 	v->setPosition(Vec2(0, 0));
 	v->setContentSize(_map->getContentSize());
@@ -145,7 +150,28 @@ bool WorldUI::onTouchBegan(Touch* touch, Event  *event)
 
 void WorldUI::onTouchEnded(Touch* touch, Event  *event)
 {
+	if (event->isStopped()) return;
 
+
+
+	switch (_state)
+	{
+	case simciv::UIS_NONE:
+		break;
+	case simciv::UIS_ANIMAL:
+		{
+			auto p = touch->getLocation();
+			p = _animal_view->convertToNodeSpace(p);
+			Area* a = _animal_view->get_area(p);
+			
+			//_animal_view->create_animal(a, );
+		}
+		break;
+	case simciv::UIS_PLANTS:
+		break;
+	default:
+		break;
+	}
 }
 
 void WorldUI::onTouchMoved(Touch* touch, Event  *event)
@@ -169,13 +195,20 @@ RadioMenu* WorldUI::create_left_menu()
 	result->add_radio_button(btn);
 
 	result->set_on_changed([this](int id) {
-		if (id == 0)
+		//bool animals = id == 0;
+		//bool plants = id == 1;
+		// this->update_panels(animals, plants);
+		switch (id)
 		{
-			this->_species_browser->setVisible(true);
-		}
-		else
-		{
-			this->_species_browser->setVisible(false);
+		case 0:
+			this->set_state(UIS_ANIMAL);
+			break;
+		case 1:
+			this->set_state(UIS_PLANTS);
+			break;
+		default:
+			this->set_state(UIS_NONE);
+			break;
 		}
 	});
 
@@ -191,7 +224,106 @@ RadioMenu* WorldUI::create_species_browser()
 		result->add_radio_button(btn);
 	}
 	result->set_selected_btn(0);
+	result->set_on_changed([this](int id) {
+		this->_product_view->get_info().product_id = id;
+	});
 	return result;
+}
+
+cocos2d::Node* WorldUI::create_layers_panel()
+{
+	// Node* result = Node::create();
+	auto& info = _product_view->get_info();
+
+	auto s = Size(20, 20);
+	LinearLayoutParameter* p = LinearLayoutParameter::create();
+	p->setGravity(LinearLayoutParameter::LinearGravity::TOP);
+	p->setMargin(Margin(2, 2, 2, 2));
+	LinearLayoutParameter* q = LinearLayoutParameter::create();
+	q->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
+	//q->setMargin(Margin(2, 2, 2, 2));
+
+	// left menu
+	// auto 
+	auto left_menu = VBox::create();
+	left_menu->setContentSize(Size(300, 300));
+	left_menu->setBackGroundColor(def_bck_color3B);
+	left_menu->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+
+	p = LinearLayoutParameter::create();
+	p->setMargin(Margin(10, 5, 2, 5));
+	p->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
+
+	int hh = 30;
+	int marginy = 0;
+
+	//// ==============================================================================================
+	//// PRODUCT
+	//defvec(vec0, "img/_factory_red.png", "img/_factory_blue.png", "img/_factory_green.png", "img/_factory_yellow.png")
+	//	auto rb = RadioBox::create(&info.product_id, vec0, hh, marginy);
+	//left_menu->addChild(rb);
+
+	// ==============================================================================================
+	// PRICE - VOL - RES
+	info.show_price_vol_mode = 0;
+	defvec(vec1, "Price", "Volume", "Res.")
+	auto rb = RadioBox::create(&info.show_price_vol_mode, vec1, hh, marginy);
+	rb->setLayoutParameter(p);
+	left_menu->addChild(rb);
+
+	// ==============================================================================================
+	// SUPPLY - CONSUMPTION
+	info.show_sup_con_mode = 2;
+	defvec(vec2, "Supply", "Cons.", "Both")
+	rb = RadioBox::create(&info.show_sup_con_mode, vec2, hh, marginy);
+	rb->setLayoutParameter(p);
+	left_menu->addChild(rb);
+
+	// ==============================================================================================
+	// BACKGROUND
+	auto cb_bck = labelled_cb("Background", false, [this](Ref* pSender, CheckBox::EventType type) {
+		_map->setVisible(type == CheckBox::EventType::SELECTED);
+	});
+	cb_bck->setLayoutParameter(p);
+	left_menu->addChild(cb_bck);
+
+	// ==============================================================================================--
+	// TRANSPORT
+	info.show_transport = true;
+	auto cb_transport = labelled_cb("Routes", info.show_transport, [this, &info](Ref* pSender, CheckBox::EventType type) {
+		info.show_transport = !info.show_transport;
+	});
+	cb_transport->setLayoutParameter(p);
+	left_menu->addChild(cb_transport);
+
+	left_menu->setAnchorPoint(Vec2(0, 1));
+	//left_menu->setPosition(Vec2(0, size.height - 50));
+
+	// this->addChild(left_menu);
+
+	//set_price_vol_mode(0);
+	//set_sup_con_mode(2);
+	info.show_grid = false;
+
+
+	////Node*
+	//_items = Node::create();
+	//_items->setAnchorPoint(Vec2(0, 0));
+	////_items->setPosition(Vec2(size / 2) - _table / 2);
+	////_items->setPosition(Vec2(0, 0));
+
+	//this->addChild(_items, 0, 1);
+	//_items->setLocalZOrder(1);
+	////_items->setContentSize(_table);
+
+
+	info.mode = IT_FACTORY;
+	info.product_id = 0;
+
+	//add_item(IT_FACTORY, _table.width / 3, _table.height / 2);
+	//add_item(IT_MINE, 2 * _table.width / 3, _table.height / 2);
+
+	return left_menu;
 }
 
 void WorldUI::setContentSize(const Size & var)
@@ -206,7 +338,26 @@ void WorldUI::setContentSize(const Size & var)
 	_left_menu->setPosition(Vec2(m, h - m));
 	_species_browser->setPosition(Vec2(m + 64 + 10, h - m));
 	_species_view->setPosition(Vec2(var.width, h));
+	_layers_panel->setPosition(Vec2(var.width, h));
+}
 
+void WorldUI::update_panels(bool animals, bool plants)
+{
+	_species_browser->setVisible(animals);
+	_species_view->setVisible(animals);
+	_layers_panel->setVisible(plants);
+	_product_view->setVisible(plants);
+}
+
+void WorldUI::set_state(UIState state)
+{
+	_state = state;
+	bool animals = _state == UIS_ANIMAL;
+	bool plants = _state == UIS_PLANTS;
+	_species_browser->setVisible(animals);
+	_species_view->setVisible(animals);
+	_layers_panel->setVisible(plants);
+	_product_view->setVisible(plants);
 }
 
 }

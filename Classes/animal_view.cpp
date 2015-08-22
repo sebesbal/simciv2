@@ -23,7 +23,7 @@ using namespace std;
 using namespace ui;
 
 
-AnimalMapLayer* AnimalMapLayer::create(WorldModel* model)
+AnimalMapLayer* AnimalMapLayer::create(AnimalWorld* model)
 {
 	AnimalMapLayer* result = new AnimalMapLayer();
 	result->_model = model;
@@ -54,6 +54,11 @@ bool AnimalMapLayer::init()
 	auto p = LinearLayoutParameter::create();
 	p->setMargin(Margin(2, 2, 2, 2));
 	p->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
+
+	_animals = Node::create();
+	addChild(_animals);
+
+	return true;
 }
 
 bool AnimalMapLayer::is_map_point(cocos2d::Vec2& p)
@@ -80,6 +85,37 @@ void AnimalMapLayer::onTouchMoved(Touch* touch, Event  *event)
 		auto diff = touch->getDelta();
 		_map->setPosition(_map->getPosition() + diff);
 		//_items->setPosition(_items->getPosition() + diff);
+	}
+}
+
+Animal* AnimalMapLayer::create_animal(Area* a, Species& s)
+{
+	Animal* ani = model().create_animal(a, s);
+	if (ani)
+	{
+		create_sprite(ani);
+	}
+	return ani;
+}
+
+Sprite* AnimalMapLayer::create_sprite(Animal* ani)
+{
+	Area* a = ani->area;
+	Sprite* sprite = Sprite::create(get_animal_texture(ani->species.id));
+	Rect r = get_rect(a->x, a->y);
+	sprite->setPosition(r.getMidX(), r.getMidY());
+	sprite->setScale(0.1);
+	_animals->addChild(sprite);
+	return sprite;
+}
+
+void AnimalMapLayer::create_sprites_from_model()
+{
+	_animals->removeAllChildrenWithCleanup(true);
+	for (Animal* ani : model().get_animals())
+	{
+		Sprite* s = create_sprite(ani);
+		_animals->addChild(s);
 	}
 }
 

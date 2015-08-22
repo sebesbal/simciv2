@@ -37,6 +37,7 @@ namespace simciv
 	/// Show prices, profits, volumens etc.
 	class MapLayersPanel
 	{
+
 	};
 
 
@@ -99,15 +100,6 @@ namespace simciv
 		MaterialStringView* _maintenance_cost;
 		Species* _species;
 	};
-
-	///// Show production alternatives. Rows of MaterialStrings
-	//class ProductionView : public ui::VBox
-	//{
-	//public:
-	//	ProductionView();
-	//	static ProductionView* create();
-	//	void add_row(MaterialVec& prod);
-	//};
 
 	///// Show one animals properties
 	class AnimalView

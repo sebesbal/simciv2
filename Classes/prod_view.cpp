@@ -23,7 +23,6 @@ std::string mine_strings[4] = {
 ProdView* ProdView::create(WorldModel* model)
 {
 	ProdView* result = new ProdView();
-	result->right_menu = NULL;
 	result->_model = model;
 	if (result && result->init())
 	{
@@ -34,156 +33,6 @@ ProdView* ProdView::create(WorldModel* model)
 	{
 		CC_SAFE_DELETE(result);
 		return nullptr;
-	}
-}
-
-bool ProdView::init()
-{
-	if (!MapView::init())
-	{
-		return false;
-	}
-
-	//auto visibleSize = Director::getInstance()->getVisibleSize();
-	//auto w = visibleSize.width;
-	//auto h = visibleSize.height;
-
-	//Vec2 topLeft = Vec2(visibleSize.width / 2.0f, visibleSize.height / 2.0f);
-
-	// right menu
-	right_menu = VBox::create();
-
-	auto s = Size(20, 20);
-	LinearLayoutParameter* p = LinearLayoutParameter::create();
-	p->setGravity(LinearLayoutParameter::LinearGravity::TOP);
-	p->setMargin(Margin(2, 2, 2, 2));
-	LinearLayoutParameter* q = LinearLayoutParameter::create();
-	q->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
-	//q->setMargin(Margin(2, 2, 2, 2));
-
-	for (int i = 0; i < 1; ++i)
-	{
-		auto hbox = HBox::create();
-		hbox->setLayoutParameter(q);
-
-		auto fs = factory_strings[i];
-		auto factory_button = Button::create(fs, fs, fs);
-		factory_button->addTouchEventListener([this, i](Ref* w, Widget::TouchEventType e) {
-			// _product_id = i;
-			_mode = IT_FACTORY;
-		});
-		
-		factory_button->ignoreContentAdaptWithSize(false);
-		factory_button->setSize(s);
-		factory_button->setLayoutParameter(p);
-		hbox->addChild(factory_button);
-
-		fs = mine_strings[i];
-		auto mine_button = Button::create(fs, fs, fs);
-		mine_button->addTouchEventListener([this, i](Ref* w, Widget::TouchEventType e) {
-			// _product_id = i;
-			_mode = IT_MINE;
-		});
-		mine_button->setSize(s);
-		mine_button->setLayoutParameter(p);
-		mine_button->ignoreContentAdaptWithSize(false);
-		hbox->addChild(mine_button);
-		hbox->setSize(Size(50, 25));
-		right_menu->addChild(hbox);
-	}
-
-	this->addChild(right_menu);
-	// auto size = this->getContentSize();
-	//right_menu->setPosition(Vec2(size.width - 50, size.height));
-
-	// left menu
-	// auto 
-	left_menu = VBox::create();
-	p = LinearLayoutParameter::create();
-	p->setMargin(Margin(2, 2, 2, 2));
-	p->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
-
-	int hh = 30;
-	int marginy = 20;
-
-	// ==============================================================================================
-	// PRODUCT
-	defvec(vec0, "img/_factory_red.png", "img/_factory_blue.png", "img/_factory_green.png", "img/_factory_yellow.png")
-	auto rb = RadioBox::create(&_product_id, vec0, hh, marginy);
-	left_menu->addChild(rb);
-
-	// ==============================================================================================
-	// PRICE - VOL - RES
-	_show_price_vol_mode = 0;
-	defvec(vec1, "Price", "Volume", "Res.")
-	rb = RadioBox::create(&_show_price_vol_mode, vec1, hh, marginy);
-	left_menu->addChild(rb);
-
-	// ==============================================================================================
-	// SUPPLY - CONSUMPTION
-	_show_sup_con_mode = 2;
-	defvec(vec2, "Supply", "Cons.", "Both")
-	rb = RadioBox::create(&_show_sup_con_mode, vec2, hh, marginy);
-	left_menu->addChild(rb);
-
-	// ==============================================================================================
-	// BACKGROUND
-	auto cb_bck = labelled_cb("Background", false, [this](Ref* pSender,CheckBox::EventType type) {
-		_map->setVisible(type == CheckBox::EventType::SELECTED);
-	});
-	cb_bck->setLayoutParameter(p);
-	left_menu->addChild(cb_bck);
-
-	// ==============================================================================================--
-	// TRANSPORT
-	_show_transport = true;
-	auto cb_transport = labelled_cb("Routes", _show_transport, [this](Ref* pSender,CheckBox::EventType type) {
-		_show_transport = !_show_transport;
-	});
-	cb_transport->setLayoutParameter(p);
-	left_menu->addChild(cb_transport);
-
-	left_menu->setAnchorPoint(Vec2(0, 1));
-	//left_menu->setPosition(Vec2(0, size.height - 50));
-
-	// this->addChild(left_menu);
-
-	//set_price_vol_mode(0);
-	//set_sup_con_mode(2);
-	_show_grid = false;
-
-	
-	//Node*
-	_items = Node::create(); 
-	_items->setAnchorPoint(Vec2(0, 0));
-	//_items->setPosition(Vec2(size / 2) - _table / 2);
-	//_items->setPosition(Vec2(0, 0));
-	
-	this->addChild(_items, 0, 1);
-	_items->setLocalZOrder(1);
-	//_items->setContentSize(_table);
-
-	//auto cb = [](float f) {};
-	// _draw_tiles.schedule(schedule_selector(WorldUI::tick), this, 0.1, kRepeatForever, 0, false);
-	
-	_mode = IT_FACTORY;
-	_product_id = 0;
-
-	add_item(IT_FACTORY, _table.width / 3, _table.height / 2);
-	add_item(IT_MINE, 2 * _table.width / 3, _table.height / 2);
-
-
-
-	return true;
-}
-
-void ProdView::setContentSize(const Size& contentSize)
-{
-	MapView::setContentSize(contentSize);
-	if (right_menu)
-	{
-		right_menu->setPosition(Vec2(contentSize.width - 50, contentSize.height));
-		left_menu->setPosition(Vec2(0, contentSize.height - 50));
 	}
 }
 
@@ -205,20 +54,20 @@ Item* ProdView::add_item(ItemType type, int x, int y)
 	{
 	case simciv::IT_MINE:
 		{
-			auto mine1 = Sprite::create(mine_strings[_product_id]);
+			auto mine1 = Sprite::create(mine_strings[info.product_id]);
 			mine1->setPosition(x, y);
 			mine1->setScale(0.05);
 			_items->addChild(mine1);
-			_model->add_prod(a, _product_id, 100, 10);
+			_model->add_prod(a, info.product_id, 100, 10);
 		}
 		break;
 	case simciv::IT_FACTORY:
 		{
-			auto factory1 = Sprite::create(factory_strings[_product_id]);
+			auto factory1 = Sprite::create(factory_strings[info.product_id]);
 			factory1->setPosition(x, y);
 			factory1->setScale(0.2);
 			_items->addChild(factory1);
-			_model->add_prod(a, _product_id, -100, 100);
+			_model->add_prod(a, info.product_id, -100, 100);
 		}
 		break;
 	default:
@@ -230,13 +79,13 @@ Item* ProdView::add_item(ItemType type, int x, int y)
 
 void ProdView::onTouchEnded(Touch* touch, Event  *event)
 {
-	auto s = touch->getStartLocation();
-	auto p = touch->getLocation();
-	if (is_map_point(touch->getLocationInView()) && (p - s).length() < 10)
-	{
-		p = _items->convertToNodeSpace(p);
-		add_item(_mode, p.x, p.y);
-	}
+	//auto s = touch->getStartLocation();
+	//auto p = touch->getLocation();
+	//if (is_map_point(touch->getLocationInView()) && (p - s).length() < 10)
+	//{
+	//	p = _items->convertToNodeSpace(p);
+	//	add_item(info.mode, p.x, p.y);
+	//}
 }
 
 
@@ -253,7 +102,7 @@ void ProdView::onTouchMoved(Touch* touch, Event  *event)
 void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
 {
 	// calculate roads
-	_model->products()[_product_id]->routes_to_areas(_product_id);
+	_model->products()[info.product_id]->routes_to_areas(info.product_id);
 
     Director* director = Director::getInstance();
     director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
@@ -273,7 +122,7 @@ void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
 	//DrawPrimitives::drawLine( Vec2(b.getMinX(), b.getMinY()), Vec2(b.getMaxX(), b.getMaxY()));
 	//DrawPrimitives::drawLine( Vec2(b.getMinX(), b.getMaxY()), Vec2(b.getMaxX(), b.getMinY()));
 
-	if (_show_grid)
+	if (info.show_grid)
 	{
 		glLineWidth(1);
 		float x = b.getMinX();
@@ -295,13 +144,13 @@ void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
 	double min_vol = 1000;
 	double max_vol = 0;
 
-	if (_show_price_vol_mode == 0)
+	if (info.show_price_vol_mode == 0)
 	{
-		if (_show_sup_con_mode == 2)
+		if (info.show_sup_con_mode == 2)
 		{
 			for (Area* a: _model->areas())
 			{
-				auto& p = _model->get_prod(a, _product_id);
+				auto& p = _model->get_prod(a, info.product_id);
 				double v = p.p;
 				min_v = std::min(min_v, v);
 				max_v = std::max(max_v, v);
@@ -314,18 +163,18 @@ void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
 
 			for (Area* a: _model->areas())
 			{
-				auto& p = _model->get_prod(a, _product_id);
+				auto& p = _model->get_prod(a, info.product_id);
 				double v = p.p;
 				double r = d == 0 ? 0.5 : (v - min_v) / d;
 				double vol = p.v_con + p.v_sup;
 				draw_rect(a->x, a->y, r, vol / d_vol);
 			}
 		}
-		else if (_show_sup_con_mode == 0)
+		else if (info.show_sup_con_mode == 0)
 		{
 			for (Area* a: _model->areas())
 			{
-				auto& p = _model->get_prod(a, _product_id);
+				auto& p = _model->get_prod(a, info.product_id);
 				double v = p.p_sup;
 				min_v = std::min(min_v, v);
 				max_v = std::max(max_v, v);
@@ -338,18 +187,18 @@ void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
 
 			for (Area* a: _model->areas())
 			{
-				auto& p = _model->get_prod(a, _product_id);
+				auto& p = _model->get_prod(a, info.product_id);
 				double v = p.p_sup;
 				double r = d == 0 ? 0.5 : (v - min_v) / d;
 				double vol = p.v_sup;
 				draw_rect(a->x, a->y, r, vol / d_vol);
 			}
 		}
-		else if (_show_sup_con_mode == 1)
+		else if (info.show_sup_con_mode == 1)
 		{
 			for (Area* a: _model->areas())
 			{
-				auto& p = _model->get_prod(a, _product_id);
+				auto& p = _model->get_prod(a, info.product_id);
 				double v = p.p_con;
 				min_v = std::min(min_v, v);
 				max_v = std::max(max_v, v);
@@ -362,7 +211,7 @@ void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
 
 			for (Area* a: _model->areas())
 			{
-				auto& p = _model->get_prod(a, _product_id);
+				auto& p = _model->get_prod(a, info.product_id);
 				double v = p.p_con;
 				double r = d == 0 ? 0.5 : (v - min_v) / d;
 				double vol = p.v_con;
@@ -370,16 +219,16 @@ void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
 			}
 		}
 	}
-	else if (_show_price_vol_mode == 2)
+	else if (info.show_price_vol_mode == 2)
 	{
 		for (Area* a: _model->areas())
 		{
-			auto& p = _model->get_prod(a, _product_id);
+			auto& p = _model->get_prod(a, info.product_id);
 			draw_rect_green(a->x, a->y, p.resource, 1);
 		}
 	}
 
-	if (_show_transport)
+	if (info.show_transport)
 	{
 		//DrawPrimitives::setDrawColor4F(0, 0, 1, 1);
 		glLineWidth(3);
@@ -388,32 +237,12 @@ void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
 		for (Area* a: _model->areas())
 		{
 			double x, y;
-			a->get_trans(_product_id, x, y);
+			a->get_trans(info.product_id, x, y);
 			Rect r = get_rect(a->x, a->y);
 			Vec2 p = Vec2(r.getMidX(), r.getMidY());
 			DrawPrimitives::drawLine(p, Vec2(p.x + scale * x, p.y + scale * y));
 		}
 	}
-}
-
-void ProdView::set_price_vol_mode(int i)
-{
-	int k = 0;
-	for (Widget* l: _cb_price_vol_mode)
-	{
-		((CheckBox*)l->getChildren().at(0))->setSelectedState(i == k++);
-	}
-	_show_price_vol_mode = i;
-}
-
-void ProdView::set_sup_con_mode(int i)
-{
-	int k = 0;
-	for (Widget* l: _cb_sup_con_mode)
-	{
-		((CheckBox*)l->getChildren().at(0))->setSelectedState(i == k++);
-	}
-	_show_sup_con_mode = i;
 }
 
 }

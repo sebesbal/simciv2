@@ -1,4 +1,5 @@
 #include "animals.h"
+#include <algorithm>
 
 namespace simciv
 {
@@ -42,9 +43,26 @@ namespace simciv
 
 	Animal* AnimalWorld::create_animal(Area* a, Species& species)
 	{
+		if (find_animal(a)) return NULL;
+
 		Animal* ani = new Animal(species);
 		animals.push_back(ani);
+		add_producers(a, species);
+		ani->area = a;
 		return ani;
+	}
+
+	Animal* AnimalWorld::find_animal(Area* a)
+	{
+		auto it = find_if(animals.begin(), animals.end(), [a](Animal* ani){ return ani->area == a; });
+		if (it == animals.end())
+		{
+			return NULL;
+		}
+		else
+		{
+			return *it;
+		}
 	}
 
 	void AnimalWorld::move_animal(Animal* ani, Area* new_area)
