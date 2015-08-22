@@ -45,14 +45,14 @@
     <ClCompile Include="..\Classes\map_view.cpp">
       <Filter>src\UI\Map</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\prod_view.cpp">
-      <Filter>src\UI\Map</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\animal_view.cpp">
-      <Filter>src\UI\Map</Filter>
-    </ClCompile>
     <ClCompile Include="..\Classes\controls.cpp">
       <Filter>src\UI\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\plant_layer.cpp">
+      <Filter>src\UI\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\animal_layer.cpp">
+      <Filter>src\UI\Map</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

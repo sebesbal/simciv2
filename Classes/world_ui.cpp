@@ -193,13 +193,10 @@ RadioMenu* WorldUI::create_left_menu()
 
 	auto btn = MenuButton::create(get_animal_texture(0));
 	result->add_radio_button(btn);
-	btn = MenuButton::create("img/layers.png");
+	btn = MenuButton::create(get_plant_texture(0));
 	result->add_radio_button(btn);
 
 	result->set_on_changed([this](int id) {
-		//bool animals = id == 0;
-		//bool plants = id == 1;
-		// this->update_panels(animals, plants);
 		switch (id)
 		{
 		case 0:

@@ -147,12 +147,12 @@ xcopy /Y /Q "$(COCOS_FRAMEWORKS)\cocos2d-x-3.7\prebuilt\win32\*.*" "$(OutDir)"
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Classes\animals.cpp" />
-    <ClCompile Include="..\Classes\animal_view.cpp" />
+    <ClCompile Include="..\Classes\animal_layer.cpp" />
     <ClCompile Include="..\Classes\AppDelegate.cpp" />
     <ClCompile Include="..\Classes\controls.cpp" />
     <ClCompile Include="..\Classes\economy.cpp" />
     <ClCompile Include="..\Classes\map_view.cpp" />
-    <ClCompile Include="..\Classes\prod_view.cpp" />
+    <ClCompile Include="..\Classes\plant_layer.cpp" />
     <ClCompile Include="..\Classes\world_model.cpp" />
     <ClCompile Include="..\Classes\world_ui.cpp" />
     <ClCompile Include="main.cpp" />
