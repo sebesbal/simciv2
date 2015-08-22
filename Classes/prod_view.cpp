@@ -146,7 +146,7 @@ bool ProdView::init()
 	left_menu->setAnchorPoint(Vec2(0, 1));
 	//left_menu->setPosition(Vec2(0, size.height - 50));
 
-	this->addChild(left_menu);
+	// this->addChild(left_menu);
 
 	//set_price_vol_mode(0);
 	//set_sup_con_mode(2);

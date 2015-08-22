@@ -95,9 +95,9 @@ void WorldUI::load_from_tmx(std::string tmx)
 	_map = TMXTiledMap::create(tmx);
 	TMXTiledMap* m = (TMXTiledMap*)_map;
 	auto size = m->getMapSize();
-	m->setAnchorPoint(Vec2(0, 0));
+	m->setAnchorPoint(Vec2(0.5, 0.5));
+	m->setScale(1.5);
 	this->addChild(_map);
-	_map->setPosition(0, 0);
 
 	_model.create_map(size.width, size.height, 4);
 
@@ -200,10 +200,12 @@ void WorldUI::setContentSize(const Size & var)
 	auto s = Director::getInstance()->getWinSize();
 	int h = var.height;
 
+	_map->setPosition(var / 2);
+
 	int m = 20;
 	_left_menu->setPosition(Vec2(m, h - m));
 	_species_browser->setPosition(Vec2(m + 64 + 10, h - m));
-	_species_view->setPosition(Vec2(var.width, h - m));
+	_species_view->setPosition(Vec2(var.width, h));
 
 }
 

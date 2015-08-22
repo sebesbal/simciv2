@@ -423,7 +423,7 @@ void RadioMenu::on_btn_clicked(Ref* btn, Widget::TouchEventType type)
 SpeciesView::SpeciesView()
 {
 	//_bck = CCLayerColor::create(Color4B(0, 0, 255, 255));
-	_bck = CCLayerColor::create(Color4B::BLACK);
+	_bck = CCLayerColor::create(Color4B(40, 0, 60, 255));
 	this->addChild(_bck);
 
 	_production_view = VBox::create();
