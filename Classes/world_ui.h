@@ -61,7 +61,9 @@ protected:
 
 struct ProdLayerInfo
 {
-	ProdLayerInfo() : product_id(0),
+	ProdLayerInfo() : 
+		animal_id(0),
+		product_id(0),
 		show_price_vol_mode(0),
 		show_sup_con_mode(2),
 		show_grid(false),
@@ -70,6 +72,7 @@ struct ProdLayerInfo
 	{
 
 	}
+	int animal_id;
 	int product_id;
 	int show_price_vol_mode;
 	int show_sup_con_mode;
@@ -82,13 +85,14 @@ struct ProdLayerInfo
 class ProdView : public MapView
 {
 public:
-	static ProdView* create(WorldModel* model);
+	ProdView(ProdLayerInfo& info) : info(info) { }
+	static ProdView* create(WorldModel* model, ProdLayerInfo& info);
 	void onTouchEnded(Touch* touch, Event  *event) override;
 	void onTouchMoved(Touch* touch, Event  *event) override;
-	ProdLayerInfo& get_info() { return info; }
-	void set_info(ProdLayerInfo& info) { this->info = info; }
+	//ProdLayerInfo& get_info() { return info; }
+	// void set_info(ProdLayerInfo& info) { this->info = &info; }
 protected:
-	ProdLayerInfo info;
+	ProdLayerInfo& info;
 
 	cocos2d::Node* _items;
 	Item* add_item(ItemType type, int x, int y);
@@ -153,6 +157,7 @@ public:
     CREATE_FUNC(WorldUI);
 protected:
 	UIState _state;
+	ProdLayerInfo info;
 	Size _menu_size;
 	int _menu_space;
 	int view_mode, new_view_mode;
@@ -161,7 +166,7 @@ protected:
 	AnimalWorld _model;
 	RadioMenu* _left_menu;
 	RadioMenu* _species_browser;
-	RadioMenu* _layer_browser;
+	RadioMenu* _plants_browser;
 	SpeciesView* _species_view;
 	ProdView* _product_view;
 	AnimalMapLayer* _animal_view;
@@ -173,6 +178,7 @@ protected:
 	virtual void onTouchMoved(Touch* touch, Event  *event);
 	RadioMenu* create_left_menu();
 	RadioMenu* create_species_browser();
+	RadioMenu* create_plants_browser();
 	Node* create_layers_panel();
 	virtual void setContentSize(const Size & var) override;
 	void update_panels(bool animal, bool plants);

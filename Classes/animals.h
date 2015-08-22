@@ -30,6 +30,7 @@ namespace simciv
 		Animal* create_animal(Area* a, Species& species);
 		Animal* find_animal(Area* a);
 		std::vector<Animal*>& get_animals() { return animals; }
+		std::vector<Species>& get_species() { return species; }
 	protected:
 		void move_animal(Animal* ani, Area* new_area);
 		void add_producers(Area* a, Species& species);

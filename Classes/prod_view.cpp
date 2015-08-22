@@ -20,9 +20,9 @@ std::string mine_strings[4] = {
 
 
 
-ProdView* ProdView::create(WorldModel* model)
+ProdView* ProdView::create(WorldModel* model, ProdLayerInfo& info)
 {
-	ProdView* result = new ProdView();
+	ProdView* result = new ProdView(info);
 	result->_model = model;
 	if (result && result->init())
 	{

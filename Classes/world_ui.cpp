@@ -58,6 +58,9 @@ WorldUI::WorldUI() : _menu_size(64, 64)
 	_species_browser = create_species_browser();
 	this->addChild(_species_browser);
 
+	_plants_browser = create_plants_browser();
+	this->addChild(_plants_browser);
+
 	_species_view = SpeciesView::create();
 	_species_view->setAnchorPoint(Vec2(1, 1));
 	this->addChild(_species_view);
@@ -105,7 +108,7 @@ void WorldUI::load_from_tmx(std::string tmx)
 
 	_model.create_map(size.width, size.height, 4);
 
-	Node* v = _product_view = ProdView::create(&_model);
+	Node* v = _product_view = ProdView::create(&_model, info);
 	v->setVisible(true);
 	v->setAnchorPoint(Vec2(0, 0));
 	v->setPosition(Vec2(0, 0));
@@ -163,8 +166,7 @@ void WorldUI::onTouchEnded(Touch* touch, Event  *event)
 			auto p = touch->getLocation();
 			p = _animal_view->convertToNodeSpace(p);
 			Area* a = _animal_view->get_area(p);
-			
-			//_animal_view->create_animal(a, );
+			_animal_view->create_animal(a, _model.get_species().at(info.animal_id));
 		}
 		break;
 	case simciv::UIS_PLANTS:
@@ -225,16 +227,28 @@ RadioMenu* WorldUI::create_species_browser()
 	}
 	result->set_selected_btn(0);
 	result->set_on_changed([this](int id) {
-		this->_product_view->get_info().product_id = id;
+		this->info.animal_id = id;
+	});
+	return result;
+}
+
+RadioMenu* WorldUI::create_plants_browser()
+{
+	RadioMenu* result = RadioMenu::create();
+	for (int i = 0; i < mat_count; ++i)
+	{
+		auto btn = MenuButton::create(get_plant_texture(i));
+		result->add_radio_button(btn);
+	}
+	result->set_selected_btn(0);
+	result->set_on_changed([this](int id) {
+		this->info.product_id = id;
 	});
 	return result;
 }
 
 cocos2d::Node* WorldUI::create_layers_panel()
 {
-	// Node* result = Node::create();
-	auto& info = _product_view->get_info();
-
 	auto s = Size(20, 20);
 	LinearLayoutParameter* p = LinearLayoutParameter::create();
 	p->setGravity(LinearLayoutParameter::LinearGravity::TOP);
@@ -290,7 +304,7 @@ cocos2d::Node* WorldUI::create_layers_panel()
 	// ==============================================================================================--
 	// TRANSPORT
 	info.show_transport = true;
-	auto cb_transport = labelled_cb("Routes", info.show_transport, [this, &info](Ref* pSender, CheckBox::EventType type) {
+	auto cb_transport = labelled_cb("Routes", info.show_transport, [this](Ref* pSender, CheckBox::EventType type) {
 		info.show_transport = !info.show_transport;
 	});
 	cb_transport->setLayoutParameter(p);
@@ -319,6 +333,7 @@ cocos2d::Node* WorldUI::create_layers_panel()
 
 	info.mode = IT_FACTORY;
 	info.product_id = 0;
+	info.animal_id = 0;
 
 	//add_item(IT_FACTORY, _table.width / 3, _table.height / 2);
 	//add_item(IT_MINE, 2 * _table.width / 3, _table.height / 2);
@@ -337,8 +352,10 @@ void WorldUI::setContentSize(const Size & var)
 	int m = 20;
 	_left_menu->setPosition(Vec2(m, h - m));
 	_species_browser->setPosition(Vec2(m + 64 + 10, h - m));
+	_plants_browser->setPosition(Vec2(m + 64 + 10, h - m));
 	_species_view->setPosition(Vec2(var.width, h));
 	_layers_panel->setPosition(Vec2(var.width, h));
+
 }
 
 void WorldUI::update_panels(bool animals, bool plants)
@@ -356,6 +373,7 @@ void WorldUI::set_state(UIState state)
 	bool plants = _state == UIS_PLANTS;
 	_species_browser->setVisible(animals);
 	_species_view->setVisible(animals);
+	_plants_browser->setVisible(plants);
 	_layers_panel->setVisible(plants);
 	_product_view->setVisible(plants);
 }

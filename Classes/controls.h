@@ -17,6 +17,8 @@ namespace simciv
 
 	std::string get_animal_texture(int id);
 
+	std::string get_plant_texture(int id);
+
 	// typedef void(*int_cb)(int id);
 	typedef std::function<void(int)> int_cb;
 
