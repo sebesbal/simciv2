@@ -21,11 +21,7 @@ namespace simciv
 			for (int j = 0; j < _products.size(); ++j)
 			{
 				double d = (double)rand() / RAND_MAX;
-<<<<<<< HEAD
 				int n = 3;
-=======
-				int n = 2;
->>>>>>> 51b28db77c9d7947f994ee73c44592af83a3d223
 				int k = std::floor((2 * n + 1) * d - n);
 				s.production.push_back(k);
 				double e = (double)rand() / RAND_MAX;
