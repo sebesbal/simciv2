@@ -52,8 +52,8 @@ WorldUI::WorldUI() : _menu_size(64, 64)
 
 	load_from_tmx("simciv.tmx");
 
-	_left_menu = create_left_menu();
-	this->addChild(_left_menu);
+	_main_menu = create_left_menu();
+	this->addChild(_main_menu);
 
 	_species_browser = create_species_browser();
 	this->addChild(_species_browser);
@@ -108,7 +108,7 @@ void WorldUI::load_from_tmx(std::string tmx)
 
 	_model.create_map(size.width, size.height, 4);
 
-	Node* v = _product_view = ProdView::create(&_model, info);
+	Node* v = _product_view = PlantMapLayer::create(&_model, info);
 	v->setVisible(true);
 	v->setAnchorPoint(Vec2(0, 0));
 	v->setPosition(Vec2(0, 0));
@@ -242,7 +242,7 @@ RadioMenu* WorldUI::create_plants_browser()
 	}
 	result->set_selected_btn(0);
 	result->set_on_changed([this](int id) {
-		this->info.product_id = id;
+		this->info.plant_id = id;
 	});
 	return result;
 }
@@ -271,25 +271,19 @@ cocos2d::Node* WorldUI::create_layers_panel()
 	int hh = 30;
 	int marginy = 0;
 
-	//// ==============================================================================================
-	//// PRODUCT
-	//defvec(vec0, "img/_factory_red.png", "img/_factory_blue.png", "img/_factory_green.png", "img/_factory_yellow.png")
-	//	auto rb = RadioBox::create(&info.product_id, vec0, hh, marginy);
-	//left_menu->addChild(rb);
-
 	// ==============================================================================================
 	// PRICE - VOL - RES
-	info.show_price_vol_mode = 0;
+	info.price_vol_mode = 0;
 	defvec(vec1, "Price", "Volume", "Res.")
-	auto rb = RadioBox::create(&info.show_price_vol_mode, vec1, hh, marginy);
+	auto rb = RadioBox::create(&info.price_vol_mode, vec1, hh, marginy);
 	rb->setLayoutParameter(p);
 	left_menu->addChild(rb);
 
 	// ==============================================================================================
 	// SUPPLY - CONSUMPTION
-	info.show_sup_con_mode = 2;
+	info.produce_consume_mode = 2;
 	defvec(vec2, "Supply", "Cons.", "Both")
-	rb = RadioBox::create(&info.show_sup_con_mode, vec2, hh, marginy);
+	rb = RadioBox::create(&info.produce_consume_mode, vec2, hh, marginy);
 	rb->setLayoutParameter(p);
 	left_menu->addChild(rb);
 
@@ -310,33 +304,9 @@ cocos2d::Node* WorldUI::create_layers_panel()
 	cb_transport->setLayoutParameter(p);
 	left_menu->addChild(cb_transport);
 
-	left_menu->setAnchorPoint(Vec2(0, 1));
-	//left_menu->setPosition(Vec2(0, size.height - 50));
-
-	// this->addChild(left_menu);
-
-	//set_price_vol_mode(0);
-	//set_sup_con_mode(2);
 	info.show_grid = false;
-
-
-	////Node*
-	//_items = Node::create();
-	//_items->setAnchorPoint(Vec2(0, 0));
-	////_items->setPosition(Vec2(size / 2) - _table / 2);
-	////_items->setPosition(Vec2(0, 0));
-
-	//this->addChild(_items, 0, 1);
-	//_items->setLocalZOrder(1);
-	////_items->setContentSize(_table);
-
-
-	info.mode = IT_FACTORY;
-	info.product_id = 0;
+	info.plant_id = 0;
 	info.animal_id = 0;
-
-	//add_item(IT_FACTORY, _table.width / 3, _table.height / 2);
-	//add_item(IT_MINE, 2 * _table.width / 3, _table.height / 2);
 
 	return left_menu;
 }
@@ -350,7 +320,7 @@ void WorldUI::setContentSize(const Size & var)
 	_map->setPosition(var / 2);
 
 	int m = 20;
-	_left_menu->setPosition(Vec2(m, h - m));
+	_main_menu->setPosition(Vec2(m, h - m));
 	_species_browser->setPosition(Vec2(m + 64 + 10, h - m));
 	_plants_browser->setPosition(Vec2(m + 64 + 10, h - m));
 	_species_view->setPosition(Vec2(var.width, h));

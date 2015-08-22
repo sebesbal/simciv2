@@ -23,12 +23,6 @@ class Item;
 const Color3B def_bck_color3B(40, 0, 60);
 const Color4B def_bck_color4B(40, 0, 60, 255);
 
-enum ItemType
-{
-	IT_MINE,
-	IT_FACTORY
-};
-
 #define defvec(vec, ...) \
 	static const string arr ## vec[] = { __VA_ARGS__ }; \
 	vector<string> vec (arr ## vec, arr ## vec + sizeof(arr ## vec) / sizeof(arr ## vec[0]) );
@@ -59,44 +53,34 @@ protected:
 	WorldModel* _model;
 };
 
-struct ProdLayerInfo
+struct UIStateData
 {
-	ProdLayerInfo() : 
+	UIStateData() : 
 		animal_id(0),
-		product_id(0),
-		show_price_vol_mode(0),
-		show_sup_con_mode(2),
+		plant_id(0),
+		price_vol_mode(0),
+		produce_consume_mode(2),
 		show_grid(false),
-		show_transport(true),
-		mode(IT_FACTORY)
+		show_transport(true)
 	{
 
 	}
 	int animal_id;
-	int product_id;
-	int show_price_vol_mode;
-	int show_sup_con_mode;
+	int plant_id;
+	int price_vol_mode;
+	int produce_consume_mode;
 	bool show_grid;
 	bool show_transport;
-	ItemType mode;
 };
 
 /// Draw mines and factories
-class ProdView : public MapView
+class PlantMapLayer : public MapView
 {
 public:
-	ProdView(ProdLayerInfo& info) : info(info) { }
-	static ProdView* create(WorldModel* model, ProdLayerInfo& info);
-	void onTouchEnded(Touch* touch, Event  *event) override;
-	void onTouchMoved(Touch* touch, Event  *event) override;
-	//ProdLayerInfo& get_info() { return info; }
-	// void set_info(ProdLayerInfo& info) { this->info = &info; }
+	PlantMapLayer(UIStateData& info) : info(info) { }
+	static PlantMapLayer* create(WorldModel* model, UIStateData& info);
 protected:
-	ProdLayerInfo& info;
-
-	cocos2d::Node* _items;
-	Item* add_item(ItemType type, int x, int y);
-
+	UIStateData& info;
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
 	void set_price_vol_mode(int i);
 	void set_sup_con_mode(int i);
@@ -121,19 +105,6 @@ protected:
 	Node* _animals;
 };
 
-
-
-class Item
-{
-public:
-	Item(ItemType type, int x, int y);
-protected:
-	Sprite* _sprite;
-};
-
-
-//void(*alma)(int id);
-
 enum UIState
 {
 	UIS_NONE,
@@ -157,18 +128,20 @@ public:
     CREATE_FUNC(WorldUI);
 protected:
 	UIState _state;
-	ProdLayerInfo info;
+	UIStateData info;
 	Size _menu_size;
 	int _menu_space;
 	int view_mode, new_view_mode;
 	std::vector<Node*> views;
 	cocos2d::Node* _map;
 	AnimalWorld _model;
-	RadioMenu* _left_menu;
+
+	RadioMenu* _main_menu;
 	RadioMenu* _species_browser;
 	RadioMenu* _plants_browser;
+
 	SpeciesView* _species_view;
-	ProdView* _product_view;
+	PlantMapLayer* _product_view;
 	AnimalMapLayer* _animal_view;
 	Node* _layers_panel;
 	void tick(float f);

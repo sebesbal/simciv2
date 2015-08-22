@@ -9,20 +9,9 @@ USING_NS_CC;
 using namespace std;
 using namespace ui;
 
-
-std::string factory_strings[4] = {
-	"img/factory_red.png", "img/factory_blue.png", "img/factory_green.png", "img/factory_yellow.png"
-};
-
-std::string mine_strings[4] = {
-	"img/mine_red.png", "img/mine_blue.png", "img/mine_green.png", "img/mine_yellow.png"
-};
-
-
-
-ProdView* ProdView::create(WorldModel* model, ProdLayerInfo& info)
+PlantMapLayer* PlantMapLayer::create(WorldModel* model, UIStateData& info)
 {
-	ProdView* result = new ProdView(info);
+	PlantMapLayer* result = new PlantMapLayer(info);
 	result->_model = model;
 	if (result && result->init())
 	{
@@ -42,67 +31,10 @@ bool is_map_point(cocos2d::Vec2& p)
 	return p.x > 370 || p.y > 222;
 }
 
-Item* ProdView::add_item(ItemType type, int x, int y)
-{
-	int ax = x / cs;
-	int ay = y / cs;
-	if (ax < 0 || ay < 0 || ax >= _model->width() || ay >= _model->height()) return NULL;
-
-	Area* a = _model->get_area(ax, ay);
-
-	switch (type)
-	{
-	case simciv::IT_MINE:
-		{
-			auto mine1 = Sprite::create(mine_strings[info.product_id]);
-			mine1->setPosition(x, y);
-			mine1->setScale(0.05);
-			_items->addChild(mine1);
-			_model->add_prod(a, info.product_id, 100, 10);
-		}
-		break;
-	case simciv::IT_FACTORY:
-		{
-			auto factory1 = Sprite::create(factory_strings[info.product_id]);
-			factory1->setPosition(x, y);
-			factory1->setScale(0.2);
-			_items->addChild(factory1);
-			_model->add_prod(a, info.product_id, -100, 100);
-		}
-		break;
-	default:
-		break;
-	}
-
-	return NULL;
-}
-
-void ProdView::onTouchEnded(Touch* touch, Event  *event)
-{
-	//auto s = touch->getStartLocation();
-	//auto p = touch->getLocation();
-	//if (is_map_point(touch->getLocationInView()) && (p - s).length() < 10)
-	//{
-	//	p = _items->convertToNodeSpace(p);
-	//	add_item(info.mode, p.x, p.y);
-	//}
-}
-
-
-void ProdView::onTouchMoved(Touch* touch, Event  *event)
-{
-	//if (is_map_point(touch->getLocationInView()))
-	//{
-	//	auto diff = touch->getDelta();
-	//	_map->setPosition(_map->getPosition() + diff);
-	//	_items->setPosition(_items->getPosition() + diff);
-	//}
-}
-
-void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
+void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 {
 	// calculate roads
-	_model->products()[info.product_id]->routes_to_areas(info.product_id);
+	_model->products()[info.plant_id]->routes_to_areas(info.plant_id);
 
     Director* director = Director::getInstance();
     director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
@@ -144,13 +76,13 @@ void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
 	double min_vol = 1000;
 	double max_vol = 0;
 
-	if (info.show_price_vol_mode == 0)
+	if (info.price_vol_mode == 0)
 	{
-		if (info.show_sup_con_mode == 2)
+		if (info.produce_consume_mode == 2)
 		{
 			for (Area* a: _model->areas())
 			{
-				auto& p = _model->get_prod(a, info.product_id);
+				auto& p = _model->get_prod(a, info.plant_id);
 				double v = p.p;
 				min_v = std::min(min_v, v);
 				max_v = std::max(max_v, v);
@@ -163,18 +95,18 @@ void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
 
 			for (Area* a: _model->areas())
 			{
-				auto& p = _model->get_prod(a, info.product_id);
+				auto& p = _model->get_prod(a, info.plant_id);
 				double v = p.p;
 				double r = d == 0 ? 0.5 : (v - min_v) / d;
 				double vol = p.v_con + p.v_sup;
 				draw_rect(a->x, a->y, r, vol / d_vol);
 			}
 		}
-		else if (info.show_sup_con_mode == 0)
+		else if (info.produce_consume_mode == 0)
 		{
 			for (Area* a: _model->areas())
 			{
-				auto& p = _model->get_prod(a, info.product_id);
+				auto& p = _model->get_prod(a, info.plant_id);
 				double v = p.p_sup;
 				min_v = std::min(min_v, v);
 				max_v = std::max(max_v, v);
@@ -187,18 +119,18 @@ void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
 
 			for (Area* a: _model->areas())
 			{
-				auto& p = _model->get_prod(a, info.product_id);
+				auto& p = _model->get_prod(a, info.plant_id);
 				double v = p.p_sup;
 				double r = d == 0 ? 0.5 : (v - min_v) / d;
 				double vol = p.v_sup;
 				draw_rect(a->x, a->y, r, vol / d_vol);
 			}
 		}
-		else if (info.show_sup_con_mode == 1)
+		else if (info.produce_consume_mode == 1)
 		{
 			for (Area* a: _model->areas())
 			{
-				auto& p = _model->get_prod(a, info.product_id);
+				auto& p = _model->get_prod(a, info.plant_id);
 				double v = p.p_con;
 				min_v = std::min(min_v, v);
 				max_v = std::max(max_v, v);
@@ -211,7 +143,7 @@ void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
 
 			for (Area* a: _model->areas())
 			{
-				auto& p = _model->get_prod(a, info.product_id);
+				auto& p = _model->get_prod(a, info.plant_id);
 				double v = p.p_con;
 				double r = d == 0 ? 0.5 : (v - min_v) / d;
 				double vol = p.v_con;
@@ -219,11 +151,11 @@ void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
 			}
 		}
 	}
-	else if (info.show_price_vol_mode == 2)
+	else if (info.price_vol_mode == 2)
 	{
 		for (Area* a: _model->areas())
 		{
-			auto& p = _model->get_prod(a, info.product_id);
+			auto& p = _model->get_prod(a, info.plant_id);
 			draw_rect_green(a->x, a->y, p.resource, 1);
 		}
 	}
@@ -237,7 +169,7 @@ void ProdView::onDraw(const Mat4 &transform, uint32_t flags)
 		for (Area* a: _model->areas())
 		{
 			double x, y;
-			a->get_trans(info.product_id, x, y);
+			a->get_trans(info.plant_id, x, y);
 			Rect r = get_rect(a->x, a->y);
 			Vec2 p = Vec2(r.getMidX(), r.getMidY());
 			DrawPrimitives::drawLine(p, Vec2(p.x + scale * x, p.y + scale * y));
