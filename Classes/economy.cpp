@@ -198,38 +198,64 @@ namespace simciv
 		 std::swap(_production, _new_production);
 	}
 
-	void ProductMap::add_prod(Area* area, double volume, double price)
+	Producer* ProductMap::create_prod(Area* area, double volume, double price)
 	{
 		bool consumer = volume < 0;
 		auto& v = consumer ? _consumers : _supplies;
 		AreaProd& a = get_prod(area);
 		auto it = std::find_if(v.begin(), v.end(), [area](Producer* p) { return p->area == area; });
-		Producer* p;
+		Producer* p = new Producer();
+		p->price = price;
+		p->volume = volume;
+		p->area = area;
 
-		if (unique_mode && it != v.end())
+		if (consumer)
 		{
-			p = *it;
-			p->volume += volume;
+			_consumers.push_back(p);
+			_area_consumers[area->index].push_back(p);
 		}
 		else
 		{
-			p = new Producer();
-			p->price = price;
-			p->volume = volume;
-			p->area = area;
-
-			if (consumer)
-			{
-				_consumers.push_back(p);
-				_area_consumers[area->index].push_back(p);
-			}
-			else
-			{
-				// p->volume *= a.resource;
-				_supplies.push_back(p);
-				_area_supplies[area->index].push_back(p);
-			}
+			// p->volume *= a.resource;
+			_supplies.push_back(p);
+			_area_supplies[area->index].push_back(p);
 		}
+
+		return p;
+	}
+
+	Producer* ProductMap::add_prod(Area* area, double volume, double price)
+	{
+		bool consumer = volume < 0;
+		auto& v = consumer ? _consumers : _supplies;
+		AreaProd& a = get_prod(area);
+		auto it = std::find_if(v.begin(), v.end(), [area](Producer* p) { return p->area == area; });
+
+		if (it == v.end())
+		{
+			return NULL;
+		}
+		else
+		{
+			Producer* p = *it;
+			p->volume += volume;
+			return p;
+		}
+	}
+
+	void ProductMap::remove_prod(Producer* prod)
+	{
+		int id = prod->area->index;
+
+		auto& u = prod->is_consumer() ? _consumers : _supplies;
+		auto it = std::find(u.begin(), u.end(), prod);
+		u.erase(it);
+
+		auto& v = prod->is_consumer() ? _area_consumers[id] : _area_supplies[id];
+		it = std::find(v.begin(), v.end(), prod);
+		v.erase(it);
+
+		delete prod;
 	}
 
 	void ProductMap::remove_prod(Area* area, double volume, double price)
@@ -251,16 +277,19 @@ namespace simciv
 
 		if ((*it)->volume == 0)
 		{
-			if (consumer)
-			{
-				_consumers.erase(it);
-				_area_consumers[area->index].erase(it);
-			}
-			else
-			{
-				_supplies.erase(it);
-				_area_supplies[area->index].erase(it);
-			}
+			remove_prod(*it);
 		}
+	}
+
+	void ProductMap::move_prod(Producer* prod, Area* new_area)
+	{
+		int id = prod->area->index;
+		auto& v = prod->is_consumer() ? _area_consumers[id] : _area_supplies[id];
+		auto it = std::find(v.begin(), v.end(), prod);
+		v.erase(it);
+
+		id = new_area->index;
+		auto& u = prod->is_consumer() ? _area_consumers[id] : _area_supplies[id];
+		u.push_back(prod);
 	}
 }

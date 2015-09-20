@@ -7,10 +7,10 @@ using namespace std;
 
 namespace simciv
 {
-	//const double trans_price = 1.0;
-
 	void bisect(const MaterialVec& v, MaterialVec& pos, MaterialVec& neg)
 	{
+		pos.clear();
+		neg.clear();
 		for (double d : v)
 		{
 			if (d < 0)
@@ -236,13 +236,23 @@ namespace simciv
 		return route;
 	}
 
-	void WorldModel::add_prod(Area* area, int prod_id, double volume, double price)
+	MaterialVec WorldModel::empty_mat_vec()
 	{
-		_products[prod_id]->add_prod(area, volume, price);
+		MaterialVec result;
+		for (int i = 0; i < _products.size(); ++i)
+		{
+			result.push_back(0);
+		}
+		return result;
 	}
 
-	void WorldModel::remove_prod(Area* area, int prod_id, double volume, double price)
-	{
-		_products[prod_id]->remove_prod(area, volume, price);
-	}
+	//void WorldModel::add_prod(Area* area, int prod_id, double volume, double price)
+	//{
+	//	_products[prod_id]->add_prod(area, volume, price);
+	//}
+
+	//void WorldModel::remove_prod(Area* area, int prod_id, double volume, double price)
+	//{
+	//	_products[prod_id]->remove_prod(area, volume, price);
+	//}
 }

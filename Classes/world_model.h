@@ -10,7 +10,15 @@ namespace simciv
 	class Route;
 	const double max_price = 100000000000;
 
-	typedef std::vector<double> MaterialVec;
+	const int material_count = 4;
+
+	class MaterialVec : public std::vector < double >
+	{
+	public:
+		MaterialVec() { for (int i = 0; i < material_count; ++i) push_back(0); }
+	};
+
+	// typedef std::vector<double> MaterialVec;
 
 	void bisect(const MaterialVec& v, MaterialVec& pos, MaterialVec& neg);
 
@@ -67,8 +75,8 @@ namespace simciv
 		const std::vector<Road*>& roads() { return _roads; }
 		const std::vector<Area*>& areas() { return _areas; }
 		virtual void end_turn();
-		virtual void add_prod(Area* area, int prod_id, double volume, double price);
-		virtual void remove_prod(Area* area, int prod_id, double volume, double price);
+		//virtual void add_prod(Area* area, int prod_id, double volume, double price);
+		//virtual void remove_prod(Area* area, int prod_id, double volume, double price);
 		Area* get_area(int x, int y);
 		int width() { return _width; }
 		int height() { return _height; }
@@ -77,6 +85,7 @@ namespace simciv
 		Route* get_route(Node* src, Node* dst, Node* g);
 		std::vector<ProductMap*>& products() { return _products; }
 	protected:
+		MaterialVec empty_mat_vec();
 		std::vector<ProductMap*> _products;
 		std::vector<Road*> _roads;
 		std::vector<Area*> _areas;

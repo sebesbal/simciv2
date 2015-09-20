@@ -164,7 +164,7 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	{
 		//DrawPrimitives::setDrawColor4F(0, 0, 1, 1);
 		glLineWidth(3);
-		double scale = 50; // 0.1;
+		double scale = 5; // 0.1;
 
 		for (Area* a: _model->areas())
 		{

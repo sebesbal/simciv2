@@ -12,6 +12,7 @@ namespace simciv
 		generate_animals();
 	}
 
+	/*
 	void AnimalWorld::generate_species()
 	{
 		for (int i = 0; i < species_count; ++i)
@@ -30,6 +31,78 @@ namespace simciv
 			species.push_back(s);
 		}
 	}
+	*/
+
+	/* 
+	materials:
+	0 = food
+	1 = manpower
+	2 = wood
+	3 = stone
+
+	animals:
+	0 = house:	food --> manpower
+	1 = farm:   manpower --> food
+	2 = mine:	manpower --> stone
+	3 = lodge:	manpower --> wood
+
+
+	a: _ --> 1
+	b: 
+
+	*/
+
+	void AnimalWorld::generate_species()
+	{
+		// Worker
+		Species worker;
+		worker.id = 0;
+		for (int i = 0; i < 3; ++i)
+		{
+			ProductionRule r;
+			r.output[i] = 1;
+			worker.production.push_back(r);
+		}
+		species.push_back(worker);
+
+		// Smith
+		Species smith;
+		smith.id = 1;
+		for (int i = 0; i < 3; ++i)
+		{
+			ProductionRule r;
+			r.input[i] = 1;
+			r.input[(i + 1) % 3] = 1;
+			r.output[i + 3] = 1;
+			smith.production.push_back(r);
+		}
+		species.push_back(smith);
+
+		// Worker2
+		Species worker2;
+		worker2.id = 2;
+		for (int i = 0; i < 3; ++i)
+		{
+			ProductionRule r;
+			r.input[(i + 1) % 3 + 3] = 1;
+			r.output[i] = 4;
+			worker2.production.push_back(r);
+		}
+		species.push_back(worker2);
+
+		// Smith2
+		Species smith2;
+		smith2.id = 2;
+		for (int i = 0; i < 3; ++i)
+		{
+			ProductionRule r;
+			r.input[i] = 2;
+			r.input[(i + 1) % 3] = 2;
+			r.output[i + 3] = 2;
+			smith2.production.push_back(r);
+		}
+		species.push_back(smith2);
+	}
 
 	void AnimalWorld::generate_animals()
 	{
@@ -46,10 +119,8 @@ namespace simciv
 	Animal* AnimalWorld::create_animal(Area* a, Species& species)
 	{
 		if (find_animal(a)) return NULL;
-
 		Animal* ani = new Animal(species);
 		animals.push_back(ani);
-		add_producers(a, species);
 		ani->area = a;
 		return ani;
 	}
@@ -69,24 +140,10 @@ namespace simciv
 
 	void AnimalWorld::move_animal(Animal* ani, Area* new_area)
 	{
-		remove_producers(ani->area, ani->species);
-		add_producers(new_area, ani->species);
+		for (int i = 0; i < _products.size(); ++i)
+		{
+			_products[i]->move_prod(ani->producers[i], new_area);
+		}
 		ani->area = new_area;
-	}
-
-	void AnimalWorld::add_producers(Area* a, Species& species)
-	{
-		for (int prod_id = 0; prod_id < _pc; ++prod_id)
-		{
-			add_prod(a, prod_id, species.production[prod_id], 0);
-		}
-	}
-
-	void AnimalWorld::remove_producers(Area* a, Species& species)
-	{
-		for (int prod_id = 0; prod_id < _pc; ++prod_id)
-		{
-			remove_prod(a, prod_id, species.production[prod_id], 0);
-		}
 	}
 }

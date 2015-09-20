@@ -29,9 +29,10 @@ namespace simciv
 
 	struct Producer
 	{
+		bool is_consumer() { return volume < 0; } 
 		Area* area;
 		double volume; // negative volume means consumer
-		double free_volume;
+		double free_volume; 
 		double price; // the current price
 		double profit; // the worst profit of the producers deals
 		double partner_price;
@@ -55,8 +56,11 @@ namespace simciv
 		void update();
 		AreaProd& get_prod(Area* a) { return (*_production)[a->index]; }
 		AreaProd& get_new_prod(Area* a) { return (*_new_production)[a->index]; }
-		void add_prod(Area* area, double volume, double price);
+		Producer* add_prod(Area* area, double volume, double price);
+		Producer* create_prod(Area* area, double volume, double price);
+		void remove_prod(Producer* prod);
 		void remove_prod(Area* area, double volume, double price);
+		void move_prod(Producer* prod, Area* new_area);
 		void routes_to_areas(int prod_id);
 		void generate_resources();
 	protected:
