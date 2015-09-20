@@ -442,7 +442,7 @@ SpeciesView::SpeciesView()
 	_name_label->setTextHorizontalAlignment(TextHAlignment::LEFT);
 	addChild(_name_label);
 
-	_build_cost = MaterialStringView::create();
+	_build_cost = MaterialStringView::create(30);
 	addChild(_build_cost);
 
 	_build_cost_label = Text::create("Build cost", def_font, def_font_size);
@@ -501,24 +501,24 @@ void SpeciesView::set_species(Species* species)
 
 
 		_production_view->removeAllChildrenWithCleanup(true);
-		MaterialVec pos, neg;
-		bisect(species->production, pos, neg);
 
-		Size ss = getContentSize();
+		for (auto row : species->production)
+		{
+			Size ss = getContentSize();
 
-		HBox* h = HBox::create();
-		h->setContentSize(Size(ss.width, 30));
-		auto left = MaterialStringView::create();
-		left->set_vector(neg, 30);
-		left->setContentSize(Size(ss.width / 2, 30));
-		auto right = MaterialStringView::create();
-		right->set_vector(pos, 30);
+			HBox* h = HBox::create();
+			h->setContentSize(Size(ss.width, 30));
+			auto left = MaterialStringView::create(30);
+			left->set_map(row.input);
+			left->setContentSize(Size(ss.width / 2, 30));
+			auto right = MaterialStringView::create(30);
+			right->set_map(row.output);
 
-		h->addChild(left);
-		h->addChild(right);
+			h->addChild(left);
+			h->addChild(right);
 
-		_production_view->addChild(h);
-
+			_production_view->addChild(h);
+		}
 		auto s = getContentSize();
 		setContentSize(s);
 	}
@@ -574,9 +574,10 @@ MaterialSprite* MaterialSprite::create(int id, int size)
 	}
 }
 
-MaterialStringView* MaterialStringView::create()
+MaterialStringView* MaterialStringView::create(int size)
 {
 	MaterialStringView* result = new MaterialStringView();
+	result->_size = size;
 	if (result->init())
 	{
 		result->autorelease();
@@ -633,6 +634,55 @@ void MaterialStringView::set_vector(const MaterialVec& v, int size)
 		++i;
 	}
 	setContentSize(Size(x, size));
+}
+
+void MaterialStringView::set_map(const MaterialMap& map)
+{
+	for (auto& p : map)
+	{
+		add_item(p.first, p.second);
+	}
+}
+
+void MaterialStringView::add_item(int prod_id, double volume)
+{
+	float x = getContentSize().width + _size / 2;
+	if (volume > 4)
+	{
+		int s2 = 1.3 * _size;
+
+		auto s = MaterialSprite::create(prod_id, s2);
+		s->setPosition(Vec2(x, 0));
+		addChild(s);
+
+		auto t = Text::create(to_string(volume), "Arial", 20);
+		t->setColor(Color3B::WHITE);
+		t->enableShadow();
+		t->setPosition(Vec2(x, 0));
+		t->setContentSize(Size(_size, _size));
+		t->setTextHorizontalAlignment(TextHAlignment::CENTER);
+		t->setTextVerticalAlignment(TextVAlignment::CENTER);
+		t->ignoreContentAdaptWithSize(false);
+		addChild(t);
+
+		x += s2;
+	}
+	else
+	{
+		for (int k = 0; k < volume; ++k)
+		{
+			auto s = MaterialSprite::create(prod_id, _size);
+			s->setPosition(Vec2(x, 0));
+			x += _size / 2;
+			addChild(s);
+		}
+		if (volume > 0)
+		{
+			x += _size / 3;
+		}
+	}
+
+	setContentSize(Size(x, _size));
 }
 
 }

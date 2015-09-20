@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <map>
 
 namespace simciv
 {
@@ -17,6 +18,8 @@ namespace simciv
 	public:
 		MaterialVec() { for (int i = 0; i < material_count; ++i) push_back(0); }
 	};
+
+	typedef std::map<int, double> MaterialMap;
 
 	// typedef std::vector<double> MaterialVec;
 

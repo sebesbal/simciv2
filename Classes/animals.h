@@ -8,8 +8,8 @@ namespace simciv
 	struct ProductionRule
 	{
 		std::vector<int> area_types;
-		std::map<int, double> input;
-		std::map<int, double> output;
+		MaterialMap input;
+		MaterialMap output;
 	};
 
 	struct Species

@@ -119,7 +119,11 @@ namespace simciv
 	class MaterialStringView : public ui::Layout
 	{
 	public:
-		static MaterialStringView* create();
+		static MaterialStringView* create(int size);
 		void set_vector(const MaterialVec& v, int size);
+		void set_map(const MaterialMap& m);
+		void add_item(int prod_id, double volume);
+	protected:
+		int _size;
 	};
 }
