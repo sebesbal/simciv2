@@ -5,6 +5,65 @@ namespace simciv
 {
 	const int species_count = 6;
 
+	double ProductionRule::profit(const MaterialVec& prices)
+	{
+		double profit = 0;
+		for (auto& p: input)
+		{
+			int prod_id = p.first;
+			double price = prices[prod_id];
+			double vol = p.second;
+			profit -= price * vol;
+		}
+
+		for (auto& p : output)
+		{
+			int prod_id = p.first;
+			double price = prices[prod_id];
+			double vol = p.second;
+			profit += price * vol;
+		}
+
+		return profit;
+	}
+
+	ProductionRule* Species::find_best_rule(const MaterialVec& prices)
+	{
+		double best_profit = 0;
+		ProductionRule* best_rule = NULL;
+		for (auto& rule : rules)
+		{
+			double profit = rule.profit(prices);
+			if (profit > best_profit)
+			{
+				best_profit = profit;
+				best_rule = &rule;
+			}
+		}
+		if (best_rule)
+		{
+			return best_rule;
+		}
+		return NULL;
+	}
+
+	Animal::Animal(Species& species): species(species)
+	{
+		for (int i = 0; i < material_count; ++i)
+		{
+			producers.push_back(NULL);
+		}
+	}
+	
+	void Animal::update()
+	{
+		//area
+
+		//species.find_best_rule();
+	}
+
+
+
 	void AnimalWorld::create_map(int width, int height, int prod_count)
 	{
 		WorldModel::create_map(width, height, prod_count);
@@ -61,7 +120,7 @@ namespace simciv
 		{
 			ProductionRule r;
 			r.output[i] = 1;
-			worker.production.push_back(r);
+			worker.rules.push_back(r);
 		}
 		species.push_back(worker);
 
@@ -74,7 +133,7 @@ namespace simciv
 			r.input[i] = 1;
 			r.input[(i + 1) % 3] = 1;
 			r.output[i + 3] = 1;
-			smith.production.push_back(r);
+			smith.rules.push_back(r);
 		}
 		species.push_back(smith);
 
@@ -86,7 +145,7 @@ namespace simciv
 			ProductionRule r;
 			r.input[(i + 1) % 3 + 3] = 1;
 			r.output[i] = 4;
-			worker2.production.push_back(r);
+			worker2.rules.push_back(r);
 		}
 		species.push_back(worker2);
 
@@ -99,7 +158,7 @@ namespace simciv
 			r.input[i] = 2;
 			r.input[(i + 1) % 3] = 2;
 			r.output[i + 3] = 2;
-			smith2.production.push_back(r);
+			smith2.rules.push_back(r);
 		}
 		species.push_back(smith2);
 	}
@@ -136,6 +195,60 @@ namespace simciv
 		{
 			return *it;
 		}
+	}
+
+	void AnimalWorld::update()
+	{
+		for (Animal* ani : animals)
+		{
+			MaterialVec prices;
+			Area* area = ani->area;
+			for (int i = 0; i < material_count; ++i)
+			{
+				auto& info = get_prod(area, i);
+				prices[i] = info.p;
+			}
+			auto rule = ani->species.find_best_rule(prices);
+			if (rule)
+			{
+				double rate = 1;
+				for (auto& p : rule->input)
+				{
+					int prod_id = p.first;
+					double vol = p.second;
+					auto& producer = ani->producers[prod_id];
+					if (producer)
+					{
+						rate = std::min(rate, producer->storage / vol);
+					}
+					else
+					{
+						producer = _products[prod_id]->create_prod(area, vol, prices[prod_id]);
+						rate = 0;
+					}
+				}
+
+				if (rate == 0)
+				{
+					// Skip
+				}
+				else
+				{
+					for (auto& p : rule->input)
+					{
+						int prod_id = p.first;
+						double vol = p.second;
+						auto& producer = ani->producers[prod_id];
+						producer->storage -= rate * vol;
+					}
+				}
+			}
+		}
+
+
+		// update product maps
+		WorldModel::update();
+
 	}
 
 	void AnimalWorld::move_animal(Animal* ani, Area* new_area)

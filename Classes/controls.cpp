@@ -502,17 +502,17 @@ void SpeciesView::set_species(Species* species)
 
 		_production_view->removeAllChildrenWithCleanup(true);
 
-		for (auto row : species->production)
+		for (auto rule : species->rules)
 		{
 			Size ss = getContentSize();
 
 			HBox* h = HBox::create();
 			h->setContentSize(Size(ss.width, 30));
 			auto left = MaterialStringView::create(30);
-			left->set_map(row.input);
+			left->set_map(rule.input);
 			left->setContentSize(Size(ss.width / 2, 30));
 			auto right = MaterialStringView::create(30);
-			right->set_map(row.output);
+			right->set_map(rule.output);
 
 			h->addChild(left);
 			h->addChild(right);

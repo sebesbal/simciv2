@@ -95,7 +95,7 @@ void WorldUI::tick(float f)
 		new_view->setVisible(true);
 	}
 
-	_model.end_turn();
+	_model.update();
 }
 
 void WorldUI::load_from_tmx(std::string tmx)

@@ -137,7 +137,7 @@ namespace simciv
 		//return (*_production)[a->index][id];
 	}
 
-	void WorldModel::end_turn()
+	void WorldModel::update()
 	{
 		static int k = 0;
 		if (k++ % 1 == 0)

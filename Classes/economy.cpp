@@ -16,6 +16,19 @@ namespace simciv
 
 	}
 
+	Producer::Producer()
+	{
+		storage_capacity = 100;
+		storage = 0;
+	}
+
+	void Producer::produce(double vol)
+	{
+		const double a = 0.9;
+		volume = a * volume + (1 - a) * vol;
+		storage += vol;
+	}
+
 	ProductMap::ProductMap(WorldModel& world): 
 		_world(world), 
 		_production(new std::vector<AreaProd>()), 

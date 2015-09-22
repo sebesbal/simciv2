@@ -77,7 +77,7 @@ namespace simciv
 		virtual void create_map(int width, int height, int prod_count);
 		const std::vector<Road*>& roads() { return _roads; }
 		const std::vector<Area*>& areas() { return _areas; }
-		virtual void end_turn();
+		virtual void update();
 		//virtual void add_prod(Area* area, int prod_id, double volume, double price);
 		//virtual void remove_prod(Area* area, int prod_id, double volume, double price);
 		Area* get_area(int x, int y);

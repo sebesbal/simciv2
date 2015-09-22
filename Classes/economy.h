@@ -29,13 +29,19 @@ namespace simciv
 
 	struct Producer
 	{
-		bool is_consumer() { return volume < 0; } 
+		Producer();
+		bool is_consumer() { return volume < 0; }
 		Area* area;
 		double volume; // negative volume means consumer
 		double free_volume; 
 		double price; // the current price
 		double profit; // the worst profit of the producers deals
 		double partner_price;
+
+		double storage_capacity;
+		double storage;
+		void consume(double vol);
+		void produce(double vol);
 	};
 
 	struct Transport
