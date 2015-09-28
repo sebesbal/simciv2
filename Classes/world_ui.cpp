@@ -37,7 +37,7 @@ Scene* WorldUI::createScene()
     return scene;
 }
 
-WorldUI::WorldUI() : _menu_size(64, 64)
+WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0)
 {
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	auto w = visibleSize.width;
