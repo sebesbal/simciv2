@@ -105,7 +105,7 @@ Sprite* AnimalMapLayer::create_sprite(Animal* ani)
 	Sprite* sprite = Sprite::create(ani->species.icon_file);
 	Rect r = get_rect(a->x, a->y);
 	sprite->setPosition(r.getMidX(), r.getMidY());
-	sprite->setScale(0.1);
+	sprite->setScale(0.1f);
 	_animals->addChild(sprite);
 	return sprite;
 }

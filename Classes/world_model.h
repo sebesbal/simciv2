@@ -8,7 +8,7 @@ namespace simciv
 	struct AreaProd;
 	struct Producer;
 	class ProductMap;
-	class Route;
+	struct Route;
 	const double max_price = 100000000000;
 
 	const int level_count = 4;

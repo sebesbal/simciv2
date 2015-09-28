@@ -22,7 +22,7 @@ Layout* labelled_cb(std::string text, bool checked, CheckBox::ccCheckBoxCallback
 		"ui/check_box_active.png",
 		"ui/check_box_normal_disable.png",
 		"ui/check_box_active_disable.png");
-	chb->setSelectedState(checked);
+	chb->setSelected(checked);
 	chb->addEventListener(cb);
 	chb->setLayoutParameter(p);
 	l->addChild(chb);
@@ -33,15 +33,15 @@ Layout* labelled_cb(std::string text, bool checked, CheckBox::ccCheckBoxCallback
 	label->setLayoutParameter(p);
 	l->addChild(label);
 	l->requestDoLayout();
-	auto height = std::max(chb->getSize().height, label->getSize().height);
-	l->setSize(Size(100, height));
+	auto height = std::max(chb->getContentSize().height, label->getContentSize().height);
+	l->setContentSize(Size(100, height));
 	label->setTouchEnabled(true);
 	label->addTouchEventListener([chb, cb](Ref*, Widget::TouchEventType type)
 	{
 		if (type == Widget::TouchEventType::ENDED)
 		{
-			chb->setSelectedState(!chb->getSelectedState());
-			cb(NULL, chb->getSelectedState() ? CheckBox::EventType::SELECTED : CheckBox::EventType::UNSELECTED);
+			chb->setSelected(!chb->isSelected());
+			cb(NULL, chb->isSelected() ? CheckBox::EventType::SELECTED : CheckBox::EventType::UNSELECTED);
 		}
 	});
 
@@ -153,7 +153,7 @@ void RadioBox::setSelected(int i)
 	int l = 0;
 	for (Widget* item: items)
 	{
-		((CheckBox*)item->getChildren().at(0))->setSelectedState(i == l++);
+		((CheckBox*)item->getChildren().at(0))->setSelected(i == l++);
 	}
 	*(this->data) = i;
 }
@@ -164,7 +164,7 @@ RadioBox* RadioBox::create(int* data, std::vector<std::string> labels, int hh, i
 	if (widget && widget->init())
 	{
 		widget->autorelease();
-		widget->setSize(Size(100, hh + marginy));
+		widget->setContentSize(Size(100, hh + marginy));
 		return widget;
 	}
 	else
@@ -184,7 +184,7 @@ Layout* RadioBox::labelled_radio(std::string text, CheckBox::ccCheckBoxCallback 
 	p->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
 
 	CheckBox* chb = CheckBox::create(RBOFF, RBOFF, RBON, RBOFF, RBON);
-	chb->setSelectedState(false);
+	chb->setSelected(false);
 	chb->addEventListener(cb);
 	chb->setLayoutParameter(p);
 	l->addChild(chb);
@@ -198,15 +198,15 @@ Layout* RadioBox::labelled_radio(std::string text, CheckBox::ccCheckBoxCallback 
 	{ 
 		if (type == Widget::TouchEventType::ENDED)
 		{
-			chb->setSelectedState(true);
+			chb->setSelected(true);
 			cb(NULL, CheckBox::EventType::SELECTED); 
 		}
 	});
 
 	l->addChild(label);
 	l->requestDoLayout();
-	auto height = std::max(chb->getSize().height, label->getSize().height);
-	l->setSize(Size(100, height));
+	auto height = std::max(chb->getContentSize().height, label->getContentSize().height);
+	l->setContentSize(Size(100, height));
 
 	LinearLayoutParameter* pp = LinearLayoutParameter::create();
 	pp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
@@ -224,7 +224,7 @@ Layout* RadioBox::image_radio(string img, CheckBox::ccCheckBoxCallback cb)
 	p->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
 
 	CheckBox* chb = CheckBox::create(RBOFF, RBOFF, RBON, RBOFF, RBON);
-	chb->setSelectedState(false);
+	chb->setSelected(false);
 	chb->addEventListener(cb);
 	chb->setLayoutParameter(p);
 	l->addChild(chb);
@@ -235,20 +235,20 @@ Layout* RadioBox::image_radio(string img, CheckBox::ccCheckBoxCallback cb)
 	s->setPosition(hh/2, hh/2);
 	image->addChild(s);
 	image->setLayoutParameter(p);
-	image->setSize(Size(hh, hh));
+	image->setContentSize(Size(hh, hh));
 	image->setTouchEnabled(true);
 	image->addTouchEventListener([chb, cb](Ref*,Widget::TouchEventType type)
 	{ 
 		if (type == Widget::TouchEventType::ENDED)
 		{
-			chb->setSelectedState(true);
+			chb->setSelected(true);
 			cb(NULL, CheckBox::EventType::SELECTED); 
 		}
 	});
 	l->addChild(image);
 	//l->requestDoLayout();
 	// auto height = std::max(chb->getSize().height, label->getSize().height);
-	l->setSize(Size(100, hh));
+	l->setContentSize(Size(100, hh));
 
 	LinearLayoutParameter* pp = LinearLayoutParameter::create();
 	pp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
@@ -443,7 +443,7 @@ SpeciesView::SpeciesView()
 {
 	//_bck = CCLayerColor::create(Color4B(0, 0, 255, 255));
 	//_bck = CCLayerColor::create(Color4B(40, 0, 60, 255));
-	_bck = CCLayerColor::create(def_bck_color4B);
+	_bck = LayerColor::create(def_bck_color4B);
 	this->addChild(_bck);
 
 	_production_view = VBox::create();
@@ -510,7 +510,7 @@ void SpeciesView::set_species(Species* species)
 		string file = species->icon_file; //get_animal_texture(species->id);
 		_icon->loadTexture(file);
 
-		_name_label->setText(file.substr(12, file.length() - 4 - 12));
+		_name_label->setString(file.substr(12, file.length() - 4 - 12));
 
 		//_icon->setTexture(get_animal_texture(species->id));
 		//auto t = _icon->getTexture();

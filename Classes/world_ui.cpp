@@ -43,7 +43,7 @@ WorldUI::WorldUI() : _menu_size(64, 64)
 	auto w = visibleSize.width;
 	auto h = visibleSize.height;
 
-	this->schedule(schedule_selector(WorldUI::tick), 0.05, kRepeatForever, 0);
+	this->schedule(schedule_selector(WorldUI::tick), 0.05f, kRepeatForever, 0.f);
 	auto listener = EventListenerTouchOneByOne::create();
 	listener->onTouchBegan = CC_CALLBACK_2(WorldUI::onTouchBegan, this);
 	listener->onTouchEnded = CC_CALLBACK_2(WorldUI::onTouchEnded, this);

@@ -271,7 +271,7 @@ namespace simciv
 					}
 					else
 					{
-						// producer = _products[prod_id]->create_prod(area, vol, prices[prod_id]);
+						//producer = _products[prod_id]->create_prod(area, vol, prices[prod_id]);
 						int level = prod_id / color_count;
 						producer = _products[prod_id]->create_prod(area, -vol, pow(2, level + 4) + 10);
 						rate = 0;
@@ -289,7 +289,7 @@ namespace simciv
 					}
 					else
 					{
-						// producer = _products[prod_id]->create_prod(area, vol, prices[prod_id]);
+						//producer = _products[prod_id]->create_prod(area, vol, prices[prod_id]);
 						int level = prod_id / color_count;
 						producer = _products[prod_id]->create_prod(area, vol, pow(2, level + 4) - 10);
 						rate = 0;
@@ -332,7 +332,7 @@ namespace simciv
 
 	void AnimalWorld::move_animal(Animal* ani, Area* new_area)
 	{
-		for (int i = 0; i < _products.size(); ++i)
+		for (size_t i = 0; i < _products.size(); ++i)
 		{
 			_products[i]->move_prod(ani->producers[i], new_area);
 		}

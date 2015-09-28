@@ -98,7 +98,7 @@ namespace simciv
 	protected:
 		void add_prod_row(MaterialVec& prod);
 		virtual void setContentSize(const Size & var) override;
-		CCLayerColor* _bck;
+		LayerColor* _bck;
 		ui::ImageView* _icon;
 		ui::Text* _name_label;
 		ui::VBox* _production_view;

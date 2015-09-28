@@ -189,7 +189,7 @@ namespace simciv
 
 	void ProductMap::generate_resources()
 	{
-		for (int i = 0; i < _world.areas().size(); ++i)
+		for (size_t i = 0; i < _world.areas().size(); ++i)
 		{
 			//AreaProd& ap = (*_production)[i];
 			(*_new_production)[i].resource = (*_production)[i].resource = pow( (double)rand() / RAND_MAX, 3);
@@ -306,6 +306,7 @@ namespace simciv
 	{
 		assert(unique_mode);
 		bool consumer = volume < 0;
+		volume = abs(volume);
 		auto& v = consumer ? _consumers : _supplies;
 		AreaProd& a = get_prod(area);
 		auto it = std::find_if(v.begin(), v.end(), [area](Producer* p) { return p->area == area; });
