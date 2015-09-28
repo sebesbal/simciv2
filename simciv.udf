@@ -19,7 +19,7 @@
         <iOS_BundleID Value="" />
         <Platform Value="None" />
         <RunPlatform Value="None" />
-        <FrameworkVersion Value="cocos2d-x-3.7" />
+        <FrameworkVersion Value="cocos2d-x-3.8" />
         <IsDebugKeystore Value="True" />
         <EnableSourceMap Value="False" />
         <EnableHTML5Advanced Value="False" />
