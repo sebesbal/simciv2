@@ -20,6 +20,7 @@ namespace simciv
 		MaterialVec build_cost;			///< cost of build a new instance
 		MaterialVec maintenance_cost;	///< cost of maintain the instance
 		ProductionRule* find_best_rule(const MaterialVec& prices);
+		std::string icon_file;
 	};
 
 	//class Market

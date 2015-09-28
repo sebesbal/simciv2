@@ -101,6 +101,7 @@ std::string get_animal_texture(int id)
 	return "img/animals/" + files[id];
 }
 
+/*
 std::string get_plant_texture(int id)
 {
 	const std::string files[6] = { "Tomato-icon.png",
@@ -111,6 +112,13 @@ std::string get_plant_texture(int id)
 		"Pumpkin-icon.png" };
 
 	return "img/plants/" + files[id];
+}
+*/
+std::string get_plant_texture(int id)
+{
+	int level = id / 3;
+	int color = id % 3;
+	return "img/shapes/shape_" + std::to_string(level) + "_" + std::to_string(color) + ".png";
 }
 
 Layout* combobox(const std::string* labels)
@@ -331,8 +339,9 @@ void MenuButton::onTouchEnded(Touch *touch, Event *unusedEvent)
 	}
 }
 
-RadioMenu::RadioMenu() : _selected(NULL), _space(15), _toggle(false)
+RadioMenu::RadioMenu() : _selected(NULL), _space(15), _toggle(false), _count(0)
 {
+	//add_row();
 }
 
 RadioMenu* RadioMenu::create()
@@ -363,45 +372,55 @@ void RadioMenu::set_selected_btn(MenuButton* btn)
 		btn->set_selected(true);
 		if (_on_changed)
 		{
-			_on_changed(find_btn(btn));
+			_on_changed(btn);
 		}
 	}
 	else
 	{
 		if (_on_changed)
 		{
-			_on_changed(-1);
+			_on_changed(NULL);
 		}
 	}
 }
 
-void RadioMenu::set_selected_btn(int id)
-{
-	if (id > -1)
-	{
-		set_selected_btn((MenuButton*)getChildren().at(id));
-	}
-	else
-	{
-		set_selected_btn((MenuButton*)NULL);
-	}
-}
+//void RadioMenu::set_selected_btn(int id)
+//{
+//	if (id > -1)
+//	{
+//		set_selected_btn((MenuButton*)getChildren().at(id));
+//	}
+//	else
+//	{
+//		set_selected_btn((MenuButton*)NULL);
+//	}
+//}
 
-int RadioMenu::find_btn(MenuButton* btn)
+//int RadioMenu::find_btn(MenuButton* btn)
+//{
+//	int i = 0;
+//	for (auto child : getChildren())
+//	{
+//		if (child == btn) return i;
+//		++i;
+//	}
+//}
+
+void RadioMenu::add_row()
 {
-	int i = 0;
-	for (auto child : getChildren())
-	{
-		if (child == btn) return i;
-		++i;
-	}
+	_row = HBox::create();
+	addChild(_row);
 }
 
 void RadioMenu::add_radio_button(MenuButton* btn)
 {
 	btn->set_toggle(true);
 	btn->addTouchEventListener(CC_CALLBACK_2(RadioMenu::on_btn_clicked, this));
-	addChild(btn);
+	btn->setTag(_count++);
+	_row->addChild(btn);
+	auto s = _row->getContentSize();
+	auto v = btn->getContentSize();
+	_row->setContentSize(Size(s.width + v.width, v.height));
 }
 
 void RadioMenu::on_btn_clicked(Ref* btn, Widget::TouchEventType type)
@@ -411,7 +430,7 @@ void RadioMenu::on_btn_clicked(Ref* btn, Widget::TouchEventType type)
 		MenuButton* b = (MenuButton*)btn;
 		if (_toggle && _selected == b)
 		{
-			set_selected_btn(-1);
+			set_selected_btn(NULL);
 		}
 		else
 		{
@@ -488,7 +507,7 @@ void SpeciesView::set_species(Species* species)
 	this->_species = species;
 	if (species)
 	{
-		string file = get_animal_texture(species->id);
+		string file = species->icon_file; //get_animal_texture(species->id);
 		_icon->loadTexture(file);
 
 		_name_label->setText(file.substr(12, file.length() - 4 - 12));

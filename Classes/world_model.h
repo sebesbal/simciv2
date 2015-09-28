@@ -11,7 +11,11 @@ namespace simciv
 	class Route;
 	const double max_price = 100000000000;
 
-	const int material_count = 4;
+	const int level_count = 4;
+	const int color_count = 3;
+	const int material_count = level_count * color_count;
+
+	int mat_id(int level, int color);
 
 	class MaterialVec : public std::vector < double >
 	{

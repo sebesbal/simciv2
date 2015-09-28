@@ -1,9 +1,10 @@
 #include "animals.h"
 #include <algorithm>
+#include <string>
 
 namespace simciv
 {
-	const int species_count = 6;
+	const int species_count = 12;
 
 	double ProductionRule::profit(const MaterialVec& prices)
 	{
@@ -111,6 +112,7 @@ namespace simciv
 
 	*/
 
+	/*
 	void AnimalWorld::generate_species()
 	{
 		// Worker
@@ -161,6 +163,51 @@ namespace simciv
 			smith2.rules.push_back(r);
 		}
 		species.push_back(smith2);
+	}
+	*/
+
+	void AnimalWorld::generate_species()
+	{
+		const int cost[4] = { 1, 2, 4, 8 };
+		const int output[5] = { 1, 3, 5, 8, 13 };
+		auto id = [](int level, int color) {
+			return level * color_count + (color + color_count) % color_count;
+		};
+		auto next_color = [](int color) {
+			return (color + 1) % color_count;
+		};
+
+		for (int level = 0; level < level_count; ++level)
+		{
+			for (int color = 0; color < color_count; ++color)
+			{
+				Species s;
+				s.id = id(level, color);
+				for (int k = level - 1; k < level_count; ++k)
+				{
+					ProductionRule r;
+
+					// input resources
+					if (level > 0)
+					{
+						r.input[id(level - 1, color)] = 1;
+						r.input[id(level - 1, color + 1)] = 1;
+					}
+
+					// catalyst resource
+					if (k >= level)
+					{
+						r.input[id(k, color - 1)] = 1;
+					}
+
+					r.output[id(level, color)] = output[k - level + 1];
+					s.rules.push_back(r);
+					s.icon_file = "img/shapes/shape_" + std::to_string(level) + "_" + std::to_string(color) + ".png";
+				}
+
+				species.push_back(s);
+			}
+		}
 	}
 
 	void AnimalWorld::generate_animals()
@@ -214,6 +261,7 @@ namespace simciv
 				double rate = 1;
 				for (auto& p : rule->input)
 				{
+					//if (rate == 0) break;
 					int prod_id = p.first;
 					double vol = p.second;
 					auto& producer = ani->producers[prod_id];
@@ -223,10 +271,32 @@ namespace simciv
 					}
 					else
 					{
-						producer = _products[prod_id]->create_prod(area, vol, prices[prod_id]);
+						// producer = _products[prod_id]->create_prod(area, vol, prices[prod_id]);
+						int level = prod_id / color_count;
+						producer = _products[prod_id]->create_prod(area, -vol, pow(20, level + 1) + 10);
 						rate = 0;
 					}
 				}
+				for (auto& p : rule->output)
+				{
+					//if (rate == 0) break;
+					int prod_id = p.first;
+					double vol = p.second;
+					auto& producer = ani->producers[prod_id];
+					if (producer)
+					{
+						rate = std::min(rate, (producer->storage_capacity - producer->storage) / vol);
+					}
+					else
+					{
+						// producer = _products[prod_id]->create_prod(area, vol, prices[prod_id]);
+						int level = prod_id / color_count;
+						producer = _products[prod_id]->create_prod(area, vol, pow(20, level + 1) - 10);
+						rate = 0;
+					}
+				}
+
+				rate = 1;
 
 				if (rate == 0)
 				{
@@ -239,7 +309,16 @@ namespace simciv
 						int prod_id = p.first;
 						double vol = p.second;
 						auto& producer = ani->producers[prod_id];
-						producer->storage -= rate * vol;
+						//producer->storage -= rate * vol;
+						producer->produce(-rate * vol);
+					}
+					for (auto& p : rule->output)
+					{
+						int prod_id = p.first;
+						double vol = p.second;
+						auto& producer = ani->producers[prod_id];
+						//producer->storage += rate * vol;
+						producer->produce(rate * vol);
 					}
 				}
 			}

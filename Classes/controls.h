@@ -12,6 +12,7 @@ USING_NS_CC;
 namespace simciv
 {
 	class MaterialStringView;
+	class MenuButton;
 
 	ui::Layout* labelled_cb(std::string text, bool checked, ui::CheckBox::ccCheckBoxCallback cb);
 
@@ -21,6 +22,7 @@ namespace simciv
 
 	// typedef void(*int_cb)(int id);
 	typedef std::function<void(int)> int_cb;
+	typedef std::function<void(MenuButton*)> button_cb;
 
 	class RadioBox : public ui::HBox
 	{
@@ -69,16 +71,19 @@ namespace simciv
 		static RadioMenu* create();
 		MenuButton* get_selected_btn() { return _selected; }
 		void set_selected_btn(MenuButton* btn);
-		void set_selected_btn(int id);
-		int find_btn(MenuButton* btn);
+		//void set_selected_btn(int id);
+		// int find_btn(MenuButton* btn);
+		void add_row();
 		void add_radio_button(MenuButton* btn);
-		void set_on_changed(int_cb cb) { _on_changed = cb; }
+		void set_on_changed(button_cb cb) { _on_changed = cb; }
 		void set_toggle(bool toggle) { _toggle = toggle; }
 	protected:
+		ui::HBox* _row;
+		int _count;
 		int _space;
 		bool _toggle;
 		MenuButton* _selected;
-		int_cb _on_changed;
+		button_cb _on_changed;
 		void on_btn_clicked(Ref* btn, Widget::TouchEventType type);
 	};
 

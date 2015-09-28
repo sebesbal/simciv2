@@ -16,17 +16,46 @@ namespace simciv
 
 	}
 
-	Producer::Producer()
+	Producer::Producer() : storage(0), storage_last(0), storage_d(0), storage_capacity(100), prod_volume(0)
 	{
-		storage_capacity = 100;
-		storage = 0;
 	}
 
 	void Producer::produce(double vol)
 	{
-		const double a = 0.9;
-		volume = a * volume + (1 - a) * vol;
+		//const double a = 0.9;
+		//volume = a * volume + (1 - a) * vol;
 		storage += vol;
+		prod_volume += vol;
+	}
+
+	void Producer::update_price()
+	{
+		const double a = 0.9;
+		storage_d = a * storage_d + (1 - a) * (storage - storage_last);
+		storage_last = storage;
+
+		double actual_vol = volume + is_consumer() ? free_volume : -free_volume;
+
+		double fullness = storage / storage_capacity;
+		//double surplus = 
+
+		double dp = 0;
+
+		if (is_consumer())
+		{
+			// increase the price if the fullness is lower than 0.5 
+			price += 0.5 - fullness;
+
+
+			volume += storage_d;
+
+			// increase the price if the volume is positive (the storage is growing)
+			price += volume;
+		}
+		else
+		{
+
+		}
 	}
 
 	ProductMap::ProductMap(WorldModel& world): 

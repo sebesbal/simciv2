@@ -32,16 +32,20 @@ namespace simciv
 		Producer();
 		bool is_consumer() { return volume < 0; }
 		Area* area;
-		double volume; // negative volume means consumer
-		double free_volume; 
+		double volume; // trade offer. negative volume means consumer
+		double free_volume; // offer - actually traded volume
 		double price; // the current price
 		double profit; // the worst profit of the producers deals
 		double partner_price;
 
 		double storage_capacity;
+		double storage_last;
 		double storage;
-		void consume(double vol);
+		double storage_d;
+
+		double prod_volume; // production volume. negative volume means consumer
 		void produce(double vol);
+		void update_price();
 	};
 
 	struct Transport

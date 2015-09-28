@@ -18,8 +18,8 @@ USING_NS_CC;
 using namespace std;
 using namespace ui;
 
-const int spec_count = 6;
-const int mat_count = 4;
+//const int spec_count = 6;
+//const int mat_count = 4;
 
 
 Scene* WorldUI::createScene()
@@ -107,7 +107,7 @@ void WorldUI::load_from_tmx(std::string tmx)
 	m->setScale(1.5);
 	this->addChild(_map);
 
-	_model.create_map(size.width, size.height, 4);
+	_model.create_map(size.width, size.height, material_count);
 
 	Node* v = _plant_layer = PlantMapLayer::create(&_model, info);
 	v->setVisible(true);
@@ -192,13 +192,16 @@ RadioMenu* WorldUI::create_left_menu()
 	RadioMenu* result = RadioMenu::create();
 	result->set_toggle(true);
 
+	result->add_row();
 	auto btn = MenuButton::create(get_animal_texture(0));
 	result->add_radio_button(btn);
+
+	result->add_row();
 	btn = MenuButton::create(get_plant_texture(0));
 	result->add_radio_button(btn);
 
-	result->set_on_changed([this](int id) {
-		switch (id)
+	result->set_on_changed([this](MenuButton* btn) {
+		switch (btn->getTag())
 		{
 		case 0:
 			this->set_state(UIS_ANIMAL);
@@ -218,13 +221,18 @@ RadioMenu* WorldUI::create_left_menu()
 RadioMenu* WorldUI::create_species_browser()
 {
 	RadioMenu* result = RadioMenu::create();
-	for (int i = 0; i < spec_count; ++i)
+	for (int level = 0; level < level_count; ++level)
 	{
-		auto btn = MenuButton::create(get_animal_texture(i));
-		result->add_radio_button(btn);
+		result->add_row();
+		for (int color = 0; color < color_count; ++color)
+		{
+			auto btn = MenuButton::create(_model.get_species().at(mat_id(level, color)).icon_file);
+			result->add_radio_button(btn);
+		}
 	}
 	result->set_selected_btn(0);
-	result->set_on_changed([this](int id) {
+	result->set_on_changed([this](MenuButton* btn) {
+		int id = btn->getTag();
 		this->info.animal_id = id;
 		_species_view->set_species(&_model.get_species().at(id));
 	});
@@ -234,14 +242,26 @@ RadioMenu* WorldUI::create_species_browser()
 RadioMenu* WorldUI::create_plants_browser()
 {
 	RadioMenu* result = RadioMenu::create();
-	for (int i = 0; i < mat_count; ++i)
+	for (int level = 0; level < level_count; ++level)
 	{
-		auto btn = MenuButton::create(get_plant_texture(i));
-		result->add_radio_button(btn);
+		result->add_row();
+		for (int color = 0; color < color_count; ++color)
+		{
+			auto btn = MenuButton::create(_model.get_species().at(mat_id(level, color)).icon_file);
+			result->add_radio_button(btn);
+		}
 	}
+
+
+	//for (int i = 0; i < mat_count; ++i)
+	//{
+	//	auto btn = MenuButton::create(get_plant_texture(i));
+	//	result->add_radio_button(btn);
+	//}
+
 	result->set_selected_btn(0);
-	result->set_on_changed([this](int id) {
-		info.plant_id = id;
+	result->set_on_changed([this](MenuButton* btn) {
+		info.plant_id = btn->getTag();
 		set_state(_state);
 	});
 	return result;

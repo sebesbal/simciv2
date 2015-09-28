@@ -7,6 +7,11 @@ using namespace std;
 
 namespace simciv
 {
+	int mat_id(int level, int color)
+	{
+		return color_count * level + (color + color_count) % color_count;
+	}
+
 	void bisect(const MaterialVec& v, MaterialVec& pos, MaterialVec& neg)
 	{
 		pos.clear();
