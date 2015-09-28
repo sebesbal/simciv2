@@ -66,7 +66,7 @@ namespace simciv
 		}
 	}
 
-	WorldModel::WorldModel()
+	WorldModel::WorldModel() : _src_for_get_distances(NULL)
 	{
 
 	}
@@ -156,6 +156,9 @@ namespace simciv
 
 	void WorldModel::get_distances(Node* src, Node* g)
 	{
+		if (src == _src_for_get_distances) return;
+		_src_for_get_distances = src;
+
 		int nn = _areas.size();
 
 		for (int i = 0; i < nn; ++i)
@@ -260,4 +263,9 @@ namespace simciv
 	//{
 	//	_products[prod_id]->remove_prod(area, volume, price);
 	//}
+
+	void RouteAnimation::set_route(Route* route)
+	{
+
+	}
 }

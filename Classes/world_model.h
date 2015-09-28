@@ -92,6 +92,7 @@ namespace simciv
 		Route* get_route(Node* src, Node* dst, Node* g);
 		std::vector<ProductMap*>& products() { return _products; }
 	protected:
+		Node* _src_for_get_distances;
 		MaterialVec empty_mat_vec();
 		std::vector<ProductMap*> _products;
 		std::vector<Road*> _roads;
@@ -100,5 +101,11 @@ namespace simciv
 		int _width;
 		int _height;
 		void add_road(Area* a, Area* b);
+	};
+
+	class RouteAnimation
+	{
+	public:
+		void set_route(Route* route);
 	};
 }

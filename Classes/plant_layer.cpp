@@ -160,13 +160,46 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		}
 	}
 
+	//if (info.show_transport)
+	//{
+	//	//DrawPrimitives::setDrawColor4F(0, 0, 1, 1);
+	//	glLineWidth(3);
+	//	double scale = 5; // 0.1;
+
+	//	for (Area* a: _model->areas())
+	//	{
+	//		double x, y;
+	//		a->get_trans(info.plant_id, x, y);
+	//		Rect r = get_rect(a->x, a->y);
+	//		Vec2 p = Vec2(r.getMidX(), r.getMidY());
+	//		DrawPrimitives::drawLine(p, Vec2(p.x + scale * x, p.y + scale * y));
+	//	}
+	//}
+
 	if (info.show_transport)
 	{
+		//ProductMap* prod = _model->products()[info.plant_id];
+		//auto& v = prod->routes();
+		//for (auto route : v)
+		//{
+
+		//}
+
+
+		//CCFiniteTimeAction* actionMove =
+		//	CCMoveTo::create((float)actualDuration,
+		//	ccp(0 - target->getContentSize().width / 2, actualY));
+		//CCFiniteTimeAction* actionMoveDone =
+		//	CCCallFuncN::create(this,
+		//	callfuncN_selector(HelloWorld::spriteMoveFinished));
+		//target->runAction(CCSequence::create(actionMove,
+		//	actionMoveDone, NULL));
+
 		//DrawPrimitives::setDrawColor4F(0, 0, 1, 1);
 		glLineWidth(3);
 		double scale = 5; // 0.1;
 
-		for (Area* a: _model->areas())
+		for (Area* a : _model->areas())
 		{
 			double x, y;
 			a->get_trans(info.plant_id, x, y);

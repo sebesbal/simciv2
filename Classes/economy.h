@@ -75,9 +75,13 @@ namespace simciv
 		void move_prod(Producer* prod, Area* new_area);
 		void routes_to_areas(int prod_id);
 		void generate_resources();
+		std::vector<Transport*>& routes() { return _routes; }
 	protected:
+		Node* g;
 		int update_count;
 		bool unique_mode;
+		void create_g();
+		Transport* get_transport(Producer* src, Producer* dst);
 		void update_routes();
 		void update_prices();
 		WorldModel& _world;
