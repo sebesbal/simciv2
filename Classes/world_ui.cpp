@@ -201,7 +201,11 @@ RadioMenu* WorldUI::create_left_menu()
 	result->add_radio_button(btn);
 
 	result->set_on_changed([this](MenuButton* btn) {
-		if (!btn) this->set_state(UIS_NONE);
+		if (!btn)
+		{
+			this->set_state(UIS_NONE);
+			return;
+		}
 
 		switch (btn->getTag())
 		{

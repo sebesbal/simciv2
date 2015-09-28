@@ -273,7 +273,7 @@ namespace simciv
 					{
 						// producer = _products[prod_id]->create_prod(area, vol, prices[prod_id]);
 						int level = prod_id / color_count;
-						producer = _products[prod_id]->create_prod(area, -vol, pow(20, level + 1) + 10);
+						producer = _products[prod_id]->create_prod(area, -vol, pow(2, level + 4) + 10);
 						rate = 0;
 					}
 				}
@@ -291,7 +291,7 @@ namespace simciv
 					{
 						// producer = _products[prod_id]->create_prod(area, vol, prices[prod_id]);
 						int level = prod_id / color_count;
-						producer = _products[prod_id]->create_prod(area, vol, pow(20, level + 1) - 10);
+						producer = _products[prod_id]->create_prod(area, vol, pow(2, level + 4) - 10);
 						rate = 0;
 					}
 				}
