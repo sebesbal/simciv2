@@ -30,7 +30,9 @@ namespace simciv
 	struct Producer
 	{
 		Producer();
-		bool is_consumer() { return volume < 0; }
+		//bool is_consumer() { return volume < 0; }
+		bool is_consumer() { return _is_consumer; }
+		bool _is_consumer;
 		Area* area;
 		double volume; // trade offer. negative volume means consumer
 		double free_volume; // offer - actually traded volume

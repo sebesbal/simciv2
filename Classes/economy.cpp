@@ -34,7 +34,7 @@ namespace simciv
 		storage_d = a * storage_d + (1 - a) * (storage - storage_last);
 		storage_last = storage;
 
-		double actual_vol = volume + is_consumer() ? free_volume : -free_volume;
+		double actual_vol = volume - free_volume;
 
 		double fullness = storage / storage_capacity;
 		//double surplus = 
@@ -124,7 +124,7 @@ namespace simciv
 		}
 		for (Producer* p: _consumers)
 		{
-			p->free_volume = - p->volume;
+			p->free_volume = p->volume;
 			p->profit = max_price;
 		}
 
@@ -242,16 +242,17 @@ namespace simciv
 
 	Producer* ProductMap::create_prod(Area* area, double volume, double price)
 	{
-		bool consumer = volume < 0;
-		auto& v = consumer ? _consumers : _supplies;
-		AreaProd& a = get_prod(area);
-		auto it = std::find_if(v.begin(), v.end(), [area](Producer* p) { return p->area == area; });
 		Producer* p = new Producer();
 		p->price = price;
-		p->volume = volume;
+		p->_is_consumer = volume < 0;
+		p->volume = abs(volume);
 		p->area = area;
 
-		if (consumer)
+		auto& v = p->_is_consumer ? _consumers : _supplies;
+		AreaProd& a = get_prod(area);
+		auto it = std::find_if(v.begin(), v.end(), [area](Producer* p) { return p->area == area; });
+
+		if (p->_is_consumer)
 		{
 			_consumers.push_back(p);
 			_area_consumers[area->index].push_back(p);
@@ -269,6 +270,7 @@ namespace simciv
 	Producer* ProductMap::add_prod(Area* area, double volume, double price)
 	{
 		bool consumer = volume < 0;
+		volume = abs(volume);
 		auto& v = consumer ? _consumers : _supplies;
 		AreaProd& a = get_prod(area);
 		auto it = std::find_if(v.begin(), v.end(), [area](Producer* p) { return p->area == area; });
