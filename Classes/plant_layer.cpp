@@ -1,6 +1,7 @@
 #include "world_ui.h"
 #include "economy.h"
 #include "controls.h"
+#include <map>
 
 namespace simciv
 {
@@ -178,12 +179,25 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 
 	if (info.show_transport)
 	{
-		//ProductMap* prod = _model->products()[info.plant_id];
-		//auto& v = prod->routes();
-		//for (auto route : v)
-		//{
+		//static bool first_run = true;
+		//if (!first_run
+		ProductMap* prod = _model->products()[info.plant_id];
+		auto& v = prod->routes();
+		for (auto route : v)
+		{
+			auto r = route->route;
+			auto it = routes.find(r);
+			if (it == routes.end())
+			{
+				RouteAnimation* ani = new RouteAnimation();
+				ani->set_route(info.plant_id, r, this);
+				routes[r] = ani;
+			}
+			else
+			{
 
-		//}
+			}
+		}
 
 
 		//CCFiniteTimeAction* actionMove =
@@ -196,18 +210,67 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		//	actionMoveDone, NULL));
 
 		//DrawPrimitives::setDrawColor4F(0, 0, 1, 1);
-		glLineWidth(3);
-		double scale = 5; // 0.1;
+		//glLineWidth(3);
+		//double scale = 5; // 0.1;
 
-		for (Area* a : _model->areas())
-		{
-			double x, y;
-			a->get_trans(info.plant_id, x, y);
-			Rect r = get_rect(a->x, a->y);
-			Vec2 p = Vec2(r.getMidX(), r.getMidY());
-			DrawPrimitives::drawLine(p, Vec2(p.x + scale * x, p.y + scale * y));
-		}
+		//for (Area* a : _model->areas())
+		//{
+		//	double x, y;
+		//	a->get_trans(info.plant_id, x, y);
+		//	Rect r = get_rect(a->x, a->y);
+		//	Vec2 p = Vec2(r.getMidX(), r.getMidY());
+		//	DrawPrimitives::drawLine(p, Vec2(p.x + scale * x, p.y + scale * y));
+		//}
 	}
 }
+
+void RouteAnimation::set_route(int prod_id, Route* route, MapView* map)
+{
+	auto it = route->roads.begin();
+	Area* a = (*it)->a;
+	//Sprite* sprite = Sprite::create(get_animal_texture(ani->species.id));
+	Sprite* sprite = Sprite::create(get_plant_texture(prod_id));
+	Rect r = map->get_rect(a->x, a->y);
+	//sprite->setPosition(r.getMidX(), r.getMidY());
+	sprite->setScale(0.02f);
+	map->addChild(sprite);
+
+	int cs = map->cell_size();
+	this->route = route;
+	float time = 0;
+
+	
+	Vector<FiniteTimeAction*> v;
+
+	CCFiniteTimeAction* actionMove = CCMoveTo::create(0, ccp(a->x * cs + cs / 2, a->y * cs + cs / 2));
+	v.pushBack(actionMove);
+
+	for (auto r : route->roads)
+	{
+		Area* b = r->other(a);
+		//Area* a = r->a;
+		//Area* b = r->b;
+
+		CCFiniteTimeAction* actionMove = CCMoveTo::create(3, ccp(b->x * cs + cs / 2, b->y * cs + cs / 2));
+		v.pushBack(actionMove);
+		
+		
+
+		// time += 0.05;
+		a = b;
+	}
+	//CCFiniteTimeAction* actionMoveDone = CCCallFuncN::create(this, callfuncN_selector(RouteAnimation::spriteMoveFinished));
+	CCFiniteTimeAction* actionMoveDone = CCCallFuncN::create([](CCNode* sender){});
+	v.pushBack(actionMoveDone);
+	// v.pushBack(NULL);
+	
+	sprite->runAction(CCRepeatForever::create(CCSequence::create(v)));
+}
+//
+//void RouteAnimation::spriteMoveFinished(CCNode* sender)
+//{
+//	//CCSprite *sprite = (CCSprite *)sender;
+//	//this->removeChild(sprite, true);
+//}
 
 }

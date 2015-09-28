@@ -264,8 +264,4 @@ namespace simciv
 	//	_products[prod_id]->remove_prod(area, volume, price);
 	//}
 
-	void RouteAnimation::set_route(Route* route)
-	{
-
-	}
 }

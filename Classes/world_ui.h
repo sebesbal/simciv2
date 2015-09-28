@@ -19,6 +19,7 @@ namespace simciv
 USING_NS_CC;
 
 class Item;
+class RouteAnimation;
 
 const Color3B def_bck_color3B(40, 0, 60);
 const Color4B def_bck_color4B(40, 0, 60, 255);
@@ -45,7 +46,7 @@ public:
 	void draw_vec(Vec2 a, Vec2 v);
     Rect get_rect(int x, int y);
 	Area* get_area(Vec2 p);
-
+	int cell_size() { return cs; }
 protected:
 	static const int cs = 33; // cell size
 	Size _table;
@@ -86,6 +87,7 @@ protected:
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
 	void set_price_vol_mode(int i);
 	void set_sup_con_mode(int i);
+	std::map<Route*, RouteAnimation*> routes;
 };
 
 /// Render animals
@@ -158,6 +160,15 @@ protected:
 	virtual void setContentSize(const Size & var) override;
 	void update_panels(bool animal, bool plants);
 	void set_state(UIState state);
+};
+
+class RouteAnimation
+{
+public:
+	void set_route(int prod_id, Route* route, MapView* map);
+private:
+	Route* route;
+	//void spriteMoveFinished(CCNode* sender);
 };
 
 }

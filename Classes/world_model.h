@@ -102,10 +102,4 @@ namespace simciv
 		int _height;
 		void add_road(Area* a, Area* b);
 	};
-
-	class RouteAnimation
-	{
-	public:
-		void set_route(Route* route);
-	};
 }
