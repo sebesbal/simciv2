@@ -30,32 +30,98 @@ namespace simciv
 
 	void Producer::update_price()
 	{
-		const double a = 0.9;
-		storage_d = a * storage_d + (1 - a) * (storage - storage_last);
-		storage_last = storage;
+		/*
+		fullness
+		balance: production - trade
+		producer:
+		- ha a fullness túl nagy, félünk hogy megtelik, próbálunk többet eladni: --> változatlan áron többet eladni, vagy csökkenteni az árat
+			--> ha free_volume == 0, vagyis mindent el tudtunk adni
+				--> növeljük volume-t, árat hagyjuk békén
+			--> ha free_volume > 0, már így se tudtunk mindent eladni
+				--> csökkenteni kell az árat, volume-t hagyjuk békén
+		- ha fullness kicsi, csökkentsük az eladást: --> megpróbálnánk növelni az árat, vagy raktározni jobb idõkre
+			--> ha free_volume == 0, mindent el tudtunk adni
+				--> növeljük az árat
+			--> ha free_volume > 0, már így se tudtunk mindent eladni
+				--> csökkentsük volumet. (abban bízunk hogy késõbb jobb áron tudunk eladni)
+		*/
 
-		double actual_vol = volume - free_volume;
+		//const double a = 0.9;
+		//storage_d = a * storage_d + (1 - a) * (storage - storage_last);
+		//storage_last = storage;
 
 		double fullness = storage / storage_capacity;
-		//double surplus = 
 
-		double dp = 0;
+		double vol_d = 0.1;
+		double price_d = 1;
 
 		if (is_consumer())
 		{
-			// increase the price if the fullness is lower than 0.5 
-			price += 0.5 - fullness;
-
-
-			volume += storage_d;
-
-			// increase the price if the volume is positive (the storage is growing)
-			price += volume;
+			if (fullness < 0.5)
+			{
+				// want to buy
+				if (free_volume > 0)
+				{
+					// raise price
+					price += price_d;
+				}
+				else
+				{
+					// raise volume
+					volume += vol_d;
+				}
+			}
+			else
+			{
+				// want to buy less
+				if (free_volume > 0)
+				{
+					//reduce volume
+					volume -= vol_d;
+				}
+				else
+				{
+					// reduce price
+					price -= price_d;
+				}
+			}
 		}
 		else
 		{
-
+			if (fullness < 0.5)
+			{
+				// want to store
+				if (free_volume > 0)
+				{
+					// reduce volume
+					volume -= vol_d;
+				}
+				else
+				{
+					// raise price
+					price += price_d;
+				}
+			}
+			else
+			{
+				// want to sell
+				if (free_volume > 0)
+				{
+					// reduce price
+					price -= price_d;
+				}
+				else
+				{
+					// raise volume
+					volume += vol_d;
+				}
+			}
 		}
+
+		volume = std::max(0.0, volume);
+		volume = std::min(volume, storage_capacity - storage);
+
+		price = std::max(0.0, price);
 	}
 
 	ProductMap::ProductMap(WorldModel& world): 
@@ -81,6 +147,7 @@ namespace simciv
 			update_routes();
 		}
 		update_prices();
+		update_storages();
 	}
 
 	void ProductMap::create_g()
@@ -249,6 +316,28 @@ namespace simciv
 
 		//*_production = *_new_production;
 		 std::swap(_production, _new_production);
+
+		 // update prices in the producers
+		 for (Producer* p : _supplies)
+		 {
+			 p->update_price();
+		 }
+		 for (Producer* p : _consumers)
+		 {
+			 p->update_price();
+		 }
+	}
+
+	void ProductMap::update_storages()
+	{
+		for (Transport* t : _routes)
+		{
+			Producer* a = t->sup;
+			Producer* b = t->dem;
+			
+			a->storage -= t->volume;
+			b->storage += t->volume;
+		}
 	}
 
 	Producer* ProductMap::create_prod(Area* area, double volume, double price)

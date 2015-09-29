@@ -84,6 +84,7 @@ namespace simciv
 		Transport* get_transport(Producer* src, Producer* dst);
 		void update_routes();
 		void update_prices();
+		void update_storages();
 		WorldModel& _world;
 		std::vector<Producer*> _supplies;
 		std::vector<Producer*> _consumers;
