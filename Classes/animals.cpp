@@ -248,6 +248,7 @@ namespace simciv
 	{
 		for (Animal* ani : animals)
 		{
+			int ani_level = ani->species.id / color_count;
 			MaterialVec prices;
 			Area* area = ani->area;
 			for (int i = 0; i < material_count; ++i)
@@ -274,6 +275,7 @@ namespace simciv
 						//producer = _products[prod_id]->create_prod(area, vol, prices[prod_id]);
 						int level = prod_id / color_count;
 						producer = _products[prod_id]->create_prod(area, -vol, pow(2, level + 4) + 10);
+						if (ani_level == 3) producer->_fix_price = true;
 						rate = 0;
 					}
 				}
@@ -292,11 +294,12 @@ namespace simciv
 						//producer = _products[prod_id]->create_prod(area, vol, prices[prod_id]);
 						int level = prod_id / color_count;
 						producer = _products[prod_id]->create_prod(area, vol, pow(2, level + 4) - 10);
+						if (ani_level == 3) producer->_fix_price = true;
 						rate = 0;
 					}
 				}
 
-				rate = 1;
+				// rate = 1;
 
 				if (rate == 0)
 				{
@@ -310,7 +313,8 @@ namespace simciv
 						double vol = p.second;
 						auto& producer = ani->producers[prod_id];
 						//producer->storage -= rate * vol;
-						producer->produce(-rate * vol);
+						
+						if (ani_level != 3) producer->produce(-rate * vol);
 					}
 					for (auto& p : rule->output)
 					{
@@ -318,7 +322,7 @@ namespace simciv
 						double vol = p.second;
 						auto& producer = ani->producers[prod_id];
 						//producer->storage += rate * vol;
-						producer->produce(rate * vol);
+						if (ani_level != 3) producer->produce(rate * vol);
 					}
 				}
 			}

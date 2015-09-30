@@ -16,7 +16,7 @@ namespace simciv
 
 	}
 
-	Producer::Producer() : storage(0), storage_last(0), storage_d(0), storage_capacity(100), prod_volume(0)
+	Producer::Producer() : storage(50), storage_last(0), storage_d(0), storage_capacity(100), prod_volume(0), _fix_price(false)
 	{
 	}
 
@@ -49,6 +49,8 @@ namespace simciv
 		//const double a = 0.9;
 		//storage_d = a * storage_d + (1 - a) * (storage - storage_last);
 		//storage_last = storage;
+
+		if (_fix_price) return;
 
 		double fullness = storage / storage_capacity;
 
@@ -85,6 +87,7 @@ namespace simciv
 					price -= price_d;
 				}
 			}
+			volume = std::min(volume, free_capacity());
 		}
 		else
 		{
@@ -116,10 +119,8 @@ namespace simciv
 					volume += vol_d;
 				}
 			}
+			volume = std::max(0.0, volume);
 		}
-
-		volume = std::max(0.0, volume);
-		volume = std::min(volume, storage_capacity - storage);
 
 		price = std::max(0.0, price);
 	}
@@ -332,9 +333,15 @@ namespace simciv
 	{
 		for (Transport* t : _routes)
 		{
+			double& vol = t->volume;
+			if (vol == 0) continue;
+
 			Producer* a = t->sup;
 			Producer* b = t->dem;
 			
+			vol = std::min(a->storage, vol);
+			vol = std::min(b->free_capacity(), vol);
+
 			a->storage -= t->volume;
 			b->storage += t->volume;
 		}
