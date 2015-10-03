@@ -46,15 +46,6 @@ bool AnimalMapLayer::init()
 		return false;
 	}
 
-	auto visibleSize = Director::getInstance()->getVisibleSize();
-	auto w = visibleSize.width;
-	auto h = visibleSize.height;
-
-	left_menu = VBox::create();
-	auto p = LinearLayoutParameter::create();
-	p->setMargin(Margin(2, 2, 2, 2));
-	p->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
-
 	_animals = Node::create();
 	addChild(_animals);
 
@@ -66,27 +57,44 @@ bool AnimalMapLayer::is_map_point(cocos2d::Vec2& p)
 	return p.x > 370 || p.y > 222;
 }
 
-void AnimalMapLayer::onTouchEnded(Touch* touch, Event  *event)
-{
-	auto s = touch->getStartLocation();
-	auto p = touch->getLocation();
-	if (is_map_point(touch->getLocationInView()) && (p - s).length() < 10)
-	{
-		//p = _items->convertToNodeSpace(p);
-		//add_item(_mode, p.x, p.y);
-	}
-}
-
-
-void AnimalMapLayer::onTouchMoved(Touch* touch, Event  *event)
-{
-	if (is_map_point(touch->getLocationInView()))
-	{
-		auto diff = touch->getDelta();
-		_map->setPosition(_map->getPosition() + diff);
-		//_items->setPosition(_items->getPosition() + diff);
-	}
-}
+//bool AnimalMapLayer::onTouchBegan(Touch* touch, Event  *event)
+//{
+//	auto p = touch->getLocation();
+//	p = convertToNodeSpace(p);
+//	Area* a = get_area(p);
+//	Animal* ani = model().find_animal(a);
+//	if (ani)
+//	{
+//
+//	}
+//	else
+//	{
+//		create_animal(a, model().get_species()[0]);
+//	}
+//	return true;
+//}
+//
+//void AnimalMapLayer::onTouchEnded(Touch* touch, Event  *event)
+//{
+//	auto s = touch->getStartLocation();
+//	auto p = touch->getLocation();
+//	if (is_map_point(touch->getLocationInView()) && (p - s).length() < 10)
+//	{
+//		//p = _items->convertToNodeSpace(p);
+//		//add_item(_mode, p.x, p.y);
+//	}
+//}
+//
+//
+//void AnimalMapLayer::onTouchMoved(Touch* touch, Event  *event)
+//{
+//	if (is_map_point(touch->getLocationInView()))
+//	{
+//		auto diff = touch->getDelta();
+//		_map->setPosition(_map->getPosition() + diff);
+//		//_items->setPosition(_items->getPosition() + diff);
+//	}
+//}
 
 Animal* AnimalMapLayer::create_animal(Area* a, Species& s)
 {

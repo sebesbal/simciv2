@@ -97,8 +97,9 @@ class AnimalMapLayer : public MapView
 public:
 	static AnimalMapLayer* create(AnimalWorld* model);
 	virtual bool init() override;
-	void onTouchEnded(Touch* touch, Event  *event) override;
-	void onTouchMoved(Touch* touch, Event  *event) override;
+	//bool onTouchBegan(Touch* touch, Event  *event) override;
+	//void onTouchEnded(Touch* touch, Event  *event) override;
+	//void onTouchMoved(Touch* touch, Event  *event) override;
 	Animal* create_animal(Area* a, Species& species);
 	Sprite* create_sprite(Animal* ani);
 	void create_sprites_from_model();
@@ -106,7 +107,6 @@ protected:
 	AnimalWorld& model() { return *(AnimalWorld*)_model; }
 	bool is_map_point(cocos2d::Vec2& p);
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
-	ui::VBox* left_menu;
 	Node* _animals;
 };
 
@@ -140,6 +140,8 @@ protected:
 	std::vector<Node*> views;
 	cocos2d::Node* _map;
 	AnimalWorld _model;
+	bool _drag_start;
+	cocos2d::Vec2 _mouse_down_pos;
 
 	RadioMenu* _main_menu;
 	RadioMenu* _species_browser;

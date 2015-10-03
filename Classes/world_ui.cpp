@@ -37,7 +37,7 @@ Scene* WorldUI::createScene()
     return scene;
 }
 
-WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0)
+WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_start(false)
 {
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	auto w = visibleSize.width;
@@ -143,12 +143,56 @@ void WorldUI::menuCloseCallback(Ref* sender)
     Director::getInstance()->end();
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    exit(0);
+exit(0);
 #endif
 }
 
 bool WorldUI::onTouchBegan(Touch* touch, Event  *event)
 {
+	if (event->isStopped()) return false;
+
+	_drag_start = false;
+	auto p = touch->getLocation();
+	_mouse_down_pos = p;
+	p = _animal_view->convertToNodeSpace(p);
+
+	switch (_state)
+	{
+	case simciv::UIS_NONE:
+		break;
+	case simciv::UIS_ANIMAL:
+	{
+		Area* a = _animal_view->get_area(p);
+		Animal* ani = _model.find_animal(a);
+		if (ani)
+		{
+
+		}
+		else
+		{
+
+		}
+	}
+	break;
+	case simciv::UIS_PLANTS:
+		break;
+	default:
+		break;
+	}
+
+	//	auto p = touch->getLocation();
+	//	p = convertToNodeSpace(p);
+	//	Area* a = get_area(p);
+	//	Animal* ani = model().find_animal(a);
+	//	if (ani)
+	//	{
+	//
+	//	}
+	//	else
+	//	{
+	//		create_animal(a, model().get_species()[0]);
+	//	}
+
 	return true;
 }
 
@@ -163,14 +207,28 @@ void WorldUI::onTouchEnded(Touch* touch, Event  *event)
 	case simciv::UIS_NONE:
 		break;
 	case simciv::UIS_ANIMAL:
+	{
+		auto p = touch->getLocation();
+		p = _animal_view->convertToNodeSpace(p);
+		Area* a = _animal_view->get_area(p);
+		Animal* ani = _model.find_animal(a);
+		if (ani)
 		{
-			auto p = touch->getLocation();
-			p = _animal_view->convertToNodeSpace(p);
-			Area* a = _animal_view->get_area(p);
-			// _animal_view->create_animal(a, _model.get_species().at(info.animal_id));
-			_animal_view->create_animal(a, *info.species);
+
 		}
-		break;
+		else
+		{
+			if (!_drag_start)
+			{
+				Species* s = info.species;
+				if (s)
+				{
+					_animal_view->create_animal(a, *s);
+				}
+			}
+		}
+	}
+	break;
 	case simciv::UIS_PLANTS:
 		break;
 	default:
@@ -180,11 +238,23 @@ void WorldUI::onTouchEnded(Touch* touch, Event  *event)
 
 void WorldUI::onTouchMoved(Touch* touch, Event  *event)
 {
-	//if (is_map_point(touch->getLocationInView()))
+	Vec2 p = touch->getLocation();
+	Vec2 d;
+	if (_drag_start)
 	{
-		auto diff = touch->getDelta();
-		_map->setPosition(_map->getPosition() + diff);
-		//_items->setPosition(_items->getPosition() + diff);
+		d = touch->getDelta();
+	}
+	else
+	{
+		d = p - _mouse_down_pos;
+		if (d.length() > 5)
+		{
+			_drag_start = true;
+		}
+	}
+	if (_drag_start)
+	{
+		_map->setPosition(_map->getPosition() + d);
 	}
 }
 
