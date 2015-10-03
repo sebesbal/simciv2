@@ -13,14 +13,24 @@ namespace simciv
 		double profit(const MaterialVec& prices);
 	};
 
+	enum SpeciesType
+	{
+		ST_TYPECOLOR,
+		ST_BLACKHOLE
+	};
+
 	struct Species
 	{
-		int id;
+		//int id;
+		SpeciesType type;
 		std::vector<ProductionRule> rules;	///< products materials form materials
 		MaterialVec build_cost;			///< cost of build a new instance
 		MaterialVec maintenance_cost;	///< cost of maintain the instance
 		ProductionRule* find_best_rule(const MaterialVec& prices);
 		std::string icon_file;
+
+		int level;
+		int color;
 	};
 
 	//class Market
@@ -55,6 +65,7 @@ namespace simciv
 		Animal* find_animal(Area* a);
 		std::vector<Animal*>& get_animals() { return animals; }
 		std::vector<Species>& get_species() { return species; }
+		Species* get_species(int level, int color);
 		virtual void update() override;
 	protected:
 		void move_animal(Animal* ani, Area* new_area);

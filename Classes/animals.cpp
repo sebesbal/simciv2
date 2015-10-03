@@ -182,7 +182,10 @@ namespace simciv
 			for (int color = 0; color < color_count; ++color)
 			{
 				Species s;
-				s.id = id(level, color);
+				s.level = level;
+				s.color = color;
+				s.type = ST_TYPECOLOR;
+				//s.id = id(level, color);
 				for (int k = level - 1; k < level_count; ++k)
 				{
 					ProductionRule r;
@@ -244,11 +247,21 @@ namespace simciv
 		}
 	}
 
+	Species* AnimalWorld::get_species(int level, int color)
+	{
+		for (auto& s : species)
+		{
+			if (s.level == level && s.color == color) return &s;
+		}
+		return NULL;
+	}
+
 	void AnimalWorld::update()
 	{
 		for (Animal* ani : animals)
 		{
-			int ani_level = ani->species.id / color_count;
+			// int ani_level = ani->species.id / color_count;
+			int ani_level = ani->species.level;
 			MaterialVec prices;
 			Area* area = ani->area;
 			for (int i = 0; i < material_count; ++i)

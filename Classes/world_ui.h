@@ -57,7 +57,7 @@ protected:
 struct UIStateData
 {
 	UIStateData() : 
-		animal_id(0),
+		species(NULL),
 		plant_id(0),
 		price_vol_mode(0),
 		produce_consume_mode(2),
@@ -67,7 +67,8 @@ struct UIStateData
 	{
 
 	}
-	int animal_id;
+	Species* species;
+	//int animal_id;
 	int plant_id;
 	int price_vol_mode;
 	int produce_consume_mode;

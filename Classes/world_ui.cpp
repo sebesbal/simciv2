@@ -64,14 +64,14 @@ WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0)
 	_species_view = SpeciesView::create();
 	_species_view->setAnchorPoint(Vec2(1, 1));
 	this->addChild(_species_view);
-	auto s = new Species();
-	s->id = 0;
-	s->build_cost.push_back(9);
-	s->build_cost.push_back(8);
-	s->build_cost.push_back(7);
-	s->build_cost.push_back(6);
-	s->build_cost.push_back(5);
-	s->build_cost.push_back(4);
+	//auto s = new Species();
+	//// s->id = 0;
+	//s->build_cost.push_back(9);
+	//s->build_cost.push_back(8);
+	//s->build_cost.push_back(7);
+	//s->build_cost.push_back(6);
+	//s->build_cost.push_back(5);
+	//s->build_cost.push_back(4);
 	//_species_view->set_species(s);
 	_species_view->set_species(&_model.get_species().at(0));
 
@@ -167,7 +167,8 @@ void WorldUI::onTouchEnded(Touch* touch, Event  *event)
 			auto p = touch->getLocation();
 			p = _animal_view->convertToNodeSpace(p);
 			Area* a = _animal_view->get_area(p);
-			_animal_view->create_animal(a, _model.get_species().at(info.animal_id));
+			// _animal_view->create_animal(a, _model.get_species().at(info.animal_id));
+			_animal_view->create_animal(a, *info.species);
 		}
 		break;
 	case simciv::UIS_PLANTS:
@@ -232,15 +233,19 @@ RadioMenu* WorldUI::create_species_browser()
 		result->add_row();
 		for (int color = 0; color < color_count; ++color)
 		{
-			auto btn = MenuButton::create(_model.get_species().at(mat_id(level, color)).icon_file);
+			Species* s = _model.get_species(level, color);
+			auto btn = MenuButton::create(s->icon_file);
+			btn->setUserData(s);
 			result->add_radio_button(btn);
 		}
 	}
 	result->set_selected_btn(0);
 	result->set_on_changed([this](MenuButton* btn) {
-		int id = btn->getTag();
-		this->info.animal_id = id;
-		_species_view->set_species(&_model.get_species().at(id));
+		//int id = btn->getTag();
+		// this->info.animal_id = id;
+		Species* s = (Species*)btn->getUserData();
+		this->info.species = s;
+		_species_view->set_species(s);
 	});
 	return result;
 }
@@ -332,7 +337,7 @@ cocos2d::Node* WorldUI::create_layers_panel()
 
 	info.show_grid = false;
 	info.plant_id = 0;
-	info.animal_id = 0;
+	// info.animal_id = 0;
 
 	return left_menu;
 }
