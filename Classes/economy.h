@@ -1,9 +1,15 @@
 #pragma once
 #include "world_model.h"	
 #include <vector>
+#include <queue>
 
 namespace simciv
 {
+	// typedef std::queue<double> history_t;
+	typedef std::deque<double> history_t;
+
+	const int history_count = 20;
+	
 	struct Material
 	{
 
@@ -49,7 +55,12 @@ namespace simciv
 		double prod_volume; // production volume. negative volume means consumer
 		void produce(double vol);
 		void update_price();
+		void update_storage();
 		double free_capacity() { return storage_capacity - storage; }
+
+		history_t history_vol;
+		history_t history_storage;
+		history_t history_price;
 	};
 
 	struct Transport

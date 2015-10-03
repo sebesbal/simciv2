@@ -439,12 +439,24 @@ void RadioMenu::on_btn_clicked(Ref* btn, Widget::TouchEventType type)
 	}
 }
 
+MyPanel::MyPanel()
+{
+	_bck = LayerColor::create(def_bck_color4B);
+	addChild(_bck);
+}
+
+void MyPanel::setContentSize(const Size & var)
+{
+	Layout::setContentSize(var);
+	_bck->setContentSize(var);
+}
+
 SpeciesView::SpeciesView()
 {
 	//_bck = CCLayerColor::create(Color4B(0, 0, 255, 255));
 	//_bck = CCLayerColor::create(Color4B(40, 0, 60, 255));
-	_bck = LayerColor::create(def_bck_color4B);
-	this->addChild(_bck);
+	
+	//this->addChild(_bck);
 
 	_production_view = VBox::create();
 	_production_view->setAnchorPoint(Vec2(0, 1));
@@ -550,10 +562,7 @@ void SpeciesView::add_prod_row(MaterialVec& prod)
 
 void SpeciesView::setContentSize(const Size & var)
 {
-	Layout::setContentSize(var);
-
-	_bck->setContentSize(var);
-
+	MyPanel::setContentSize(var);
 	int m = 5;
 	int y = var.height;
 	_icon->setPosition(Vec2(m, var.height - m));
@@ -572,6 +581,112 @@ void SpeciesView::setContentSize(const Size & var)
 
 	_production_view->setContentSize(Size(var.width, var.height - 100));
 	_production_view->setPosition(Vec2(0, y));
+}
+
+AnimalView::AnimalView() : _animal(NULL)
+{
+	_producer_views = VBox::create();
+	_producer_views->setAnchorPoint(Vec2(0, 1));
+	addChild(_producer_views);
+}
+
+AnimalView* AnimalView::create()
+{
+	AnimalView* result = new AnimalView();
+	if (result && result->init())
+	{
+		result->autorelease();
+		return result;
+	}
+	else
+	{
+		CC_SAFE_DELETE(result);
+		return nullptr;
+	}
+}
+
+bool AnimalView::init()
+{
+	if (Layout::init())
+	{
+		setContentSize(Size(300, 500));
+		return true;
+	}
+	return false;
+}
+
+void AnimalView::set_animal(Animal* animal)
+{
+	_animal = animal;
+
+	_producer_views->removeAllChildrenWithCleanup(true);
+
+	for (auto* p : animal->producers)
+	{
+		if (p)
+		{
+			auto n = create_producer_view(p);
+			_producer_views->addChild(n);
+		}
+	}
+}
+
+cocos2d::Node* AnimalView::create_producer_view(Producer* p)
+{
+	int w = getContentSize().width;
+	int h = 50;
+	ui::HBox* prodview = HBox::create();
+	prodview->setContentSize(Size(w, h));
+
+	Diagram* dia = Diagram::create();
+	prodview->addChild(dia);
+	dia->setContentSize(Size(w / 2, h));
+	dia->set_range(20, 0, 100);
+	dia->set_data(&p->history_price);
+	
+	dia = Diagram::create();
+	prodview->addChild(dia);
+	dia->setContentSize(Size(w / 2, h));
+	dia->set_range(20, 0, 100);
+	dia->set_data(&p->history_storage);
+
+	return prodview;
+}
+
+Diagram* Diagram::create()
+{
+	Diagram* result = new Diagram();
+	if (result && result->init())
+	{
+		result->autorelease();
+		return result;
+	}
+	else
+	{
+		CC_SAFE_DELETE(result);
+		return nullptr;
+	}
+}
+
+void Diagram::draw(Renderer *renderer, const Mat4& transform, uint32_t flags)
+{
+	if (!_data) return;
+	// history_t &v = *_data;
+	auto s = getContentSize();
+	double dx = s.width / _count;
+	double dy = s.height;
+	double yy = s.height / 2;
+	double a = s.height / (_max - _min);
+	double b = -s.height * _min / (_max - _min);
+
+	double x = 0;
+	for (double d : *_data)
+	{
+		// double y = s.height * (d - _min) / (_max - _min);
+		double y = a * d + b;
+		x += dx;
+		DrawPrimitives::drawPoint(Vec2(x, y));
+	}
 }
 
 MaterialSprite* MaterialSprite::create(int id, int size)

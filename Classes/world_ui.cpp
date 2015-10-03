@@ -79,6 +79,10 @@ WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_s
 	_layers_panel->setAnchorPoint(Vec2(1, 1));
 	this->addChild(_layers_panel);
 
+	_animal_view = AnimalView::create();
+	_animal_view->setAnchorPoint(Vec2(1, 1));
+	this->addChild(_animal_view);
+
 	//update_panels(false, false);
 	set_state(UIS_NONE);
 }
@@ -117,8 +121,8 @@ void WorldUI::load_from_tmx(std::string tmx)
 	views.push_back(v);
 	_map->addChild(v);
 
-	v = _animal_view = AnimalMapLayer::create(&_model);
-	_animal_view->create_sprites_from_model();
+	v = _animal_layer = AnimalMapLayer::create(&_model);
+	_animal_layer->create_sprites_from_model();
 	v->setVisible(true);
 	v->setAnchorPoint(Vec2(0, 0));
 	v->setPosition(Vec2(0, 0));
@@ -154,7 +158,19 @@ bool WorldUI::onTouchBegan(Touch* touch, Event  *event)
 	_drag_start = false;
 	auto p = touch->getLocation();
 	_mouse_down_pos = p;
-	p = _animal_view->convertToNodeSpace(p);
+	p = _animal_layer->convertToNodeSpace(p);
+
+	Area* a = _animal_layer->get_area(p);
+	Animal* ani = _model.find_animal(a);
+	if (ani)
+	{
+		_animal_view->set_animal(ani);
+		_animal_view->setVisible(true);
+	}
+	else
+	{
+		_animal_view->setVisible(false);
+	}
 
 	switch (_state)
 	{
@@ -162,16 +178,17 @@ bool WorldUI::onTouchBegan(Touch* touch, Event  *event)
 		break;
 	case simciv::UIS_ANIMAL:
 	{
-		Area* a = _animal_view->get_area(p);
-		Animal* ani = _model.find_animal(a);
-		if (ani)
-		{
-
-		}
-		else
-		{
-
-		}
+		//Area* a = _animal_layer->get_area(p);
+		//Animal* ani = _model.find_animal(a);
+		//if (ani)
+		//{
+		//	_animal_view->set_animal(ani);
+		//	_animal_view->setVisible(true);
+		//}
+		//else
+		//{
+		//	_animal_view->setVisible(false);
+		//}
 	}
 	break;
 	case simciv::UIS_PLANTS:
@@ -209,8 +226,8 @@ void WorldUI::onTouchEnded(Touch* touch, Event  *event)
 	case simciv::UIS_ANIMAL:
 	{
 		auto p = touch->getLocation();
-		p = _animal_view->convertToNodeSpace(p);
-		Area* a = _animal_view->get_area(p);
+		p = _animal_layer->convertToNodeSpace(p);
+		Area* a = _animal_layer->get_area(p);
 		Animal* ani = _model.find_animal(a);
 		if (ani)
 		{
@@ -223,7 +240,7 @@ void WorldUI::onTouchEnded(Touch* touch, Event  *event)
 				Species* s = info.species;
 				if (s)
 				{
-					_animal_view->create_animal(a, *s);
+					_animal_layer->create_animal(a, *s);
 				}
 			}
 		}
@@ -426,7 +443,8 @@ void WorldUI::setContentSize(const Size & var)
 	_plants_browser->setPosition(Vec2(m + 64 + 10, h - m));
 	_species_view->setPosition(Vec2(var.width, h));
 	_layers_panel->setPosition(Vec2(var.width, h));
-
+	auto r = _species_view->getBoundingBox();
+	_animal_view->setPosition(Vec2(r.getMaxX(), r.getMinY()));
 }
 
 void WorldUI::set_state(UIState state)

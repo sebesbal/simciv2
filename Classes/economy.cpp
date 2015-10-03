@@ -18,6 +18,11 @@ namespace simciv
 
 	Producer::Producer() : storage(50), storage_last(0), storage_d(0), storage_capacity(100), prod_volume(0), _fix_price(false)
 	{
+		//for (int i = 0; i < 20; ++i)
+		//{
+		//	price_history.push_back(0);
+		//	storage_history.push_back(50);
+		//}
 	}
 
 	void Producer::produce(double vol)
@@ -123,6 +128,18 @@ namespace simciv
 		}
 
 		price = std::max(0.0, price);
+
+	history:
+		history_price.push_back(price);
+		history_vol.push_back(volume);
+		if (history_price.size() > history_count) history_price.pop_front();
+		if (history_vol.size() > history_count) history_vol.pop_front();
+	}
+
+	void Producer::update_storage()
+	{
+		history_storage.push_back(price);
+		if (history_storage.size() > history_count) history_storage.pop_front();
 	}
 
 	ProductMap::ProductMap(WorldModel& world): 

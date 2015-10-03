@@ -148,8 +148,9 @@ protected:
 	RadioMenu* _plants_browser;
 
 	SpeciesView* _species_view;
+	AnimalView* _animal_view;
 	PlantMapLayer* _plant_layer;
-	AnimalMapLayer* _animal_view;
+	AnimalMapLayer* _animal_layer;
 	Node* _layers_panel;
 	void tick(float f);
 	void load_from_tmx(std::string tmx);

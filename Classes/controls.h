@@ -87,8 +87,17 @@ namespace simciv
 		void on_btn_clicked(Ref* btn, Widget::TouchEventType type);
 	};
 
+	class MyPanel : public ui::Layout
+	{
+	public:
+		MyPanel();
+	protected:
+		virtual void setContentSize(const Size & var) override;
+		LayerColor* _bck;
+	};
+
 	/// Show one species
-	class SpeciesView : public ui::Layout
+	class SpeciesView : public MyPanel
 	{
 	public:
 		SpeciesView();
@@ -98,7 +107,7 @@ namespace simciv
 	protected:
 		void add_prod_row(MaterialVec& prod);
 		virtual void setContentSize(const Size & var) override;
-		LayerColor* _bck;
+		
 		ui::ImageView* _icon;
 		ui::Text* _name_label;
 		ui::VBox* _production_view;
@@ -109,11 +118,41 @@ namespace simciv
 		Species* _species;
 	};
 
-	///// Show one animals properties
-	class AnimalView
+	/// Show one animals properties
+	class AnimalView : public MyPanel
 	{
-
+	public:
+		AnimalView();
+		static AnimalView* create();
+		bool init() override;
+		void set_animal(Animal* animal);
+	protected:
+		Animal* _animal;
+		cocos2d::Node* create_producer_view(Producer* p);
+		ui::VBox* _producer_views;
 	};
+
+	class Diagram : public cocos2d::Node
+	{
+	public:
+		Diagram() :_data(NULL), _min(0), _max(100) { }
+		static Diagram* create();
+		void set_data(history_t* data)
+		{
+			_data = data; 
+		}
+		void set_range(int count, double min, double max) { _count = count; _min = min; _max = max; }
+	protected:
+		double _min, _max;
+		int _count;
+		history_t* _data;
+		virtual void draw(Renderer *renderer, const Mat4& transform, uint32_t flags) override;
+	};
+
+	//class ProducerView : public ui::Layout
+	//{
+
+	//};
 
 	class MaterialSprite : public ui::ImageView
 	{
