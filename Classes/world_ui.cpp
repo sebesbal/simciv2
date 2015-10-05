@@ -99,7 +99,11 @@ void WorldUI::tick(float f)
 		new_view->setVisible(true);
 	}
 
-	_model.update();
+	static int k = 0;
+	if (k++ % 100 == 0)
+	{
+		_model.update();
+	}
 }
 
 void WorldUI::load_from_tmx(std::string tmx)
@@ -154,11 +158,10 @@ exit(0);
 bool WorldUI::onTouchBegan(Touch* touch, Event  *event)
 {
 	if (event->isStopped()) return false;
-
 	_drag_start = false;
 	auto p = touch->getLocation();
 	_mouse_down_pos = p;
-	p = _animal_layer->convertToNodeSpace(p);
+	p = _map->convertToNodeSpace(p);
 
 	Area* a = _animal_layer->get_area(p);
 	Animal* ani = _model.find_animal(a);
@@ -172,52 +175,12 @@ bool WorldUI::onTouchBegan(Touch* touch, Event  *event)
 		_animal_view->setVisible(false);
 	}
 
-	switch (_state)
-	{
-	case simciv::UIS_NONE:
-		break;
-	case simciv::UIS_ANIMAL:
-	{
-		//Area* a = _animal_layer->get_area(p);
-		//Animal* ani = _model.find_animal(a);
-		//if (ani)
-		//{
-		//	_animal_view->set_animal(ani);
-		//	_animal_view->setVisible(true);
-		//}
-		//else
-		//{
-		//	_animal_view->setVisible(false);
-		//}
-	}
-	break;
-	case simciv::UIS_PLANTS:
-		break;
-	default:
-		break;
-	}
-
-	//	auto p = touch->getLocation();
-	//	p = convertToNodeSpace(p);
-	//	Area* a = get_area(p);
-	//	Animal* ani = model().find_animal(a);
-	//	if (ani)
-	//	{
-	//
-	//	}
-	//	else
-	//	{
-	//		create_animal(a, model().get_species()[0]);
-	//	}
-
 	return true;
 }
 
 void WorldUI::onTouchEnded(Touch* touch, Event  *event)
 {
 	if (event->isStopped()) return;
-
-
 
 	switch (_state)
 	{
@@ -226,7 +189,8 @@ void WorldUI::onTouchEnded(Touch* touch, Event  *event)
 	case simciv::UIS_ANIMAL:
 	{
 		auto p = touch->getLocation();
-		p = _animal_layer->convertToNodeSpace(p);
+		// p = _animal_layer->convertToNodeSpace(p);
+		p = _map->convertToNodeSpace(p);
 		Area* a = _animal_layer->get_area(p);
 		Animal* ani = _model.find_animal(a);
 		if (ani)
@@ -256,7 +220,7 @@ void WorldUI::onTouchEnded(Touch* touch, Event  *event)
 void WorldUI::onTouchMoved(Touch* touch, Event  *event)
 {
 	Vec2 p = touch->getLocation();
-	Vec2 d;
+	Vec2 d(0, 0);
 	if (_drag_start)
 	{
 		d = touch->getDelta();

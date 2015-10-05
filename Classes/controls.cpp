@@ -442,6 +442,8 @@ void RadioMenu::on_btn_clicked(Ref* btn, Widget::TouchEventType type)
 MyPanel::MyPanel()
 {
 	_bck = LayerColor::create(def_bck_color4B);
+	_bck->setZOrder(0);
+	//_bck->setVisible(false);
 	addChild(_bck);
 }
 
@@ -453,11 +455,6 @@ void MyPanel::setContentSize(const Size & var)
 
 SpeciesView::SpeciesView()
 {
-	//_bck = CCLayerColor::create(Color4B(0, 0, 255, 255));
-	//_bck = CCLayerColor::create(Color4B(40, 0, 60, 255));
-	
-	//this->addChild(_bck);
-
 	_production_view = VBox::create();
 	_production_view->setAnchorPoint(Vec2(0, 1));
 	addChild(_production_view);
@@ -587,6 +584,7 @@ AnimalView::AnimalView() : _animal(NULL)
 {
 	_producer_views = VBox::create();
 	_producer_views->setAnchorPoint(Vec2(0, 1));
+	_producer_views->setPosition(Vec2(0, 0));
 	addChild(_producer_views);
 }
 
@@ -626,9 +624,16 @@ void AnimalView::set_animal(Animal* animal)
 		if (p)
 		{
 			auto n = create_producer_view(p);
+			n->setPosition(0, 0);
 			_producer_views->addChild(n);
 		}
 	}
+}
+
+void AnimalView::setContentSize(const Size & var)
+{
+	MyPanel::setContentSize(var);
+	_producer_views->setPosition(Vec2(0, var.height));
 }
 
 cocos2d::Node* AnimalView::create_producer_view(Producer* p)
@@ -656,6 +661,7 @@ cocos2d::Node* AnimalView::create_producer_view(Producer* p)
 Diagram* Diagram::create()
 {
 	Diagram* result = new Diagram();
+	//result->setZOrder(99);
 	if (result && result->init())
 	{
 		result->autorelease();
@@ -668,25 +674,49 @@ Diagram* Diagram::create()
 	}
 }
 
-void Diagram::draw(Renderer *renderer, const Mat4& transform, uint32_t flags)
+void Diagram::onDraw(const Mat4 &transform, uint32_t flags)
 {
+	Director* director = Director::getInstance();
+	director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+	director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, transform);
+
+	//draw
+	CHECK_GL_ERROR_DEBUG();
+
+	auto s = getContentSize();
+	
+
 	if (!_data) return;
 	// history_t &v = *_data;
-	auto s = getContentSize();
+	
 	double dx = s.width / _count;
-	double dy = s.height;
-	double yy = s.height / 2;
 	double a = s.height / (_max - _min);
 	double b = -s.height * _min / (_max - _min);
 
+	//DrawPrimitives::drawSolidRect(Vec2(0, 0), Vec2(s.width, s.height), Color4F::RED);
 	double x = 0;
+	int i = 0;
 	for (double d : *_data)
 	{
+		i = (i + 13) % 100;
+		d = i;
 		// double y = s.height * (d - _min) / (_max - _min);
 		double y = a * d + b;
 		x += dx;
+		DrawPrimitives::setDrawColor4F(1, 1, 1, 1);
+		DrawPrimitives::setPointSize(3);
 		DrawPrimitives::drawPoint(Vec2(x, y));
 	}
+
+	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+}
+
+void Diagram::draw(Renderer *renderer, const Mat4& transform, uint32_t flags)
+// void Diagram::draw(Renderer *renderer, const kmMat4& transform, bool transformUpdated)
+{
+	_customCommand.init(100);
+	_customCommand.func = CC_CALLBACK_0(Diagram::onDraw, this, transform, flags);
+	renderer->addCommand(&_customCommand);
 }
 
 MaterialSprite* MaterialSprite::create(int id, int size)

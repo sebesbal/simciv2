@@ -127,6 +127,7 @@ namespace simciv
 		bool init() override;
 		void set_animal(Animal* animal);
 	protected:
+		virtual void setContentSize(const Size & var) override;
 		Animal* _animal;
 		cocos2d::Node* create_producer_view(Producer* p);
 		ui::VBox* _producer_views;
@@ -146,7 +147,10 @@ namespace simciv
 		double _min, _max;
 		int _count;
 		history_t* _data;
-		virtual void draw(Renderer *renderer, const Mat4& transform, uint32_t flags) override;
+		CustomCommand _customCommand;
+		virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
+		virtual void onDraw(const Mat4 &transform, uint32_t flags);
+		//void draw(Renderer *renderer, const kmMat4& transform, bool transformUpdated) override;
 	};
 
 	//class ProducerView : public ui::Layout
