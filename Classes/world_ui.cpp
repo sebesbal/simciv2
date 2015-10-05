@@ -100,7 +100,7 @@ void WorldUI::tick(float f)
 	}
 
 	static int k = 0;
-	if (k++ % 100 == 0)
+	if (k++ % 10 == 0)
 	{
 		_model.update();
 	}

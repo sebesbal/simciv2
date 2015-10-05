@@ -693,13 +693,11 @@ void Diagram::onDraw(const Mat4 &transform, uint32_t flags)
 	double a = s.height / (_max - _min);
 	double b = -s.height * _min / (_max - _min);
 
-	//DrawPrimitives::drawSolidRect(Vec2(0, 0), Vec2(s.width, s.height), Color4F::RED);
+	// DrawPrimitives::drawSolidRect(Vec2(0, 0), Vec2(s.width, s.height), Color4F::RED);
 	double x = 0;
 	int i = 0;
 	for (double d : *_data)
 	{
-		i = (i + 13) % 100;
-		d = i;
 		// double y = s.height * (d - _min) / (_max - _min);
 		double y = a * d + b;
 		x += dx;
