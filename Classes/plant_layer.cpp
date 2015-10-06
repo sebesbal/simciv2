@@ -222,6 +222,7 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		//	DrawPrimitives::drawLine(p, Vec2(p.x + scale * x, p.y + scale * y));
 		//}
 	}
+	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
 void RouteAnimation::set_route(int prod_id, Route* route, MapView* map)

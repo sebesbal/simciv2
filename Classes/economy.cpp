@@ -138,7 +138,7 @@ namespace simciv
 
 	void Producer::update_storage()
 	{
-		history_storage.push_back(price);
+		history_storage.push_back(storage);
 		if (history_storage.size() > history_count) history_storage.pop_front();
 	}
 
@@ -361,6 +361,15 @@ namespace simciv
 
 			a->storage -= t->volume;
 			b->storage += t->volume;
+		}
+
+		for (Producer* p : _supplies)
+		{
+			p->update_storage();
+		}
+		for (Producer* p : _consumers)
+		{
+			p->update_storage();
 		}
 	}
 

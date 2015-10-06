@@ -618,14 +618,17 @@ void AnimalView::set_animal(Animal* animal)
 	_animal = animal;
 
 	_producer_views->removeAllChildrenWithCleanup(true);
+	LinearLayoutParameter* po = LinearLayoutParameter::create();
+	po->setMargin(ui::Margin(5, 5, 5, 5));
 
 	for (auto* p : animal->producers)
 	{
 		if (p)
 		{
 			auto n = create_producer_view(p);
-			n->setPosition(0, 0);
+			// n->setPosition();
 			_producer_views->addChild(n);
+			n->setLayoutParameter(po);
 		}
 	}
 }
@@ -636,24 +639,29 @@ void AnimalView::setContentSize(const Size & var)
 	_producer_views->setPosition(Vec2(0, var.height));
 }
 
-cocos2d::Node* AnimalView::create_producer_view(Producer* p)
+ui::HBox* AnimalView::create_producer_view(Producer* p)
 {
 	int w = getContentSize().width;
 	int h = 50;
 	ui::HBox* prodview = HBox::create();
 	prodview->setContentSize(Size(w, h));
 
+	LinearLayoutParameter* po = LinearLayoutParameter::create();
+	po->setMargin(ui::Margin(5, 5, 5, 5));
+
 	Diagram* dia = Diagram::create();
 	prodview->addChild(dia);
-	dia->setContentSize(Size(w / 2, h));
+	dia->setContentSize(Size(w / 2 - 20, h));
 	dia->set_range(20, 0, 100);
 	dia->set_data(&p->history_price);
+	dia->setLayoutParameter(po);
 	
 	dia = Diagram::create();
 	prodview->addChild(dia);
-	dia->setContentSize(Size(w / 2, h));
+	dia->setContentSize(Size(w / 2 - 20, h));
 	dia->set_range(20, 0, 100);
 	dia->set_data(&p->history_storage);
+	dia->setLayoutParameter(po);
 
 	return prodview;
 }
@@ -676,6 +684,8 @@ Diagram* Diagram::create()
 
 void Diagram::onDraw(const Mat4 &transform, uint32_t flags)
 {
+	if (!_data) return;
+
 	Director* director = Director::getInstance();
 	director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 	director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, transform);
@@ -685,25 +695,25 @@ void Diagram::onDraw(const Mat4 &transform, uint32_t flags)
 
 	auto s = getContentSize();
 	
-
-	if (!_data) return;
 	// history_t &v = *_data;
 	
 	double dx = s.width / _count;
 	double a = s.height / (_max - _min);
 	double b = -s.height * _min / (_max - _min);
 
-	// DrawPrimitives::drawSolidRect(Vec2(0, 0), Vec2(s.width, s.height), Color4F::RED);
+	DrawPrimitives::drawSolidRect(Vec2(0, 0), Vec2(s.width, s.height), Color4F::RED);
 	double x = 0;
 	int i = 0;
 	for (double d : *_data)
 	{
 		// double y = s.height * (d - _min) / (_max - _min);
 		double y = a * d + b;
-		x += dx;
+		y = std::max(0.0, y);
+		y = std::min((double)s.height, y);
 		DrawPrimitives::setDrawColor4F(1, 1, 1, 1);
 		DrawPrimitives::setPointSize(3);
 		DrawPrimitives::drawPoint(Vec2(x, y));
+		x += dx;
 	}
 
 	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);

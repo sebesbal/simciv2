@@ -129,11 +129,11 @@ namespace simciv
 	protected:
 		virtual void setContentSize(const Size & var) override;
 		Animal* _animal;
-		cocos2d::Node* create_producer_view(Producer* p);
+		ui::HBox* create_producer_view(Producer* p);
 		ui::VBox* _producer_views;
 	};
 
-	class Diagram : public cocos2d::Node
+	class Diagram : public ui::Layout
 	{
 	public:
 		Diagram() :_data(NULL), _min(0), _max(100) { }
