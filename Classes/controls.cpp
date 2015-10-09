@@ -642,23 +642,28 @@ void AnimalView::setContentSize(const Size & var)
 ui::HBox* AnimalView::create_producer_view(Producer* p)
 {
 	int w = getContentSize().width;
+	int wd = (getContentSize().width - 50) / 2;
 	int h = 50;
 	ui::HBox* prodview = HBox::create();
 	prodview->setContentSize(Size(w, h));
 
 	LinearLayoutParameter* po = LinearLayoutParameter::create();
 	po->setMargin(ui::Margin(5, 5, 5, 5));
+	po->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
 
+	auto sprite = MaterialSprite::create(p->prod_id, 20);
+	sprite->setLayoutParameter(po);
+	prodview->addChild(sprite);
 	Diagram* dia = Diagram::create();
 	prodview->addChild(dia);
-	dia->setContentSize(Size(w / 2 - 20, h));
+	dia->setContentSize(Size(wd, h));
 	dia->set_range(20, 0, 100);
 	dia->set_data(&p->history_price);
 	dia->setLayoutParameter(po);
 	
 	dia = Diagram::create();
 	prodview->addChild(dia);
-	dia->setContentSize(Size(w / 2 - 20, h));
+	dia->setContentSize(Size(wd, h));
 	dia->set_range(20, 0, 100);
 	dia->set_data(&p->history_storage);
 	dia->setLayoutParameter(po);

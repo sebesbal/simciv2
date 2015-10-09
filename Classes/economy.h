@@ -36,6 +36,7 @@ namespace simciv
 	struct Producer
 	{
 		Producer();
+		int prod_id;
 		//bool is_consumer() { return volume < 0; }
 		bool is_consumer() { return _is_consumer; }
 		bool _is_consumer;
@@ -77,7 +78,7 @@ namespace simciv
 	class ProductMap
 	{
 	public:
-		ProductMap(WorldModel& world);
+		ProductMap(WorldModel& world, int prod_id);
 		void update();
 		AreaProd& get_prod(Area* a) { return (*_production)[a->index]; }
 		AreaProd& get_new_prod(Area* a) { return (*_new_production)[a->index]; }
@@ -90,6 +91,7 @@ namespace simciv
 		void generate_resources();
 		std::vector<Transport*>& routes() { return _routes; }
 	protected:
+		int prod_id;
 		Node* g;
 		int update_count;
 		bool unique_mode;

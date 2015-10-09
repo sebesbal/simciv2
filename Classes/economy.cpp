@@ -142,12 +142,13 @@ namespace simciv
 		if (history_storage.size() > history_count) history_storage.pop_front();
 	}
 
-	ProductMap::ProductMap(WorldModel& world): 
+	ProductMap::ProductMap(WorldModel& world, int prod_id) :
 		_world(world), 
 		_production(new std::vector<AreaProd>()), 
 		_new_production(new std::vector<AreaProd>()), 
 		unique_mode(true),
-		update_count(0)
+		update_count(0),
+		prod_id(prod_id)
 	{
 		int n = world.areas().size();
 		_production->resize(n);
@@ -376,6 +377,7 @@ namespace simciv
 	Producer* ProductMap::create_prod(Area* area, double volume, double price)
 	{
 		Producer* p = new Producer();
+		p->prod_id = prod_id;
 		p->price = price;
 		p->_is_consumer = volume < 0;
 		p->volume = abs(volume);

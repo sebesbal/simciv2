@@ -114,7 +114,7 @@ namespace simciv
 
 		for (int i = 0; i < prod_count; ++i)
 		{
-			_products.push_back( new ProductMap(*this) );
+			_products.push_back( new ProductMap(*this, i) );
 		}
 	}
 
