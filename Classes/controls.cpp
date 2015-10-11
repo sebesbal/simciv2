@@ -618,15 +618,28 @@ void AnimalView::set_animal(Animal* animal)
 	_animal = animal;
 
 	_producer_views->removeAllChildrenWithCleanup(true);
-	LinearLayoutParameter* po = LinearLayoutParameter::create();
-	po->setMargin(ui::Margin(5, 5, 5, 5));
+	
 
 	for (auto* p : animal->producers)
 	{
-		if (p)
+		if (p && ! p->is_consumer())
 		{
+			LinearLayoutParameter* po = LinearLayoutParameter::create();
+			po->setMargin(ui::Margin(5, 5, 5, 5));
 			auto n = create_producer_view(p);
-			// n->setPosition();
+			_producer_views->addChild(n);
+			n->setLayoutParameter(po);
+		}
+	}
+	bool first = true;
+	for (auto* p : animal->producers)
+	{
+		if (p && p->is_consumer())
+		{
+			LinearLayoutParameter* po = LinearLayoutParameter::create();
+			po->setMargin(ui::Margin(5, first ? 20 : 5, 5, 5));
+			first = false;
+			auto n = create_producer_view(p);
 			_producer_views->addChild(n);
 			n->setLayoutParameter(po);
 		}
@@ -706,7 +719,7 @@ void Diagram::onDraw(const Mat4 &transform, uint32_t flags)
 	double a = s.height / (_max - _min);
 	double b = -s.height * _min / (_max - _min);
 
-	DrawPrimitives::drawSolidRect(Vec2(0, 0), Vec2(s.width, s.height), Color4F::RED);
+	DrawPrimitives::drawSolidRect(Vec2(0, 0), Vec2(s.width, s.height), Color4F(0.4, 0.1, 0.6, 1));
 	double x = 0;
 	int i = 0;
 	for (double d : *_data)

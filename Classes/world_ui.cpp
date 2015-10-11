@@ -169,6 +169,12 @@ bool WorldUI::onTouchBegan(Touch* touch, Event  *event)
 	{
 		_animal_view->set_animal(ani);
 		_animal_view->setVisible(true);
+		Species* s = &ani->species;
+		_species_view->set_species(s);
+		_species_view->setVisible(true);
+		this->info.species = s;
+		info.plant_id = s->color + s->level * level_count;
+		set_state(_state);
 	}
 	else
 	{
