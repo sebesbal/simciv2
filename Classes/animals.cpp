@@ -112,60 +112,6 @@ namespace simciv
 
 	*/
 
-	/*
-	void AnimalWorld::generate_species()
-	{
-		// Worker
-		Species worker;
-		worker.id = 0;
-		for (int i = 0; i < 3; ++i)
-		{
-			ProductionRule r;
-			r.output[i] = 1;
-			worker.rules.push_back(r);
-		}
-		species.push_back(worker);
-
-		// Smith
-		Species smith;
-		smith.id = 1;
-		for (int i = 0; i < 3; ++i)
-		{
-			ProductionRule r;
-			r.input[i] = 1;
-			r.input[(i + 1) % 3] = 1;
-			r.output[i + 3] = 1;
-			smith.rules.push_back(r);
-		}
-		species.push_back(smith);
-
-		// Worker2
-		Species worker2;
-		worker2.id = 2;
-		for (int i = 0; i < 3; ++i)
-		{
-			ProductionRule r;
-			r.input[(i + 1) % 3 + 3] = 1;
-			r.output[i] = 4;
-			worker2.rules.push_back(r);
-		}
-		species.push_back(worker2);
-
-		// Smith2
-		Species smith2;
-		smith2.id = 2;
-		for (int i = 0; i < 3; ++i)
-		{
-			ProductionRule r;
-			r.input[i] = 2;
-			r.input[(i + 1) % 3] = 2;
-			r.output[i + 3] = 2;
-			smith2.rules.push_back(r);
-		}
-		species.push_back(smith2);
-	}
-	*/
-
 	void AnimalWorld::generate_species()
 	{
 		const int cost[4] = { 1, 2, 4, 8 };
@@ -185,44 +131,36 @@ namespace simciv
 				s.level = level;
 				s.color = color;
 				s.type = ST_TYPECOLOR;
-				//s.id = id(level, color);
-				for (int k = level - 1; k < level_count; ++k)
+
+				ProductionRule r;
+				if (level > 0)
 				{
-					ProductionRule r;
-
-					// input resources
-					if (level > 0)
-					{
-						r.input[id(level - 1, color)] = 1;
-						r.input[id(level - 1, color + 1)] = 1;
-					}
-
-					// catalyst resource
-					if (k >= level)
-					{
-						r.input[id(k, color - 1)] = 1;
-					}
-
-					r.output[id(level, color)] = output[k - level + 1];
-					s.rules.push_back(r);
-					s.icon_file = "img/shapes/shape_" + std::to_string(level) + "_" + std::to_string(color) + ".png";
+					r.input[id(level - 1, color)] = 1;
 				}
+				r.output[id(level, color)] = 1;
+				s.rules.push_back(r);
+				s.icon_file = "img/shapes/shape_" + std::to_string(level) + "_" + std::to_string(color) + ".png";
 
 				species.push_back(s);
 			}
 		}
+
+		Species s;
+		s.type = ST_STORAGE;
+		s.icon_file = "img/shapes/storage.png";
+		species.push_back(s);
 	}
 
 	void AnimalWorld::generate_animals()
 	{
-		for (auto& s: species)
-		{
-			for (int i = 0; i < 10; ++i)
-			{
-				int area_index = rand() % _areas.size();
-				create_animal(_areas[area_index], s);
-			}
-		}
+		//for (auto& s: species)
+		//{
+		//	for (int i = 0; i < 10; ++i)
+		//	{
+		//		int area_index = rand() % _areas.size();
+		//		create_animal(_areas[area_index], s);
+		//	}
+		//}
 	}
 
 	Animal* AnimalWorld::create_animal(Area* a, Species& species)

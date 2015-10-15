@@ -16,7 +16,7 @@ namespace simciv
 	enum SpeciesType
 	{
 		ST_TYPECOLOR,
-		ST_BLACKHOLE
+		ST_STORAGE
 	};
 
 	struct Species
@@ -55,7 +55,7 @@ namespace simciv
 		void update();
 	};
 
-	class AnimalWorld: public WorldModel
+	class AnimalWorld : public WorldModel
 	{
 	public:
 		virtual void create_map(int width, int height, int prod_count) override;
@@ -66,6 +66,7 @@ namespace simciv
 		std::vector<Animal*>& get_animals() { return animals; }
 		std::vector<Species>& get_species() { return species; }
 		Species* get_species(int level, int color);
+		Species* get_storage_species() { return &species.back(); }
 		virtual void update() override;
 	protected:
 		void move_animal(Animal* ani, Area* new_area);

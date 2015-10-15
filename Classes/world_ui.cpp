@@ -296,6 +296,12 @@ RadioMenu* WorldUI::create_species_browser()
 			result->add_radio_button(btn);
 		}
 	}
+	result->add_row();
+	Species* s = _model.get_storage_species();
+	auto btn = MenuButton::create(s->icon_file);
+	btn->setUserData(s);
+	result->add_radio_button(btn);
+
 	result->set_selected_btn(0);
 	result->set_on_changed([this](MenuButton* btn) {
 		//int id = btn->getTag();
