@@ -174,7 +174,7 @@ bool WorldUI::onTouchBegan(Touch* touch, Event  *event)
 		_species_view->setVisible(true);
 		this->info.species = s;
 		info.plant_id = s->color + s->level * level_count;
-		set_state(_state);
+		set_state(UIS_ANIMAL);
 	}
 	else
 	{

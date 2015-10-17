@@ -161,6 +161,17 @@ namespace simciv
 		//		create_animal(_areas[area_index], s);
 		//	}
 		//}
+
+		int x = 10, y = 10;
+
+		auto s0 = get_species(0, 0);
+		create_animal(get_area(x, y), *s0);
+
+		auto s1 = get_species(1, 0);
+		create_animal(get_area(x + 2, y + 2), *s1);
+
+		auto s2 = get_species(2, 0);
+		create_animal(get_area(x + 4, y + 4), *s2);
 	}
 
 	Animal* AnimalWorld::create_animal(Area* a, Species& species)
@@ -223,10 +234,9 @@ namespace simciv
 					}
 					else
 					{
-						//producer = _products[prod_id]->create_prod(area, vol, prices[prod_id]);
 						int level = prod_id / color_count;
 						producer = _products[prod_id]->create_prod(area, -vol, pow(2, level + 4) + 10);
-						if (ani_level == 3) producer->_fix_price = true;
+						//if (ani_level == 3) producer->_fix_price = true;
 						rate = 0;
 					}
 				}
@@ -245,7 +255,7 @@ namespace simciv
 						//producer = _products[prod_id]->create_prod(area, vol, prices[prod_id]);
 						int level = prod_id / color_count;
 						producer = _products[prod_id]->create_prod(area, vol, pow(2, level + 4) - 10);
-						if (ani_level == 3) producer->_fix_price = true;
+						//if (ani_level == 3) producer->_fix_price = true;
 						rate = 0;
 					}
 				}
@@ -265,7 +275,8 @@ namespace simciv
 						auto& producer = ani->producers[prod_id];
 						//producer->storage -= rate * vol;
 						
-						if (ani_level != 3) producer->produce(-rate * vol);
+						//if (ani_level != 3) producer->produce(-rate * vol);
+						producer->produce(-rate * vol);
 					}
 					for (auto& p : rule->output)
 					{
@@ -273,7 +284,8 @@ namespace simciv
 						double vol = p.second;
 						auto& producer = ani->producers[prod_id];
 						//producer->storage += rate * vol;
-						if (ani_level != 3) producer->produce(rate * vol);
+						// if (ani_level != 3) producer->produce(rate * vol);
+						producer->produce(rate * vol);
 					}
 				}
 			}

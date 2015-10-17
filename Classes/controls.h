@@ -128,6 +128,7 @@ namespace simciv
 		void set_animal(Animal* animal);
 	protected:
 		virtual void setContentSize(const Size & var) override;
+		virtual void doLayout() override;
 		Animal* _animal;
 		ui::HBox* create_producer_view(Producer* p);
 		ui::VBox* _producer_views;

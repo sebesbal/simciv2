@@ -618,7 +618,35 @@ void AnimalView::set_animal(Animal* animal)
 	_animal = animal;
 
 	_producer_views->removeAllChildrenWithCleanup(true);
+	// _producer_views->setContentSize(Size(300, 300));
 	
+	auto h = ui::Layout::create();
+	//h->setAnchorPoint(Vec2(0, 1));
+	//HBox* h = HBox::create();
+	// h->setContentSize(Size(300, 50));
+
+	//LinearLayoutParameter* po = LinearLayoutParameter::create();
+	//po->setGravity(LinearGravity::CENTER_VERTICAL);
+	// h->setLayoutParameter(po);
+
+	auto size = Size(20, 20);
+	
+	auto s = ui::ImageView::create("img/shapes/dollar.png");
+	s->ignoreContentAdaptWithSize(false);
+	//s->setLayoutParameter(po);
+	s->setContentSize(size);
+	// s->setAnchorPoint(Vec2(0, 1));
+	h->addChild(s);
+	s = ui::ImageView::create("img/shapes/storage.png");
+	s->ignoreContentAdaptWithSize(false);
+	s->setContentSize(size);
+	// s->setLayoutParameter(po);
+	h->addChild(s);
+
+	_producer_views->addChild(h);
+
+
+	// po->setMargin(ui::Margin(5, 5, 5, 5));
 
 	for (auto* p : animal->producers)
 	{
@@ -644,12 +672,36 @@ void AnimalView::set_animal(Animal* animal)
 			n->setLayoutParameter(po);
 		}
 	}
+
+	this->forceDoLayout();
 }
 
 void AnimalView::setContentSize(const Size & var)
 {
 	MyPanel::setContentSize(var);
+}
+
+void AnimalView::doLayout()
+{
+	Size var = getContentSize();
 	_producer_views->setPosition(Vec2(0, var.height));
+	_producer_views->setContentSize(var);
+
+	if (!_animal) return;
+
+	int hh = 20;
+	int h2 = hh + 10;
+	Size s(hh, hh);
+	auto h = _producer_views->getChildren().at(0);
+	h->setContentSize(Size(var.width, h2));
+	auto dollar = (ImageView*)h->getChildren().at(0);
+	auto storage = (ImageView*)h->getChildren().at(1);
+	dollar->setContentSize(s);
+	storage->setContentSize(s);
+	float w = var.width;
+
+	dollar->setPosition(Vec2(w / 4, h2 / 2));
+	storage->setPosition(Vec2(3 * w / 4, h2 / 2));
 }
 
 ui::HBox* AnimalView::create_producer_view(Producer* p)
