@@ -20,8 +20,8 @@ namespace simciv
 	{
 		AreaProd();
 		double p;
-		double p_con; // price demand
-		double p_sup; // supply
+		double p_con; // consumption price: the lowest buying price in the area for what there is a seller somewhere
+		double p_sup; // supply price: the highest selling price in the area for what there is a buyer somewhere
 
 		double v_con; // volume demand
 		double v_sup; // volume supply
@@ -83,7 +83,7 @@ namespace simciv
 		AreaProd& get_prod(Area* a) { return (*_production)[a->index]; }
 		AreaProd& get_new_prod(Area* a) { return (*_new_production)[a->index]; }
 		Producer* add_prod(Area* area, double volume, double price);
-		Producer* create_prod(Area* area, double volume, double price);
+		Producer* create_prod(Area* area, bool consumer, double volume, double price);
 		void remove_prod(Producer* prod);
 		void remove_prod(Area* area, double volume, double price);
 		void move_prod(Producer* prod, Area* new_area);

@@ -10,7 +10,8 @@ namespace simciv
 		std::vector<int> area_types;
 		MaterialMap input;
 		MaterialMap output;
-		double profit(const MaterialVec& prices);
+		double profit(const Prices& prices);	// used for m2m rules
+		double expense(const Prices& prices);	// used for m2e rules
 	};
 
 	enum SpeciesType
@@ -23,10 +24,11 @@ namespace simciv
 	{
 		//int id;
 		SpeciesType type;
-		std::vector<ProductionRule> rules;	///< products materials form materials
+		std::vector<ProductionRule> m2m_rules;	///< products materials form materials
+		std::vector<ProductionRule> m2a_rules;	///< products articles form materials.
 		MaterialVec build_cost;			///< cost of build a new instance
-		MaterialVec maintenance_cost;	///< cost of maintain the instance
-		ProductionRule* find_best_rule(const MaterialVec& prices);
+		MaterialMap maintenance_cost;	///< cost of maintain the instance
+		ProductionRule* find_best_m2m_rule(const Prices& prices);
 		std::string icon_file;
 
 		int level;
@@ -45,14 +47,25 @@ namespace simciv
 
 	//};
 
+	//class Articles
+	//{
+	//	std::map<int, int> 
+	//};
+
 	struct Animal
 	{
 		Animal(Species& species);
 		Species& species;
-		std::vector<double> storage;
-		std::vector<Producer*> producers;
+		//MaterialVec storage;
+		std::vector<Producer*> supplies;
+		std::vector<Producer*> consumers;
 		Area* area;
 		void update();
+		void apply_rule(ProductionRule* rule, double& rate); ///< tries to apply the rule with "rate" times. returns the applicable rate. (depending on the storage)
+		double consume_article(int art_ind, Prices& prices, double& volume); ///< changes volume to the consumed volume, and returns the price
+		double consume_articles(Prices& prices);
+		void check_supply_storage(MaterialMap& vols, double& rate);
+		void check_consumption_storage(MaterialMap& vols, double& rate);
 	};
 
 	class AnimalWorld : public WorldModel
@@ -72,6 +85,13 @@ namespace simciv
 		void move_animal(Animal* ani, Area* new_area);
 		void add_producers(Animal* ani, Area* area);
 		void remove_producers(Animal* ani, Area* area);
+		//double check_supply_storage(Animal* ani, MaterialMap& vols); ///< returns 1 if the producer's storage can be changed with vols, and with 0 if not at all
+		//double check_consumption_storage(Animal* ani, MaterialMap& vols); ///< returns 1 if the producer's storage can be changed with vols, and with 0 if not at all
+		// double get_modify_storage_success(Producer* prod, double dol);
+		//double get_rule_success(Animal* ani, MaterialMap& vols, MaterialVec& prices);
+		//virtual void update_animal_m2m(Animal* ani, ProductionRule* rule);
+		//virtual void update_animal_m2a(Animal* ani, MaterialMap& vols, Prices& prices);
+		Prices get_prices(Area* a);
 		std::vector<Species> species;
 		std::vector<Animal*> animals;
 	};

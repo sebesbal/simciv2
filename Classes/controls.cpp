@@ -530,7 +530,7 @@ void SpeciesView::set_species(Species* species)
 
 		_production_view->removeAllChildrenWithCleanup(true);
 
-		for (auto rule : species->rules)
+		for (auto rule : species->m2m_rules)
 		{
 			Size ss = getContentSize();
 
@@ -648,29 +648,25 @@ void AnimalView::set_animal(Animal* animal)
 
 	// po->setMargin(ui::Margin(5, 5, 5, 5));
 
-	for (auto* p : animal->producers)
+	for (auto* p : animal->consumers)
 	{
-		if (p && ! p->is_consumer())
-		{
-			LinearLayoutParameter* po = LinearLayoutParameter::create();
-			po->setMargin(ui::Margin(5, 5, 5, 5));
-			auto n = create_producer_view(p);
-			_producer_views->addChild(n);
-			n->setLayoutParameter(po);
-		}
+		if (p->volume == 0) continue;
+		LinearLayoutParameter* po = LinearLayoutParameter::create();
+		po->setMargin(ui::Margin(5, 5, 5, 5));
+		auto n = create_producer_view(p);
+		_producer_views->addChild(n);
+		n->setLayoutParameter(po);
 	}
 	bool first = true;
-	for (auto* p : animal->producers)
+	for (auto* p : animal->supplies)
 	{
-		if (p && p->is_consumer())
-		{
-			LinearLayoutParameter* po = LinearLayoutParameter::create();
-			po->setMargin(ui::Margin(5, first ? 20 : 5, 5, 5));
-			first = false;
-			auto n = create_producer_view(p);
-			_producer_views->addChild(n);
-			n->setLayoutParameter(po);
-		}
+		if (p->volume == 0) continue;
+		LinearLayoutParameter* po = LinearLayoutParameter::create();
+		po->setMargin(ui::Margin(5, first ? 20 : 5, 5, 5));
+		first = false;
+		auto n = create_producer_view(p);
+		_producer_views->addChild(n);
+		n->setLayoutParameter(po);
 	}
 
 	this->forceDoLayout();

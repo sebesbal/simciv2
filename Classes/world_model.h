@@ -14,6 +14,7 @@ namespace simciv
 	const int level_count = 4;
 	const int color_count = 3;
 	const int material_count = level_count * color_count;
+	const int article_count = 3;
 
 	int mat_id(int level, int color);
 
@@ -21,6 +22,18 @@ namespace simciv
 	{
 	public:
 		MaterialVec() { for (int i = 0; i < material_count; ++i) push_back(0); }
+	};
+
+	struct Prices
+	{
+		MaterialVec supply;
+		MaterialVec consumption;
+	};
+
+	class ArticleVec : public std::vector < double >
+	{
+	public:
+		ArticleVec() { for (int i = 0; i < article_count; ++i) push_back(0); }
 	};
 
 	typedef std::map<int, double> MaterialMap;

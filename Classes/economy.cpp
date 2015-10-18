@@ -16,7 +16,7 @@ namespace simciv
 
 	}
 
-	Producer::Producer() : storage(50), storage_last(0), storage_d(0), storage_capacity(100), prod_volume(0), _fix_price(false)
+	Producer::Producer() : storage(0), storage_last(0), storage_d(0), storage_capacity(100), prod_volume(0), _fix_price(false)
 	{
 		//for (int i = 0; i < 20; ++i)
 		//{
@@ -56,6 +56,7 @@ namespace simciv
 		//storage_last = storage;
 
 		if (_fix_price) return;
+		if (volume == 0) return;
 
 		double fullness = storage / storage_capacity;
 
@@ -208,10 +209,12 @@ namespace simciv
 	{
 		for (Producer* p: _supplies)
 		{
+			if (p->volume == 0) continue;
 			Node& m = g[p->area->index];
 			_world.get_distances(&m, g);
 			for (Producer* q: _consumers)
 			{
+				if (q->volume == 0) continue;
 				auto t = get_transport(p, q);
 			}
 		}
@@ -250,10 +253,12 @@ namespace simciv
 
 		for (Producer* p: _supplies)
 		{
+			if (p->profit == max_price) p->profit = 0;
 			p->partner_price = p->price + p->profit;
 		}
 		for (Producer* p: _consumers)
 		{
+			if (p->profit == max_price) p->profit = 0;
 			p->partner_price = std::max(0.0, p->price - p->profit);
 		}
 	}
@@ -374,13 +379,13 @@ namespace simciv
 		}
 	}
 
-	Producer* ProductMap::create_prod(Area* area, double volume, double price)
+	Producer* ProductMap::create_prod(Area* area, bool consumer, double volume, double price)
 	{
 		Producer* p = new Producer();
 		p->prod_id = prod_id;
 		p->price = price;
-		p->_is_consumer = volume < 0;
-		p->volume = abs(volume);
+		p->_is_consumer = consumer;
+		p->volume = volume;
 		p->area = area;
 
 		auto& v = p->_is_consumer ? _consumers : _supplies;
