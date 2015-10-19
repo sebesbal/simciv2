@@ -212,7 +212,7 @@ void RouteAnimation::set_route(int prod_id, Transport* transport, MapView* map)
 	//Sprite* sprite = Sprite::create(get_animal_texture(ani->species.id));
 	Sprite* sprite = Sprite::create(get_plant_texture(prod_id));
 	Rect r = map->get_rect(a->x, a->y);
-	sprite->setPosition(r.getMidX(), r.getMidY());
+	//sprite->setPosition(r.getMidX(), r.getMidY());
 	sprite->setScale(0.04f);
 	map->addChild(sprite);
 
@@ -228,15 +228,16 @@ void RouteAnimation::set_route(int prod_id, Transport* transport, MapView* map)
 
 	for (auto r : transport->route->roads)
 	{
-		a = r->other(a);
-		//Area* b = r->other(a);
+		Area* b = r->other(a);
 		//Area* a = r->a;
 		//Area* b = r->b;
 
-		CCFiniteTimeAction* actionMove = CCMoveTo::create(1, ccp(a->x * cs + cs / 2, a->y * cs + cs / 2));
+		int i = abs(b->x - a->x) + abs(b->y - a->y);
+
+		CCFiniteTimeAction* actionMove = CCMoveTo::create(i == 2 ? sqrt(2) : 1, ccp(b->x * cs + cs / 2, b->y * cs + cs / 2));
 		v.pushBack(actionMove);
 		
-		
+		a = b;
 
 		// time += 0.05;
 		//a = b;
