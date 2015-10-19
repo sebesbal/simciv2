@@ -170,12 +170,12 @@ namespace simciv
 		}
 
 		std::vector<Node*> Q;
-		std::make_heap(Q.begin(), Q.end());
+		// std::make_heap(Q.begin(), Q.end());
 		src->color = 1;
 		src->d = 0;
 
 		Q.push_back(src);
-		std::push_heap(Q.begin(), Q.end());
+		// std::push_heap(Q.begin(), Q.end());
 
 		auto pr = [](Node* a, Node* b) {
 			return a->d > b->d;
@@ -183,8 +183,9 @@ namespace simciv
 
 		while (Q.size() > 0)
 		{
-			Node* n = Q.front();
+			//Node* n = Q.front();
 			std::pop_heap(Q.begin(), Q.end(), pr);
+			Node* n = Q.back();
 			Q.pop_back();
 
 			n->color = 2;

@@ -88,7 +88,7 @@ protected:
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
 	void set_price_vol_mode(int i);
 	void set_sup_con_mode(int i);
-	std::map<Route*, RouteAnimation*> routes;
+	std::map<Transport*, RouteAnimation*> transports;
 };
 
 /// Render animals
@@ -169,9 +169,9 @@ protected:
 class RouteAnimation
 {
 public:
-	void set_route(int prod_id, Route* route, MapView* map);
+	void set_route(int prod_id, Transport* transport, MapView* map);
 private:
-	Route* route;
+	Transport* transport;
 	//void spriteMoveFinished(CCNode* sender);
 };
 

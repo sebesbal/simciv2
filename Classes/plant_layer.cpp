@@ -185,15 +185,14 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 			auto& v = prod->transports();
 			for (auto transport : v)
 			{
-				auto r = transport->route;
-				auto it = routes.find(r);
-				if (it == routes.end())
+				auto it = transports.find(transport);
+				if (it == transports.end())
 				{
-					if (r->roads.size() > 0)
+					if (transport->route->roads.size() > 0)
 					{
 						RouteAnimation* ani = new RouteAnimation();
-						ani->set_route(prod_id, r, this);
-						routes[r] = ani;
+						ani->set_route(prod_id, transport, this);
+						transports[transport] = ani;
 					}
 				}
 				else
@@ -206,10 +205,10 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
-void RouteAnimation::set_route(int prod_id, Route* route, MapView* map)
+void RouteAnimation::set_route(int prod_id, Transport* transport, MapView* map)
 {
-	auto it = route->roads.begin();
-	Area* a = (*it)->a;
+	// auto it = route->roads.begin();
+	Area* a = transport->sup->area;
 	//Sprite* sprite = Sprite::create(get_animal_texture(ani->species.id));
 	Sprite* sprite = Sprite::create(get_plant_texture(prod_id));
 	Rect r = map->get_rect(a->x, a->y);
@@ -218,7 +217,7 @@ void RouteAnimation::set_route(int prod_id, Route* route, MapView* map)
 	map->addChild(sprite);
 
 	int cs = map->cell_size();
-	this->route = route;
+	this->transport = transport;
 	float time = 0;
 
 	
@@ -227,7 +226,7 @@ void RouteAnimation::set_route(int prod_id, Route* route, MapView* map)
 	CCFiniteTimeAction* actionMove = CCMoveTo::create(0, ccp(a->x * cs + cs / 2, a->y * cs + cs / 2));
 	v.pushBack(actionMove);
 
-	for (auto r : route->roads)
+	for (auto r : transport->route->roads)
 	{
 		a = r->other(a);
 		//Area* b = r->other(a);
