@@ -25,12 +25,26 @@ namespace simciv
 		//}
 	}
 
-	void Producer::produce(double vol)
+	//void Producer::produce(double vol)
+	//{
+	//	//const double a = 0.9;
+	//	//volume = a * volume + (1 - a) * vol;
+	//	storage += vol;
+	//	prod_volume += vol;
+	//}
+
+	void Producer::modify_storage(double ideal_vol, double actual_vol)
 	{
-		//const double a = 0.9;
-		//volume = a * volume + (1 - a) * vol;
-		storage += vol;
-		prod_volume += vol;
+		if (_is_consumer)
+		{
+			storage -= actual_vol;
+		}
+		else
+		{
+			storage += actual_vol;
+		}
+		
+		ideal_volume += ideal_vol;
 	}
 
 	void Producer::update_price()
@@ -55,8 +69,11 @@ namespace simciv
 		//storage_d = a * storage_d + (1 - a) * (storage - storage_last);
 		//storage_last = storage;
 
-		if (_fix_price) return;
-		if (volume == 0) return;
+		if (_fix_price || ideal_volume == 0) goto history;
+
+		double ideal_fullness = 20 * ideal_volume / storage_capacity;
+		ideal_fullness = std::min(1.0, ideal_fullness);
+		ideal_fullness = std::max(0.0, ideal_fullness);
 
 		double fullness = storage / storage_capacity;
 
@@ -65,7 +82,7 @@ namespace simciv
 
 		if (is_consumer())
 		{
-			if (fullness < 0.5)
+			if (fullness < ideal_fullness)
 			{
 				// want to buy
 				if (free_volume > 0)
@@ -97,7 +114,8 @@ namespace simciv
 		}
 		else
 		{
-			if (fullness < 0.5)
+			ideal_fullness = 1 - ideal_fullness;
+			if (fullness < ideal_fullness)
 			{
 				// want to store
 				if (free_volume > 0)
@@ -184,8 +202,8 @@ namespace simciv
 
 	Transport* ProductMap::get_transport(Producer* src, Producer* dst)
 	{
-		auto it = std::find_if(_routes.begin(), _routes.end(), [src, dst](const Transport* t) { return t->sup == src && t->dem == dst; });
-		if (it == _routes.end())
+		auto it = std::find_if(_transports.begin(), _transports.end(), [src, dst](const Transport* t) { return t->sup == src && t->dem == dst; });
+		if (it == _transports.end())
 		{
 			Node& o = g[dst->area->index];
 			Transport* r = new Transport();
@@ -197,7 +215,7 @@ namespace simciv
 			r->sup = src;
 			//r->profit = (q->price - p->price - r->trans_price) / r->trans_price;
 			r->profit = dst->price - src->price - r->trans_price;
-			_routes.push_back(r);
+			_transports.push_back(r);
 		}
 		else
 		{
@@ -222,19 +240,21 @@ namespace simciv
 		for (Producer* p: _supplies)
 		{
 			p->free_volume = p->volume;
+			p->ideal_volume = 0;
 			p->profit = max_price;
 		}
 		for (Producer* p: _consumers)
 		{
 			p->free_volume = p->volume;
+			p->ideal_volume = 0;
 			p->profit = max_price;
 		}
 
-		std::sort(_routes.begin(), _routes.end(), [](Transport* a, Transport* b) {
+		std::sort(_transports.begin(), _transports.end(), [](Transport* a, Transport* b) {
 			return a->profit > b->profit;
 		});
 
-		for (Transport* r: _routes)
+		for (Transport* r: _transports)
 		{
 			double& v_sup = r->sup->free_volume;
 			double& v_con = r->dem->free_volume;
@@ -270,7 +290,7 @@ namespace simciv
 			r->t[prod_id] = 0;
 		}
 
-		for (Transport* route: _routes)
+		for (Transport* route: _transports)
 		{
 			Area* a = route->sup->area;
 			for (Road* r: route->route->roads)
@@ -354,7 +374,7 @@ namespace simciv
 
 	void ProductMap::update_storages()
 	{
-		for (Transport* t : _routes)
+		for (Transport* t : _transports)
 		{
 			double& vol = t->volume;
 			if (vol == 0) continue;

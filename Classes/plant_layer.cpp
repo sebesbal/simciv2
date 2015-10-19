@@ -179,48 +179,29 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 
 	if (info.show_transport)
 	{
-		//static bool first_run = true;
-		//if (!first_run
-		ProductMap* prod = _model->products()[info.plant_id];
-		auto& v = prod->routes();
-		for (auto route : v)
+		for (int prod_id = 0; prod_id < material_count; ++prod_id)
 		{
-			auto r = route->route;
-			auto it = routes.find(r);
-			if (it == routes.end())
+			ProductMap* prod = _model->products()[prod_id];
+			auto& v = prod->transports();
+			for (auto transport : v)
 			{
-				RouteAnimation* ani = new RouteAnimation();
-				ani->set_route(info.plant_id, r, this);
-				routes[r] = ani;
-			}
-			else
-			{
+				auto r = transport->route;
+				auto it = routes.find(r);
+				if (it == routes.end())
+				{
+					if (r->roads.size() > 0)
+					{
+						RouteAnimation* ani = new RouteAnimation();
+						ani->set_route(prod_id, r, this);
+						routes[r] = ani;
+					}
+				}
+				else
+				{
 
+				}
 			}
 		}
-
-
-		//CCFiniteTimeAction* actionMove =
-		//	CCMoveTo::create((float)actualDuration,
-		//	ccp(0 - target->getContentSize().width / 2, actualY));
-		//CCFiniteTimeAction* actionMoveDone =
-		//	CCCallFuncN::create(this,
-		//	callfuncN_selector(HelloWorld::spriteMoveFinished));
-		//target->runAction(CCSequence::create(actionMove,
-		//	actionMoveDone, NULL));
-
-		//DrawPrimitives::setDrawColor4F(0, 0, 1, 1);
-		//glLineWidth(3);
-		//double scale = 5; // 0.1;
-
-		//for (Area* a : _model->areas())
-		//{
-		//	double x, y;
-		//	a->get_trans(info.plant_id, x, y);
-		//	Rect r = get_rect(a->x, a->y);
-		//	Vec2 p = Vec2(r.getMidX(), r.getMidY());
-		//	DrawPrimitives::drawLine(p, Vec2(p.x + scale * x, p.y + scale * y));
-		//}
 	}
 	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
@@ -232,8 +213,8 @@ void RouteAnimation::set_route(int prod_id, Route* route, MapView* map)
 	//Sprite* sprite = Sprite::create(get_animal_texture(ani->species.id));
 	Sprite* sprite = Sprite::create(get_plant_texture(prod_id));
 	Rect r = map->get_rect(a->x, a->y);
-	//sprite->setPosition(r.getMidX(), r.getMidY());
-	sprite->setScale(0.02f);
+	sprite->setPosition(r.getMidX(), r.getMidY());
+	sprite->setScale(0.04f);
 	map->addChild(sprite);
 
 	int cs = map->cell_size();
@@ -248,17 +229,18 @@ void RouteAnimation::set_route(int prod_id, Route* route, MapView* map)
 
 	for (auto r : route->roads)
 	{
-		Area* b = r->other(a);
+		a = r->other(a);
+		//Area* b = r->other(a);
 		//Area* a = r->a;
 		//Area* b = r->b;
 
-		CCFiniteTimeAction* actionMove = CCMoveTo::create(3, ccp(b->x * cs + cs / 2, b->y * cs + cs / 2));
+		CCFiniteTimeAction* actionMove = CCMoveTo::create(1, ccp(a->x * cs + cs / 2, a->y * cs + cs / 2));
 		v.pushBack(actionMove);
 		
 		
 
 		// time += 0.05;
-		a = b;
+		//a = b;
 	}
 	//CCFiniteTimeAction* actionMoveDone = CCCallFuncN::create(this, callfuncN_selector(RouteAnimation::spriteMoveFinished));
 	CCFiniteTimeAction* actionMoveDone = CCCallFuncN::create([](CCNode* sender){});

@@ -61,7 +61,7 @@ namespace simciv
 		std::vector<Producer*> consumers;
 		Area* area;
 		void update();
-		void apply_rule(ProductionRule* rule, double& rate); ///< tries to apply the rule with "rate" times. returns the applicable rate. (depending on the storage)
+		double apply_rule(ProductionRule* rule, double ideal_rate); ///< tries to apply the rule with "rate" times. returns the applicable rate. (depending on the storage)
 		double consume_article(int art_ind, Prices& prices, double& volume); ///< changes volume to the consumed volume, and returns the price
 		double consume_articles(Prices& prices);
 		void check_supply_storage(MaterialMap& vols, double& rate);

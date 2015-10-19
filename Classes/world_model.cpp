@@ -170,6 +170,7 @@ namespace simciv
 		}
 
 		std::vector<Node*> Q;
+		std::make_heap(Q.begin(), Q.end());
 		src->color = 1;
 		src->d = 0;
 

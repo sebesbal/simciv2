@@ -42,8 +42,9 @@ namespace simciv
 		bool _is_consumer;
 		bool _fix_price;
 		Area* area;
-		double volume; // trade offer. negative volume means consumer
-		double free_volume; // offer - actually traded volume
+		double volume; // trade offer.
+		double free_volume; // volume - actually traded volume
+		double ideal_volume;
 		double price; // the current price
 		double profit; // the worst profit of the producers deals
 		double partner_price;
@@ -51,10 +52,11 @@ namespace simciv
 		double storage_capacity;
 		double storage_last;
 		double storage;
-		double storage_d;
+		double storage_d; ///< that's how the storage would be changed if there is no trade
 
-		double prod_volume; // production volume. negative volume means consumer
-		void produce(double vol);
+		double prod_volume; // production volume. 
+		//void produce(double vol);
+		void modify_storage(double ideal_vol, double actual_vol);
 		void update_price();
 		void update_storage();
 		double free_capacity() { return storage_capacity - storage; }
@@ -89,7 +91,10 @@ namespace simciv
 		void move_prod(Producer* prod, Area* new_area);
 		void routes_to_areas(int prod_id);
 		void generate_resources();
-		std::vector<Transport*>& routes() { return _routes; }
+		std::vector<Transport*>& transports() { return _transports; }
+		void update_routes();
+		void update_prices();
+		void update_storages();
 	protected:
 		int prod_id;
 		Node* g;
@@ -97,16 +102,13 @@ namespace simciv
 		bool unique_mode;
 		void create_g();
 		Transport* get_transport(Producer* src, Producer* dst);
-		void update_routes();
-		void update_prices();
-		void update_storages();
 		WorldModel& _world;
 		std::vector<Producer*> _supplies;
 		std::vector<Producer*> _consumers;
 		std::vector<std::vector<Producer*>> _area_supplies;
 		std::vector<std::vector<Producer*>> _area_consumers;
 
-		std::vector<Transport*> _routes; // "all" possible routes. volume > 0 means that the route is used
+		std::vector<Transport*> _transports; // "all" possible routes. volume > 0 means that the route is used
 		std::vector<AreaProd>* _production;
 		std::vector<AreaProd>* _new_production;
 	};

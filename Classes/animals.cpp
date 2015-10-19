@@ -1,6 +1,7 @@
 #include "animals.h"
 #include <algorithm>
 #include <string>
+#include <algorithm>
 
 namespace simciv
 {
@@ -76,84 +77,121 @@ namespace simciv
 		//species.find_best_m2m_rule();
 	}
 
-	void Animal::apply_rule(ProductionRule* rule, double& rate)
+	double Animal::apply_rule(ProductionRule* rule, double ideal_rate)
 	{
-		if (rate == 0) return;
+		double rate = ideal_rate;
+		if (rate == 0) return 0;
 		check_consumption_storage(rule->input, rate);
-		if (rate == 0) return;
+		if (rate == 0) return 0;
 		check_supply_storage(rule->output, rate);
-		if (rate == 0) return;
+		if (rate == 0) return 0;
 
 		for (auto& p : rule->input)
 		{
 			int prod_id = p.first;
 			double vol = p.second;
-			consumers[prod_id]->produce(-rate * vol);
+			consumers[prod_id]->modify_storage(ideal_rate * vol, rate * vol);
 		}
 
 		for (auto& p : rule->output)
 		{
 			int prod_id = p.first;
 			double vol = p.second;
-			supplies[prod_id]->produce(rate * vol);
+			supplies[prod_id]->modify_storage(ideal_rate * vol, rate * vol);
 		}
+
+		return rate;
 	}
+
+	//double Animal::consume_article(int art_ind, Prices& prices, double& volume)
+	//{
+	//	double full_expense = 0;
+	//	double best_expense = max_price;
+	//	std::set<ProductionRule*> used;
+
+	//	while (volume > 0)
+	//	{
+	//		ProductionRule* best_rule = NULL;
+	//		double best_rate;
+	//		for (auto& rule : species.m2a_rules)
+	//		{
+	//			double rate = volume;
+	//			check_consumption_storage(rule.input, rate);
+	//			if (rate > 0)
+	//			{
+	//				double exp = rule.expense(prices);
+	//				if (exp < best_expense)
+	//				{
+	//					best_expense = exp;
+	//					best_rule = &rule;
+	//					best_rate = rate;
+	//				}
+	//			}
+	//		}
+
+	//		if (best_rule)
+	//		{
+	//			full_expense += best_expense;
+	//			for (auto& p : best_rule->input)
+	//			{
+	//				int prod_id = p.first;
+	//				double vol = p.second;
+	//				consumers[prod_id]->modify_storage(volume * vol, best_rate * vol);
+	//			}
+	//			volume -= best_rate;
+	//		}
+	//		else
+	//		{
+	//			break;
+	//		}
+	//	}
+
+	//	if (volume > 0)
+	//	{
+	//		for (auto& rule : species.m2a_rules)
+	//		{
+	//			for (auto& p : rule.input)
+	//			{
+	//				int prod_id = p.first;
+	//				double vol = p.second;
+	//				double& v = consumers[prod_id]->volume;
+	//				v = std::max(v, volume * vol);
+	//			}
+	//		}
+	//	}
+
+	//	return full_expense;
+	//}
+
 
 	double Animal::consume_article(int art_ind, Prices& prices, double& volume)
 	{
 		double full_expense = 0;
-		double best_expense = max_price;
+		typedef std::pair<double, ProductionRule*> pair_t;
+		std::vector<pair_t> v;
 
-		while (volume > 0)
+		for (auto& rule : species.m2a_rules)
 		{
-			ProductionRule* best_rule = NULL;
-			double best_rate;
-			for (auto& rule : species.m2a_rules)
-			{
-				double rate = volume;
-				check_consumption_storage(rule.input, rate);
-				if (rate > 0)
-				{
-					double exp = rule.expense(prices);
-					if (exp < best_expense)
-					{
-						best_expense = exp;
-						best_rule = &rule;
-						best_rate = rate;
-					}
-				}
-			}
-
-			if (best_rule)
-			{
-				volume -= best_rate;
-				full_expense = best_expense;
-
-				for (auto& p : best_rule->input)
-				{
-					int prod_id = p.first;
-					double vol = p.second;
-					consumers[prod_id]->produce(best_rate * vol);
-				}
-			}
-			else
-			{
-				break;
-			}
+			v.push_back(pair_t(rule.expense(prices), &rule));
 		}
 
-		if (volume > 0)
+		std::sort(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
+
+		for (auto& p : v)
 		{
-			for (auto& rule : species.m2a_rules)
+			double rate = volume;
+			double expense = p.first;
+			auto rule = p.second;
+			check_consumption_storage(rule->input, rate);
+			full_expense += rate * expense;
+			for (auto& p : rule->input)
 			{
-				for (auto& p : rule.input)
-				{
-					int prod_id = p.first;
-					double vol = p.second;
-					double& v = consumers[prod_id]->volume;
-					v = std::max(v, volume * vol);
-				}
+				int prod_id = p.first;
+				double vol = p.second;
+				consumers[prod_id]->modify_storage(volume * vol, rate * vol);
 			}
+			volume -= rate;
+			if (volume == 0) break;
 		}
 
 		return full_expense;
@@ -258,13 +296,13 @@ namespace simciv
 
 		// generate article rules
 		std::vector<ProductionRule> art_rules;
-		//for (int i = 0; i < color_count; ++i)
-		//{
-		//	ProductionRule rule;
-		//	rule.input[i] = i == 0 ? 1 : 2;
-		//	rule.output[0] = 1;
-		//	art_rules.push_back(rule);
-		//}
+		for (int i = 0; i < level_count; ++i)
+		{
+			ProductionRule rule;
+			rule.input[id(i, 0)] = pow(0.5, i);
+			rule.output[0] = 1;
+			art_rules.push_back(rule);
+		}
 
 		ProductionRule rule;
 		rule.input[0] = 1;
@@ -273,7 +311,7 @@ namespace simciv
 
 		// generate maintenance
 		MaterialMap maintenance;
-		maintenance[0] = 1;
+		maintenance[0] = 0.1;
 
 		for (int level = 0; level < level_count; ++level)
 		{
@@ -322,10 +360,10 @@ namespace simciv
 		create_animal(get_area(x, y), *s0);
 
 		auto s1 = get_species(1, 0);
-		create_animal(get_area(x + 2, y + 2), *s1);
+		create_animal(get_area(x + 4, y), *s1);
 
 		auto s2 = get_species(2, 0);
-		create_animal(get_area(x + 4, y + 4), *s2);
+		create_animal(get_area(x + 2, y + 3), *s2);
 	}
 
 	Animal* AnimalWorld::create_animal(Area* a, Species& species)
@@ -367,10 +405,40 @@ namespace simciv
 		return NULL;
 	}
 
+	//void AnimalWorld::update()
+	//{
+	//	// update product maps
+	//	WorldModel::update();
+
+	//	for (Animal* ani : animals)
+	//	{
+	//		Area* area = ani->area;
+	//		Prices prices = get_prices(area);
+	//		auto rule = ani->species.find_best_m2m_rule(prices);
+	//		if (rule)
+	//		{
+	//			double rate = 1;
+	//			ani->apply_rule(rule, rate);
+	//		}
+
+	//		double expense = ani->consume_articles(prices);
+	//	}
+	//}
+
+
 	void AnimalWorld::update()
 	{
 		// update product maps
-		WorldModel::update();
+		//WorldModel::update();
+
+		static int k = 0;
+		//if (k++ % 10 == 0)
+		{
+			for (ProductMap* product : _products)
+			{
+				product->update_routes();
+			}
+		}
 
 		for (Animal* ani : animals)
 		{
@@ -379,14 +447,17 @@ namespace simciv
 			auto rule = ani->species.find_best_m2m_rule(prices);
 			if (rule)
 			{
-				double rate = 1;
-				ani->apply_rule(rule, rate);
+				ani->apply_rule(rule, 1);
 			}
 
 			double expense = ani->consume_articles(prices);
 		}
 
-
+		for (ProductMap* product : _products)
+		{
+			product->update_prices();
+			product->update_storages();
+		}
 	}
 
 	void AnimalWorld::move_animal(Animal* ani, Area* new_area)
