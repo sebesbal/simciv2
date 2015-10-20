@@ -169,9 +169,13 @@ protected:
 class RouteAnimation
 {
 public:
+	RouteAnimation();
 	void set_route(int prod_id, Transport* transport, MapView* map);
+	void stop();
+	void start();
 private:
 	Transport* transport;
+	Sprite* sprite;
 	//void spriteMoveFinished(CCNode* sender);
 };
 

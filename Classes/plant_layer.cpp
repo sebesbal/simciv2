@@ -197,7 +197,20 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 				}
 				else
 				{
+					Transport* t = it->first;
+					if (t->volume == 0)
+					{
+						RouteAnimation* ani = it->second;
+						ani->stop();
+						transports.erase(it);
+						//delete ani;
+					}
+					else
+					{
+						//RouteAnimation* ani = it->second;
+						//ani->start();
 
+					}
 				}
 			}
 		}
@@ -205,12 +218,17 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
+RouteAnimation::RouteAnimation() : sprite(NULL), transport(NULL)
+{
+
+}
+
 void RouteAnimation::set_route(int prod_id, Transport* transport, MapView* map)
 {
 	// auto it = route->roads.begin();
 	Area* a = transport->sup->area;
 	//Sprite* sprite = Sprite::create(get_animal_texture(ani->species.id));
-	Sprite* sprite = Sprite::create(get_plant_texture(prod_id));
+	sprite = Sprite::create(get_plant_texture(prod_id));
 	Rect r = map->get_rect(a->x, a->y);
 	//sprite->setPosition(r.getMidX(), r.getMidY());
 	sprite->setScale(0.04f);
@@ -249,6 +267,30 @@ void RouteAnimation::set_route(int prod_id, Transport* transport, MapView* map)
 	
 	sprite->runAction(CCRepeatForever::create(CCSequence::create(v)));
 }
+
+void RouteAnimation::stop()
+{
+	if (sprite)
+	{
+		//sprite->pause();
+		// sprite->stopAllActions();
+		//sprite->setVisible(false);
+		sprite->getParent()->removeChild(sprite, false);
+		sprite = NULL;
+	}
+}
+
+void RouteAnimation::start()
+{
+	if (sprite)
+	{
+		sprite->resume();
+		sprite->setVisible(true);
+		//sprite->getParent()->removeChild(sprite, true);
+		//sprite = NULL;
+	}
+}
+
 //
 //void RouteAnimation::spriteMoveFinished(CCNode* sender)
 //{
