@@ -104,6 +104,8 @@ void WorldUI::tick(float f)
 	{
 		_model.update();
 	}
+
+	_plant_layer->update(f);
 }
 
 void WorldUI::load_from_tmx(std::string tmx)

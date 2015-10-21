@@ -83,9 +83,11 @@ class PlantMapLayer : public MapView
 public:
 	PlantMapLayer(UIStateData& info) : info(info) { }
 	static PlantMapLayer* create(WorldModel* model, UIStateData& info);
+	virtual void update(float delta) override;
 protected:
 	UIStateData& info;
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
+	
 	void set_price_vol_mode(int i);
 	void set_sup_con_mode(int i);
 	std::map<Transport*, RouteAnimation*> transports;
@@ -170,6 +172,7 @@ class RouteAnimation
 {
 public:
 	RouteAnimation();
+	// ~RouteAnimation() { if (sprite) sprite-> }
 	void set_route(int prod_id, Transport* transport, MapView* map);
 	void stop();
 	void start();

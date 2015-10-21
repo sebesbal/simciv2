@@ -177,6 +177,11 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	//	}
 	//}
 
+	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+}
+
+void PlantMapLayer::update(float delta)
+{
 	if (info.show_transport)
 	{
 		for (int prod_id = 0; prod_id < material_count; ++prod_id)
@@ -203,7 +208,7 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 						RouteAnimation* ani = it->second;
 						ani->stop();
 						transports.erase(it);
-						//delete ani;
+						delete ani;
 					}
 					else
 					{
@@ -215,16 +220,16 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 			}
 		}
 	}
-	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
 RouteAnimation::RouteAnimation() : sprite(NULL), transport(NULL)
 {
-
 }
 
 void RouteAnimation::set_route(int prod_id, Transport* transport, MapView* map)
 {
+	if (sprite) return;
+
 	// auto it = route->roads.begin();
 	Area* a = transport->sup->area;
 	//Sprite* sprite = Sprite::create(get_animal_texture(ani->species.id));
@@ -272,10 +277,7 @@ void RouteAnimation::stop()
 {
 	if (sprite)
 	{
-		//sprite->pause();
-		// sprite->stopAllActions();
-		//sprite->setVisible(false);
-		sprite->getParent()->removeChild(sprite, false);
+		sprite->removeFromParentAndCleanup(true);
 		sprite = NULL;
 	}
 }
