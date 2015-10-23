@@ -457,8 +457,10 @@ namespace simciv
 
 		for (ProductMap* product : _products)
 		{
-			product->update_prices();
-			product->update_storages();
+			product->update_area_prices();
+			product->update_producer_prices();
+			product->update_trade();
+			product->update_producer_storages();
 		}
 	}
 

@@ -191,8 +191,9 @@ namespace simciv
 		{
 			update_transports();
 		}
-		update_prices();
-		update_storages();
+		update_area_prices();
+		update_producer_prices();
+		update_producer_storages();
 	}
 
 	Transport* ProductMap::get_transport(Producer* src, Producer* dst)
@@ -225,14 +226,17 @@ namespace simciv
 				auto t = get_transport(p, q);
 			}
 		}
+	}
 
-		for (Producer* p: _supplies)
+	void ProductMap::update_trade()
+	{
+		for (Producer* p : _supplies)
 		{
 			p->free_volume = p->volume;
 			p->ideal_volume = 0;
 			p->profit = max_price;
 		}
-		for (Producer* p: _consumers)
+		for (Producer* p : _consumers)
 		{
 			p->free_volume = p->volume;
 			p->ideal_volume = 0;
@@ -243,7 +247,7 @@ namespace simciv
 			return a->profit > b->profit;
 		});
 
-		for (Transport* r: _transports)
+		for (Transport* r : _transports)
 		{
 			double& v_sup = r->sup->free_volume;
 			double& v_con = r->dem->free_volume;
@@ -260,12 +264,12 @@ namespace simciv
 			}
 		}
 
-		for (Producer* p: _supplies)
+		for (Producer* p : _supplies)
 		{
 			if (p->profit == max_price) p->profit = 0;
 			p->partner_price = p->price + p->profit;
 		}
-		for (Producer* p: _consumers)
+		for (Producer* p : _consumers)
 		{
 			if (p->profit == max_price) p->profit = 0;
 			p->partner_price = std::max(0.0, p->price - p->profit);
@@ -307,7 +311,7 @@ namespace simciv
 		}
 	}
 
-	void ProductMap::update_prices()
+	void ProductMap::update_area_prices()
 	{
 		for (Area* a: _world.areas())
 		{
@@ -349,19 +353,22 @@ namespace simciv
 
 		//*_production = *_new_production;
 		 std::swap(_production, _new_production);
-
-		 // update prices in the producers
-		 for (Producer* p : _supplies)
-		 {
-			 p->update_price();
-		 }
-		 for (Producer* p : _consumers)
-		 {
-			 p->update_price();
-		 }
 	}
 
-	void ProductMap::update_storages()
+	void ProductMap::update_producer_prices()
+	{
+		// update prices in the producers
+		for (Producer* p : _supplies)
+		{
+			p->update_price();
+		}
+		for (Producer* p : _consumers)
+		{
+			p->update_price();
+		}
+	}
+
+	void ProductMap::update_producer_storages()
 	{
 		for (Transport* t : _transports)
 		{

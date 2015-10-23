@@ -94,8 +94,9 @@ namespace simciv
 		std::vector<Transport*>& transports() { return _transports; }
 		void update_transports(); ///< find possible trade routes
 		void update_trade(); ///< calculate trade on the routes
-		void update_prices();
-		void update_storages();
+		void update_producer_prices();
+		void update_area_prices(); ///< calculate price info on every area
+		void update_producer_storages();
 	protected:
 		int prod_id;
 		int update_count;
@@ -108,7 +109,7 @@ namespace simciv
 		std::vector<std::vector<Producer*>> _area_supplies;
 		std::vector<std::vector<Producer*>> _area_consumers;
 
-		std::vector<Transport*> _transports; // "all" possible routes. volume > 0 means that the route is used
+		std::vector<Transport*> _transports; // "all" possible transports. volume > 0 means that the transport is used
 		std::vector<AreaProd>* _production;
 		std::vector<AreaProd>* _new_production;
 	};
