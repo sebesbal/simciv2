@@ -16,7 +16,14 @@ namespace simciv
 
 	}
 
-	Producer::Producer() : storage(0), storage_last(0), storage_d(0), storage_capacity(100), prod_volume(0), _fix_price(false)
+	Producer::Producer() :
+		storage(0),
+		storage_last(0),
+		storage_d(0),
+		storage_capacity(100),
+		prod_volume(0),
+		fix_price(false),
+		storage_pair(NULL)
 	{
 		//for (int i = 0; i < 20; ++i)
 		//{
@@ -35,7 +42,7 @@ namespace simciv
 
 	void Producer::modify_storage(double ideal_vol, double actual_vol)
 	{
-		if (_is_consumer)
+		if (is_consumer)
 		{
 			storage -= actual_vol;
 		}
@@ -69,7 +76,7 @@ namespace simciv
 		//storage_d = a * storage_d + (1 - a) * (storage - storage_last);
 		//storage_last = storage;
 
-		if (_fix_price || ideal_volume == 0) goto history;
+		if (fix_price || ideal_volume == 0) goto history;
 
 		double ideal_fullness = 20 * ideal_volume / storage_capacity;
 		ideal_fullness = std::min(1.0, ideal_fullness);
@@ -80,7 +87,7 @@ namespace simciv
 		double vol_d = 0.1;
 		double price_d = 1;
 
-		if (is_consumer())
+		if (is_consumer)
 		{
 			if (fullness < ideal_fullness)
 			{
@@ -404,15 +411,15 @@ namespace simciv
 		Producer* p = new Producer();
 		p->prod_id = prod_id;
 		p->price = price;
-		p->_is_consumer = consumer;
+		p->is_consumer = consumer;
 		p->volume = volume;
 		p->area = area;
 
-		auto& v = p->_is_consumer ? _consumers : _supplies;
+		auto& v = p->is_consumer ? _consumers : _supplies;
 		AreaProd& a = get_prod(area);
 		auto it = std::find_if(v.begin(), v.end(), [area](Producer* p) { return p->area == area; });
 
-		if (p->_is_consumer)
+		if (p->is_consumer)
 		{
 			_consumers.push_back(p);
 			_area_consumers[area->index].push_back(p);
@@ -451,11 +458,11 @@ namespace simciv
 	{
 		int id = prod->area->index;
 
-		auto& u = prod->is_consumer() ? _consumers : _supplies;
+		auto& u = prod->is_consumer ? _consumers : _supplies;
 		auto it = std::find(u.begin(), u.end(), prod);
 		u.erase(it);
 
-		auto& v = prod->is_consumer() ? _area_consumers[id] : _area_supplies[id];
+		auto& v = prod->is_consumer ? _area_consumers[id] : _area_supplies[id];
 		it = std::find(v.begin(), v.end(), prod);
 		v.erase(it);
 
@@ -489,12 +496,12 @@ namespace simciv
 	void ProductMap::move_prod(Producer* prod, Area* new_area)
 	{
 		int id = prod->area->index;
-		auto& v = prod->is_consumer() ? _area_consumers[id] : _area_supplies[id];
+		auto& v = prod->is_consumer ? _area_consumers[id] : _area_supplies[id];
 		auto it = std::find(v.begin(), v.end(), prod);
 		v.erase(it);
 
 		id = new_area->index;
-		auto& u = prod->is_consumer() ? _area_consumers[id] : _area_supplies[id];
+		auto& u = prod->is_consumer ? _area_consumers[id] : _area_supplies[id];
 		u.push_back(prod);
 	}
 }

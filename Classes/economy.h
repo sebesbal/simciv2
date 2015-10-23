@@ -37,13 +37,12 @@ namespace simciv
 	{
 		Producer();
 		int prod_id;
-		//bool is_consumer() { return volume < 0; }
-		bool is_consumer() { return _is_consumer; }
-		bool _is_consumer;
-		bool _fix_price;
+		bool is_consumer;
+		Producer* storage_pair; ///< for storages: one producer for supply and one for consumption, storage_pair connects the two
+		bool fix_price;
 		Area* area;
-		double volume; // trade offer.
-		double free_volume; // volume - actually traded volume
+		double volume; ///< trade offer.
+		double free_volume; ///< volume - actually traded volume
 		double ideal_volume;
 		double price; // the current price
 		double profit; // the worst profit of the producers deals

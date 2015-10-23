@@ -376,8 +376,10 @@ namespace simciv
 		// create all producers:
 		for (int i = 0; i < material_count; ++i)
 		{
-			ani->supplies[i] = _products[i]->create_prod(a, false, 0, 50);
-			ani->consumers[i] = _products[i]->create_prod(a, true, 0, 50);
+			auto p = ani->supplies[i] = _products[i]->create_prod(a, false, 0, 50);
+			p->storage_capacity = species.type == ST_TYPECOLOR ? 100 : 1000;
+			p = ani->consumers[i] = _products[i]->create_prod(a, true, 0, 50);
+			p->storage_capacity = species.type == ST_TYPECOLOR ? 100 : 1000;
 		}
 
 		return ani;
