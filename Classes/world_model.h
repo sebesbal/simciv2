@@ -42,6 +42,8 @@ namespace simciv
 
 	void bisect(const MaterialVec& v, MaterialVec& pos, MaterialVec& neg);
 
+	struct RoadMap;
+
 	struct Area
 	{
 		Area(int index, int pc);
@@ -50,6 +52,7 @@ namespace simciv
 		int x;
 		int y;
 		std::vector<Road*> _roads;
+		RoadMap* map; ///< routes from this
 	};
 
 	struct Road
@@ -69,6 +72,11 @@ namespace simciv
 		Area* area;
 		double d;
 		int color; // 0 = black, unvisited, 1 = gray, opened, 2 = white, visited
+	};
+
+	struct RoadMap
+	{
+		Node* g;
 	};
 		
 	class NodeComparator
@@ -101,15 +109,15 @@ namespace simciv
 		int width() { return _width; }
 		int height() { return _height; }
 		AreaProd& get_prod(Area* a, int id);
-		void get_distances(Node* src, Node* g);
-		Route* get_route(Node* src, Node* dst, Node* g);
+		void create_road_map(Area* a);
+		Route* create_route(Area* src, Area* dst);
 		std::vector<ProductMap*>& products() { return _products; }
 	protected:
-		Node* _src_for_get_distances;
 		MaterialVec empty_mat_vec();
 		std::vector<ProductMap*> _products;
 		std::vector<Road*> _roads;
 		std::vector<Area*> _areas;
+		std::map<int, std::map<int, Route*>> _routes;
 		int _pc; ///< Product count
 		int _width;
 		int _height;

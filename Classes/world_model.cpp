@@ -2,6 +2,7 @@
 #include "world_model.h"
 #include <queue>
 #include "economy.h"
+#include "assert.h"
 
 using namespace std;
 
@@ -31,7 +32,7 @@ namespace simciv
 		}
 	}
 
-	Area::Area(int pc, int index): index(index)
+	Area::Area(int pc, int index) : index(index), map(NULL)
 	{
 		//for (int i = 0; i < pc; ++i)
 		//{
@@ -66,7 +67,7 @@ namespace simciv
 		}
 	}
 
-	WorldModel::WorldModel() : _src_for_get_distances(NULL)
+	WorldModel::WorldModel()
 	{
 
 	}
@@ -154,12 +155,16 @@ namespace simciv
 		}
 	}
 
-	void WorldModel::get_distances(Node* src, Node* g)
+	void WorldModel::create_road_map(Area* a)
 	{
-		if (src == _src_for_get_distances) return;
-		_src_for_get_distances = src;
-
 		int nn = _areas.size();
+		Node* g = new Node[nn];
+		a->map = new RoadMap();
+		a->map->g = g;
+		for (int i = 0; i < nn; ++i)
+		{
+			g[i].area = _areas[i];
+		}
 
 		for (int i = 0; i < nn; ++i)
 		{
@@ -169,6 +174,7 @@ namespace simciv
 			n.parent = NULL;
 		}
 
+		Node* src = &g[a->index];
 		std::vector<Node*> Q;
 		// std::make_heap(Q.begin(), Q.end());
 		src->color = 1;
@@ -191,7 +197,7 @@ namespace simciv
 			n->color = 2;
 			Area* a = n->area;
 
-			for (Road* r: a->_roads)
+			for (Road* r : a->_roads)
 			{
 				Area* b = r->other(a);
 				Node* m = &g[b->index];
@@ -218,31 +224,30 @@ namespace simciv
 		}
 	}
 
-	Route* WorldModel::get_route(Node* src, Node* dst, Node* g)
+	Route* WorldModel::create_route(Area* src, Area* dst)
 	{
 		Route* route = new Route();
-		Area* a = dst->area;
-		route->trans_price = 0;
-		//route->p_con = a->_prod[0].p;
-		//route->dem = dst;
-
-		while (dst->parent)
+		RoadMap*& map = src->map;
+		if (!map)
 		{
-			Road* r = dst->parent;
+			create_road_map(src);
+		}
+
+		Node* n = &map->g[dst->index];
+		Area* a = dst;
+		route->trans_price = 0;
+
+		while (n->parent)
+		{
+			Road* r = n->parent;
 			route->roads.push_back(r);
 			route->trans_price += r->t_price;
 			a = r->other(a);
-			dst = &g[a->index];
+			n = &map->g[a->index];
 		}
 
-		//route->sup = a;
-		//route->p_sup = a->_prod[0].p;
 		auto& v = route->roads;
 		std::reverse(v.begin(), v.end());
-
-		//route->profit = route->p_con - route->p_sup - route->trans_price;
-		//route->volume = 0;
-
 		return route;
 	}
 

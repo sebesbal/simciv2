@@ -70,6 +70,7 @@ namespace simciv
 		Producer* sup;
 		Producer* dem;
 		Route* route;
+		bool invert_route; ///< the route directs dem to sup
 		double volume;
 		double trans_price;
 		double profit;
@@ -91,12 +92,12 @@ namespace simciv
 		void routes_to_areas(int prod_id);
 		void generate_resources();
 		std::vector<Transport*>& transports() { return _transports; }
-		void update_routes();
+		void update_transports(); ///< find possible trade routes
+		void update_trade(); ///< calculate trade on the routes
 		void update_prices();
 		void update_storages();
 	protected:
 		int prod_id;
-		Node* g;
 		int update_count;
 		bool unique_mode;
 		void create_g();

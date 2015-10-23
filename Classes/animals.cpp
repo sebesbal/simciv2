@@ -438,7 +438,7 @@ namespace simciv
 		{
 			for (ProductMap* product : _products)
 			{
-				product->update_routes();
+				product->update_transports();
 			}
 		}
 

@@ -182,29 +182,17 @@ namespace simciv
 		_area_consumers.resize(n);
 		_area_supplies.resize(n);
 		// generate_resources();
-		create_g();
+		//g = _world.create_g();
 	}
 
 	void ProductMap::update()
 	{
 		if (update_count++ % 10 == 0)
 		{
-			update_routes();
+			update_transports();
 		}
 		update_prices();
 		update_storages();
-	}
-
-	void ProductMap::create_g()
-	{
-		auto& areas = _world.areas();
-		int n = areas.size();
-		g = new Node[n];
-		for (int i = 0; i < n; ++i)
-		{
-			Area* a = areas[i];
-			g[i].area = a;
-		}
 	}
 
 	Transport* ProductMap::get_transport(Producer* src, Producer* dst)
@@ -212,17 +200,13 @@ namespace simciv
 		auto it = std::find_if(_transports.begin(), _transports.end(), [src, dst](const Transport* t) { return t->sup == src && t->dem == dst; });
 		if (it == _transports.end())
 		{
-			Node& o = g[dst->area->index];
-			Transport* r = new Transport();
-			Node& m = g[src->area->index];
-			_world.get_distances(&m, g);
-			r->route = _world.get_route(&m, &o, g);
-			r->trans_price = r->route->trans_price;
-			r->dem = dst;
-			r->sup = src;
-			//r->profit = (q->price - p->price - r->trans_price) / r->trans_price;
-			r->profit = dst->price - src->price - r->trans_price;
-			_transports.push_back(r);
+			Transport* t = new Transport();
+			t->route = _world.create_route(src->area, dst->area);
+			t->trans_price = t->route->trans_price;
+			t->dem = dst;
+			t->sup = src;
+			t->profit = dst->price - src->price - t->trans_price;
+			_transports.push_back(t);
 		}
 		else
 		{
@@ -230,13 +214,11 @@ namespace simciv
 		}
 	}
 
-	void ProductMap::update_routes()
+	void ProductMap::update_transports()
 	{
 		for (Producer* p: _supplies)
 		{
 			if (p->volume == 0) continue;
-			Node& m = g[p->area->index];
-			_world.get_distances(&m, g);
 			for (Producer* q: _consumers)
 			{
 				if (q->volume == 0) continue;
