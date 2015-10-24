@@ -100,12 +100,17 @@ void WorldUI::tick(float f)
 	}
 
 	static int k = 0;
-	//if (k++ % 10 == 0)
+	//if (k % 10 == 0)
 	{
 		_model.update();
 	}
 
-	_plant_layer->update(f);
+	if (k % 10 == 0)
+	{
+		_plant_layer->update(f);
+	}
+
+	++k;
 }
 
 void WorldUI::load_from_tmx(std::string tmx)

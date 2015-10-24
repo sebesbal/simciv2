@@ -430,15 +430,19 @@ namespace simciv
 
 	void AnimalWorld::update()
 	{
-		// update product maps
-		//WorldModel::update();
-
 		static int k = 0;
-		//if (k++ % 10 == 0)
+		if (k % 10 == 0)
 		{
 			for (ProductMap* product : _products)
 			{
 				product->update_transports();
+			}
+		}
+
+		if (k % 20 == 0)
+		{
+			for (ProductMap* product : _products)
+			{
 				product->update_trade();
 			}
 		}
@@ -458,13 +462,13 @@ namespace simciv
 
 		for (ProductMap* product : _products)
 		{
-			
-			product->update_area_prices();
+			if (k % 10 == 0)
+				product->update_area_prices();
 			product->update_producer_prices();
-			
 			product->update_producer_storages();
-			
 		}
+
+		++k;
 	}
 
 	void AnimalWorld::move_animal(Animal* ani, Area* new_area)
