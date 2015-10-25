@@ -236,6 +236,17 @@ namespace simciv
 		}
 	}
 
+	Prices Animal::get_prices()
+	{
+		Prices p;
+		for (int i = 0; i < material_count; ++i)
+		{
+			p.supply[i] = this->supplies[i]->price;
+			p.consumption[i] = this->consumers[i]->price;
+		}
+		return p;
+	}
+
 	void AnimalWorld::create_map(int width, int height, int prod_count)
 	{
 		WorldModel::create_map(width, height, prod_count);
@@ -431,7 +442,7 @@ namespace simciv
 	void AnimalWorld::update()
 	{
 		static int k = 0;
-		if (k % 10 == 0)
+		//if (k % 10 == 0)
 		{
 			for (ProductMap* product : _products)
 			{
@@ -439,7 +450,7 @@ namespace simciv
 			}
 		}
 
-		if (k % 20 == 0)
+		//if (k % 20 == 0)
 		{
 			for (ProductMap* product : _products)
 			{
@@ -449,8 +460,9 @@ namespace simciv
 
 		for (Animal* ani : animals)
 		{
-			Area* area = ani->area;
-			Prices prices = get_prices(area);
+			//Area* area = ani->area;
+			//Prices prices = get_prices(area);
+			Prices prices = ani->get_prices();
 			auto rule = ani->species.find_best_m2m_rule(prices);
 			if (rule)
 			{
@@ -462,7 +474,7 @@ namespace simciv
 
 		for (ProductMap* product : _products)
 		{
-			if (k % 10 == 0)
+			//if (k % 10 == 0)
 				product->update_area_prices();
 			product->update_producer_prices();
 			product->update_producer_storages();

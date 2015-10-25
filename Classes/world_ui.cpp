@@ -105,7 +105,7 @@ void WorldUI::tick(float f)
 		_model.update();
 	}
 
-	if (k % 10 == 0)
+	//if (k % 10 == 0)
 	{
 		_plant_layer->update(f);
 	}

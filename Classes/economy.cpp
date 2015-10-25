@@ -76,7 +76,7 @@ namespace simciv
 		//storage_d = a * storage_d + (1 - a) * (storage - storage_last);
 		//storage_last = storage;
 
-		if (fix_price || ideal_volume == 0) goto history;
+		if (fix_price || is_consumer && ideal_volume == 0) goto history;
 
 		double ideal_fullness = 20 * ideal_volume / storage_capacity;
 		ideal_fullness = std::min(1.0, ideal_fullness);

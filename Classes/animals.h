@@ -66,6 +66,7 @@ namespace simciv
 		double consume_articles(Prices& prices);
 		void check_supply_storage(MaterialMap& vols, double& rate);
 		void check_consumption_storage(MaterialMap& vols, double& rate);
+		Prices get_prices();
 	};
 
 	class AnimalWorld : public WorldModel
