@@ -218,7 +218,7 @@ namespace simciv
 			int prod_id = p.first;
 			double vol = p.second;
 			auto& producer = supplies[prod_id];
-			rate = std::min(rate, (producer->storage_capacity - producer->storage) / vol);
+			rate = std::min(rate, (producer->storage_capacity - producer->storage()) / vol);
 			if (rate == 0) return;
 		}
 	}
@@ -231,7 +231,7 @@ namespace simciv
 			int prod_id = p.first;
 			double vol = p.second;
 			auto& producer = consumers[prod_id];
-			rate = std::min(rate, producer->storage / vol);
+			rate = std::min(rate, producer->storage() / vol);
 			if (rate == 0) return;
 		}
 	}
@@ -356,15 +356,6 @@ namespace simciv
 
 	void AnimalWorld::generate_animals()
 	{
-		//for (auto& s: species)
-		//{
-		//	for (int i = 0; i < 10; ++i)
-		//	{
-		//		int area_index = rand() % _areas.size();
-		//		create_animal(_areas[area_index], s);
-		//	}
-		//}
-
 		int x = 10, y = 10;
 
 		auto s0 = get_species(0, 0);
@@ -375,6 +366,9 @@ namespace simciv
 
 		auto s2 = get_species(2, 0);
 		create_animal(get_area(x + 2, y + 3), *s2);
+
+		auto storage = get_storage_species();
+		create_animal(get_area(x + 2, y - 3), *storage);
 	}
 
 	Animal* AnimalWorld::create_animal(Area* a, Species& species)
@@ -389,8 +383,10 @@ namespace simciv
 		{
 			auto p = ani->supplies[i] = _products[i]->create_prod(a, false, 0, 50);
 			p->storage_capacity = species.type == ST_TYPECOLOR ? 100 : 1000;
-			p = ani->consumers[i] = _products[i]->create_prod(a, true, 0, 50);
-			p->storage_capacity = species.type == ST_TYPECOLOR ? 100 : 1000;
+			auto q = ani->consumers[i] = _products[i]->create_prod(a, true, 0, 50);
+			q->storage_capacity = species.type == ST_TYPECOLOR ? 100 : 1000;
+			p->storage_pair = q;
+			q->storage_pair = p;
 		}
 
 		return ani;
@@ -442,7 +438,7 @@ namespace simciv
 	void AnimalWorld::update()
 	{
 		static int k = 0;
-		//if (k % 10 == 0)
+		if (k % 100 == 0)
 		{
 			for (ProductMap* product : _products)
 			{
@@ -450,7 +446,7 @@ namespace simciv
 			}
 		}
 
-		//if (k % 20 == 0)
+		if (k % 5 == 0)
 		{
 			for (ProductMap* product : _products)
 			{
@@ -460,22 +456,21 @@ namespace simciv
 
 		for (Animal* ani : animals)
 		{
-			//Area* area = ani->area;
-			//Prices prices = get_prices(area);
-			Prices prices = ani->get_prices();
-			auto rule = ani->species.find_best_m2m_rule(prices);
-			if (rule)
+			if (ani->species.type == ST_TYPECOLOR)
 			{
-				ani->apply_rule(rule, 1);
-			}
+				Prices prices = ani->get_prices();
+				auto rule = ani->species.find_best_m2m_rule(prices);
+				if (rule)
+				{
+					ani->apply_rule(rule, 1);
+				}
 
-			double expense = ani->consume_articles(prices);
+				double expense = ani->consume_articles(prices);
+			}
 		}
 
 		for (ProductMap* product : _products)
 		{
-			//if (k % 10 == 0)
-				product->update_area_prices();
 			product->update_producer_prices();
 			product->update_producer_storages();
 		}

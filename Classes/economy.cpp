@@ -17,7 +17,7 @@ namespace simciv
 	}
 
 	Producer::Producer() :
-		storage(0),
+		_storage(0),
 		storage_last(0),
 		storage_d(0),
 		storage_capacity(100),
@@ -44,15 +44,24 @@ namespace simciv
 	{
 		if (is_consumer)
 		{
-			storage -= actual_vol;
+			set_storage(_storage - actual_vol);
 		}
 		else
 		{
-			storage += actual_vol;
+			set_storage(_storage + actual_vol);
 		}
-		
 		ideal_volume += ideal_vol;
 	}
+
+	void Producer::set_storage(double vol)
+	{
+		_storage = vol;
+		if (storage_pair)
+		{
+			storage_pair->_storage = _storage;
+		}
+	}
+
 
 	void Producer::update_price()
 	{
@@ -82,7 +91,7 @@ namespace simciv
 		ideal_fullness = std::min(1.0, ideal_fullness);
 		ideal_fullness = std::max(0.0, ideal_fullness);
 
-		double fullness = storage / storage_capacity;
+		double fullness = _storage / storage_capacity;
 
 		double vol_d = 0.1;
 		double price_d = 1;
@@ -164,7 +173,7 @@ namespace simciv
 
 	void Producer::update_storage()
 	{
-		history_storage.push_back(storage);
+		history_storage.push_back(_storage);
 		if (history_storage.size() > history_count) history_storage.pop_front();
 	}
 
@@ -378,11 +387,11 @@ namespace simciv
 			Producer* a = t->sup;
 			Producer* b = t->dem;
 			
-			vol = std::min(a->storage, vol);
+			vol = std::min(a->storage(), vol);
 			vol = std::min(b->free_capacity(), vol);
 
-			a->storage -= t->volume;
-			b->storage += t->volume;
+			a->set_storage(a->storage() - t->volume);
+			b->set_storage(a->storage() + t->volume);
 		}
 
 		for (Producer* p : _supplies)
