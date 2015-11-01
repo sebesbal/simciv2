@@ -322,7 +322,7 @@ namespace simciv
 
 		// generate maintenance
 		MaterialMap maintenance;
-		maintenance[0] = 0.1;
+		maintenance[0] = 0.6;
 
 		for (int level = 0; level < level_count; ++level)
 		{
@@ -367,8 +367,8 @@ namespace simciv
 		auto s2 = get_species(2, 0);
 		create_animal(get_area(x + 2, y + 3), *s2);
 
-		auto storage = get_storage_species();
-		create_animal(get_area(x + 2, y - 3), *storage);
+		//auto storage = get_storage_species();
+		//create_animal(get_area(x + 2, y - 3), *storage);
 	}
 
 	Animal* AnimalWorld::create_animal(Area* a, Species& species)
@@ -382,11 +382,16 @@ namespace simciv
 		for (int i = 0; i < material_count; ++i)
 		{
 			auto p = ani->supplies[i] = _products[i]->create_prod(a, false, 0, 50);
-			p->storage_capacity = species.type == ST_TYPECOLOR ? 100 : 1000;
+			p->storage_capacity = species.type == ST_TYPECOLOR ? 100 : 200;
 			auto q = ani->consumers[i] = _products[i]->create_prod(a, true, 0, 50);
-			q->storage_capacity = species.type == ST_TYPECOLOR ? 100 : 1000;
+			q->storage_capacity = species.type == ST_TYPECOLOR ? 100 : 200;
 			p->storage_pair = q;
 			q->storage_pair = p;
+			if (species.type == ST_STORAGE)
+			{
+				// p->set_storage(p->storage_capacity / 2);
+				q->ideal_fullness = p->ideal_fullness = 0.5;
+			}
 		}
 
 		return ani;

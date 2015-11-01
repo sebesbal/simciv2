@@ -81,6 +81,7 @@ WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_s
 
 	_animal_view = AnimalView::create();
 	_animal_view->setAnchorPoint(Vec2(1, 1));
+	_animal_view->setVisible(false);
 	this->addChild(_animal_view);
 
 	//update_panels(false, false);

@@ -17,13 +17,19 @@ namespace simciv
 	}
 
 	Producer::Producer() :
+		volume(0),
 		_storage(0),
 		storage_last(0),
-		storage_d(0),
 		storage_capacity(100),
-		prod_volume(0),
 		fix_price(false),
-		storage_pair(NULL)
+		storage_pair(NULL),
+		ideal_fullness(-1),
+		free_volume(0),
+		ideal_volume(0),
+		price(0),
+		profit(0),
+		partner_price(0)
+
 	{
 		//for (int i = 0; i < 20; ++i)
 		//{
@@ -31,14 +37,6 @@ namespace simciv
 		//	storage_history.push_back(50);
 		//}
 	}
-
-	//void Producer::produce(double vol)
-	//{
-	//	//const double a = 0.9;
-	//	//volume = a * volume + (1 - a) * vol;
-	//	storage += vol;
-	//	prod_volume += vol;
-	//}
 
 	void Producer::modify_storage(double ideal_vol, double actual_vol)
 	{
@@ -81,13 +79,11 @@ namespace simciv
 				--> csökkentsük volumet. (abban bízunk hogy késõbb jobb áron tudunk eladni)
 		*/
 
-		//const double a = 0.9;
-		//storage_d = a * storage_d + (1 - a) * (storage - storage_last);
-		//storage_last = storage;
+		//if (fix_price || is_consumer && ideal_volume == 0) goto history;
 
-		if (fix_price || is_consumer && ideal_volume == 0) goto history;
-
-		double ideal_fullness = 20 * ideal_volume / storage_capacity;
+		double ideal_fullness = this->ideal_fullness < 0 ?
+			20 * ideal_volume / storage_capacity
+			: this->ideal_fullness;
 		ideal_fullness = std::min(1.0, ideal_fullness);
 		ideal_fullness = std::max(0.0, ideal_fullness);
 

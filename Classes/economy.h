@@ -39,6 +39,7 @@ namespace simciv
 		double storage() { return _storage; }
 		int prod_id;
 		bool is_consumer;
+		//bool is_storage() { return  }
 		Producer* storage_pair; ///< for storages: one producer for supply and one for consumption, storage_pair connects the two
 		bool fix_price;
 		Area* area;
@@ -49,11 +50,6 @@ namespace simciv
 		double profit; // the worst profit of the producers deals
 		double partner_price;
 
-
-		
-
-		double prod_volume; // production volume. 
-		//void produce(double vol);
 		void modify_storage(double ideal_vol, double actual_vol);
 		void set_storage(double vol);
 
@@ -66,12 +62,11 @@ namespace simciv
 		history_t history_price;
 
 		double storage_capacity;
-
+		double ideal_fullness; ///< 0..1, negative value means auto control
 	protected:
 		
 		double storage_last;
 		double _storage;
-		double storage_d; ///< that's how the storage would be changed if there is no trade
 	};
 
 	struct Transport
