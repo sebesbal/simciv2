@@ -155,7 +155,7 @@ namespace simciv
 					volume += vol_d;
 				}
 			}
-			volume = std::max(0.0, volume);
+			volume = std::min(_storage, volume);
 		}
 
 		price = std::max(0.0, price);

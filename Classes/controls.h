@@ -6,6 +6,7 @@
 #include "animals.h"
 #include "ui/UIImageView.h"
 #include "ui/UILayout.h"
+#include <iomanip> 
 
 USING_NS_CC;
 
@@ -160,12 +161,23 @@ namespace simciv
 		//void draw(Renderer *renderer, const kmMat4& transform, bool transformUpdated) override;
 	};
 
+	template <typename T>
+	std::string to_string_with_precision(const T a_value, const int n = 6)
+	{
+		if (a_value == (int)a_value) return std::to_string((int)a_value);
+		std::ostringstream out;
+		out << std::fixed << std::setprecision(n) << a_value;
+		return out.str();
+	}
+
 	class DebugLabel : public ui::Text
 	{
 	public:
 		DebugLabel() : data(NULL) { init(); autorelease(); scheduleUpdate(); }
 		virtual void update(float delta) override { 
-			if (data) this->setText(std::to_string((int)(*data)));
+			//if (data) this->setText(std::to_string((int)(*data)));
+			//if (data) this->setText(std::to_string((*data)));
+			if (data) this->setText(to_string_with_precision(*data, 1));
 		}
 		double* data;
 	};
