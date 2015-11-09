@@ -36,7 +36,7 @@ namespace simciv
 	struct Producer
 	{
 		Producer();
-		double storage() { return _storage; }
+		double& storage() { return _storage; }
 		int prod_id;
 		bool is_consumer;
 		//bool is_storage() { return  }
@@ -57,7 +57,7 @@ namespace simciv
 		void update_storage();
 		double free_capacity() { return storage_capacity - _storage; }
 
-		history_t history_vol;
+		history_t history_trade;
 		history_t history_storage;
 		history_t history_price;
 

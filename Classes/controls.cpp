@@ -616,34 +616,43 @@ bool AnimalView::init()
 void AnimalView::set_animal(Animal* animal)
 {
 	_animal = animal;
-
 	_producer_views->removeAllChildrenWithCleanup(true);
-	// _producer_views->setContentSize(Size(300, 300));
 	
-	auto h = ui::Layout::create();
-	//h->setAnchorPoint(Vec2(0, 1));
-	//HBox* h = HBox::create();
-	// h->setContentSize(Size(300, 50));
+	//auto h = ui::Layout::create();
+	//auto size = Size(20, 20);
+	//auto s = ui::ImageView::create("img/shapes/dollar.png");
+	//s->ignoreContentAdaptWithSize(false);
+	//s->setContentSize(size);
+	//h->addChild(s);
+	//s = ui::ImageView::create("img/shapes/storage.png");
+	//s->ignoreContentAdaptWithSize(false);
+	//s->setContentSize(size);
+	//h->addChild(s);
 
-	//LinearLayoutParameter* po = LinearLayoutParameter::create();
-	//po->setGravity(LinearGravity::CENTER_VERTICAL);
-	// h->setLayoutParameter(po);
-
-	auto size = Size(20, 20);
-	
-	auto s = ui::ImageView::create("img/shapes/dollar.png");
-	s->ignoreContentAdaptWithSize(false);
-	//s->setLayoutParameter(po);
-	s->setContentSize(size);
-	// s->setAnchorPoint(Vec2(0, 1));
-	h->addChild(s);
-	s = ui::ImageView::create("img/shapes/storage.png");
-	s->ignoreContentAdaptWithSize(false);
-	s->setContentSize(size);
-	// s->setLayoutParameter(po);
-	h->addChild(s);
-
+	auto h = ui::HBox::create();
 	_producer_views->addChild(h);
+	int w = (getContentSize().width- 40) / 4;
+	int hh = getContentSize().height;
+
+	auto f = [w, h, hh](string s) {
+		auto label = ui::Text::create(s, "Arial", 12);
+		label->ignoreContentAdaptWithSize(false);
+		label->setContentSize(Size(w, hh));
+		//label->setLayoutParameter(po);
+		h->addChild(label);
+	};
+
+	auto space = ui::Layout::create();
+	space->ignoreContentAdaptWithSize(false);
+	space->setContentSize(Size(40, 40));
+	h->addChild(space);
+
+	f("price");
+	f("storage");
+	f("volume");
+	f("free_vol");
+
+	
 
 
 	// po->setMargin(ui::Margin(5, 5, 5, 5));
@@ -653,7 +662,7 @@ void AnimalView::set_animal(Animal* animal)
 		if (p->volume == 0) continue;
 		LinearLayoutParameter* po = LinearLayoutParameter::create();
 		po->setMargin(ui::Margin(5, 5, 5, 5));
-		auto n = create_producer_view(p);
+		auto n = create_producer_view2(p);
 		_producer_views->addChild(n);
 		n->setLayoutParameter(po);
 	}
@@ -664,7 +673,7 @@ void AnimalView::set_animal(Animal* animal)
 		LinearLayoutParameter* po = LinearLayoutParameter::create();
 		po->setMargin(ui::Margin(5, first ? 20 : 5, 5, 5));
 		first = false;
-		auto n = create_producer_view(p);
+		auto n = create_producer_view2(p);
 		_producer_views->addChild(n);
 		n->setLayoutParameter(po);
 	}
@@ -687,23 +696,25 @@ void AnimalView::doLayout()
 
 	int hh = 20;
 	int h2 = hh + 10;
-	Size s(hh, hh);
+	//Size s(hh, hh);
 	auto h = _producer_views->getChildren().at(0);
-	h->setContentSize(Size(var.width, h2));
-	auto dollar = (ImageView*)h->getChildren().at(0);
-	auto storage = (ImageView*)h->getChildren().at(1);
-	dollar->setContentSize(s);
-	storage->setContentSize(s);
-	float w = var.width;
+	h->setPosition(30, 0);
+	h->setContentSize(Size(var.width - h->getPositionX(), h2));
+	
+	//auto dollar = (ImageView*)h->getChildren().at(0);
+	//auto storage = (ImageView*)h->getChildren().at(1);
+	//dollar->setContentSize(s);
+	//storage->setContentSize(s);
+	//float w = var.width;
 
-	dollar->setPosition(Vec2(w / 4, h2 / 2));
-	storage->setPosition(Vec2(3 * w / 4, h2 / 2));
+	//dollar->setPosition(Vec2(w / 4, h2 / 2));
+	//storage->setPosition(Vec2(3 * w / 4, h2 / 2));
 }
 
 ui::HBox* AnimalView::create_producer_view(Producer* p)
 {
 	int w = getContentSize().width;
-	int wd = (getContentSize().width - 50) / 2;
+	int wd = (getContentSize().width - 50) / 3;
 	int h = 50;
 	ui::HBox* prodview = HBox::create();
 	prodview->setContentSize(Size(w, h));
@@ -715,6 +726,7 @@ ui::HBox* AnimalView::create_producer_view(Producer* p)
 	auto sprite = MaterialSprite::create(p->prod_id, 20);
 	sprite->setLayoutParameter(po);
 	prodview->addChild(sprite);
+
 	Diagram* dia = Diagram::create();
 	prodview->addChild(dia);
 	dia->setContentSize(Size(wd, h));
@@ -729,6 +741,46 @@ ui::HBox* AnimalView::create_producer_view(Producer* p)
 	dia->set_data(&p->history_storage);
 	dia->setLayoutParameter(po);
 
+	dia = Diagram::create();
+	prodview->addChild(dia);
+	dia->setContentSize(Size(wd, h));
+	dia->set_range(20, 0, 10);
+	dia->set_data(&p->history_trade);
+	dia->setLayoutParameter(po);
+
+	return prodview;
+}
+
+ui::HBox* AnimalView::create_producer_view2(Producer* p)
+{
+	int w = getContentSize().width;
+	int wd = (getContentSize().width - 50) / 4;
+	int h = 50;
+	ui::HBox* prodview = HBox::create();
+	prodview->setContentSize(Size(w, h));
+
+	LinearLayoutParameter* po = LinearLayoutParameter::create();
+	po->setMargin(ui::Margin(5, 5, 5, 5));
+	po->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
+
+	auto sprite = MaterialSprite::create(p->prod_id, 20);
+	sprite->setLayoutParameter(po);
+	prodview->addChild(sprite);
+
+	auto f = [prodview, wd, h, po](double* d) {
+		DebugLabel* label = new DebugLabel();
+		label->ignoreContentAdaptWithSize(false);
+		label->setContentSize(Size(wd, h));
+		label->setLayoutParameter(po);
+		prodview->addChild(label);
+		label->data = d;
+	};
+
+	f(&p->price);
+	f(&p->storage());
+	f(&p->volume);
+	f(&p->free_volume);
+	
 	return prodview;
 }
 
@@ -739,6 +791,9 @@ Diagram* Diagram::create()
 	if (result && result->init())
 	{
 		result->autorelease();
+		result->_text = ui::Text::create();
+		result->_text->setZOrder(result->getZOrder() + 10);
+		result->addChild(result->_text);
 		return result;
 	}
 	else
@@ -762,13 +817,14 @@ void Diagram::onDraw(const Mat4 &transform, uint32_t flags)
 	auto s = getContentSize();
 	
 	// history_t &v = *_data;
-	
-	double dx = s.width / _count;
+	double text_w = 20;
+	double w = s.width - text_w;
+	double dx = w / _count;
 	double a = s.height / (_max - _min);
 	double b = -s.height * _min / (_max - _min);
 
-	DrawPrimitives::drawSolidRect(Vec2(0, 0), Vec2(s.width, s.height), Color4F(0.4, 0.1, 0.6, 1));
-	double x = 0;
+	DrawPrimitives::drawSolidRect(Vec2(text_w, 0), Vec2(w, s.height), Color4F(0.4, 0.1, 0.6, 1));
+	double x = text_w;
 	int i = 0;
 	for (double d : *_data)
 	{
@@ -788,6 +844,11 @@ void Diagram::onDraw(const Mat4 &transform, uint32_t flags)
 void Diagram::draw(Renderer *renderer, const Mat4& transform, uint32_t flags)
 // void Diagram::draw(Renderer *renderer, const kmMat4& transform, bool transformUpdated)
 {
+	if (_data && _data->size() > 0)
+	{
+		double d = _data->back();
+		_text->setText(to_string((int)d));
+	}
 	_customCommand.init(100);
 	_customCommand.func = CC_CALLBACK_0(Diagram::onDraw, this, transform, flags);
 	renderer->addCommand(&_customCommand);

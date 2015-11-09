@@ -111,6 +111,12 @@ void WorldUI::tick(float f)
 		_plant_layer->update(f);
 	}
 
+	if (_animal_view->isVisible())
+	{
+		//_animal_view->scheduleUpdate();
+		//_animal_view->upda
+	}
+
 	++k;
 }
 

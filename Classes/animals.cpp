@@ -322,7 +322,7 @@ namespace simciv
 
 		// generate maintenance
 		MaterialMap maintenance;
-		maintenance[0] = 0.6;
+		maintenance[0] = 0.5;
 
 		for (int level = 0; level < level_count; ++level)
 		{

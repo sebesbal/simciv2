@@ -162,9 +162,9 @@ namespace simciv
 
 	history:
 		history_price.push_back(price);
-		history_vol.push_back(volume);
+		history_trade.push_back(volume - free_volume);
 		if (history_price.size() > history_count) history_price.pop_front();
-		if (history_vol.size() > history_count) history_vol.pop_front();
+		if (history_trade.size() > history_count) history_trade.pop_front();
 	}
 
 	void Producer::update_storage()
@@ -227,6 +227,7 @@ namespace simciv
 			if (p->volume == 0) continue;
 			for (Producer* q: _consumers)
 			{
+				if (p->storage_pair == q) continue;
 				if (q->volume == 0) continue;
 				auto t = get_transport(p, q);
 			}

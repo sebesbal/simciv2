@@ -126,11 +126,16 @@ namespace simciv
 		static AnimalView* create();
 		bool init() override;
 		void set_animal(Animal* animal);
+		virtual void update(float delta) override
+		{
+			//if (data) this->setText(std::to_string((int)(*data)));
+		}
 	protected:
 		virtual void setContentSize(const Size & var) override;
 		virtual void doLayout() override;
 		Animal* _animal;
 		ui::HBox* create_producer_view(Producer* p);
+		ui::HBox* create_producer_view2(Producer* p);
 		ui::VBox* _producer_views;
 	};
 
@@ -149,9 +154,20 @@ namespace simciv
 		int _count;
 		history_t* _data;
 		CustomCommand _customCommand;
+		ui::Text* _text;
 		virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
 		virtual void onDraw(const Mat4 &transform, uint32_t flags);
 		//void draw(Renderer *renderer, const kmMat4& transform, bool transformUpdated) override;
+	};
+
+	class DebugLabel : public ui::Text
+	{
+	public:
+		DebugLabel() : data(NULL) { init(); autorelease(); scheduleUpdate(); }
+		virtual void update(float delta) override { 
+			if (data) this->setText(std::to_string((int)(*data)));
+		}
+		double* data;
 	};
 
 	//class ProducerView : public ui::Layout
