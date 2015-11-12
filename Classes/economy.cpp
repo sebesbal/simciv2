@@ -158,6 +158,8 @@ namespace simciv
 			volume = std::min(_storage, volume);
 		}
 
+		volume = std::max(0.0, volume);
+
 		price = std::max(0.0, price);
 
 	history:
@@ -371,6 +373,18 @@ namespace simciv
 		for (Producer* p : _consumers)
 		{
 			p->update_price();
+		}
+	}
+
+	void ProductMap::before_rules()
+	{
+		for (Producer* p : _supplies)
+		{
+			p->ideal_volume = 0;
+		}
+		for (Producer* p : _consumers)
+		{
+			p->ideal_volume = 0;
 		}
 	}
 

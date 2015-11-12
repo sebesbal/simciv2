@@ -99,6 +99,7 @@ namespace simciv
 		void update_transports(); ///< find possible trade routes
 		void update_trade(); ///< calculate trade on the routes
 		void update_producer_prices();
+		void before_rules();
 		void update_area_prices(); ///< calculate price info on every area
 		void update_producer_storages();
 	protected:

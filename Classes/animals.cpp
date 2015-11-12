@@ -443,7 +443,13 @@ namespace simciv
 	void AnimalWorld::update()
 	{
 		static int k = 0;
-		if (k % 100 == 0)
+
+		for (ProductMap* product : _products)
+		{
+			product->before_rules();
+		}
+
+		//if (k % 100 == 0)
 		{
 			for (ProductMap* product : _products)
 			{
@@ -451,13 +457,15 @@ namespace simciv
 			}
 		}
 
-		if (k % 5 == 0)
+		//if (k % 5 == 0)
 		{
 			for (ProductMap* product : _products)
 			{
 				product->update_trade();
 			}
 		}
+
+
 
 		for (Animal* ani : animals)
 		{

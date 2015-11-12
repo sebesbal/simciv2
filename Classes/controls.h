@@ -127,10 +127,7 @@ namespace simciv
 		static AnimalView* create();
 		bool init() override;
 		void set_animal(Animal* animal);
-		virtual void update(float delta) override
-		{
-			//if (data) this->setText(std::to_string((int)(*data)));
-		}
+		virtual void update(float delta) override;
 	protected:
 		virtual void setContentSize(const Size & var) override;
 		virtual void doLayout() override;

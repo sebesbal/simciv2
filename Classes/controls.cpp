@@ -610,6 +610,7 @@ bool AnimalView::init()
 		setContentSize(Size(300, 500));
 		return true;
 	}
+	scheduleUpdate();
 	return false;
 }
 
@@ -659,7 +660,7 @@ void AnimalView::set_animal(Animal* animal)
 
 	for (auto* p : animal->consumers)
 	{
-		if (p->volume == 0) continue;
+		if (p->volume == 0 && p->storage() == 0) continue;
 		LinearLayoutParameter* po = LinearLayoutParameter::create();
 		po->setMargin(ui::Margin(5, 5, 5, 5));
 		auto n = create_producer_view2(p);
@@ -669,7 +670,7 @@ void AnimalView::set_animal(Animal* animal)
 	bool first = true;
 	for (auto* p : animal->supplies)
 	{
-		if (p->volume == 0) continue;
+		if (p->volume == 0 && p->storage() == 0) continue;
 		LinearLayoutParameter* po = LinearLayoutParameter::create();
 		po->setMargin(ui::Margin(5, first ? 20 : 5, 5, 5));
 		first = false;
@@ -679,6 +680,15 @@ void AnimalView::set_animal(Animal* animal)
 	}
 
 	this->forceDoLayout();
+}
+
+void AnimalView::update(float delta)
+{
+	static int k = 0;
+	if (++k % 100 == 0)
+	{
+		set_animal(_animal);
+	}
 }
 
 void AnimalView::setContentSize(const Size & var)
