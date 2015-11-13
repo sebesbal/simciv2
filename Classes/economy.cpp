@@ -127,6 +127,7 @@ namespace simciv
 		else
 		{
 			ideal_fullness = 1 - ideal_fullness;
+			ideal_fullness = std::min(0.9, ideal_fullness);
 			if (fullness < ideal_fullness)
 			{
 				// want to store
@@ -160,7 +161,7 @@ namespace simciv
 
 		volume = std::max(0.0, volume);
 
-		price = std::max(0.0, price);
+		price = std::max(1.0, price);
 
 	history:
 		history_price.push_back(price);
@@ -402,7 +403,7 @@ namespace simciv
 			vol = std::min(b->free_capacity(), vol);
 
 			a->set_storage(a->storage() - t->volume);
-			b->set_storage(a->storage() + t->volume);
+			b->set_storage(b->storage() + t->volume);
 		}
 
 		for (Producer* p : _supplies)

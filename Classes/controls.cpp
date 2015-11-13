@@ -632,7 +632,7 @@ void AnimalView::set_animal(Animal* animal)
 
 	auto h = ui::HBox::create();
 	_producer_views->addChild(h);
-	int w = (getContentSize().width- 40) / 4;
+	int w = (getContentSize().width- 40) / 5;
 	int hh = getContentSize().height;
 
 	auto f = [w, h, hh](string s) {
@@ -652,6 +652,7 @@ void AnimalView::set_animal(Animal* animal)
 	f("storage");
 	f("volume");
 	f("free_vol");
+	f("ideal_vol");
 
 	
 
@@ -764,7 +765,7 @@ ui::HBox* AnimalView::create_producer_view(Producer* p)
 ui::HBox* AnimalView::create_producer_view2(Producer* p)
 {
 	int w = getContentSize().width;
-	int wd = (getContentSize().width - 50) / 4;
+	int wd = (getContentSize().width - 50) / 5;
 	int h = 50;
 	ui::HBox* prodview = HBox::create();
 	prodview->setContentSize(Size(w, h));
@@ -790,7 +791,8 @@ ui::HBox* AnimalView::create_producer_view2(Producer* p)
 	f(&p->storage());
 	f(&p->volume);
 	f(&p->free_volume);
-	
+	f(&p->ideal_volume);
+
 	return prodview;
 }
 
