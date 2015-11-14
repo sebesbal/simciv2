@@ -252,12 +252,18 @@ namespace simciv
 			p->profit = max_price;
 		}
 
+		for (Transport* t : _transports)
+		{
+			t->profit = t->dem->price - t->sup->price - t->trans_price;
+		}
+
 		std::sort(_transports.begin(), _transports.end(), [](Transport* a, Transport* b) {
 			return a->profit > b->profit;
 		});
 
 		for (Transport* r : _transports)
 		{
+			if (r->profit <= 0) break;
 			double& v_sup = r->sup->free_volume;
 			double& v_con = r->dem->free_volume;
 			double v = std::min(v_sup, v_con);
