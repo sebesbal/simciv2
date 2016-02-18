@@ -367,7 +367,87 @@ namespace simciv
 		}
 
 		//*_production = *_new_production;
-		 std::swap(_production, _new_production);
+		std::swap(_production, _new_production);
+	}
+
+	void ProductMap::update_area_prices2(bool full_update)
+	{
+		if (full_update)
+		{
+			find_best_producers_for_areas();
+		}
+
+		for (Area* a : _world.areas())
+		{
+			auto& prod = get_new_prod(a);
+			double best_sup_price = max_price;
+			for (auto p : prod.best_sups)
+			{
+				double price = p.second->price + p.first;
+				best_sup_price = std::min(best_sup_price, price);
+			}
+			prod.p_sup = best_sup_price;
+
+			double best_con_price = 0;
+			for (auto p : prod.best_cons)
+			{
+				double price = p.second->price - p.first;
+				best_con_price = std::min(best_con_price, price);
+			}
+			prod.p_con = best_con_price;
+
+			prod.p = (prod.p_con + prod.p_sup) / 2;
+		}
+
+		std::swap(_production, _new_production);
+	}
+
+	void ProductMap::find_best_producers_for_areas()
+	{
+		for (Area* a : _world.areas())
+		{
+			auto& prod = get_new_prod(a);
+
+			typedef std::pair<double, Producer*> pair_t;
+
+			// find best supplies
+			{
+				std::vector<pair_t> v;
+				for (auto p : _supplies)
+				{
+					double dist = _world.distance(a, p->area);
+					double price = p->price + dist;
+					v.push_back(pair_t(price, p));
+				}
+
+				std::sort(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
+
+				prod.best_sups.clear();
+				for (int i = 0; i < 2 && i < v.size(); ++i)
+				{
+					prod.best_sups.push_back(pair_t(v[i].first - v[i].second->price, v[i].second));
+				}
+			}
+
+			// find best consumers
+			{
+				std::vector<pair_t> v;
+				for (auto p : _consumers)
+				{
+					double dist = _world.distance(a, p->area);
+					double price = p->price - dist;
+					v.push_back(pair_t(price, p));
+				}
+
+				std::sort(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first > b.first; });
+
+				prod.best_cons.clear();
+				for (int i = 0; i < 2 && i < v.size(); ++i)
+				{
+					prod.best_cons.push_back(pair_t(v[i].second->price - v[i].first, v[i].second));
+				}
+			}
+		}
 	}
 
 	void ProductMap::update_producer_prices()

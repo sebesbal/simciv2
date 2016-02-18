@@ -465,7 +465,17 @@ namespace simciv
 			}
 		}
 
+		//if (k % 10 == 0)
+		//for (ProductMap* product : _products)
+		//{
+		//	product->update_area_prices();
+		//}
 
+		if (k % 10 == 0)
+		for (ProductMap* product : _products)
+		{
+			product->update_area_prices2(k % 100);
+		}
 
 		for (Animal* ani : animals)
 		{

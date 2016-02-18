@@ -251,6 +251,29 @@ namespace simciv
 		return route;
 	}
 
+	double WorldModel::distance(Area* src, Area* dst)
+	{
+		double result = 0;
+		RoadMap*& map = src->map;
+		if (!map)
+		{
+			create_road_map(src);
+		}
+
+		Node* n = &map->g[dst->index];
+		Area* a = dst;
+
+		while (n->parent)
+		{
+			Road* r = n->parent;
+			result += r->t_price;
+			a = r->other(a);
+			n = &map->g[a->index];
+		}
+
+		return result;
+	}
+
 	MaterialVec WorldModel::empty_mat_vec()
 	{
 		MaterialVec result;

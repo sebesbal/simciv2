@@ -31,6 +31,9 @@ namespace simciv
 		double m_sup; // the profit of the suppliers's worst deals in this area
 
 		double resource; // how effective the production is
+
+		std::vector<std::pair<double, Producer*>> best_sups;
+		std::vector<std::pair<double, Producer*>> best_cons;
 	};
 
 	struct Producer
@@ -101,6 +104,8 @@ namespace simciv
 		void update_producer_prices();
 		void before_rules();
 		void update_area_prices(); ///< calculate price info on every area
+		void update_area_prices2(bool full_update = false);
+		void find_best_producers_for_areas();
 		void update_producer_storages();
 	protected:
 		int prod_id;
