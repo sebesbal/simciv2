@@ -96,16 +96,22 @@ namespace simciv
 		{
 			if (fullness < ideal_fullness)
 			{
-				// want to buy
-				if (free_volume > 0)
+				if (free_volume == volume && _storage > 0) // consumed nothing
 				{
-					// raise price
-					price += price_d;
+					// it can't consume on this price (not profitable)
+					// don't want to buy more, but it can't reduce the price
+				}
+
+				// want to buy more
+				else if (free_volume == 0)  // consumed everything
+				{
+					// it can buy on enough on this price, raise volume
+					volume += vol_d;
 				}
 				else
 				{
-					// raise volume
-					volume += vol_d;
+					// it can't buy ebough on this price, raice price
+					price += price_d;
 				}
 			}
 			else
@@ -130,29 +136,34 @@ namespace simciv
 			ideal_fullness = std::min(0.9, ideal_fullness);
 			if (fullness < ideal_fullness)
 			{
-				// want to store
-				if (free_volume > 0)
+				if (free_volume == volume && _storage > 0) // sold nothing
 				{
-					// reduce volume
+					// it can't sell on this price
+				}
+
+				// want to store more
+				else if (free_volume > 0)
+				{
+					// can't sell enough, reduce volume
 					volume -= vol_d;
 				}
 				else
 				{
-					// raise price
+					// can sell everything, raise price
 					price += price_d;
 				}
 			}
 			else
 			{
-				// want to sell
+				// want to sell, and reduce storage
 				if (free_volume > 0)
 				{
-					// reduce price
+					// can't sell enough, reduce price
 					price -= price_d;
 				}
 				else
 				{
-					// raise volume
+					// can sell everything, raise volume on the same price
 					volume += vol_d;
 				}
 			}

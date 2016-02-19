@@ -5,3 +5,4 @@
 /proj.win32/simciv.vcxproj.user
 /proj.win32/*.sdf
 /proj.win32/*.opensdf
+/proj.win32/.vs/simciv/v14/*.suo
