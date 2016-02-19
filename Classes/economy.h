@@ -32,8 +32,8 @@ namespace simciv
 
 		double resource; // how effective the production is
 
-		std::vector<std::pair<double, Producer*>> best_sups;
-		std::vector<std::pair<double, Producer*>> best_cons;
+		std::pair<double, Producer*> best_sups;
+		std::pair<double, Producer*> best_cons;
 	};
 
 	struct Producer

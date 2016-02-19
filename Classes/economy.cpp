@@ -380,22 +380,8 @@ namespace simciv
 		for (Area* a : _world.areas())
 		{
 			auto& prod = get_new_prod(a);
-			double best_sup_price = max_price;
-			for (auto p : prod.best_sups)
-			{
-				double price = p.second->price + p.first;
-				best_sup_price = std::min(best_sup_price, price);
-			}
-			prod.p_sup = best_sup_price;
-
-			double best_con_price = 0;
-			for (auto p : prod.best_cons)
-			{
-				double price = p.second->price - p.first;
-				best_con_price = std::min(best_con_price, price);
-			}
-			prod.p_con = best_con_price;
-
+			prod.p_sup = prod.best_sups.second ? prod.best_sups.second->price + prod.best_sups.first : max_price;
+			prod.p_con = prod.best_cons.second ? prod.best_cons.second->price - prod.best_cons.first : 0;
 			prod.p = (prod.p_con + prod.p_sup) / 2;
 		}
 
@@ -420,12 +406,15 @@ namespace simciv
 					v.push_back(pair_t(price, p));
 				}
 
-				std::sort(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
-
-				prod.best_sups.clear();
-				for (int i = 0; i < 2 && i < v.size(); ++i)
+				if (v.size() == 0)
 				{
-					prod.best_sups.push_back(pair_t(v[i].first - v[i].second->price, v[i].second));
+					prod.best_sups.first = 0;
+					prod.best_sups.second = NULL;
+				}
+				else
+				{
+					prod.best_sups = *std::min_element(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
+					prod.best_sups.first -= prod.best_sups.second->price;
 				}
 			}
 
@@ -439,12 +428,15 @@ namespace simciv
 					v.push_back(pair_t(price, p));
 				}
 
-				std::sort(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first > b.first; });
-
-				prod.best_cons.clear();
-				for (int i = 0; i < 2 && i < v.size(); ++i)
+				if (v.size() == 0)
 				{
-					prod.best_cons.push_back(pair_t(v[i].second->price - v[i].first, v[i].second));
+					prod.best_cons.first = 0;
+					prod.best_cons.second = NULL;
+				}
+				else
+				{
+					prod.best_cons = *std::max_element(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
+					prod.best_cons.first = prod.best_sups.second->price - prod.best_cons.first;
 				}
 			}
 		}
