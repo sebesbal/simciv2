@@ -2,6 +2,7 @@
 #include "economy.h"
 #include <algorithm>
 #include <assert.h>
+#include "animals.h"
 
 namespace simciv
 {
@@ -27,8 +28,9 @@ namespace simciv
 		free_volume(0),
 		ideal_volume(0),
 		price(0),
-		profit(0),
-		partner_price(0)
+		worst_profit(0),
+		partner_price(0),
+		owner(NULL)
 
 	{
 		//for (int i = 0; i < 20; ++i)
@@ -40,6 +42,7 @@ namespace simciv
 
 	void Producer::modify_storage(double ideal_vol, double actual_vol)
 	{
+		_d_storage += actual_vol;
 		if (is_consumer)
 		{
 			set_storage(_storage - actual_vol);
@@ -60,6 +63,10 @@ namespace simciv
 		}
 	}
 
+	double Producer::money()
+	{
+		return ((Animal*)owner)->money;
+	}
 
 	void Producer::update_price()
 	{
@@ -96,14 +103,22 @@ namespace simciv
 		{
 			if (fullness < ideal_fullness)
 			{
-				if (free_volume == volume && _storage > 0) // consumed nothing
-				{
-					// it can't consume on this price (not profitable)
-					// don't want to buy more, but it can't reduce the price
-				}
+				//if (ideal_volume == 0)
+				//{
+				//	// don't want to buy on this price (but we can't lower the price)
+				//}
+				//if (free_volume == volume
+				//	//&& _d_storage == 0
+				//	&& ideal_volume == 0
+				//	//&& _storage > 0
+				//	) // consumed nothing
+				//{
+				//	// it can't consume on this price (not profitable)
+				//	// don't want to buy more, but it can't reduce the price
+				//}
 
 				// want to buy more
-				else if (free_volume == 0)  // consumed everything
+				if (free_volume == 0)  // consumed everything
 				{
 					// it can buy on enough on this price, raise volume
 					volume += vol_d;
@@ -183,6 +198,7 @@ namespace simciv
 
 	void Producer::update_storage()
 	{
+		_storage = std::max(0.0, _storage);
 		history_storage.push_back(_storage);
 		if (history_storage.size() > history_count) history_storage.pop_front();
 	}
@@ -222,10 +238,10 @@ namespace simciv
 		{
 			Transport* t = new Transport();
 			t->route = _world.create_route(src->area, dst->area);
-			t->trans_price = t->route->trans_price;
+			t->cost = t->route->trans_price;
 			t->dem = dst;
 			t->sup = src;
-			t->profit = dst->price - src->price - t->trans_price;
+			t->profit = dst->price - src->price - t->cost;
 			_transports.push_back(t);
 		}
 		else
@@ -253,19 +269,20 @@ namespace simciv
 		for (Producer* p : _supplies)
 		{
 			p->free_volume = p->volume;
-			p->ideal_volume = 0;
-			p->profit = max_price;
+			p->_d_storage = p->ideal_volume = 0;
+			p->worst_profit = max_price;
 		}
 		for (Producer* p : _consumers)
 		{
 			p->free_volume = p->volume;
-			p->ideal_volume = 0;
-			p->profit = max_price;
+			p->_d_storage = p->ideal_volume = 0;
+			p->worst_profit = max_price;
 		}
 
 		for (Transport* t : _transports)
 		{
-			t->profit = t->dem->price - t->sup->price - t->trans_price;
+			t->profit = t->dem->price - t->sup->price - t->cost;
+			t->volume = 0;
 		}
 
 		std::sort(_transports.begin(), _transports.end(), [](Transport* a, Transport* b) {
@@ -275,6 +292,7 @@ namespace simciv
 		for (Transport* r : _transports)
 		{
 			if (r->profit <= 0) break;
+			if (r->dem->money() <= 0) continue;
 			double& v_sup = r->sup->free_volume;
 			double& v_con = r->dem->free_volume;
 			double v = std::min(v_sup, v_con);
@@ -283,22 +301,22 @@ namespace simciv
 				v_sup -= v;
 				v_con -= v;
 				r->volume = v;
-				auto& sup = r->sup->profit;
+				auto& sup = r->sup->worst_profit;
 				sup = std::min(sup, r->profit);
-				auto& con = r->dem->profit;
+				auto& con = r->dem->worst_profit;
 				con = std::min(con, r->profit);
 			}
 		}
 
 		for (Producer* p : _supplies)
 		{
-			if (p->profit == max_price) p->profit = 0;
-			p->partner_price = p->price + p->profit;
+			if (p->worst_profit == max_price) p->worst_profit = 0;
+			p->partner_price = p->price + p->worst_profit;
 		}
 		for (Producer* p : _consumers)
 		{
-			if (p->profit == max_price) p->profit = 0;
-			p->partner_price = std::max(0.0, p->price - p->profit);
+			if (p->worst_profit == max_price) p->worst_profit = 0;
+			p->partner_price = std::max(0.0, p->price - p->worst_profit);
 		}
 	}
 
@@ -470,11 +488,11 @@ namespace simciv
 	{
 		for (Producer* p : _supplies)
 		{
-			p->ideal_volume = 0;
+			p->_d_storage = p->ideal_volume = 0;
 		}
 		for (Producer* p : _consumers)
 		{
-			p->ideal_volume = 0;
+			p->_d_storage = p->ideal_volume = 0;
 		}
 	}
 
@@ -493,6 +511,12 @@ namespace simciv
 
 			a->set_storage(a->storage() - t->volume);
 			b->set_storage(b->storage() + t->volume);
+
+			Animal* a_ani = (Animal*)a->owner;
+			Animal* b_ani = (Animal*)b->owner;
+
+			a_ani->income(a->price);
+			b_ani->income(-b->price);
 		}
 
 		for (Producer* p : _supplies)

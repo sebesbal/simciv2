@@ -88,10 +88,14 @@ namespace simciv
 		void on_btn_clicked(Ref* btn, Widget::TouchEventType type);
 	};
 
+	class DebugLabel;
+
 	class MyPanel : public ui::Layout
 	{
 	public:
 		MyPanel();
+		ui::Text* create_label(std::string text);
+		DebugLabel* create_data_label(double* data);
 	protected:
 		virtual void setContentSize(const Size & var) override;
 		LayerColor* _bck;
@@ -132,6 +136,8 @@ namespace simciv
 		virtual void setContentSize(const Size & var) override;
 		virtual void doLayout() override;
 		Animal* _animal;
+		ui::Text* _money_txt;
+		DebugLabel* _money_val;
 		ui::HBox* create_producer_view(Producer* p);
 		ui::HBox* create_producer_view2(Producer* p);
 		ui::VBox* _producer_views;

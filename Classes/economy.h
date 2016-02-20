@@ -46,16 +46,19 @@ namespace simciv
 		Producer* storage_pair; ///< for storages: one producer for supply and one for consumption, storage_pair connects the two
 		bool fix_price;
 		Area* area;
+		void* owner;
 		double volume; ///< trade offer.
 		double free_volume; ///< volume - actually traded volume
 		double ideal_volume;
+		double _d_storage;
 		double price; // the current price
-		double profit; // the worst profit of the producers deals
+		double worst_profit; // the worst profit of the producers deals
 		double partner_price;
 
 		void modify_storage(double ideal_vol, double actual_vol);
 		void set_storage(double vol);
 
+		double money();
 		void update_price();
 		void update_storage();
 		double free_capacity() { return storage_capacity - _storage; }
@@ -79,7 +82,7 @@ namespace simciv
 		Route* route;
 		bool invert_route; ///< the route directs dem to sup
 		double volume;
-		double trans_price;
+		double cost;
 		double profit;
 	};
 

@@ -42,7 +42,8 @@ namespace simciv
 		return result;
 	}
 
-	ProductionRule* Species::find_best_m2m_rule(const Prices& prices)
+	void Species::find_best_m2m_rule(const Prices& prices, ProductionRule*& rule, double& profit)
+	// ProductionRule* Species::find_best_m2m_rule(const Prices& prices)
 	{
 		double best_profit = 0;
 		ProductionRule* best_rule = NULL;
@@ -55,10 +56,11 @@ namespace simciv
 				best_rule = &rule;
 			}
 		}
-		return best_rule;
+		rule = best_rule;
+		profit = best_profit;
 	}
 
-	Animal::Animal(Species& species): species(species)
+	Animal::Animal(Species& species) : species(species), money(100000)
 	{
 		for (int i = 0; i < material_count; ++i)
 		{
@@ -77,7 +79,7 @@ namespace simciv
 		//species.find_best_m2m_rule();
 	}
 
-	double Animal::apply_rule(ProductionRule* rule, double ideal_rate)
+	double Animal::apply_rule(ProductionRule* rule, double profit, double ideal_rate)
 	{
 		double rate = ideal_rate;
 		if (rate == 0) return 0;
@@ -85,6 +87,7 @@ namespace simciv
 		if (rate == 0) return 0;
 		check_supply_storage(rule->output, rate);
 		if (rate == 0) return 0;
+		//money += rate * profit;
 
 		for (auto& p : rule->input)
 		{
@@ -183,7 +186,9 @@ namespace simciv
 			double expense = p.first;
 			auto rule = p.second;
 			check_consumption_storage(rule->input, rate);
-			full_expense += rate * expense;
+			expense *= rate;
+			//check_money(expense, rate);
+			full_expense += expense;
 			for (auto& p : rule->input)
 			{
 				int prod_id = p.first;
@@ -191,7 +196,8 @@ namespace simciv
 				consumers[prod_id]->modify_storage(volume * vol, rate * vol);
 			}
 			volume -= rate;
-			if (volume == 0) break;
+			//income(-expense);
+			if (volume <= 0) break;
 		}
 
 		return full_expense;
@@ -203,9 +209,9 @@ namespace simciv
 		auto& vols = species.maintenance_cost;
 		for (auto& p : vols)
 		{
-			int prod_id = p.first;
+			int art_id = p.first;
 			double vol = p.second;
-			expense += consume_article(prod_id, prices, vol);
+			expense += consume_article(art_id, prices, vol);
 		}
 		return expense;
 	}
@@ -236,6 +242,14 @@ namespace simciv
 		}
 	}
 
+	void Animal::check_money(double price, double& rate)
+	{
+		if (price > money)
+		{
+			rate = std::min(rate, money / price);;
+		}
+	}
+
 	Prices Animal::get_prices()
 	{
 		Prices p;
@@ -245,6 +259,12 @@ namespace simciv
 			p.consumption[i] = this->consumers[i]->price;
 		}
 		return p;
+	}
+
+	void Animal::income(double money)
+	{
+		this->money += money;
+		if (this->money < 0) this->money = 0;
 	}
 
 	void AnimalWorld::create_map(int width, int height, int prod_count)
@@ -315,10 +335,10 @@ namespace simciv
 			art_rules.push_back(rule);
 		}
 
-		ProductionRule rule;
-		rule.input[0] = 1;
-		rule.output[0] = 1;
-		art_rules.push_back(rule);
+		//ProductionRule rule;
+		//rule.input[0] = 1;
+		//rule.output[0] = 1;
+		//art_rules.push_back(rule);
 
 		// generate maintenance
 		MaterialMap maintenance;
@@ -387,6 +407,7 @@ namespace simciv
 			q->storage_capacity = species.type == ST_TYPECOLOR ? 100 : 200;
 			p->storage_pair = q;
 			q->storage_pair = p;
+			p->owner = q->owner = ani;
 			if (species.type == ST_STORAGE)
 			{
 				// p->set_storage(p->storage_capacity / 2);
@@ -482,10 +503,12 @@ namespace simciv
 			if (ani->species.type == ST_TYPECOLOR)
 			{
 				Prices prices = ani->get_prices();
-				auto rule = ani->species.find_best_m2m_rule(prices);
+				ProductionRule* rule;
+				double profit;
+				ani->species.find_best_m2m_rule(prices, rule, profit);
 				if (rule)
 				{
-					ani->apply_rule(rule, 1);
+					ani->apply_rule(rule, profit, 1);
 				}
 
 				double expense = ani->consume_articles(prices);

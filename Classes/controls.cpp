@@ -447,6 +447,28 @@ MyPanel::MyPanel()
 	addChild(_bck);
 }
 
+Text* MyPanel::create_label(std::string text)
+{
+	auto label = ui::Text::create(text, "Arial", 12);
+	label->ignoreContentAdaptWithSize(false);
+	return label;
+}
+
+DebugLabel* MyPanel::create_data_label(double* data)
+{
+	//LinearLayoutParameter* po = LinearLayoutParameter::create();
+	//po->setMargin(ui::Margin(5, 5, 5, 5));
+	//po->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
+
+	DebugLabel* label = new DebugLabel();
+	label->ignoreContentAdaptWithSize(false);
+	//label->setContentSize(Size(wd, h));
+	//label->setLayoutParameter(po);
+	//prodview->addChild(label);
+	label->data = data;
+	return label;
+}
+
 void MyPanel::setContentSize(const Size & var)
 {
 	Layout::setContentSize(var);
@@ -608,9 +630,17 @@ bool AnimalView::init()
 	if (Layout::init())
 	{
 		setContentSize(Size(300, 500));
+
+		_money_txt = create_label("Money");
+		addChild(_money_txt);
+
+		_money_val = create_data_label(NULL);
+		_money_val->setSize(Size(100, 20));
+		addChild(_money_val);
+
+		scheduleUpdate();
 		return true;
 	}
-	scheduleUpdate();
 	return false;
 }
 
@@ -619,6 +649,8 @@ void AnimalView::set_animal(Animal* animal)
 	_animal = animal;
 	_producer_views->removeAllChildrenWithCleanup(true);
 	
+	_money_val->data = &animal->money;
+
 	//auto h = ui::Layout::create();
 	//auto size = Size(20, 20);
 	//auto s = ui::ImageView::create("img/shapes/dollar.png");
@@ -686,7 +718,7 @@ void AnimalView::set_animal(Animal* animal)
 void AnimalView::update(float delta)
 {
 	static int k = 0;
-	if (++k % 100 == 0)
+	if (++k % 100 == 0 && _animal)
 	{
 		set_animal(_animal);
 	}
@@ -700,7 +732,11 @@ void AnimalView::setContentSize(const Size & var)
 void AnimalView::doLayout()
 {
 	Size var = getContentSize();
-	_producer_views->setPosition(Vec2(0, var.height));
+
+	_money_txt->setPosition(Vec2(30, var.height));
+	_money_val->setPosition(Vec2(100, var.height));
+
+	_producer_views->setPosition(Vec2(0, var.height - 20));
 	_producer_views->setContentSize(var);
 
 	if (!_animal) return;
@@ -708,9 +744,9 @@ void AnimalView::doLayout()
 	int hh = 20;
 	int h2 = hh + 10;
 	//Size s(hh, hh);
-	auto h = _producer_views->getChildren().at(0);
-	h->setPosition(30, 0);
-	h->setContentSize(Size(var.width - h->getPositionX(), h2));
+	auto titles = _producer_views->getChildren().at(0);
+	titles->setPosition(30, 0);
+	titles->setContentSize(Size(var.width - titles->getPositionX(), h2));
 	
 	//auto dollar = (ImageView*)h->getChildren().at(0);
 	//auto storage = (ImageView*)h->getChildren().at(1);
