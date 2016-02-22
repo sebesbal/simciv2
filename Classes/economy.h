@@ -60,6 +60,7 @@ namespace simciv
 
 		double money();
 		void update_price();
+		void synchronize_price();
 		void update_storage();
 		double free_capacity() { return storage_capacity - _storage; }
 

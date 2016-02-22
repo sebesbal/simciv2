@@ -208,6 +208,25 @@ namespace simciv
 		if (history_trade.size() > history_count) history_trade.pop_front();
 	}
 
+	void Producer::synchronize_price()
+	{
+		if (storage_pair)
+		{
+			double p = pow(this->price * storage_pair->price, 0.5);
+			const double a = 1.05;
+			if (is_consumer)
+			{
+				this->price = p / a;
+				storage_pair->price = p * a;
+			}
+			else 
+			{
+				this->price = p * a;
+				storage_pair->price = p / a;
+			}
+		}
+	}
+
 	void Producer::update_storage()
 	{
 		_storage = std::max(0.0, _storage);
@@ -496,6 +515,7 @@ namespace simciv
 		for (Producer* p : _consumers)
 		{
 			p->update_price();
+			p->synchronize_price();
 		}
 	}
 
