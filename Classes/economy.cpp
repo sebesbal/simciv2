@@ -26,7 +26,7 @@ namespace simciv
 		storage_pair(NULL),
 		ideal_fullness(-1),
 		free_volume(0),
-		ideal_volume(0),
+		demand_volume(0),
 		price(0),
 		worst_profit(0),
 		partner_price(0),
@@ -40,7 +40,7 @@ namespace simciv
 		//}
 	}
 
-	void Producer::modify_storage(double ideal_vol, double actual_vol)
+	void Producer::modify_storage(double demand_vol, double actual_vol)
 	{
 		_d_storage += actual_vol;
 		if (is_consumer)
@@ -51,7 +51,7 @@ namespace simciv
 		{
 			set_storage(_storage + actual_vol);
 		}
-		ideal_volume += ideal_vol;
+		demand_volume += demand_vol;
 	}
 
 	void Producer::set_storage(double vol)
@@ -86,10 +86,10 @@ namespace simciv
 				--> csökkentsük volumet. (abban bízunk hogy késõbb jobb áron tudunk eladni)
 		*/
 
-		//if (fix_price || is_consumer && ideal_volume == 0) goto history;
+		//if (fix_price || is_consumer && demand_volume == 0) goto history;
 
 		double ideal_fullness = this->ideal_fullness < 0 ?
-			20 * ideal_volume / storage_capacity
+			20 * demand_volume / storage_capacity
 			: this->ideal_fullness;
 		ideal_fullness = std::min(1.0, ideal_fullness);
 		ideal_fullness = std::max(0.0, ideal_fullness);
@@ -101,15 +101,19 @@ namespace simciv
 
 		if (is_consumer)
 		{
-			if (fullness < ideal_fullness)
+			if (demand_volume == 0)
 			{
-				//if (ideal_volume == 0)
+				// Skip
+			}
+			else if (fullness < ideal_fullness)
+			{
+				//if (demand_volume == 0)
 				//{
 				//	// don't want to buy on this price (but we can't lower the price)
 				//}
 				//if (free_volume == volume
 				//	//&& _d_storage == 0
-				//	&& ideal_volume == 0
+				//	&& demand_volume == 0
 				//	//&& _storage > 0
 				//	) // consumed nothing
 				//{
@@ -151,9 +155,9 @@ namespace simciv
 			ideal_fullness = std::min(0.9, ideal_fullness);
 			if (fullness < ideal_fullness)
 			{
-				if (free_volume == volume && _storage > 0) // sold nothing
+				if (demand_volume == 0) // sold nothing and there is no demand
 				{
-					// it can't sell on this price
+					// can't sell on this price, but we dont want to sell
 				}
 
 				// want to store more
@@ -171,7 +175,15 @@ namespace simciv
 			else
 			{
 				// want to sell, and reduce storage
-				if (free_volume > 0)
+
+				if (demand_volume == 0) // sold nothing and there is no demand
+				{
+					// can't sell on this price, but we want to sell more
+					// reduce price
+					price -= price_d;
+				}
+
+				else if (free_volume > 0)
 				{
 					// can't sell enough, reduce price
 					price -= price_d;
@@ -269,20 +281,20 @@ namespace simciv
 		for (Producer* p : _supplies)
 		{
 			p->free_volume = p->volume;
-			p->_d_storage = p->ideal_volume = 0;
+			p->_d_storage = p->demand_volume = 0;
 			p->worst_profit = max_price;
 		}
 		for (Producer* p : _consumers)
 		{
 			p->free_volume = p->volume;
-			p->_d_storage = p->ideal_volume = 0;
+			p->_d_storage = p->demand_volume = 0;
 			p->worst_profit = max_price;
 		}
 
 		for (Transport* t : _transports)
 		{
 			t->profit = t->dem->price - t->sup->price - t->cost;
-			t->volume = 0;
+			t->demand_volume = t->volume = 0;
 		}
 
 		std::sort(_transports.begin(), _transports.end(), [](Transport* a, Transport* b) {
@@ -296,6 +308,9 @@ namespace simciv
 			double& v_sup = r->sup->free_volume;
 			double& v_con = r->dem->free_volume;
 			double v = std::min(v_sup, v_con);
+			double u = std::min(v_sup, v_con);
+			
+			r->demand_volume = u;
 			if (v > 0)
 			{
 				v_sup -= v;
@@ -488,11 +503,11 @@ namespace simciv
 	{
 		for (Producer* p : _supplies)
 		{
-			p->_d_storage = p->ideal_volume = 0;
+			p->_d_storage = p->demand_volume = 0;
 		}
 		for (Producer* p : _consumers)
 		{
-			p->_d_storage = p->ideal_volume = 0;
+			p->_d_storage = p->demand_volume = 0;
 		}
 	}
 
@@ -501,7 +516,7 @@ namespace simciv
 		for (Transport* t : _transports)
 		{
 			double& vol = t->volume;
-			if (vol == 0) continue;
+			if (vol == 0 && t->demand_volume == 0) continue;
 
 			Producer* a = t->sup;
 			Producer* b = t->dem;
@@ -509,14 +524,17 @@ namespace simciv
 			vol = std::min(a->storage(), vol);
 			vol = std::min(b->free_capacity(), vol);
 
-			a->set_storage(a->storage() - t->volume);
-			b->set_storage(b->storage() + t->volume);
+			a->modify_storage(t->demand_volume, t->volume);
+			b->modify_storage(0, t->volume);
+
+			// a->set_storage(a->storage() - t->volume);
+			// b->set_storage(b->storage() + t->volume);
 
 			Animal* a_ani = (Animal*)a->owner;
 			Animal* b_ani = (Animal*)b->owner;
 
-			a_ani->income(a->price);
-			b_ani->income(-b->price);
+			a_ani->income(vol * a->price);
+			b_ani->income(- vol * b->price);
 		}
 
 		for (Producer* p : _supplies)

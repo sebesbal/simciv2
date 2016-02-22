@@ -37,7 +37,7 @@ Scene* WorldUI::createScene()
     return scene;
 }
 
-WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_start(false)
+WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_start(false), _paused(false), _speed(5)
 {
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	auto w = visibleSize.width;
@@ -76,13 +76,15 @@ WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_s
 	_species_view->set_species(&_model.get_species().at(0));
 
 	_layers_panel = create_layers_panel();
-	_layers_panel->setAnchorPoint(Vec2(1, 1));
+	_layers_panel->setAnchorPoint(Vec2(1, 0));
 	this->addChild(_layers_panel);
 
 	_animal_view = AnimalView::create();
 	_animal_view->setAnchorPoint(Vec2(1, 1));
 	_animal_view->setVisible(false);
 	this->addChild(_animal_view);
+
+	create_play_panel();
 
 	//update_panels(false, false);
 	set_state(UIS_NONE);
@@ -101,7 +103,7 @@ void WorldUI::tick(float f)
 	}
 
 	static int k = 0;
-	//if (k % 10 == 0)
+	if (!_paused && k % _speed == 0)
 	{
 		_model.update();
 	}
@@ -296,6 +298,40 @@ RadioMenu* WorldUI::create_left_menu()
 	return result;
 }
 
+void WorldUI::create_play_panel()
+{
+	_play_panel = HBox::create();
+
+	auto f = [this](string s){
+		auto btn = ui::Button::create(s);
+		btn->setSize(Size(64, 64));
+		btn->ignoreContentAdaptWithSize(false);
+		_play_panel->addChild(btn);
+		return btn;
+	};
+
+	auto btn = f("img/play.png");
+	btn->addClickEventListener([this](Ref* ref) {
+		_paused = !_paused;
+	});
+	
+
+	btn = f("img/plus.png");
+	btn->addClickEventListener([this](Ref* ref) {
+		++_speed;
+	});
+
+	btn = f("img/minus.png");
+	btn->addClickEventListener([this](Ref* ref) {
+		--_speed;
+		_speed = std::max(1, _speed);
+	});
+
+	this->addChild(_play_panel);
+	_play_panel->setAnchorPoint(Vec2(0, 0));
+	_play_panel->setSize(btn->getSize());
+}
+
 RadioMenu* WorldUI::create_species_browser()
 {
 	RadioMenu* result = RadioMenu::create();
@@ -435,6 +471,7 @@ void WorldUI::setContentSize(const Size & var)
 	_layers_panel->setPosition(Vec2(var.width, h));
 	auto r = _species_view->getBoundingBox();
 	_animal_view->setPosition(Vec2(r.getMaxX(), r.getMinY()));
+	_play_panel->setPosition(Vec2(m, m));
 }
 
 void WorldUI::set_state(UIState state)

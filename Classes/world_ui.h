@@ -134,6 +134,8 @@ public:
     // implement the "static node()" method manually
     CREATE_FUNC(WorldUI);
 protected:
+	bool _paused;
+	int _speed;
 	UIState _state;
 	UIStateData info;
 	Size _menu_size;
@@ -154,12 +156,14 @@ protected:
 	PlantMapLayer* _plant_layer;
 	AnimalMapLayer* _animal_layer;
 	Node* _layers_panel;
+	ui::HBox* _play_panel;
 	void tick(float f);
 	void load_from_tmx(std::string tmx);
 	virtual bool onTouchBegan(Touch* touch, Event  *event);
 	virtual void onTouchEnded(Touch* touch, Event  *event);
 	virtual void onTouchMoved(Touch* touch, Event  *event);
 	RadioMenu* create_left_menu();
+	void create_play_panel();
 	RadioMenu* create_species_browser();
 	RadioMenu* create_plants_browser();
 	Node* create_layers_panel();

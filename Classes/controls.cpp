@@ -693,7 +693,8 @@ void AnimalView::set_animal(Animal* animal)
 
 	for (auto* p : animal->consumers)
 	{
-		if (p->volume == 0 && p->storage() == 0) continue;
+		if (p->prod_id % 3 != 0) continue;
+		//if (p->volume == 0 && p->storage() == 0) continue;
 		LinearLayoutParameter* po = LinearLayoutParameter::create();
 		po->setMargin(ui::Margin(5, 5, 5, 5));
 		auto n = create_producer_view2(p);
@@ -703,7 +704,8 @@ void AnimalView::set_animal(Animal* animal)
 	bool first = true;
 	for (auto* p : animal->supplies)
 	{
-		if (p->volume == 0 && p->storage() == 0) continue;
+		if (p->prod_id % 3 != 0) continue;
+		//if (p->volume == 0 && p->storage() == 0) continue;
 		LinearLayoutParameter* po = LinearLayoutParameter::create();
 		po->setMargin(ui::Margin(5, first ? 20 : 5, 5, 5));
 		first = false;
@@ -737,7 +739,7 @@ void AnimalView::doLayout()
 	_money_val->setPosition(Vec2(100, var.height));
 
 	_producer_views->setPosition(Vec2(0, var.height - 20));
-	_producer_views->setContentSize(var);
+	_producer_views->setContentSize(Size(var.width, var.height - 20));
 
 	if (!_animal) return;
 
@@ -827,7 +829,7 @@ ui::HBox* AnimalView::create_producer_view2(Producer* p)
 	f(&p->storage());
 	f(&p->volume);
 	f(&p->free_volume);
-	f(&p->ideal_volume);
+	f(&p->demand_volume);
 
 	return prodview;
 }

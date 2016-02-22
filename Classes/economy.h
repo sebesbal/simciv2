@@ -49,7 +49,7 @@ namespace simciv
 		void* owner;
 		double volume; ///< trade offer.
 		double free_volume; ///< volume - actually traded volume
-		double ideal_volume;
+		double demand_volume;
 		double _d_storage;
 		double price; // the current price
 		double worst_profit; // the worst profit of the producers deals
@@ -82,6 +82,7 @@ namespace simciv
 		Route* route;
 		bool invert_route; ///< the route directs dem to sup
 		double volume;
+		double demand_volume;
 		double cost;
 		double profit;
 	};
