@@ -266,11 +266,11 @@ namespace simciv
 	{
 		for (Producer* p: _supplies)
 		{
-			if (p->volume == 0) continue;
+			//if (p->volume == 0) continue;
 			for (Producer* q: _consumers)
 			{
 				if (p->storage_pair == q) continue;
-				if (q->volume == 0) continue;
+				// if (q->volume == 0) continue;
 				auto t = get_transport(p, q);
 			}
 		}
@@ -308,7 +308,7 @@ namespace simciv
 			double& v_sup = r->sup->free_volume;
 			double& v_con = r->dem->free_volume;
 			double v = std::min(v_sup, v_con);
-			double u = std::min(v_sup, v_con);
+			double u = std::max(v_sup, v_con);
 			
 			r->demand_volume = u;
 			if (v > 0)
@@ -524,8 +524,8 @@ namespace simciv
 			vol = std::min(a->storage(), vol);
 			vol = std::min(b->free_capacity(), vol);
 
-			a->modify_storage(t->demand_volume, t->volume);
-			b->modify_storage(0, t->volume);
+			a->modify_storage(t->demand_volume, -t->volume);
+			b->modify_storage(0, -t->volume);
 
 			// a->set_storage(a->storage() - t->volume);
 			// b->set_storage(b->storage() + t->volume);

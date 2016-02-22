@@ -60,7 +60,7 @@ namespace simciv
 		profit = best_profit;
 	}
 
-	Animal::Animal(Species& species) : species(species), money(100000)
+	Animal::Animal(Species& species) : species(species), money(100000000)
 	{
 		for (int i = 0; i < material_count; ++i)
 		{
