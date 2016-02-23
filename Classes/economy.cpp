@@ -26,12 +26,11 @@ namespace simciv
 		storage_pair(NULL),
 		ideal_fullness(-1),
 		free_volume(0),
-		demand_volume(0),
 		price(0),
 		worst_profit(0),
 		partner_price(0),
-		owner(NULL)
-
+		owner(NULL),
+		_d_storage(0)
 	{
 		//for (int i = 0; i < 20; ++i)
 		//{
@@ -42,16 +41,20 @@ namespace simciv
 
 	void Producer::modify_storage(double demand_vol, double actual_vol)
 	{
-		_d_storage += actual_vol;
 		if (is_consumer)
 		{
 			set_storage(_storage - actual_vol);
+			volume += demand_vol;
+			if (storage_pair)
+			{
+				storage_pair->volume -= actual_vol;
+			}
 		}
 		else
 		{
 			set_storage(_storage + actual_vol);
+			volume += actual_vol;
 		}
-		demand_volume += demand_vol;
 	}
 
 	void Producer::set_storage(double vol)
@@ -68,145 +71,172 @@ namespace simciv
 		return ((Animal*)owner)->money;
 	}
 
-	void Producer::update_price()
+	//void Producer::update_price()
+	//{
+	//	/*
+	//	fullness
+	//	balance: production - trade
+	//	producer:
+	//	- ha a fullness túl nagy, félünk hogy megtelik, próbálunk többet eladni: --> változatlan áron többet eladni, vagy csökkenteni az árat
+	//		--> ha free_volume == 0, vagyis mindent el tudtunk adni
+	//			--> növeljük volume-t, árat hagyjuk békén
+	//		--> ha free_volume > 0, már így se tudtunk mindent eladni
+	//			--> csökkenteni kell az árat, volume-t hagyjuk békén
+	//	- ha fullness kicsi, csökkentsük az eladást: --> megpróbálnánk növelni az árat, vagy raktározni jobb idõkre
+	//		--> ha free_volume == 0, mindent el tudtunk adni
+	//			--> növeljük az árat
+	//		--> ha free_volume > 0, már így se tudtunk mindent eladni
+	//			--> csökkentsük volumet. (abban bízunk hogy késõbb jobb áron tudunk eladni)
+	//	*/
+
+	//	//if (fix_price || is_consumer && demand_volume == 0) goto history;
+
+	//	double ideal_fullness = this->ideal_fullness < 0 ?
+	//		20 * demand_volume / storage_capacity
+	//		: this->ideal_fullness;
+	//	ideal_fullness = std::min(1.0, ideal_fullness);
+	//	ideal_fullness = std::max(0.0, ideal_fullness);
+
+	//	double fullness = _storage / storage_capacity;
+
+	//	double vol_d = 0.1;
+	//	double price_d = 0.1;
+
+	//	if (is_consumer)
+	//	{
+	//		if (demand_volume == 0)
+	//		{
+	//			// Skip
+	//		}
+	//		else if (fullness < ideal_fullness)
+	//		{
+	//			//if (demand_volume == 0)
+	//			//{
+	//			//	// don't want to buy on this price (but we can't lower the price)
+	//			//}
+	//			//if (free_volume == volume
+	//			//	//&& _d_storage == 0
+	//			//	&& demand_volume == 0
+	//			//	//&& _storage > 0
+	//			//	) // consumed nothing
+	//			//{
+	//			//	// it can't consume on this price (not profitable)
+	//			//	// don't want to buy more, but it can't reduce the price
+	//			//}
+
+	//			// want to buy more
+	//			if (free_volume == 0)  // consumed everything
+	//			{
+	//				// it can buy on enough on this price, raise volume
+	//				volume += vol_d;
+	//			}
+	//			else
+	//			{
+	//				// it can't buy ebough on this price, raice price
+	//				price += price_d;
+	//			}
+	//		}
+	//		else
+	//		{
+	//			// want to buy less
+	//			if (free_volume > 0)
+	//			{
+	//				//reduce volume
+	//				volume -= vol_d;
+	//			}
+	//			else
+	//			{
+	//				// reduce price
+	//				price -= price_d;
+	//			}
+	//		}
+	//		volume = std::min(volume, free_capacity());
+	//	}
+	//	else
+	//	{
+	//		ideal_fullness = 1 - ideal_fullness;
+	//		ideal_fullness = std::min(0.9, ideal_fullness);
+	//		if (fullness < ideal_fullness)
+	//		{
+	//			if (demand_volume == 0) // sold nothing and there is no demand
+	//			{
+	//				// can't sell on this price, but we dont want to sell
+	//			}
+
+	//			// want to store more
+	//			else if (free_volume > 0)
+	//			{
+	//				// can't sell enough, reduce volume
+	//				volume -= vol_d;
+	//			}
+	//			else
+	//			{
+	//				// can sell everything, raise price
+	//				price += price_d;
+	//			}
+	//		}
+	//		else
+	//		{
+	//			// want to sell, and reduce storage
+
+	//			if (demand_volume == 0) // sold nothing and there is no demand
+	//			{
+	//				// can't sell on this price, but we want to sell more
+	//				// reduce price
+	//				price -= price_d;
+	//			}
+
+	//			else if (free_volume > 0)
+	//			{
+	//				// can't sell enough, reduce price
+	//				price -= price_d;
+	//			}
+	//			else
+	//			{
+	//				// can sell everything, raise volume on the same price
+	//				volume += vol_d;
+	//			}
+	//		}
+	//		volume = std::min(_storage, volume);
+	//	}
+
+	//	volume = std::max(0.0, volume);
+
+	//	price = std::max(1.0, price);
+
+	//history:
+	//	history_price.push_back(price);
+	//	history_trade.push_back(volume - free_volume);
+	//	if (history_price.size() > history_count) history_price.pop_front();
+	//	if (history_trade.size() > history_count) history_trade.pop_front();
+	//}
+
+void Producer::update_price()
+{
+	double vol_d = 0.1;
+	double price_d = 0.1;
+
+	if (is_consumer)
 	{
-		/*
-		fullness
-		balance: production - trade
-		producer:
-		- ha a fullness túl nagy, félünk hogy megtelik, próbálunk többet eladni: --> változatlan áron többet eladni, vagy csökkenteni az árat
-			--> ha free_volume == 0, vagyis mindent el tudtunk adni
-				--> növeljük volume-t, árat hagyjuk békén
-			--> ha free_volume > 0, már így se tudtunk mindent eladni
-				--> csökkenteni kell az árat, volume-t hagyjuk békén
-		- ha fullness kicsi, csökkentsük az eladást: --> megpróbálnánk növelni az árat, vagy raktározni jobb idõkre
-			--> ha free_volume == 0, mindent el tudtunk adni
-				--> növeljük az árat
-			--> ha free_volume > 0, már így se tudtunk mindent eladni
-				--> csökkentsük volumet. (abban bízunk hogy késõbb jobb áron tudunk eladni)
-		*/
-
-		//if (fix_price || is_consumer && demand_volume == 0) goto history;
-
-		double ideal_fullness = this->ideal_fullness < 0 ?
-			20 * demand_volume / storage_capacity
-			: this->ideal_fullness;
-		ideal_fullness = std::min(1.0, ideal_fullness);
-		ideal_fullness = std::max(0.0, ideal_fullness);
-
-		double fullness = _storage / storage_capacity;
-
-		double vol_d = 0.1;
-		double price_d = 1;
-
-		if (is_consumer)
-		{
-			if (demand_volume == 0)
-			{
-				// Skip
-			}
-			else if (fullness < ideal_fullness)
-			{
-				//if (demand_volume == 0)
-				//{
-				//	// don't want to buy on this price (but we can't lower the price)
-				//}
-				//if (free_volume == volume
-				//	//&& _d_storage == 0
-				//	&& demand_volume == 0
-				//	//&& _storage > 0
-				//	) // consumed nothing
-				//{
-				//	// it can't consume on this price (not profitable)
-				//	// don't want to buy more, but it can't reduce the price
-				//}
-
-				// want to buy more
-				if (free_volume == 0)  // consumed everything
-				{
-					// it can buy on enough on this price, raise volume
-					volume += vol_d;
-				}
-				else
-				{
-					// it can't buy ebough on this price, raice price
-					price += price_d;
-				}
-			}
-			else
-			{
-				// want to buy less
-				if (free_volume > 0)
-				{
-					//reduce volume
-					volume -= vol_d;
-				}
-				else
-				{
-					// reduce price
-					price -= price_d;
-				}
-			}
-			volume = std::min(volume, free_capacity());
-		}
-		else
-		{
-			ideal_fullness = 1 - ideal_fullness;
-			ideal_fullness = std::min(0.9, ideal_fullness);
-			if (fullness < ideal_fullness)
-			{
-				if (demand_volume == 0) // sold nothing and there is no demand
-				{
-					// can't sell on this price, but we dont want to sell
-				}
-
-				// want to store more
-				else if (free_volume > 0)
-				{
-					// can't sell enough, reduce volume
-					volume -= vol_d;
-				}
-				else
-				{
-					// can sell everything, raise price
-					price += price_d;
-				}
-			}
-			else
-			{
-				// want to sell, and reduce storage
-
-				if (demand_volume == 0) // sold nothing and there is no demand
-				{
-					// can't sell on this price, but we want to sell more
-					// reduce price
-					price -= price_d;
-				}
-
-				else if (free_volume > 0)
-				{
-					// can't sell enough, reduce price
-					price -= price_d;
-				}
-				else
-				{
-					// can sell everything, raise volume on the same price
-					volume += vol_d;
-				}
-			}
-			volume = std::min(_storage, volume);
-		}
-
-		volume = std::max(0.0, volume);
-
-		price = std::max(1.0, price);
-
-	history:
-		history_price.push_back(price);
-		history_trade.push_back(volume - free_volume);
-		if (history_price.size() > history_count) history_price.pop_front();
-		if (history_trade.size() > history_count) history_trade.pop_front();
+		price += price_d * (volume - vol_out + 0.1 * (volume - _storage));
+		//volume = std::min(volume, free_capacity());
 	}
+	else
+	{
+		price += price_d * (vol_out - volume);
+		//volume = std::min(_storage, volume);
+	}
+
+	volume = std::max(0.0, volume);
+
+	price = std::max(1.0, price);
+
+history:
+	history_price.push_back(price);
+	history_trade.push_back(volume - free_volume);
+	if (history_price.size() > history_count) history_price.pop_front();
+	if (history_trade.size() > history_count) history_trade.pop_front();
+}
 
 	void Producer::synchronize_price()
 	{
@@ -299,14 +329,15 @@ namespace simciv
 	{
 		for (Producer* p : _supplies)
 		{
+			p->vol_out = 0;
+			p->volume = std::max(0.0, p->volume);
 			p->free_volume = p->volume;
-			p->_d_storage = p->demand_volume = 0;
 			p->worst_profit = max_price;
 		}
 		for (Producer* p : _consumers)
 		{
+			p->vol_out = 0;
 			p->free_volume = p->volume;
-			p->_d_storage = p->demand_volume = 0;
 			p->worst_profit = max_price;
 		}
 
@@ -328,7 +359,10 @@ namespace simciv
 			double& v_con = r->dem->free_volume;
 			double v = std::min(v_sup, v_con);
 			double u = std::max(v_sup, v_con);
-			
+
+			r->sup->vol_out += r->dem->free_volume;
+			r->dem->vol_out += r->sup->free_volume;
+
 			r->demand_volume = u;
 			if (v > 0)
 			{
@@ -515,7 +549,7 @@ namespace simciv
 		for (Producer* p : _consumers)
 		{
 			p->update_price();
-			p->synchronize_price();
+			//p->synchronize_price();
 		}
 	}
 
@@ -523,11 +557,19 @@ namespace simciv
 	{
 		for (Producer* p : _supplies)
 		{
-			p->_d_storage = p->demand_volume = 0;
+			p->volume = 0;
+			
+			// p->volume = p->_storage - p->storage_last + p->volume - p->free_volume;
+			//p->volume = p->_d_storage;
+
+			//p->volume = std::max(0.0, p->volume);
+			p->storage_last = p->_storage;
+			p->_d_storage = 0;
 		}
 		for (Producer* p : _consumers)
 		{
-			p->_d_storage = p->demand_volume = 0;
+			p->volume = 0;
+			p->storage_last = p->_storage;
 		}
 	}
 
@@ -544,10 +586,11 @@ namespace simciv
 			vol = std::min(a->storage(), vol);
 			vol = std::min(b->free_capacity(), vol);
 
-			a->modify_storage(t->demand_volume, -t->volume);
+			//a->modify_storage(t->demand_volume, -t->volume);
+			// a->modify_storage(0, -t->volume);
 			b->modify_storage(0, -t->volume);
 
-			// a->set_storage(a->storage() - t->volume);
+			a->set_storage(a->storage() - t->volume);
 			// b->set_storage(b->storage() + t->volume);
 
 			Animal* a_ani = (Animal*)a->owner;

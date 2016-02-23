@@ -682,11 +682,9 @@ void AnimalView::set_animal(Animal* animal)
 
 	f("price");
 	f("storage");
-	f("volume");
+	f("vol");
+	f("vol_out");
 	f("free_vol");
-	f("ideal_vol");
-
-	
 
 
 	// po->setMargin(ui::Margin(5, 5, 5, 5));
@@ -828,8 +826,8 @@ ui::HBox* AnimalView::create_producer_view2(Producer* p)
 	f(&p->price);
 	f(&p->storage());
 	f(&p->volume);
+	f(&p->vol_out);
 	f(&p->free_volume);
-	f(&p->demand_volume);
 
 	return prodview;
 }

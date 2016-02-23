@@ -82,12 +82,11 @@ namespace simciv
 	double Animal::apply_rule(ProductionRule* rule, double profit, double ideal_rate)
 	{
 		double rate = ideal_rate;
-		if (rate == 0) return 0;
+		//if (rate == 0) return 0;
 		check_consumption_storage(rule->input, rate);
-		if (rate == 0) return 0;
+		//if (rate == 0) return 0;
 		check_supply_storage(rule->output, rate);
-		if (rate == 0) return 0;
-		//money += rate * profit;
+		//if (rate == 0) return 0;
 
 		for (auto& p : rule->input)
 		{
@@ -101,7 +100,8 @@ namespace simciv
 			int prod_id = p.first;
 			double vol = p.second;
 			//supplies[prod_id]->modify_storage(ideal_rate * vol, rate * vol);
-			supplies[prod_id]->modify_storage(0, rate * vol);
+			//supplies[prod_id]->modify_storage(0, rate * vol);
+			supplies[prod_id]->modify_storage(rate * vol, rate * vol);
 		}
 
 		return rate;
@@ -385,8 +385,8 @@ namespace simciv
 		auto s1 = get_species(1, 0);
 		create_animal(get_area(x + 4, y), *s1);
 
-		auto s2 = get_species(2, 0);
-		create_animal(get_area(x + 2, y + 3), *s2);
+		//auto s2 = get_species(2, 0);
+		//create_animal(get_area(x + 2, y + 3), *s2);
 
 		//auto storage = get_storage_species();
 		//create_animal(get_area(x + 2, y - 3), *storage);
@@ -479,14 +479,6 @@ namespace simciv
 			}
 		}
 
-		//if (k % 5 == 0)
-		{
-			for (ProductMap* product : _products)
-			{
-				product->update_trade();
-			}
-		}
-
 		//if (k % 10 == 0)
 		//for (ProductMap* product : _products)
 		//{
@@ -513,6 +505,14 @@ namespace simciv
 				}
 
 				double expense = ani->consume_articles(prices);
+			}
+		}
+
+		//if (k % 5 == 0)
+		{
+			for (ProductMap* product : _products)
+			{
+				product->update_trade();
 			}
 		}
 

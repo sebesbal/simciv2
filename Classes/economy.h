@@ -49,8 +49,7 @@ namespace simciv
 		void* owner;
 		double volume; ///< trade offer.
 		double free_volume; ///< volume - actually traded volume
-		double demand_volume;
-		double _d_storage;
+		double vol_out;
 		double price; // the current price
 		double worst_profit; // the worst profit of the producers deals
 		double partner_price;
@@ -70,10 +69,9 @@ namespace simciv
 
 		double storage_capacity;
 		double ideal_fullness; ///< 0..1, negative value means auto control
-	protected:
-		
 		double storage_last;
 		double _storage;
+		double _d_storage;
 	};
 
 	struct Transport
