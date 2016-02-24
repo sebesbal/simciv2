@@ -214,7 +214,7 @@ namespace simciv
 void Producer::update_price()
 {
 	double vol_d = 0.1;
-	double price_d = 0.1;
+	double price_d = 0.5;
 
 	if (is_consumer)
 	{
