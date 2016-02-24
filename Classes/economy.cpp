@@ -53,7 +53,7 @@ namespace simciv
 		else
 		{
 			set_storage(_storage + actual_vol);
-			volume += actual_vol;
+			volume += demand_vol;
 		}
 	}
 

@@ -85,6 +85,7 @@ namespace simciv
 		//if (rate == 0) return 0;
 		check_consumption_storage(rule->input, rate);
 		//if (rate == 0) return 0;
+		double rate2 = rate;
 		check_supply_storage(rule->output, rate);
 		//if (rate == 0) return 0;
 
@@ -101,7 +102,7 @@ namespace simciv
 			double vol = p.second;
 			//supplies[prod_id]->modify_storage(ideal_rate * vol, rate * vol);
 			//supplies[prod_id]->modify_storage(0, rate * vol);
-			supplies[prod_id]->modify_storage(rate * vol, rate * vol);
+			supplies[prod_id]->modify_storage(rate2 * vol, rate * vol);
 		}
 
 		return rate;
