@@ -21,7 +21,7 @@ namespace simciv
 		volume(0),
 		_storage(0),
 		storage_last(0),
-		storage_capacity(100),
+		storage_capacity(10000),
 		fix_price(false),
 		storage_pair(NULL),
 		ideal_fullness(-1),
@@ -214,7 +214,7 @@ namespace simciv
 void Producer::update_price()
 {
 	double vol_d = 0.1;
-	double price_d = 0.5;
+	double price_d = 5;
 
 	if (is_consumer)
 	{

@@ -380,14 +380,18 @@ namespace simciv
 	{
 		int x = 10, y = 10;
 
-		auto s0 = get_species(0, 0);
-		create_animal(get_area(x, y), *s0);
-
 		auto s1 = get_species(1, 0);
 		create_animal(get_area(x + 4, y), *s1);
 
-		auto s2 = get_species(2, 0);
-		create_animal(get_area(x + 2, y + 3), *s2);
+		auto s0 = get_species(0, 0);
+		create_animal(get_area(x, y), *s0);
+
+		create_animal(get_area(x, y+1), *s0);
+
+		
+
+		//auto s2 = get_species(2, 0);
+		//create_animal(get_area(x + 2, y + 3), *s2);
 
 		//auto storage = get_storage_species();
 		//create_animal(get_area(x + 2, y - 3), *storage);
@@ -404,9 +408,9 @@ namespace simciv
 		for (int i = 0; i < material_count; ++i)
 		{
 			auto p = ani->supplies[i] = _products[i]->create_prod(a, false, 0, 50);
-			p->storage_capacity = species.type == ST_TYPECOLOR ? 100 : 200;
+			p->storage_capacity = species.type == ST_TYPECOLOR ? 10000 : 200;
 			auto q = ani->consumers[i] = _products[i]->create_prod(a, true, 0, 50);
-			q->storage_capacity = species.type == ST_TYPECOLOR ? 100 : 200;
+			q->storage_capacity = species.type == ST_TYPECOLOR ? 10000 : 200;
 			p->storage_pair = q;
 			q->storage_pair = p;
 			p->owner = q->owner = ani;
