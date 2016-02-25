@@ -45,10 +45,10 @@ namespace simciv
 		{
 			set_storage(_storage - actual_vol);
 			volume += demand_vol;
-			if (storage_pair)
-			{
-				storage_pair->volume -= actual_vol;
-			}
+			//if (storage_pair)
+			//{
+			//	storage_pair->volume -= actual_vol;
+			//}
 		}
 		else
 		{
@@ -213,17 +213,16 @@ namespace simciv
 
 void Producer::update_price()
 {
-	double vol_d = 0.1;
-	double price_d = 5;
+	double price_d = 1;
 
 	if (is_consumer)
 	{
-		price += price_d * (volume - vol_out + 0.1 * (volume - _storage));
+		price += price_d * (volume - vol_out - 0.01 * _storage);
 		//volume = std::min(volume, free_capacity());
 	}
 	else
 	{
-		price += price_d * (vol_out - volume);
+		price += price_d * (vol_out - volume - 0.01 * _storage);
 		//volume = std::min(_storage, volume);
 	}
 
@@ -318,7 +317,7 @@ history:
 			//if (p->volume == 0) continue;
 			for (Producer* q: _consumers)
 			{
-				if (p->storage_pair == q) continue;
+				//if (p->storage_pair == q) continue;
 				// if (q->volume == 0) continue;
 				auto t = get_transport(p, q);
 			}
@@ -353,7 +352,7 @@ history:
 
 		for (Transport* r : _transports)
 		{
-			if (r->profit <= 0) break;
+			if (r->profit < 0) break;
 			if (r->dem->money() <= 0) continue;
 			double& v_sup = r->sup->free_volume;
 			double& v_con = r->dem->free_volume;

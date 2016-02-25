@@ -386,12 +386,12 @@ namespace simciv
 		auto s0 = get_species(0, 0);
 		create_animal(get_area(x, y), *s0);
 
-		create_animal(get_area(x, y+1), *s0);
+		//create_animal(get_area(x, y+1), *s0);
 
 		
 
-		//auto s2 = get_species(2, 0);
-		//create_animal(get_area(x + 2, y + 3), *s2);
+		auto s2 = get_species(2, 0);
+		create_animal(get_area(x + 2, y + 3), *s2);
 
 		//auto storage = get_storage_species();
 		//create_animal(get_area(x + 2, y - 3), *storage);
