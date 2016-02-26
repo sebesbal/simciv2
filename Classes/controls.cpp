@@ -114,11 +114,16 @@ std::string get_plant_texture(int id)
 	return "img/plants/" + files[id];
 }
 */
+//std::string get_plant_texture(int id)
+//{
+//	int level = id / 3;
+//	int color = id % 3;
+//	return "img/shapes/shape_" + std::to_string(level) + "_" + std::to_string(color) + ".png";
+//}
+
 std::string get_plant_texture(int id)
 {
-	int level = id / 3;
-	int color = id % 3;
-	return "img/shapes/shape_" + std::to_string(level) + "_" + std::to_string(color) + ".png";
+	return _model.get_plants()[id]->icon_file;
 }
 
 Layout* combobox(const std::string* labels)
@@ -691,7 +696,7 @@ void AnimalView::set_animal(Animal* animal)
 
 	for (auto* p : animal->consumers)
 	{
-		if (p->prod_id % 3 != 0) continue;
+		//if (p->prod_id % 3 != 0) continue;
 		//if (p->volume == 0 && p->storage() == 0) continue;
 		LinearLayoutParameter* po = LinearLayoutParameter::create();
 		po->setMargin(ui::Margin(5, 5, 5, 5));
@@ -702,7 +707,7 @@ void AnimalView::set_animal(Animal* animal)
 	bool first = true;
 	for (auto* p : animal->supplies)
 	{
-		if (p->prod_id % 3 != 0) continue;
+		//if (p->prod_id % 3 != 0) continue;
 		//if (p->volume == 0 && p->storage() == 0) continue;
 		LinearLayoutParameter* po = LinearLayoutParameter::create();
 		po->setMargin(ui::Margin(5, first ? 20 : 5, 5, 5));

@@ -8,6 +8,8 @@ using namespace std;
 
 namespace simciv
 {
+	int material_count;
+
 	int mat_id(int level, int color)
 	{
 		return color_count * level + (color + color_count) % color_count;

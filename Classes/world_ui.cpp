@@ -73,7 +73,7 @@ WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_s
 	//s->build_cost.push_back(5);
 	//s->build_cost.push_back(4);
 	//_species_view->set_species(s);
-	_species_view->set_species(&_model.get_species().at(0));
+	_species_view->set_species(_model.get_species().at(0));
 
 	_layers_panel = create_layers_panel();
 	_layers_panel->setAnchorPoint(Vec2(1, 0));
@@ -189,7 +189,7 @@ bool WorldUI::onTouchBegan(Touch* touch, Event  *event)
 		_species_view->set_species(s);
 		_species_view->setVisible(true);
 		this->info.species = s;
-		info.plant_id = s->color + s->level * level_count;
+		info.plant_id = s->id; //s->color + s->level * level_count;
 		set_state(UIS_ANIMAL);
 	}
 	else
@@ -335,22 +335,33 @@ void WorldUI::create_play_panel()
 RadioMenu* WorldUI::create_species_browser()
 {
 	RadioMenu* result = RadioMenu::create();
-	for (int level = 0; level < level_count; ++level)
+	//for (int level = 0; level < level_count; ++level)
+	//{
+	//	result->add_row();
+	//	for (int color = 0; color < color_count; ++color)
+	//	{
+	//		Species* s = _model.get_species(level, color);
+	//		auto btn = MenuButton::create(s->icon_file);
+	//		btn->setUserData(s);
+	//		result->add_radio_button(btn);
+	//	}
+	//}
+
+	auto& species = _model.get_species();
+	int i = 0;
+	for (auto s : species)
 	{
-		result->add_row();
-		for (int color = 0; color < color_count; ++color)
-		{
-			Species* s = _model.get_species(level, color);
-			auto btn = MenuButton::create(s->icon_file);
-			btn->setUserData(s);
-			result->add_radio_button(btn);
-		}
+		if (i % 3 == 0) result->add_row();
+		auto btn = MenuButton::create(s->icon_file);
+		result->add_radio_button(btn);
 	}
-	result->add_row();
-	Species* s = _model.get_storage_species();
-	auto btn = MenuButton::create(s->icon_file);
-	btn->setUserData(s);
-	result->add_radio_button(btn);
+
+
+	//result->add_row();
+	//Species* s = _model.get_storage_species();
+	//auto btn = MenuButton::create(s->icon_file);
+	//btn->setUserData(s);
+	//result->add_radio_button(btn);
 
 	result->set_selected_btn(0);
 	result->set_on_changed([this](MenuButton* btn) {
@@ -363,25 +374,45 @@ RadioMenu* WorldUI::create_species_browser()
 	return result;
 }
 
+//RadioMenu* WorldUI::create_plants_browser()
+//{
+//	RadioMenu* result = RadioMenu::create();
+//	for (int level = 0; level < level_count; ++level)
+//	{
+//		result->add_row();
+//		for (int color = 0; color < color_count; ++color)
+//		{
+//			auto btn = MenuButton::create(_model.get_species().at(mat_id(level, color)).icon_file);
+//			result->add_radio_button(btn);
+//		}
+//	}
+//
+//
+//	//for (int i = 0; i < mat_count; ++i)
+//	//{
+//	//	auto btn = MenuButton::create(get_plant_texture(i));
+//	//	result->add_radio_button(btn);
+//	//}
+//
+//	result->set_selected_btn(0);
+//	result->set_on_changed([this](MenuButton* btn) {
+//		info.plant_id = btn->getTag();
+//		set_state(_state);
+//	});
+//	return result;
+//}
+
 RadioMenu* WorldUI::create_plants_browser()
 {
 	RadioMenu* result = RadioMenu::create();
-	for (int level = 0; level < level_count; ++level)
+	auto& plants = _model.get_plants();
+	int i = 0;
+	for (auto plant : plants)
 	{
-		result->add_row();
-		for (int color = 0; color < color_count; ++color)
-		{
-			auto btn = MenuButton::create(_model.get_species().at(mat_id(level, color)).icon_file);
-			result->add_radio_button(btn);
-		}
+		if (i % 3 == 0) result->add_row();
+		auto btn = MenuButton::create(plant->icon_file);
+		result->add_radio_button(btn);
 	}
-
-
-	//for (int i = 0; i < mat_count; ++i)
-	//{
-	//	auto btn = MenuButton::create(get_plant_texture(i));
-	//	result->add_radio_button(btn);
-	//}
 
 	result->set_selected_btn(0);
 	result->set_on_changed([this](MenuButton* btn) {

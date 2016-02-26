@@ -13,7 +13,8 @@ namespace simciv
 
 	const int level_count = 4;
 	const int color_count = 3;
-	const int material_count = level_count * color_count;
+	// const int material_count = level_count * color_count;
+	extern int material_count;
 	const int article_count = 3;
 
 	int mat_id(int level, int color);

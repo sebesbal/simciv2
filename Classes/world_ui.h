@@ -143,7 +143,6 @@ protected:
 	int view_mode, new_view_mode;
 	std::vector<Node*> views;
 	cocos2d::Node* _map;
-	AnimalWorld _model;
 	bool _drag_start;
 	cocos2d::Vec2 _mouse_down_pos;
 

@@ -11,11 +11,15 @@ namespace rapidxml
 
 namespace simciv
 {
+	class AnimalWorld;
+	extern AnimalWorld _model;
+
 	struct ProductionRule
 	{
 		std::vector<int> area_types;
 		MaterialMap input;
 		MaterialMap output;
+		void load(rapidxml::xml_node<>* node);
 		double profit(const Prices& prices);	// used for m2m rules
 		double expense(const Prices& prices);	// used for m2e rules
 	};
@@ -28,7 +32,8 @@ namespace simciv
 
 	struct Species
 	{
-		//int id;
+		int id;
+		std::string name;
 		SpeciesType type;
 		std::vector<ProductionRule> m2m_rules;	///< products materials form materials
 		std::vector<ProductionRule> m2a_rules;	///< products articles form materials.
@@ -37,10 +42,17 @@ namespace simciv
 		void find_best_m2m_rule(const Prices& prices, ProductionRule*& rule, double& profit);
 		std::string icon_file;
 
-		int level;
-		int color;
-		Species();
-		Species(rapidxml::xml_node<>* node);
+		//int level;
+		//int color;
+		void load(rapidxml::xml_node<>* node);
+	};
+
+	struct Plant
+	{
+		std::string name;
+		int id;
+		std::string icon_file;
+		void load(rapidxml::xml_node<>* node);
 	};
 
 	//class Market
@@ -89,11 +101,15 @@ namespace simciv
 		Animal* create_animal(Area* a, Species& species);
 		Animal* find_animal(Area* a);
 		std::vector<Animal*>& get_animals() { return animals; }
-		std::vector<Species>& get_species() { return species; }
-		Species* get_species(int level, int color);
-		Species* get_storage_species() { return &species.back(); }
+		std::vector<Species*>& get_species() { return species; }
+		Species* get_species(std::string name) { for (auto p : species) if (p->name == name) return p; return NULL; }
+		Species* get_storage_species() { return species.back(); }
+		Plant* get_plant(std::string name) { for (auto p : plants) if (p->name == name) return p; return NULL; }
+		std::vector<Plant*>& get_plants() { return plants; }
+		void add_plant(Plant* plant) { plant->id = plants.size(); plants.push_back(plant); }
 		virtual void update() override;
 		void load_from_file(std::string file_name);
+		void add_species(Species* species) { species->id = this->species.size(); this->species.push_back(species); }
 	protected:
 		void move_animal(Animal* ani, Area* new_area);
 		void add_producers(Animal* ani, Area* area);
@@ -105,7 +121,10 @@ namespace simciv
 		//virtual void update_animal_m2m(Animal* ani, ProductionRule* rule);
 		//virtual void update_animal_m2a(Animal* ani, MaterialMap& vols, Prices& prices);
 		Prices get_prices(Area* a);
-		std::vector<Species> species;
+		//std::map<std::string, Species*> species_map;
+		//std::map<std::string, Plant*> plant_map;
+		std::vector<Species*> species;
+		std::vector<Plant*> plants;
 		std::vector<Animal*> animals;
 	};
 

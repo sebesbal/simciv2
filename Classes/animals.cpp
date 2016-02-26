@@ -7,9 +7,49 @@
 #include <fstream>
 #include <sstream>
 
+#include <string>
+#include <iostream>
+#include "cocos2d.h"
+using namespace std;;
+
 namespace simciv
 {
-	const int species_count = 12;
+	//const int species_count = 12;
+	AnimalWorld _model;
+	using namespace std;
+
+	void ProductionRule::load(rapidxml::xml_node<>* node)
+	{
+		this->input.clear();
+		this->output.clear();
+
+		auto item = node->first_node();
+		while (item)
+		{
+			int id = stoi(item->first_attribute("plant")->value());
+			double vol = stod(item->first_attribute("vol")->value());
+			string name = item->name();
+			if (name == "in")
+			{
+				this->input[id] = vol;
+			}
+			else if (name == "out")
+			{
+				this->output[id] = vol;
+			}
+			item = item->next_sibling();
+		}
+
+		//auto output = node->first_node("out");
+		//item = output->first_node("dose");
+		//while (item)
+		//{
+		//	int id = stoi(item->first_attribute("plant")->value());
+		//	double vol = stod(item->first_attribute("vol")->value());
+		//	this->input[id] = vol;
+		//	item = item->next_sibling("dose");
+		//}
+	}
 
 	double ProductionRule::profit(const Prices& prices)
 	{
@@ -64,14 +104,49 @@ namespace simciv
 		profit = best_profit;
 	}
 
-	Species::Species()
+	void Species::load(rapidxml::xml_node<>* node)
 	{
+		maintenance_cost[0] = 1;
+		type = ST_TYPECOLOR;
 
+		auto image = node->first_attribute("image");
+		if (image)
+		{
+			this->icon_file = "img/" + string(image->value());
+		}
+
+		auto id = node->first_attribute("id");
+		if (id)
+		{
+			this->name = id->value();
+		}
+
+		auto n = node->first_node("produce");
+		while (n)
+		{
+			ProductionRule rule;
+			rule.load(n);
+			this->m2m_rules.push_back(rule);
+			n = n->next_sibling("produce");
+		}
+
+		n = node->first_node("eat");
+		while (n)
+		{
+			ProductionRule rule;
+			rule.load(n);
+			rule.output[0] = 1;
+			this->m2a_rules.push_back(rule);
+			n = n->next_sibling("eat");
+		}
 	}
 
-	Species::Species(rapidxml::xml_node<>* node)
+	void Plant::load(rapidxml::xml_node<>* node)
 	{
-
+		auto name = node->first_attribute("id");
+		if (name) this->name = name->value();
+		auto image = node->first_attribute("image");
+		if (image) this->icon_file = "img/" + string(image->value());
 	}
 
 	Animal::Animal(Species& species) : species(species), money(100000000)
@@ -285,8 +360,9 @@ namespace simciv
 
 	void AnimalWorld::create_map(int width, int height, int prod_count)
 	{
-		WorldModel::create_map(width, height, prod_count);
 		generate_species();
+		prod_count = material_count;
+		WorldModel::create_map(width, height, prod_count);
 		generate_animals();
 	}
 
@@ -330,85 +406,101 @@ namespace simciv
 
 	*/
 
+	//void AnimalWorld::generate_species()
+	//{
+	//	const int cost[4] = { 1, 2, 4, 8 };
+	//	const int output[5] = { 1, 3, 5, 8, 13 };
+	//	auto id = [](int level, int color) {
+	//		return level * color_count + (color + color_count) % color_count;
+	//	};
+	//	auto next_color = [](int color) {
+	//		return (color + 1) % color_count;
+	//	};
+
+	//	// generate article rules
+	//	std::vector<ProductionRule> art_rules;
+	//	for (int i = 0; i < level_count; ++i)
+	//	{
+	//		ProductionRule rule;
+	//		rule.input[id(i, 0)] = pow(0.5, i);
+	//		rule.output[0] = 1;
+	//		art_rules.push_back(rule);
+	//	}
+
+	//	//ProductionRule rule;
+	//	//rule.input[0] = 1;
+	//	//rule.output[0] = 1;
+	//	//art_rules.push_back(rule);
+
+	//	// generate maintenance
+	//	MaterialMap maintenance;
+	//	maintenance[0] = 0.5;
+
+	//	for (int level = 0; level < level_count; ++level)
+	//	{
+	//		for (int color = 0; color < color_count; ++color)
+	//		{
+	//			Species s;
+	//			s.level = level;
+	//			s.color = color;
+	//			s.type = ST_TYPECOLOR;
+	//			s.maintenance_cost = maintenance;
+	//			s.m2a_rules = art_rules;
+
+	//			ProductionRule r;
+	//			if (level > 0)
+	//			{
+	//				r.input[id(level - 1, color)] = 1;
+	//			}
+	//			r.output[id(level, color)] = 1;
+	//			s.m2m_rules.push_back(r);
+	//			s.icon_file = "img/shapes/shape_" + std::to_string(level) + "_" + std::to_string(color) + ".png";
+
+	//			species.push_back(s);
+	//		}
+	//	}
+
+	//	Species s;
+	//	s.type = ST_STORAGE;
+	//	s.icon_file = "img/shapes/storage.png";
+	//	species.push_back(s);
+	//}
+
+
+
+string ExePath() {
+	char buffer[MAX_PATH];
+	GetModuleFileNameA(NULL, buffer, MAX_PATH);
+	string::size_type pos = string(buffer).find_last_of("\\/");
+	return string(buffer).substr(0, pos);
+}
+
 	void AnimalWorld::generate_species()
 	{
-		const int cost[4] = { 1, 2, 4, 8 };
-		const int output[5] = { 1, 3, 5, 8, 13 };
-		auto id = [](int level, int color) {
-			return level * color_count + (color + color_count) % color_count;
-		};
-		auto next_color = [](int color) {
-			return (color + 1) % color_count;
-		};
-
-		// generate article rules
-		std::vector<ProductionRule> art_rules;
-		for (int i = 0; i < level_count; ++i)
-		{
-			ProductionRule rule;
-			rule.input[id(i, 0)] = pow(0.5, i);
-			rule.output[0] = 1;
-			art_rules.push_back(rule);
-		}
-
-		//ProductionRule rule;
-		//rule.input[0] = 1;
-		//rule.output[0] = 1;
-		//art_rules.push_back(rule);
-
-		// generate maintenance
-		MaterialMap maintenance;
-		maintenance[0] = 0.5;
-
-		for (int level = 0; level < level_count; ++level)
-		{
-			for (int color = 0; color < color_count; ++color)
-			{
-				Species s;
-				s.level = level;
-				s.color = color;
-				s.type = ST_TYPECOLOR;
-				s.maintenance_cost = maintenance;
-				s.m2a_rules = art_rules;
-
-				ProductionRule r;
-				if (level > 0)
-				{
-					r.input[id(level - 1, color)] = 1;
-				}
-				r.output[id(level, color)] = 1;
-				s.m2m_rules.push_back(r);
-				s.icon_file = "img/shapes/shape_" + std::to_string(level) + "_" + std::to_string(color) + ".png";
-
-				species.push_back(s);
-			}
-		}
-
-		Species s;
-		s.type = ST_STORAGE;
-		s.icon_file = "img/shapes/storage.png";
-		species.push_back(s);
+		CCLOG("ExePath() %s", ExePath());
+		load_from_file("res\\mod1.xml");
+		//load_from_file("C:\\dev\\simciv2\\proj.win32\\Debug.win32\\res\\mod1.xml");
 	}
 
 	void AnimalWorld::generate_animals()
 	{
 		int x = 10, y = 10;
 
-		auto s1 = get_species(1, 0);
+		auto s1 = get_species("1");
 		create_animal(get_area(x + 4, y), *s1);
 
-		auto s0 = get_species(0, 0);
+		auto s0 = get_species("0");
 		create_animal(get_area(x, y), *s0);
 
-		//create_animal(get_area(x, y+1), *s0);
+		////create_animal(get_area(x, y+1), *s0);
 
-		
+		//
 
-		auto s2 = get_species(2, 0);
+		auto s2 = get_species("2");
 		create_animal(get_area(x + 2, y + 3), *s2);
 
-		//auto storage = get_storage_species();
-		//create_animal(get_area(x + 2, y - 3), *storage);
+		////auto storage = get_storage_species();
+		////create_animal(get_area(x + 2, y - 3), *storage);
 	}
 
 	Animal* AnimalWorld::create_animal(Area* a, Species& species)
@@ -451,14 +543,14 @@ namespace simciv
 		}
 	}
 
-	Species* AnimalWorld::get_species(int level, int color)
-	{
-		for (auto& s : species)
-		{
-			if (s.level == level && s.color == color) return &s;
-		}
-		return NULL;
-	}
+	//Species* AnimalWorld::get_species(int level, int color)
+	//{
+	//	for (auto& s : species)
+	//	{
+	//		if (s.level == level && s.color == color) return &s;
+	//	}
+	//	return NULL;
+	//}
 
 	//void AnimalWorld::update()
 	//{
@@ -550,23 +642,13 @@ namespace simciv
 	void AnimalWorld::load_from_file(std::string file_name)
 	{
 		rapidxml::xml_document<> doc;												// character type defaults to char
-		std::ifstream file("xml_file.xml");
+		std::ifstream file(file_name);
 		std::stringstream buffer;
 		buffer << file.rdbuf();
 		file.close();
 		std::string content(buffer.str());
 		doc.parse<0>(&content[0]);
-
 		xml_node<> *root = doc.first_node("simciv");
-
-		//// version
-		//xml_attribute<>* attr = root->first_attribute("version");
-		//std::string version = "1.0";
-		//if (attr)
-		//{
-		//	version = attr->value();
-		//}
-
 
 		xml_node<> *item = root->first_node();
 		while (item)
@@ -574,22 +656,21 @@ namespace simciv
 			string name = item->name();
 			if (name == "species")
 			{
-				Species s(item);
+				Species* s = new Species();
+				s->load(item);
+				add_species(s);
+			}
+			else if (name == "plant")
+			{
+				Plant* plant = new Plant();
+				plant->load(item);
+				add_plant(plant);
 			}
 
-			//MatchCamHighScoreItem hsitem;
-			//attr = item->first_attribute("name");
-			//std::string nametmp = attr->value();
-			//hsitem.name = wtk_StdStr2WtkString(nametmp);
-			////hsitem.score = stoi(item->value());
-			//attr = item->first_attribute("score");
-			////hsitem.score = stoi(attr->value());
-			//hsitem.score = atoi(attr->value());
-			//highscores.push_back(hsitem);
-
-			item = item->next_sibling("item");
+			item = item->next_sibling();
 		}
 
+		material_count = plants.size();
 	}
 
 	void AnimalWorld::move_animal(Animal* ani, Area* new_area)
