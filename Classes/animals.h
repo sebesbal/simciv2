@@ -3,6 +3,12 @@
 #include "economy.h"
 #include <map>
 
+namespace rapidxml
+{
+	template<class Ch = char>
+	class xml_node;
+}
+
 namespace simciv
 {
 	struct ProductionRule
@@ -33,6 +39,8 @@ namespace simciv
 
 		int level;
 		int color;
+		Species();
+		Species(rapidxml::xml_node<>* node);
 	};
 
 	//class Market
@@ -85,6 +93,7 @@ namespace simciv
 		Species* get_species(int level, int color);
 		Species* get_storage_species() { return &species.back(); }
 		virtual void update() override;
+		void load_from_file(std::string file_name);
 	protected:
 		void move_animal(Animal* ani, Area* new_area);
 		void add_producers(Animal* ani, Area* area);

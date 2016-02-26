@@ -2,6 +2,10 @@
 #include <algorithm>
 #include <string>
 #include <algorithm>
+#include "rapidxml.hpp"
+#include "rapidxml_print.hpp"
+#include <fstream>
+#include <sstream>
 
 namespace simciv
 {
@@ -58,6 +62,16 @@ namespace simciv
 		}
 		rule = best_rule;
 		profit = best_profit;
+	}
+
+	Species::Species()
+	{
+
+	}
+
+	Species::Species(rapidxml::xml_node<>* node)
+	{
+
 	}
 
 	Animal::Animal(Species& species) : species(species), money(100000000)
@@ -528,6 +542,54 @@ namespace simciv
 		}
 
 		++k;
+	}
+
+	using namespace rapidxml;
+	using namespace std;
+
+	void AnimalWorld::load_from_file(std::string file_name)
+	{
+		rapidxml::xml_document<> doc;												// character type defaults to char
+		std::ifstream file("xml_file.xml");
+		std::stringstream buffer;
+		buffer << file.rdbuf();
+		file.close();
+		std::string content(buffer.str());
+		doc.parse<0>(&content[0]);
+
+		xml_node<> *root = doc.first_node("simciv");
+
+		//// version
+		//xml_attribute<>* attr = root->first_attribute("version");
+		//std::string version = "1.0";
+		//if (attr)
+		//{
+		//	version = attr->value();
+		//}
+
+
+		xml_node<> *item = root->first_node();
+		while (item)
+		{
+			string name = item->name();
+			if (name == "species")
+			{
+				Species s(item);
+			}
+
+			//MatchCamHighScoreItem hsitem;
+			//attr = item->first_attribute("name");
+			//std::string nametmp = attr->value();
+			//hsitem.name = wtk_StdStr2WtkString(nametmp);
+			////hsitem.score = stoi(item->value());
+			//attr = item->first_attribute("score");
+			////hsitem.score = stoi(attr->value());
+			//hsitem.score = atoi(attr->value());
+			//highscores.push_back(hsitem);
+
+			item = item->next_sibling("item");
+		}
+
 	}
 
 	void AnimalWorld::move_animal(Animal* ani, Area* new_area)

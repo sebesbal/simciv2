@@ -226,8 +226,6 @@ void Producer::update_price()
 		//volume = std::min(_storage, volume);
 	}
 
-	volume = std::max(0.0, volume);
-
 	price = std::max(1.0, price);
 
 history:
