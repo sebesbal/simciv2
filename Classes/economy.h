@@ -84,6 +84,7 @@ namespace simciv
 		double demand_volume;
 		double cost;
 		double profit;
+		int active_time;
 	};
 
 	/// Represents one single product's volumes and prices on the map

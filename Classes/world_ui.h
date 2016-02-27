@@ -83,7 +83,7 @@ class PlantMapLayer : public MapView
 public:
 	PlantMapLayer(UIStateData& info) : info(info) { }
 	static PlantMapLayer* create(WorldModel* model, UIStateData& info);
-	virtual void update(float delta) override;
+	void update(float delta);
 protected:
 	UIStateData& info;
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;

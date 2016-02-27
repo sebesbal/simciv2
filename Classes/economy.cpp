@@ -366,6 +366,7 @@ history:
 				v_sup -= v;
 				v_con -= v;
 				r->volume = v;
+				r->active_time = _model.time;
 				auto& sup = r->sup->worst_profit;
 				sup = std::min(sup, r->profit);
 				auto& con = r->dem->worst_profit;

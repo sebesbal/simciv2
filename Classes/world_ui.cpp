@@ -76,7 +76,7 @@ WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_s
 	_species_view->set_species(_model.get_species().at(0));
 
 	_layers_panel = create_layers_panel();
-	_layers_panel->setAnchorPoint(Vec2(1, 0));
+	_layers_panel->setAnchorPoint(Vec2(1, 1));
 	this->addChild(_layers_panel);
 
 	_animal_view = AnimalView::create();

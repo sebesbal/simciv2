@@ -576,6 +576,7 @@ string ExePath() {
 	void AnimalWorld::update()
 	{
 		static int k = 0;
+		++time;
 
 		for (ProductMap* product : _products)
 		{

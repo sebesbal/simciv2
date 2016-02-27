@@ -69,7 +69,7 @@ namespace simciv
 		}
 	}
 
-	WorldModel::WorldModel()
+	WorldModel::WorldModel() : time(0)
 	{
 
 	}

@@ -114,6 +114,7 @@ namespace simciv
 		Route* create_route(Area* src, Area* dst);
 		double distance(Area* src, Area* dst);
 		std::vector<ProductMap*>& products() { return _products; }
+		int time;
 	protected:
 		MaterialVec empty_mat_vec();
 		std::vector<ProductMap*> _products;

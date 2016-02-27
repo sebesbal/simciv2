@@ -203,7 +203,7 @@ void PlantMapLayer::update(float delta)
 				else
 				{
 					Transport* t = it->first;
-					if (t->volume == 0)
+					if (t->volume == 0 && t->active_time + 50 < _model->time)
 					{
 						RouteAnimation* ani = it->second;
 						ani->stop();
