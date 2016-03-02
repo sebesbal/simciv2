@@ -104,6 +104,20 @@ namespace simciv
 		profit = best_profit;
 	}
 
+	void Species::find_best_m2a_rule(const Prices& prices, ProductionRule*& rule, double& price)
+	{
+		price = max_price;
+		for (auto& r : m2a_rules)
+		{
+			double p = r.expense(prices);
+			if (p < price)
+			{
+				price = p;
+				rule = &r;
+			}
+		}
+	}
+
 	void Species::load(rapidxml::xml_node<>* node)
 	{
 		maintenance_cost[0] = 1;
@@ -674,6 +688,30 @@ string ExePath() {
 		material_count = plants.size();
 	}
 
+	Prices AnimalWorld::get_prices(Area* a)
+	{
+		Prices p;
+		for (int i = 0; i < material_count; ++i)
+		{
+			auto& prod = this->get_prod(a, i);
+			p.supply[i] = prod.p_sup;
+			p.consumption[i] = prod.p_con;
+		}
+		return p;
+	}
+
+	double AnimalWorld::get_profit(Species* species, Area* a)
+	{
+		Prices prices = get_prices(a);
+		double profit;
+		ProductionRule* rule;
+		species->find_best_m2m_rule(prices, rule, profit);
+		double price;
+		species->find_best_m2a_rule(prices, rule, price);
+		profit -= price;
+		return profit;
+	}
+
 	void AnimalWorld::move_animal(Animal* ani, Area* new_area)
 	{
 		for (size_t i = 0; i < _products.size(); ++i)
@@ -747,15 +785,15 @@ string ExePath() {
 	//	}
 	//}
 
-	Prices AnimalWorld::get_prices(Area* a)
-	{
-		Prices result;
-		for (int i = 0; i < material_count; ++i)
-		{
-			auto& info = get_prod(a, i);
-			result.supply[i] = info.p_sup;
-			result.consumption[i] = info.p_con;
-		}
-		return result;
-	}
+	//Prices AnimalWorld::get_prices(Area* a)
+	//{
+	//	Prices result;
+	//	for (int i = 0; i < material_count; ++i)
+	//	{
+	//		auto& info = get_prod(a, i);
+	//		result.supply[i] = info.p_sup;
+	//		result.consumption[i] = info.p_con;
+	//	}
+	//	return result;
+	//}
 }

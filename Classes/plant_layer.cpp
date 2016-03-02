@@ -79,28 +79,52 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 
 	if (info.price_vol_mode == 0)
 	{
-		if (info.produce_consume_mode == 2)
+		//// booth
+		//if (info.produce_consume_mode == 2)
+		//{
+		//	for (Area* a: _model->areas())
+		//	{
+		//		auto& p = _model->get_prod(a, info.plant_id);
+		//		double v = p.p;
+		//		min_v = std::min(min_v, v);
+		//		max_v = std::max(max_v, v);
+		//		double vol = p.v_con + p.v_sup;
+		//		min_vol = std::min(min_vol, vol);
+		//		max_vol = std::max(max_vol, vol);
+		//	}
+		//	double d = max_v - min_v;
+		//	double d_vol = max_vol - min_vol;
+
+		//	for (Area* a: _model->areas())
+		//	{
+		//		auto& p = _model->get_prod(a, info.plant_id);
+		//		double v = p.p;
+		//		double r = d == 0 ? 0.5 : (v - min_v) / d;
+		//		double vol = p.v_con + p.v_sup;
+		//		draw_rect(a->x, a->y, r, vol / d_vol);
+		//	}
+		//}
+
+		// profit
+		if (info.produce_consume_mode == 0 && info.species)
 		{
-			for (Area* a: _model->areas())
+			vector<double> profit(_model->areas().size());
+			int i = 0;
+			for (Area* a : _model->areas())
 			{
-				auto& p = _model->get_prod(a, info.plant_id);
-				double v = p.p;
+				double v = ((AnimalWorld*)_model)->get_profit(info.species, a);
 				min_v = std::min(min_v, v);
 				max_v = std::max(max_v, v);
-				double vol = p.v_con + p.v_sup;
-				min_vol = std::min(min_vol, vol);
-				max_vol = std::max(max_vol, vol);
+				profit[i++] = v;
 			}
 			double d = max_v - min_v;
-			double d_vol = max_vol - min_vol;
 
-			for (Area* a: _model->areas())
+			i = 0;
+			for (Area* a : _model->areas())
 			{
-				auto& p = _model->get_prod(a, info.plant_id);
-				double v = p.p;
+				double v = profit[i++];
 				double r = d == 0 ? 0.5 : (v - min_v) / d;
-				double vol = p.v_con + p.v_sup;
-				draw_rect(a->x, a->y, r, vol / d_vol);
+				draw_rect(a->x, a->y, r, 1);
 			}
 		}
 		else if (info.produce_consume_mode == 0)

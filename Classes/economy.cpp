@@ -475,8 +475,9 @@ history:
 		for (Area* a : _world.areas())
 		{
 			auto& prod = get_new_prod(a);
-			prod.p_sup = prod.best_sups.second ? prod.best_sups.second->price + prod.best_sups.first : max_price;
-			prod.p_con = prod.best_cons.second ? prod.best_cons.second->price - prod.best_cons.first : 0;
+			prod.p_con = prod.best_sups.second ? prod.best_sups.second->price + prod.best_sups.first : max_price;
+			prod.p_sup = prod.best_cons.second ? prod.best_cons.second->price - prod.best_cons.first : 0;
+
 			prod.p = (prod.p_con + prod.p_sup) / 2;
 		}
 

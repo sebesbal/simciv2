@@ -40,6 +40,7 @@ namespace simciv
 		MaterialVec build_cost;			///< cost of build a new instance
 		MaterialMap maintenance_cost;	///< cost of maintain the instance
 		void find_best_m2m_rule(const Prices& prices, ProductionRule*& rule, double& profit);
+		void find_best_m2a_rule(const Prices& prices, ProductionRule*& rule, double& price);
 		std::string icon_file;
 
 		//int level;
@@ -110,6 +111,8 @@ namespace simciv
 		virtual void update() override;
 		void load_from_file(std::string file_name);
 		void add_species(Species* species) { species->id = this->species.size(); this->species.push_back(species); }
+		Prices get_prices(Area* a);
+		double get_profit(Species* species, Area* a);
 	protected:
 		void move_animal(Animal* ani, Area* new_area);
 		void add_producers(Animal* ani, Area* area);
@@ -120,7 +123,7 @@ namespace simciv
 		//double get_rule_success(Animal* ani, MaterialMap& vols, MaterialVec& prices);
 		//virtual void update_animal_m2m(Animal* ani, ProductionRule* rule);
 		//virtual void update_animal_m2a(Animal* ani, MaterialMap& vols, Prices& prices);
-		Prices get_prices(Area* a);
+		//Prices get_prices(Area* a);
 		//std::map<std::string, Species*> species_map;
 		//std::map<std::string, Plant*> plant_map;
 		std::vector<Species*> species;
