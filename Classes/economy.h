@@ -20,20 +20,17 @@ namespace simciv
 	{
 		AreaProd();
 		double p;
-		double p_con; // consumption price: the lowest buying price in the area for what there is a seller somewhere
-		double p_sup; // supply price: the highest selling price in the area for what there is a buyer somewhere
+		double p_buy; // buying price: the lowest buying price in the area for what there is a seller somewhere
+		double p_sell; // selling price: the highest selling price in the area for what there is a buyer somewhere
 
-		double v_con; // volume demand
-		double v_sup; // volume supply
+		double v_buy; // volume buy
+		double v_sell; // volume sell
 		double v;
-
-		double m_con; // the profit of the consumer's worst deals in this area
-		double m_sup; // the profit of the suppliers's worst deals in this area
 
 		double resource; // how effective the production is
 
-		std::pair<double, Producer*> best_sups;
-		std::pair<double, Producer*> best_cons;
+		std::pair<double, Producer*> best_seller;
+		std::pair<double, Producer*> best_buyer;
 	};
 
 	struct Producer
@@ -41,8 +38,7 @@ namespace simciv
 		Producer();
 		double& storage() { return _storage; }
 		int prod_id;
-		bool is_consumer;
-		//bool is_storage() { return  }
+		bool is_buyer;
 		Producer* storage_pair; ///< for storages: one producer for supply and one for consumption, storage_pair connects the two
 		bool fix_price;
 		Area* area;
@@ -76,10 +72,10 @@ namespace simciv
 
 	struct Transport
 	{
-		Producer* sup;
-		Producer* dem;
+		Producer* seller;
+		Producer* buyer;
 		Route* route;
-		bool invert_route; ///< the route directs dem to sup
+		bool invert_route; ///< the route directs buyer to seller
 		double volume;
 		double demand_volume;
 		double cost;
@@ -118,10 +114,10 @@ namespace simciv
 		void create_g();
 		Transport* get_transport(Producer* src, Producer* dst);
 		WorldModel& _world;
-		std::vector<Producer*> _supplies;
-		std::vector<Producer*> _consumers;
-		std::vector<std::vector<Producer*>> _area_supplies;
-		std::vector<std::vector<Producer*>> _area_consumers;
+		std::vector<Producer*> _sellers;
+		std::vector<Producer*> _buyers;
+		std::vector<std::vector<Producer*>> _area_sellers;
+		std::vector<std::vector<Producer*>> _area_buyers;
 
 		std::vector<Transport*> _transports; // "all" possible transports. volume > 0 means that the transport is used
 		std::vector<AreaProd>* _production;

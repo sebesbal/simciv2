@@ -57,7 +57,7 @@ namespace simciv
 		for (auto& p: input)
 		{
 			int prod_id = p.first;
-			double price = prices.consumption[prod_id];
+			double price = prices.buy[prod_id];
 			double vol = p.second;
 			profit -= price * vol;
 		}
@@ -65,7 +65,7 @@ namespace simciv
 		for (auto& p : output)
 		{
 			int prod_id = p.first;
-			double price = prices.supply[prod_id];
+			double price = prices.sell[prod_id];
 			double vol = p.second;
 			profit += price * vol;
 		}
@@ -79,7 +79,7 @@ namespace simciv
 		for (auto& p : input)
 		{
 			int prod_id = p.first;
-			double price = prices.consumption[prod_id];
+			double price = prices.buy[prod_id];
 			double vol = p.second;
 			result += price * vol;
 		}
@@ -87,7 +87,6 @@ namespace simciv
 	}
 
 	void Species::find_best_m2m_rule(const Prices& prices, ProductionRule*& rule, double& profit)
-	// ProductionRule* Species::find_best_m2m_rule(const Prices& prices)
 	{
 		double best_profit = 0;
 		ProductionRule* best_rule = NULL;
@@ -167,11 +166,11 @@ namespace simciv
 	{
 		for (int i = 0; i < material_count; ++i)
 		{
-			supplies.push_back(NULL);
+			sellers.push_back(NULL);
 		}
 		for (int i = 0; i < material_count; ++i)
 		{
-			consumers.push_back(NULL);
+			buyers.push_back(NULL);
 		}
 	}
 	
@@ -196,16 +195,16 @@ namespace simciv
 		{
 			int prod_id = p.first;
 			double vol = p.second;
-			consumers[prod_id]->modify_storage(ideal_rate * vol, rate * vol);
+			buyers[prod_id]->modify_storage(ideal_rate * vol, rate * vol);
 		}
 
 		for (auto& p : rule->output)
 		{
 			int prod_id = p.first;
 			double vol = p.second;
-			//supplies[prod_id]->modify_storage(ideal_rate * vol, rate * vol);
-			//supplies[prod_id]->modify_storage(0, rate * vol);
-			supplies[prod_id]->modify_storage(rate2 * vol, rate * vol);
+			//sellers[prod_id]->modify_storage(ideal_rate * vol, rate * vol);
+			//sellers[prod_id]->modify_storage(0, rate * vol);
+			sellers[prod_id]->modify_storage(rate2 * vol, rate * vol);
 		}
 
 		return rate;
@@ -244,7 +243,7 @@ namespace simciv
 	//			{
 	//				int prod_id = p.first;
 	//				double vol = p.second;
-	//				consumers[prod_id]->modify_storage(volume * vol, best_rate * vol);
+	//				buyers[prod_id]->modify_storage(volume * vol, best_rate * vol);
 	//			}
 	//			volume -= best_rate;
 	//		}
@@ -262,7 +261,7 @@ namespace simciv
 	//			{
 	//				int prod_id = p.first;
 	//				double vol = p.second;
-	//				double& v = consumers[prod_id]->volume;
+	//				double& v = buyers[prod_id]->volume;
 	//				v = std::max(v, volume * vol);
 	//			}
 	//		}
@@ -298,7 +297,7 @@ namespace simciv
 			{
 				int prod_id = p.first;
 				double vol = p.second;
-				consumers[prod_id]->modify_storage(volume * vol, rate * vol);
+				buyers[prod_id]->modify_storage(volume * vol, rate * vol);
 			}
 			volume -= rate;
 			//income(-expense);
@@ -328,7 +327,7 @@ namespace simciv
 		{
 			int prod_id = p.first;
 			double vol = p.second;
-			auto& producer = supplies[prod_id];
+			auto& producer = sellers[prod_id];
 			rate = std::min(rate, (producer->storage_capacity - producer->storage()) / vol);
 			if (rate == 0) return;
 		}
@@ -341,7 +340,7 @@ namespace simciv
 		{
 			int prod_id = p.first;
 			double vol = p.second;
-			auto& producer = consumers[prod_id];
+			auto& producer = buyers[prod_id];
 			rate = std::min(rate, producer->storage() / vol);
 			if (rate == 0) return;
 		}
@@ -360,8 +359,8 @@ namespace simciv
 		Prices p;
 		for (int i = 0; i < material_count; ++i)
 		{
-			p.supply[i] = this->supplies[i]->price;
-			p.consumption[i] = this->consumers[i]->price;
+			p.sell[i] = this->sellers[i]->price;
+			p.buy[i] = this->buyers[i]->price;
 		}
 		return p;
 	}
@@ -527,9 +526,9 @@ string ExePath() {
 		// create all producers:
 		for (int i = 0; i < material_count; ++i)
 		{
-			auto p = ani->supplies[i] = _products[i]->create_prod(a, false, 0, 50);
+			auto p = ani->sellers[i] = _products[i]->create_prod(a, false, 0, 50);
 			p->storage_capacity = species.type == ST_TYPECOLOR ? 10000 : 200;
-			auto q = ani->consumers[i] = _products[i]->create_prod(a, true, 0, 50);
+			auto q = ani->buyers[i] = _products[i]->create_prod(a, true, 0, 50);
 			q->storage_capacity = species.type == ST_TYPECOLOR ? 10000 : 200;
 			p->storage_pair = q;
 			q->storage_pair = p;
@@ -694,8 +693,8 @@ string ExePath() {
 		for (int i = 0; i < material_count; ++i)
 		{
 			auto& prod = this->get_prod(a, i);
-			p.supply[i] = prod.p_sup;
-			p.consumption[i] = prod.p_con;
+			p.sell[i] = prod.p_sell;
+			p.buy[i] = prod.p_buy;
 		}
 		return p;
 	}
@@ -716,8 +715,8 @@ string ExePath() {
 	{
 		for (size_t i = 0; i < _products.size(); ++i)
 		{
-			_products[i]->move_prod(ani->supplies[i], new_area);
-			_products[i]->move_prod(ani->consumers[i], new_area);
+			_products[i]->move_prod(ani->sellers[i], new_area);
+			_products[i]->move_prod(ani->buyers[i], new_area);
 		}
 		ani->area = new_area;
 	}
@@ -729,7 +728,7 @@ string ExePath() {
 	//	{
 	//		int prod_id = p.first;
 	//		double vol = p.second;
-	//		auto& producer = ani->supplies[prod_id];
+	//		auto& producer = ani->sellers[prod_id];
 	//		double d = producer->storage_capacity - producer->storage;
 	//		if (d == 0) return 0;
 	//		rate = std::min(rate, d / vol);
@@ -744,7 +743,7 @@ string ExePath() {
 	//	{
 	//		int prod_id = p.first;
 	//		double vol = p.second;
-	//		auto& producer = ani->consumers[prod_id];
+	//		auto& producer = ani->buyers[prod_id];
 	//		double d = producer->storage;
 	//		if (d == 0) return 0;
 	//		rate = std::min(rate, d / vol);
@@ -791,8 +790,8 @@ string ExePath() {
 	//	for (int i = 0; i < material_count; ++i)
 	//	{
 	//		auto& info = get_prod(a, i);
-	//		result.supply[i] = info.p_sup;
-	//		result.consumption[i] = info.p_con;
+	//		result.supply[i] = info.p_sell;
+	//		result.consumption[i] = info.p_buy;
 	//	}
 	//	return result;
 	//}

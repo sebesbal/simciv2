@@ -694,7 +694,7 @@ void AnimalView::set_animal(Animal* animal)
 
 	// po->setMargin(ui::Margin(5, 5, 5, 5));
 
-	for (auto* p : animal->consumers)
+	for (auto* p : animal->buyers)
 	{
 		//if (p->prod_id % 3 != 0) continue;
 		//if (p->volume == 0 && p->storage() == 0) continue;
@@ -705,7 +705,7 @@ void AnimalView::set_animal(Animal* animal)
 		n->setLayoutParameter(po);
 	}
 	bool first = true;
-	for (auto* p : animal->supplies)
+	for (auto* p : animal->sellers)
 	{
 		//if (p->prod_id % 3 != 0) continue;
 		//if (p->volume == 0 && p->storage() == 0) continue;

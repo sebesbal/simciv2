@@ -27,8 +27,8 @@ namespace simciv
 
 	struct Prices
 	{
-		MaterialVec supply;
-		MaterialVec consumption;
+		MaterialVec sell;
+		MaterialVec buy;
 	};
 
 	class ArticleVec : public std::vector < double >

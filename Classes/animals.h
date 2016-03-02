@@ -78,8 +78,8 @@ namespace simciv
 		Animal(Species& species);
 		Species& species;
 		//MaterialVec storage;
-		std::vector<Producer*> supplies;
-		std::vector<Producer*> consumers;
+		std::vector<Producer*> sellers;
+		std::vector<Producer*> buyers;
 		double money;
 		Area* area;
 		void update();

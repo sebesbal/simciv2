@@ -89,7 +89,7 @@ protected:
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
 	
 	void set_price_vol_mode(int i);
-	void set_sup_con_mode(int i);
+	void set_sup_buy_mode(int i);
 	std::map<Transport*, RouteAnimation*> transports;
 };
 

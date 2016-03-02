@@ -88,7 +88,7 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		//		double v = p.p;
 		//		min_v = std::min(min_v, v);
 		//		max_v = std::max(max_v, v);
-		//		double vol = p.v_con + p.v_sup;
+		//		double vol = p.v_buy + p.v_sell;
 		//		min_vol = std::min(min_vol, vol);
 		//		max_vol = std::max(max_vol, vol);
 		//	}
@@ -100,7 +100,7 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		//		auto& p = _model->get_prod(a, info.plant_id);
 		//		double v = p.p;
 		//		double r = d == 0 ? 0.5 : (v - min_v) / d;
-		//		double vol = p.v_con + p.v_sup;
+		//		double vol = p.v_buy + p.v_sell;
 		//		draw_rect(a->x, a->y, r, vol / d_vol);
 		//	}
 		//}
@@ -132,10 +132,10 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 			for (Area* a: _model->areas())
 			{
 				auto& p = _model->get_prod(a, info.plant_id);
-				double v = p.p_sup;
+				double v = p.p_sell;
 				min_v = std::min(min_v, v);
 				max_v = std::max(max_v, v);
-				double vol = p.v_sup;
+				double vol = p.v_sell;
 				min_vol = std::min(min_vol, vol);
 				max_vol = std::max(max_vol, vol);
 			}
@@ -145,9 +145,9 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 			for (Area* a: _model->areas())
 			{
 				auto& p = _model->get_prod(a, info.plant_id);
-				double v = p.p_sup;
+				double v = p.p_sell;
 				double r = d == 0 ? 0.5 : (v - min_v) / d;
-				double vol = p.v_sup;
+				double vol = p.v_sell;
 				draw_rect(a->x, a->y, r, vol / d_vol);
 			}
 		}
@@ -156,10 +156,10 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 			for (Area* a: _model->areas())
 			{
 				auto& p = _model->get_prod(a, info.plant_id);
-				double v = p.p_con;
+				double v = p.p_buy;
 				min_v = std::min(min_v, v);
 				max_v = std::max(max_v, v);
-				double vol = p.v_con;
+				double vol = p.v_buy;
 				min_vol = std::min(min_vol, vol);
 				max_vol = std::max(max_vol, vol);
 			}
@@ -169,9 +169,9 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 			for (Area* a: _model->areas())
 			{
 				auto& p = _model->get_prod(a, info.plant_id);
-				double v = p.p_con;
+				double v = p.p_buy;
 				double r = d == 0 ? 0.5 : (v - min_v) / d;
-				double vol = p.v_con;
+				double vol = p.v_buy;
 				draw_rect(a->x, a->y, r, vol / d_vol);
 			}
 		}
@@ -255,7 +255,7 @@ void RouteAnimation::set_route(int prod_id, Transport* transport, MapView* map)
 	if (sprite) return;
 
 	// auto it = route->roads.begin();
-	Area* a = transport->sup->area;
+	Area* a = transport->seller->area;
 	//Sprite* sprite = Sprite::create(get_animal_texture(ani->species.id));
 	sprite = Sprite::create(get_plant_texture(prod_id));
 	Rect r = map->get_rect(a->x, a->y);

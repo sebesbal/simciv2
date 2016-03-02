@@ -8,10 +8,10 @@ namespace simciv
 {
 	AreaProd::AreaProd(): 
 		p(-1),
-		p_con(max_price),
-		p_sup(0),
-		v_con(0),
-		v_sup(0),
+		p_buy(max_price),
+		p_sell(0),
+		v_buy(0),
+		v_sell(0),
 		v(0)
 	{
 
@@ -41,7 +41,7 @@ namespace simciv
 
 	void Producer::modify_storage(double demand_vol, double actual_vol)
 	{
-		if (is_consumer)
+		if (is_buyer)
 		{
 			set_storage(_storage - actual_vol);
 			volume += demand_vol;
@@ -89,7 +89,7 @@ namespace simciv
 	//			--> csökkentsük volumet. (abban bízunk hogy késõbb jobb áron tudunk eladni)
 	//	*/
 
-	//	//if (fix_price || is_consumer && demand_volume == 0) goto history;
+	//	//if (fix_price || is_buyer && demand_volume == 0) goto history;
 
 	//	double ideal_fullness = this->ideal_fullness < 0 ?
 	//		20 * demand_volume / storage_capacity
@@ -102,7 +102,7 @@ namespace simciv
 	//	double vol_d = 0.1;
 	//	double price_d = 0.1;
 
-	//	if (is_consumer)
+	//	if (is_buyer)
 	//	{
 	//		if (demand_volume == 0)
 	//		{
@@ -215,7 +215,7 @@ void Producer::update_price()
 {
 	double price_d = 1;
 
-	if (is_consumer)
+	if (is_buyer)
 	{
 		price += price_d * (volume - vol_out - 0.01 * _storage);
 		//volume = std::min(volume, free_capacity());
@@ -241,7 +241,7 @@ history:
 		{
 			double p = pow(this->price * storage_pair->price, 0.5);
 			const double a = 1.05;
-			if (is_consumer)
+			if (is_buyer)
 			{
 				this->price = p / a;
 				storage_pair->price = p * a;
@@ -272,8 +272,8 @@ history:
 		int n = world.areas().size();
 		_production->resize(n);
 		_new_production->resize(n);
-		_area_consumers.resize(n);
-		_area_supplies.resize(n);
+		_area_buyers.resize(n);
+		_area_sellers.resize(n);
 		// generate_resources();
 		//g = _world.create_g();
 	}
@@ -291,14 +291,14 @@ history:
 
 	Transport* ProductMap::get_transport(Producer* src, Producer* dst)
 	{
-		auto it = std::find_if(_transports.begin(), _transports.end(), [src, dst](const Transport* t) { return t->sup == src && t->dem == dst; });
+		auto it = std::find_if(_transports.begin(), _transports.end(), [src, dst](const Transport* t) { return t->seller == src && t->buyer == dst; });
 		if (it == _transports.end())
 		{
 			Transport* t = new Transport();
 			t->route = _world.create_route(src->area, dst->area);
 			t->cost = t->route->trans_price;
-			t->dem = dst;
-			t->sup = src;
+			t->buyer = dst;
+			t->seller = src;
 			t->profit = dst->price - src->price - t->cost;
 			_transports.push_back(t);
 		}
@@ -310,10 +310,10 @@ history:
 
 	void ProductMap::update_transports()
 	{
-		for (Producer* p: _supplies)
+		for (Producer* p: _sellers)
 		{
 			//if (p->volume == 0) continue;
-			for (Producer* q: _consumers)
+			for (Producer* q: _buyers)
 			{
 				//if (p->storage_pair == q) continue;
 				// if (q->volume == 0) continue;
@@ -324,14 +324,14 @@ history:
 
 	void ProductMap::update_trade()
 	{
-		for (Producer* p : _supplies)
+		for (Producer* p : _sellers)
 		{
 			p->vol_out = 0;
 			p->volume = std::max(0.0, p->volume);
 			p->free_volume = p->volume;
 			p->worst_profit = max_price;
 		}
-		for (Producer* p : _consumers)
+		for (Producer* p : _buyers)
 		{
 			p->vol_out = 0;
 			p->free_volume = p->volume;
@@ -340,7 +340,7 @@ history:
 
 		for (Transport* t : _transports)
 		{
-			t->profit = t->dem->price - t->sup->price - t->cost;
+			t->profit = t->buyer->price - t->seller->price - t->cost;
 			t->demand_volume = t->volume = 0;
 		}
 
@@ -351,35 +351,35 @@ history:
 		for (Transport* r : _transports)
 		{
 			if (r->profit < 0) break;
-			if (r->dem->money() <= 0) continue;
-			double& v_sup = r->sup->free_volume;
-			double& v_con = r->dem->free_volume;
-			double v = std::min(v_sup, v_con);
-			double u = std::max(v_sup, v_con);
+			if (r->buyer->money() <= 0) continue;
+			double& v_sell = r->seller->free_volume;
+			double& v_buy = r->buyer->free_volume;
+			double v = std::min(v_sell, v_buy);
+			double u = std::max(v_sell, v_buy);
 
-			r->sup->vol_out += r->dem->free_volume;
-			r->dem->vol_out += r->sup->free_volume;
+			r->seller->vol_out += r->buyer->free_volume;
+			r->buyer->vol_out += r->seller->free_volume;
 
 			r->demand_volume = u;
 			if (v > 0)
 			{
-				v_sup -= v;
-				v_con -= v;
+				v_sell -= v;
+				v_buy -= v;
 				r->volume = v;
 				r->active_time = _model.time;
-				auto& sup = r->sup->worst_profit;
-				sup = std::min(sup, r->profit);
-				auto& con = r->dem->worst_profit;
+				auto& seller = r->seller->worst_profit;
+				seller = std::min(seller, r->profit);
+				auto& con = r->buyer->worst_profit;
 				con = std::min(con, r->profit);
 			}
 		}
 
-		for (Producer* p : _supplies)
+		for (Producer* p : _sellers)
 		{
 			if (p->worst_profit == max_price) p->worst_profit = 0;
 			p->partner_price = p->price + p->worst_profit;
 		}
-		for (Producer* p : _consumers)
+		for (Producer* p : _buyers)
 		{
 			if (p->worst_profit == max_price) p->worst_profit = 0;
 			p->partner_price = std::max(0.0, p->price - p->worst_profit);
@@ -395,7 +395,7 @@ history:
 
 		for (Transport* route: _transports)
 		{
-			Area* a = route->sup->area;
+			Area* a = route->seller->area;
 			for (Road* r: route->route->roads)
 			{
 				Area* b = r->other(a);
@@ -427,7 +427,7 @@ history:
 		{
 			auto& p = get_new_prod(a);
 			double new_supply_price = 0; // the highest price in this area what can a supplier use (to sell the product).
-			auto& v = _area_consumers[a->index];
+			auto& v = _area_buyers[a->index];
 			if (v.size() > 0)
 			{
 				auto it = std::max_element(v.begin(), v.end(), [](Producer* a, Producer* b){ return a->partner_price < b->partner_price; });
@@ -438,12 +438,12 @@ history:
 			{
 				Area* b = r->other(a);
 				auto& bp = get_prod(b);
-				new_supply_price = std::max(new_supply_price, bp.p_sup - r->t_price);
+				new_supply_price = std::max(new_supply_price, bp.p_sell - r->t_price);
 			}
-			p.p_sup = new_supply_price;
+			p.p_sell = new_supply_price;
 
 			double new_cons_price = max_price; // the lowest price in this area what can a supplier use (to sell the product).
-			auto& u = _area_supplies[a->index];
+			auto& u = _area_sellers[a->index];
 			if (u.size() > 0)
 			{
 				auto it = std::min_element(u.begin(), u.end(), [](Producer* a, Producer* b){ return a->partner_price < b->partner_price; });
@@ -454,11 +454,11 @@ history:
 			{
 				Area* b = r->other(a);
 				auto& bp = get_prod(b);
-				new_cons_price = std::min(new_cons_price, bp.p_con + r->t_price);
+				new_cons_price = std::min(new_cons_price, bp.p_buy + r->t_price);
 			}
-			p.p_con = new_cons_price;
+			p.p_buy = new_cons_price;
 
-			p.p = (p.p_con + p.p_sup) / 2;
+			p.p = (p.p_buy + p.p_sell) / 2;
 		}
 
 		//*_production = *_new_production;
@@ -475,10 +475,10 @@ history:
 		for (Area* a : _world.areas())
 		{
 			auto& prod = get_new_prod(a);
-			prod.p_con = prod.best_sups.second ? prod.best_sups.second->price + prod.best_sups.first : max_price;
-			prod.p_sup = prod.best_cons.second ? prod.best_cons.second->price - prod.best_cons.first : 0;
+			prod.p_buy = prod.best_seller.second ? prod.best_seller.second->price + prod.best_seller.first : max_price;
+			prod.p_sell = prod.best_buyer.second ? prod.best_buyer.second->price - prod.best_buyer.first : 0;
 
-			prod.p = (prod.p_con + prod.p_sup) / 2;
+			prod.p = (prod.p_buy + prod.p_sell) / 2;
 		}
 
 		std::swap(_production, _new_production);
@@ -492,10 +492,10 @@ history:
 
 			typedef std::pair<double, Producer*> pair_t;
 
-			// find best supplies
+			// find best sellers
 			{
 				std::vector<pair_t> v;
-				for (auto p : _supplies)
+				for (auto p : _sellers)
 				{
 					double dist = _world.distance(a, p->area);
 					double price = p->price + dist;
@@ -504,20 +504,20 @@ history:
 
 				if (v.size() == 0)
 				{
-					prod.best_sups.first = 0;
-					prod.best_sups.second = NULL;
+					prod.best_seller.first = 0;
+					prod.best_seller.second = NULL;
 				}
 				else
 				{
-					prod.best_sups = *std::min_element(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
-					prod.best_sups.first -= prod.best_sups.second->price;
+					prod.best_seller = *std::min_element(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
+					prod.best_seller.first -= prod.best_seller.second->price;
 				}
 			}
 
-			// find best consumers
+			// find best buyers
 			{
 				std::vector<pair_t> v;
-				for (auto p : _consumers)
+				for (auto p : _buyers)
 				{
 					double dist = _world.distance(a, p->area);
 					double price = p->price - dist;
@@ -526,13 +526,13 @@ history:
 
 				if (v.size() == 0)
 				{
-					prod.best_cons.first = 0;
-					prod.best_cons.second = NULL;
+					prod.best_buyer.first = 0;
+					prod.best_buyer.second = NULL;
 				}
 				else
 				{
-					prod.best_cons = *std::max_element(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
-					prod.best_cons.first = prod.best_sups.second->price - prod.best_cons.first;
+					prod.best_buyer = *std::max_element(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
+					prod.best_buyer.first = prod.best_seller.second->price - prod.best_buyer.first;
 				}
 			}
 		}
@@ -541,11 +541,11 @@ history:
 	void ProductMap::update_producer_prices()
 	{
 		// update prices in the producers
-		for (Producer* p : _supplies)
+		for (Producer* p : _sellers)
 		{
 			p->update_price();
 		}
-		for (Producer* p : _consumers)
+		for (Producer* p : _buyers)
 		{
 			p->update_price();
 			//p->synchronize_price();
@@ -554,7 +554,7 @@ history:
 
 	void ProductMap::before_rules()
 	{
-		for (Producer* p : _supplies)
+		for (Producer* p : _sellers)
 		{
 			p->volume = 0;
 			
@@ -565,7 +565,7 @@ history:
 			p->storage_last = p->_storage;
 			p->_d_storage = 0;
 		}
-		for (Producer* p : _consumers)
+		for (Producer* p : _buyers)
 		{
 			p->volume = 0;
 			p->storage_last = p->_storage;
@@ -579,8 +579,8 @@ history:
 			double& vol = t->volume;
 			if (vol == 0 && t->demand_volume == 0) continue;
 
-			Producer* a = t->sup;
-			Producer* b = t->dem;
+			Producer* a = t->seller;
+			Producer* b = t->buyer;
 			
 			vol = std::min(a->storage(), vol);
 			vol = std::min(b->free_capacity(), vol);
@@ -599,11 +599,11 @@ history:
 			b_ani->income(- vol * b->price);
 		}
 
-		for (Producer* p : _supplies)
+		for (Producer* p : _sellers)
 		{
 			p->update_storage();
 		}
-		for (Producer* p : _consumers)
+		for (Producer* p : _buyers)
 		{
 			p->update_storage();
 		}
@@ -614,24 +614,24 @@ history:
 		Producer* p = new Producer();
 		p->prod_id = prod_id;
 		p->price = price;
-		p->is_consumer = consumer;
+		p->is_buyer = consumer;
 		p->volume = volume;
 		p->area = area;
 
-		auto& v = p->is_consumer ? _consumers : _supplies;
+		auto& v = p->is_buyer ? _buyers : _sellers;
 		AreaProd& a = get_prod(area);
 		auto it = std::find_if(v.begin(), v.end(), [area](Producer* p) { return p->area == area; });
 
-		if (p->is_consumer)
+		if (p->is_buyer)
 		{
-			_consumers.push_back(p);
-			_area_consumers[area->index].push_back(p);
+			_buyers.push_back(p);
+			_area_buyers[area->index].push_back(p);
 		}
 		else
 		{
 			// p->volume *= a.resource;
-			_supplies.push_back(p);
-			_area_supplies[area->index].push_back(p);
+			_sellers.push_back(p);
+			_area_sellers[area->index].push_back(p);
 		}
 
 		return p;
@@ -641,7 +641,7 @@ history:
 	{
 		bool consumer = volume < 0;
 		volume = abs(volume);
-		auto& v = consumer ? _consumers : _supplies;
+		auto& v = consumer ? _buyers : _sellers;
 		AreaProd& a = get_prod(area);
 		auto it = std::find_if(v.begin(), v.end(), [area](Producer* p) { return p->area == area; });
 
@@ -661,11 +661,11 @@ history:
 	{
 		int id = prod->area->index;
 
-		auto& u = prod->is_consumer ? _consumers : _supplies;
+		auto& u = prod->is_buyer ? _buyers : _sellers;
 		auto it = std::find(u.begin(), u.end(), prod);
 		u.erase(it);
 
-		auto& v = prod->is_consumer ? _area_consumers[id] : _area_supplies[id];
+		auto& v = prod->is_buyer ? _area_buyers[id] : _area_sellers[id];
 		it = std::find(v.begin(), v.end(), prod);
 		v.erase(it);
 
@@ -677,7 +677,7 @@ history:
 		assert(unique_mode);
 		bool consumer = volume < 0;
 		volume = abs(volume);
-		auto& v = consumer ? _consumers : _supplies;
+		auto& v = consumer ? _buyers : _sellers;
 		AreaProd& a = get_prod(area);
 		auto it = std::find_if(v.begin(), v.end(), [area](Producer* p) { return p->area == area; });
 
@@ -699,12 +699,12 @@ history:
 	void ProductMap::move_prod(Producer* prod, Area* new_area)
 	{
 		int id = prod->area->index;
-		auto& v = prod->is_consumer ? _area_consumers[id] : _area_supplies[id];
+		auto& v = prod->is_buyer ? _area_buyers[id] : _area_sellers[id];
 		auto it = std::find(v.begin(), v.end(), prod);
 		v.erase(it);
 
 		id = new_area->index;
-		auto& u = prod->is_consumer ? _area_consumers[id] : _area_supplies[id];
+		auto& u = prod->is_buyer ? _area_buyers[id] : _area_sellers[id];
 		u.push_back(prod);
 	}
 }
