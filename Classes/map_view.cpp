@@ -99,6 +99,28 @@ Area* MapView::get_area(Vec2 p)
 	return _model->get_area(x, y);
 }
 
+void MapView::draw_areas(std::vector<double>& v)
+{
+	auto p = std::minmax_element(v.begin(), v.end());
+	double min = *p.first, max = *p.second;
+	double d = max - min;
+	int i = 0;
+	if (d == 0)
+	{
+		for (Area* a : _model->areas())
+		{
+			draw_rect(a->x, a->y, min, 1);
+		}
+	}
+	else
+	{
+		for (Area* a : _model->areas())
+		{
+			draw_rect(a->x, a->y, (v[i++] - min) / d, 1);
+		}
+	}
+}
+
 void MapView::onDraw(const Mat4 &transform, uint32_t flags)
 {
 

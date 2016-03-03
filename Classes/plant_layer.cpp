@@ -32,6 +32,37 @@ bool is_map_point(cocos2d::Vec2& p)
 	return p.x > 370 || p.y > 222;
 }
 
+#define DRAW_AREAS(area, exp) \
+{ \
+	double min = std::numeric_limits<double>::max(); \
+	double max = std::numeric_limits<double>::min(); \
+	vector<double> u(_model->areas().size()); \
+	int i = 0; \
+	for (Area* area : _model->areas()) \
+	{ \
+		double v = exp; \
+		min = std::min(min, v); \
+		max = std::max(max, v); \
+		u[i++] = v; \
+	} \
+	double d = max - min; \
+	i = 0; \
+	if (d == 0) \
+	{ \
+		for (Area* a : _model->areas()) \
+		{ \
+			draw_rect(a->x, a->y, min, 1); \
+		} \
+	} \
+	else \
+	{ \
+		for (Area* a : _model->areas()) \
+		{ \
+			draw_rect(a->x, a->y, (u[i++] - min) / d, 1); \
+		} \
+	} \
+} \
+
 void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 {
 	// calculate roads
@@ -43,17 +74,7 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
     
     //draw
     CHECK_GL_ERROR_DEBUG();
-    
-    // draw a simple line
-    // The default state is:
-    // Line Width: 1
-    // color: 255,255,255,255 (white, non-transparent)
-    // Anti-Aliased
-    //  glEnable(GL_LINE_SMOOTH);
-    //DrawPrimitives::drawLine( VisibleRect::leftBottom(), VisibleRect::rightTop() );
 	auto b = _map->getBoundingBox();
-	//DrawPrimitives::drawLine( Vec2(b.getMinX(), b.getMinY()), Vec2(b.getMaxX(), b.getMaxY()));
-	//DrawPrimitives::drawLine( Vec2(b.getMinX(), b.getMaxY()), Vec2(b.getMaxX(), b.getMinY()));
 
 	if (info.show_grid)
 	{
@@ -70,8 +91,6 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		}
 	}
 
-	// draw_rect(5, 5, 1);
-
 	double min_v = 1000;
 	double max_v = 0;
 	double min_vol = 1000;
@@ -79,53 +98,10 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 
 	if (info.price_vol_mode == 0)
 	{
-		//// booth
-		//if (info.produce_consume_mode == 2)
-		//{
-		//	for (Area* a: _model->areas())
-		//	{
-		//		auto& p = _model->get_prod(a, info.plant_id);
-		//		double v = p.p;
-		//		min_v = std::min(min_v, v);
-		//		max_v = std::max(max_v, v);
-		//		double vol = p.v_buy + p.v_sell;
-		//		min_vol = std::min(min_vol, vol);
-		//		max_vol = std::max(max_vol, vol);
-		//	}
-		//	double d = max_v - min_v;
-		//	double d_vol = max_vol - min_vol;
-
-		//	for (Area* a: _model->areas())
-		//	{
-		//		auto& p = _model->get_prod(a, info.plant_id);
-		//		double v = p.p;
-		//		double r = d == 0 ? 0.5 : (v - min_v) / d;
-		//		double vol = p.v_buy + p.v_sell;
-		//		draw_rect(a->x, a->y, r, vol / d_vol);
-		//	}
-		//}
-
-		// profit
 		if (info.produce_consume_mode == 0 && info.species)
 		{
-			vector<double> profit(_model->areas().size());
-			int i = 0;
-			for (Area* a : _model->areas())
-			{
-				double v = ((AnimalWorld*)_model)->get_profit(info.species, a);
-				min_v = std::min(min_v, v);
-				max_v = std::max(max_v, v);
-				profit[i++] = v;
-			}
-			double d = max_v - min_v;
-
-			i = 0;
-			for (Area* a : _model->areas())
-			{
-				double v = profit[i++];
-				double r = d == 0 ? 0.5 : (v - min_v) / d;
-				draw_rect(a->x, a->y, r, 1);
-			}
+			// profit
+			DRAW_AREAS(area, ((AnimalWorld*)_model)->get_profit(info.species, area));
 		}
 		else if (info.produce_consume_mode == 0)
 		{

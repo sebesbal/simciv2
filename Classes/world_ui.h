@@ -47,6 +47,7 @@ public:
     Rect get_rect(int x, int y);
 	Area* get_area(Vec2 p);
 	int cell_size() { return cs; }
+	void draw_areas(std::vector<double>& v);
 protected:
 	static const int cs = 33; // cell size
 	Size _table;
