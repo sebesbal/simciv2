@@ -98,7 +98,7 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 
 	if (info.price_vol_mode == 0)
 	{
-		if (info.produce_consume_mode == 0 && info.species)
+		if (info.produce_consume_mode == 2 && info.species)
 		{
 			// profit
 			DRAW_AREAS(area, ((AnimalWorld*)_model)->get_profit(info.species, area));
@@ -111,7 +111,7 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 				double v = p.p_sell;
 				min_v = std::min(min_v, v);
 				max_v = std::max(max_v, v);
-				double vol = p.v_sell;
+				double vol = p.p_buy;
 				min_vol = std::min(min_vol, vol);
 				max_vol = std::max(max_vol, vol);
 			}
@@ -123,8 +123,10 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 				auto& p = _model->get_prod(a, info.plant_id);
 				double v = p.p_sell;
 				double r = d == 0 ? 0.5 : (v - min_v) / d;
-				double vol = p.v_sell;
-				draw_rect(a->x, a->y, r, vol / d_vol);
+				double vol = p.p_buy;
+				// draw_rect(a->x, a->y, r, vol / d_vol);
+				//draw_triangles(a->x, a->y, r, vol / d_vol);
+				draw_circles(a->x, a->y, r, vol / d_vol);
 			}
 		}
 		else if (info.produce_consume_mode == 1)

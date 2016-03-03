@@ -43,6 +43,8 @@ public:
 
 	void draw_rect(int x, int y, double rate, double alpha);
 	void draw_rect_green(int x, int y, double rate, double alpha);
+	void draw_triangles(int x, int y, double a, double b);
+	void draw_circles(int x, int y, double a, double b);
 	void draw_vec(Vec2 a, Vec2 v);
     Rect get_rect(int x, int y);
 	Area* get_area(Vec2 p);
