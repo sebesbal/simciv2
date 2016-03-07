@@ -57,24 +57,42 @@ protected:
 	WorldModel* _model;
 };
 
+enum UIMapMode
+{
+	MM_NONE,
+	MM_PRICE_SELL,
+	MM_PRICE_BUY,
+	MM_PROFIT,
+	MM_RESOURCES,
+	MM_PROFIT_RES
+};
+
+//struct UIMapData
+//{
+//	UIMapMode mode;
+//	Species* species;
+//	Plant* plant;
+//};
+
 struct UIStateData
 {
 	UIStateData() : 
 		species(NULL),
-		plant_id(0),
-		price_vol_mode(0),
-		produce_consume_mode(2),
+		plant(NULL),
+		mode(MM_NONE),
+		// price_vol_mode(0),
+		// produce_consume_mode(2),
 		show_grid(false),
 		show_transport(true),
 		show_plants(true)
 	{
 
 	}
+	UIMapMode mode;
 	Species* species;
-	//int animal_id;
-	int plant_id;
-	int price_vol_mode;
-	int produce_consume_mode;
+	Plant* plant;
+	// int price_vol_mode;
+	// int produce_consume_mode;
 	bool show_grid;
 	bool show_transport;
 	bool show_plants;

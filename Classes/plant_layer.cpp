@@ -66,7 +66,7 @@ bool is_map_point(cocos2d::Vec2& p)
 void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 {
 	// calculate roads
-	_model->products()[info.plant_id]->routes_to_areas(info.plant_id);
+	_model->products()[info.plant->id]->routes_to_areas(info.plant->id);
 
     Director* director = Director::getInstance();
     director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
@@ -96,86 +96,88 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	double min_vol = 1000;
 	double max_vol = 0;
 
-	if (info.price_vol_mode == 0)
+	switch (info.mode)
 	{
-		if (info.produce_consume_mode == 2 && info.species)
-		{
-			// profit
-			DRAW_AREAS(area, ((AnimalWorld*)_model)->get_profit(info.species, area));
-		}
-		else if (info.produce_consume_mode == 0)
-		{
-			for (Area* a: _model->areas())
-			{
-				auto& p = _model->get_prod(a, info.plant_id);
-				double v = p.p_sell;
-				min_v = std::min(min_v, v);
-				max_v = std::max(max_v, v);
-				double vol = p.p_buy;
-				min_vol = std::min(min_vol, vol);
-				max_vol = std::max(max_vol, vol);
-			}
-			double d = max_v - min_v;
-			double d_vol = max_vol - min_vol;
-
-			for (Area* a: _model->areas())
-			{
-				auto& p = _model->get_prod(a, info.plant_id);
-				double v = p.p_sell;
-				double r = d == 0 ? 0.5 : (v - min_v) / d;
-				double vol = p.p_buy;
-				// draw_rect(a->x, a->y, r, vol / d_vol);
-				//draw_triangles(a->x, a->y, r, vol / d_vol);
-				draw_circles(a->x, a->y, r, vol / d_vol);
-			}
-		}
-		else if (info.produce_consume_mode == 1)
-		{
-			for (Area* a: _model->areas())
-			{
-				auto& p = _model->get_prod(a, info.plant_id);
-				double v = p.p_buy;
-				min_v = std::min(min_v, v);
-				max_v = std::max(max_v, v);
-				double vol = p.v_buy;
-				min_vol = std::min(min_vol, vol);
-				max_vol = std::max(max_vol, vol);
-			}
-			double d = max_v - min_v;
-			double d_vol = max_vol - min_vol;
-
-			for (Area* a: _model->areas())
-			{
-				auto& p = _model->get_prod(a, info.plant_id);
-				double v = p.p_buy;
-				double r = d == 0 ? 0.5 : (v - min_v) / d;
-				double vol = p.v_buy;
-				draw_rect(a->x, a->y, r, vol / d_vol);
-			}
-		}
-	}
-	else if (info.price_vol_mode == 2)
-	{
-		for (Area* a: _model->areas())
-		{
-			auto& p = _model->get_prod(a, info.plant_id);
-			draw_rect_green(a->x, a->y, p.resource, 1);
-		}
+	case MM_PRICE_SELL:
+		DRAW_AREAS(area, _model->get_prod(area, info.plant->id).p_sell);
+		break;
+	case MM_PRICE_BUY:
+		DRAW_AREAS(area, _model->get_prod(area, info.plant->id).p_buy);
+		break;
+	case MM_RESOURCES:
+		DRAW_AREAS(area, _model->get_prod(area, info.plant->id).resource);
+		break;
+	case MM_PROFIT:
+		if (info.species) DRAW_AREAS(area, ((AnimalWorld*)_model)->get_profit(info.species, area));
+		break;
+	default:
+		break;
 	}
 
-	//if (info.show_transport)
+	//if (info.price_vol_mode == 0)
 	//{
-	//	//DrawPrimitives::setDrawColor4F(0, 0, 1, 1);
-	//	glLineWidth(3);
-	//	double scale = 5; // 0.1;
+	//	if (info.produce_consume_mode == 2 && info.species)
+	//	{
+	//		// profit
+	//		
+	//	}
+	//	else if (info.produce_consume_mode == 0)
+	//	{
+	//		for (Area* a: _model->areas())
+	//		{
+	//			auto& p = _model->get_prod(a, info.plant->id);
+	//			double v = p.p_sell;
+	//			min_v = std::min(min_v, v);
+	//			max_v = std::max(max_v, v);
+	//			double vol = p.p_buy;
+	//			min_vol = std::min(min_vol, vol);
+	//			max_vol = std::max(max_vol, vol);
+	//		}
+	//		double d = max_v - min_v;
+	//		double d_vol = max_vol - min_vol;
 
+	//		for (Area* a: _model->areas())
+	//		{
+	//			auto& p = _model->get_prod(a, info.plant->id);
+	//			double v = p.p_sell;
+	//			double r = d == 0 ? 0.5 : (v - min_v) / d;
+	//			double vol = p.p_buy;
+	//			draw_rect(a->x, a->y, r, vol / d_vol);
+	//			//draw_triangles(a->x, a->y, r, vol / d_vol);
+	//			//draw_circles(a->x, a->y, r, vol / d_vol);
+	//		}
+	//	}
+	//	else if (info.produce_consume_mode == 1)
+	//	{
+	//		for (Area* a: _model->areas())
+	//		{
+	//			auto& p = _model->get_prod(a, info.plant->id);
+	//			double v = p.p_buy;
+	//			min_v = std::min(min_v, v);
+	//			max_v = std::max(max_v, v);
+	//			double vol = p.v_buy;
+	//			min_vol = std::min(min_vol, vol);
+	//			max_vol = std::max(max_vol, vol);
+	//		}
+	//		double d = max_v - min_v;
+	//		double d_vol = max_vol - min_vol;
+
+	//		for (Area* a: _model->areas())
+	//		{
+	//			auto& p = _model->get_prod(a, info.plant->id);
+	//			double v = p.p_buy;
+	//			double r = d == 0 ? 0.5 : (v - min_v) / d;
+	//			double vol = p.v_buy;
+	//			draw_rect(a->x, a->y, r, vol / d_vol);
+	//		}
+	//	}
+	//}
+	//else if (info.price_vol_mode == 2)
+	//{
 	//	for (Area* a: _model->areas())
 	//	{
-	//		double x, y;
-	//		a->get_trans(info.plant_id, x, y);
-	//		Rect r = get_rect(a->x, a->y);
-	//		Vec2 p = Vec2(r.getMidX(), r.getMidY());
-	//		DrawPrimitives::drawLine(p, Vec2(p.x + scale * x, p.y + scale * y));
+	//		auto& p = _model->get_prod(a, info.plant->id);
+	//		draw_rect_green(a->x, a->y, p.resource, 1);
 	//	}
 	//}
 

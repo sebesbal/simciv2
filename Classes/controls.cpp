@@ -161,6 +161,10 @@ void RadioBox::setSelected(int i)
 		((CheckBox*)item->getChildren().at(0))->setSelected(i == l++);
 	}
 	*(this->data) = i;
+	if (changed)
+	{
+		changed(i);
+	}
 }
 
 RadioBox* RadioBox::create(int* data, std::vector<std::string> labels, int hh, int marginy)

@@ -6,7 +6,8 @@
 #include "animals.h"
 #include "ui/UIImageView.h"
 #include "ui/UILayout.h"
-#include <iomanip> 
+#include <iomanip>
+#include <functional>
 
 USING_NS_CC;
 
@@ -37,6 +38,7 @@ namespace simciv
 		int marginy;
 		std::vector<ui::Widget*> items;
 		int* data;
+		std::function<void(int)> changed;
 	};
 
 	/// Show prices, profits, volumens etc.

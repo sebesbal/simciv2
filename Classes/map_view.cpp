@@ -80,7 +80,7 @@ void MapView::draw_rect(int x, int y, double rate, double alpha)
 
 void MapView::draw_triangles(int x, int y, double a, double b)
 {
-	Rect r = get_rect(x, y);
+	Rect r = get_rect(x, y); 
 	Vec2 v[3];
 	v[0] = Vec2(r.getMinX(), r.getMinY());
 	v[1] = Vec2(r.getMaxX(), r.getMinY());

@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<simciv>
+  <plant id="0" image="plants\\Tomato-icon.png" />
+  <plant id="1" image="plants\\Onion-icon.png" />
+  <plant id="2" image="plants\\Pepper-icon.png" />
+  <species id="0" image="plants\\Tomato-icon.png">
+    <eat>
+      <in plant="0" vol="0.5" />
+    </eat>
+    <eat>
+      <in plant="1" vol="0.25" />
+    </eat>
+    <eat>
+      <in plant="2" vol="0.125" />
+    </eat>
+    <produce>
+      <out plant="0" vol="1" />
+    </produce>
+  </species>
+  <species id="1" image="plants\\Onion-icon.png">
+    <eat>
+      <in plant="0" vol="0.5" />
+    </eat>
+    <eat>
+      <in plant="1" vol="0.25" />
+    </eat>
+    <eat>
+      <in plant="2" vol="0.125" />
+    </eat>
+    <produce>
+      <in plant="0" vol="1" />
+      <out plant="1" vol="1" />
+    </produce>
+  </species>
+  <species id="2" image="plants\\Pepper-icon.png">
+    <eat>
+      <in plant="0" vol="0.5" />
+    </eat>
+    <eat>
+      <in plant="1" vol="0.25" />
+    </eat>
+    <eat>
+      <in plant="2" vol="0.125" />
+    </eat>
+    <produce>
+      <in plant="1" vol="1" />
+      <out plant="2" vol="1" />
+    </produce>
+  </species>
+</simciv>

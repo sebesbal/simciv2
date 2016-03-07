@@ -189,7 +189,7 @@ bool WorldUI::onTouchBegan(Touch* touch, Event  *event)
 		_species_view->set_species(s);
 		_species_view->setVisible(true);
 		this->info.species = s;
-		info.plant_id = s->id; //s->color + s->level * level_count;
+		info.plant = _model.get_plants()[s->id]; //s->color + s->level * level_count;
 		set_state(UIS_ANIMAL);
 	}
 	else
@@ -416,7 +416,7 @@ RadioMenu* WorldUI::create_plants_browser()
 
 	result->set_selected_btn(0);
 	result->set_on_changed([this](MenuButton* btn) {
-		info.plant_id = btn->getTag();
+		info.plant->id = btn->getTag();
 		set_state(_state);
 	});
 	return result;
@@ -448,19 +448,36 @@ cocos2d::Node* WorldUI::create_layers_panel()
 
 	// ==============================================================================================
 	// PRICE - VOL - RES
-	info.price_vol_mode = 0;
-	defvec(vec1, "Price", "Volume", "Res.")
-	auto rb = RadioBox::create(&info.price_vol_mode, vec1, hh, marginy);
+	info.mode = MM_PRICE_SELL;
+	static int dummy;
+	defvec(vec1, "Sell", "Buy", "Res.")
+	auto rb = RadioBox::create(&dummy, vec1, hh, marginy);
 	rb->setLayoutParameter(p);
+	rb->changed = [this](int id) {
+		switch (id)
+		{
+		case 0:
+			info.mode = MM_PRICE_SELL;
+			break;
+		case 1:
+			info.mode = MM_PRICE_BUY;
+			break;
+		case 2:
+			info.mode = MM_RESOURCES;
+			break;
+		default:
+			break;
+		}
+	};
 	left_menu->addChild(rb);
 
-	// ==============================================================================================
-	// SUPPLY - CONSUMPTION
-	info.produce_consume_mode = 2;
-	defvec(vec2, "Supply", "Cons.", "Both")
-	rb = RadioBox::create(&info.produce_consume_mode, vec2, hh, marginy);
-	rb->setLayoutParameter(p);
-	left_menu->addChild(rb);
+	//// ==============================================================================================
+	//// SUPPLY - CONSUMPTION
+	//info.mode = 2;
+	//defvec(vec2, "Supply", "Cons.", "Both")
+	//rb = RadioBox::create(&info.produce_consume_mode, vec2, hh, marginy);
+	//rb->setLayoutParameter(p);
+	//left_menu->addChild(rb);
 
 	// ==============================================================================================
 	// BACKGROUND
@@ -480,7 +497,7 @@ cocos2d::Node* WorldUI::create_layers_panel()
 	left_menu->addChild(cb_transport);
 
 	info.show_grid = false;
-	info.plant_id = 0;
+	info.plant = NULL;
 	// info.animal_id = 0;
 
 	return left_menu;
@@ -514,7 +531,7 @@ void WorldUI::set_state(UIState state)
 	_species_view->setVisible(animals);
 	_plants_browser->setVisible(plants);
 	_layers_panel->setVisible(plants);
-	_plant_layer->setVisible(info.plant_id > -1);
+	_plant_layer->setVisible(info.plant);
 }
 
 }

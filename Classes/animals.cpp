@@ -491,7 +491,7 @@ string ExePath() {
 	void AnimalWorld::generate_species()
 	{
 		CCLOG("ExePath() %s", ExePath());
-		load_from_file("res\\mod1.xml");
+		load_from_file("res\\mod2.xml");
 		//load_from_file("C:\\dev\\simciv2\\proj.win32\\Debug.win32\\res\\mod1.xml");
 	}
 
