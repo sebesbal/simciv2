@@ -175,7 +175,8 @@ protected:
 	AnimalView* _animal_view;
 	PlantMapLayer* _plant_layer;
 	AnimalMapLayer* _animal_layer;
-	Node* _layers_panel;
+	ui::VBox* _animal_layers_panel;
+	ui::VBox* _plant_layers_panel;
 	ui::HBox* _play_panel;
 	void tick(float f);
 	void load_from_tmx(std::string tmx);
@@ -186,7 +187,8 @@ protected:
 	void create_play_panel();
 	RadioMenu* create_species_browser();
 	RadioMenu* create_plants_browser();
-	Node* create_layers_panel();
+	void create_animal_layers_panel();
+	void create_plant_layers_panel();
 	virtual void setContentSize(const Size & var) override;
 	void update_panels(bool animal, bool plants);
 	void set_state(UIState state);

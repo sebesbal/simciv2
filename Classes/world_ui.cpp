@@ -75,9 +75,8 @@ WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_s
 	//_species_view->set_species(s);
 	_species_view->set_species(_model.get_species().at(0));
 
-	_layers_panel = create_layers_panel();
-	_layers_panel->setAnchorPoint(Vec2(1, 1));
-	this->addChild(_layers_panel);
+	create_plant_layers_panel();
+	create_animal_layers_panel();
 
 	_animal_view = AnimalView::create();
 	_animal_view->setAnchorPoint(Vec2(1, 1));
@@ -422,7 +421,56 @@ RadioMenu* WorldUI::create_plants_browser()
 	return result;
 }
 
-cocos2d::Node* WorldUI::create_layers_panel()
+void WorldUI::create_plant_layers_panel()
+{
+	auto s = Size(20, 20);
+	LinearLayoutParameter* p = LinearLayoutParameter::create();
+	p->setGravity(LinearLayoutParameter::LinearGravity::TOP);
+	p->setMargin(Margin(2, 2, 2, 2));
+	LinearLayoutParameter* q = LinearLayoutParameter::create();
+	q->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
+
+	_plant_layers_panel = VBox::create();
+	_plant_layers_panel->setContentSize(Size(300, 300));
+	_plant_layers_panel->setBackGroundColor(def_bck_color3B);
+	_plant_layers_panel->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+
+	p = LinearLayoutParameter::create();
+	p->setMargin(Margin(10, 5, 2, 5));
+	p->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
+
+	int hh = 30;
+	int marginy = 0;
+
+	// ==============================================================================================
+	// PRICE - VOL - RES
+	info.mode = MM_PRICE_SELL;
+	static int dummy;
+	defvec(vec1, "Sell", "Buy", "Res.")
+		auto rb = RadioBox::create(&dummy, vec1, hh, marginy);
+	rb->setLayoutParameter(p);
+	rb->changed = [this](int id) {
+		switch (id)
+		{
+		case 0:
+			info.mode = MM_PRICE_SELL;
+			break;
+		case 1:
+			info.mode = MM_PRICE_BUY;
+			break;
+		case 2:
+			info.mode = MM_RESOURCES;
+			break;
+		default:
+			break;
+		}
+	};
+	_plant_layers_panel->addChild(rb);
+	_plant_layers_panel->setAnchorPoint(Vec2(1, 1));
+	this->addChild(_plant_layers_panel);
+}
+
+void WorldUI::create_animal_layers_panel()
 {
 	auto s = Size(20, 20);
 	LinearLayoutParameter* p = LinearLayoutParameter::create();
@@ -434,10 +482,10 @@ cocos2d::Node* WorldUI::create_layers_panel()
 
 	// left menu
 	// auto 
-	auto left_menu = VBox::create();
-	left_menu->setContentSize(Size(300, 300));
-	left_menu->setBackGroundColor(def_bck_color3B);
-	left_menu->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+	_animal_layers_panel = VBox::create();
+	_animal_layers_panel->setContentSize(Size(300, 300));
+	_animal_layers_panel->setBackGroundColor(def_bck_color3B);
+	_animal_layers_panel->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
 
 	p = LinearLayoutParameter::create();
 	p->setMargin(Margin(10, 5, 2, 5));
@@ -469,38 +517,9 @@ cocos2d::Node* WorldUI::create_layers_panel()
 			break;
 		}
 	};
-	left_menu->addChild(rb);
-
-	//// ==============================================================================================
-	//// SUPPLY - CONSUMPTION
-	//info.mode = 2;
-	//defvec(vec2, "Supply", "Cons.", "Both")
-	//rb = RadioBox::create(&info.produce_consume_mode, vec2, hh, marginy);
-	//rb->setLayoutParameter(p);
-	//left_menu->addChild(rb);
-
-	// ==============================================================================================
-	// BACKGROUND
-	auto cb_bck = labelled_cb("Background", false, [this](Ref* pSender, CheckBox::EventType type) {
-		_map->setVisible(type == CheckBox::EventType::SELECTED);
-	});
-	cb_bck->setLayoutParameter(p);
-	left_menu->addChild(cb_bck);
-
-	// ==============================================================================================--
-	// TRANSPORT
-	info.show_transport = true;
-	auto cb_transport = labelled_cb("Routes", info.show_transport, [this](Ref* pSender, CheckBox::EventType type) {
-		info.show_transport = !info.show_transport;
-	});
-	cb_transport->setLayoutParameter(p);
-	left_menu->addChild(cb_transport);
-
-	info.show_grid = false;
-	info.plant = NULL;
-	// info.animal_id = 0;
-
-	return left_menu;
+	_animal_layers_panel->addChild(rb);
+	_animal_layers_panel->setAnchorPoint(Vec2(1, 1));
+	this->addChild(_animal_layers_panel);
 }
 
 void WorldUI::setContentSize(const Size & var)
@@ -516,7 +535,8 @@ void WorldUI::setContentSize(const Size & var)
 	_species_browser->setPosition(Vec2(m + 64 + 10, h - m));
 	_plants_browser->setPosition(Vec2(m + 64 + 10, h - m));
 	_species_view->setPosition(Vec2(var.width, h));
-	_layers_panel->setPosition(Vec2(var.width, h));
+	_plant_layers_panel->setPosition(Vec2(var.width, h));
+	_animal_layers_panel->setPosition(Vec2(var.width, h));
 	auto r = _species_view->getBoundingBox();
 	_animal_view->setPosition(Vec2(r.getMaxX(), r.getMinY()));
 	_play_panel->setPosition(Vec2(m, m));
@@ -530,7 +550,8 @@ void WorldUI::set_state(UIState state)
 	_species_browser->setVisible(animals);
 	_species_view->setVisible(animals);
 	_plants_browser->setVisible(plants);
-	_layers_panel->setVisible(plants);
+	_plant_layers_panel->setVisible(plants);
+	_animal_layers_panel->setVisible(animals);
 	_plant_layer->setVisible(info.plant);
 }
 

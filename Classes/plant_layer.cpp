@@ -240,7 +240,8 @@ void RouteAnimation::set_route(int prod_id, Transport* transport, MapView* map)
 	sprite = Sprite::create(get_plant_texture(prod_id));
 	Rect r = map->get_rect(a->x, a->y);
 	//sprite->setPosition(r.getMidX(), r.getMidY());
-	sprite->setScale(0.04f);
+	//sprite->setScale(0.04f);
+	sprite->setScale(0.1f);
 	map->addChild(sprite);
 
 	int cs = map->cell_size();
