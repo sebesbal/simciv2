@@ -39,29 +39,61 @@ bool is_map_point(cocos2d::Vec2& p)
 	vector<double> u(_model->areas().size()); \
 	int i = 0; \
 	for (Area* area : _model->areas()) \
-	{ \
+		{ \
 		double v = exp; \
 		min = std::min(min, v); \
 		max = std::max(max, v); \
 		u[i++] = v; \
-	} \
+		} \
 	double d = max - min; \
 	i = 0; \
 	if (d == 0) \
-	{ \
-		for (Area* a : _model->areas()) \
 		{ \
+		for (Area* a : _model->areas()) \
+				{ \
 			draw_rect(a->x, a->y, min, 1); \
+				} \
 		} \
-	} \
-	else \
+		else \
 	{ \
 		for (Area* a : _model->areas()) \
-		{ \
+				{ \
 			draw_rect(a->x, a->y, (u[i++] - min) / d, 1); \
-		} \
+				} \
 	} \
-} \
+}
+
+#define DRAW_AREAS_2(area, exp1, exp2) \
+{ \
+	double min1 = std::numeric_limits<double>::max(); \
+	double max1 = std::numeric_limits<double>::min(); \
+	double min2 = std::numeric_limits<double>::max(); \
+	double max2 = std::numeric_limits<double>::min(); \
+	vector<double> u1(_model->areas().size()); \
+	vector<double> u2(_model->areas().size()); \
+	int i = 0; \
+	for (Area* area : _model->areas()) \
+		{ \
+		double v1 = exp1; \
+		double v2 = exp2; \
+		min1 = std::min(min1, v1); \
+		max1 = std::max(max1, v1); \
+		min2 = std::min(min2, v2); \
+		max2 = std::max(max2, v2); \
+		u1[i] = v1; \
+		u2[i] = v2; \
+		++i; \
+	} \
+	double d1 = max1 - min1; \
+	double d2 = max2 - min2; \
+	i = 0; \
+	if (d1 == 0) \
+	{ \
+		if (d2 == 0)	for (Area* a : _model->areas()) draw_circles(a->x, a->y, min1, min2); \
+		else			for (Area* a : _model->areas()) draw_circles(a->x, a->y, min1, (u2[i++] - min2) / d2); \
+	} \
+	else for (Area* a : _model->areas()) draw_circles(a->x, a->y, (u1[i] - min1) / d1, (u2[i++] - min2) / d2); \
+}
 
 void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 {
@@ -109,6 +141,11 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		break;
 	case MM_PROFIT:
 		if (info.species) DRAW_AREAS(area, ((AnimalWorld*)_model)->get_profit(info.species, area));
+		break;
+	case MM_PROFIT_RES:
+		if (info.species) DRAW_AREAS_2(area,
+			_model->get_prod(area, info.plant->id).resource,
+			((AnimalWorld*)_model)->get_profit(info.species, area));
 		break;
 	default:
 		break;

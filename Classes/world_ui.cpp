@@ -496,22 +496,21 @@ void WorldUI::create_animal_layers_panel()
 
 	// ==============================================================================================
 	// PRICE - VOL - RES
-	info.mode = MM_PRICE_SELL;
 	static int dummy;
-	defvec(vec1, "Sell", "Buy", "Res.")
+	defvec(vec1, "Profit", "Res.", "Both")
 	auto rb = RadioBox::create(&dummy, vec1, hh, marginy);
 	rb->setLayoutParameter(p);
 	rb->changed = [this](int id) {
 		switch (id)
 		{
 		case 0:
-			info.mode = MM_PRICE_SELL;
+			info.mode = MM_PROFIT;
 			break;
 		case 1:
-			info.mode = MM_PRICE_BUY;
+			info.mode = MM_RESOURCES;
 			break;
 		case 2:
-			info.mode = MM_RESOURCES;
+			info.mode = MM_PROFIT_RES;
 			break;
 		default:
 			break;
