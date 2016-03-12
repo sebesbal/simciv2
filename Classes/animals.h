@@ -41,6 +41,7 @@ namespace simciv
 		MaterialMap maintenance_cost;	///< cost of maintain the instance
 		void find_best_m2m_rule(const Prices& prices, ProductionRule*& rule, double& profit);
 		void find_best_m2a_rule(const Prices& prices, ProductionRule*& rule, double& price);
+		double get_build_cost(const Prices& prices);
 		std::string icon_file;
 
 		//int level;
@@ -113,22 +114,24 @@ namespace simciv
 		void add_species(Species* species) { species->id = this->species.size(); this->species.push_back(species); }
 		Prices get_prices(Area* a);
 		double get_profit(Species* species, Area* a);
+		double get_build_cost(Species* species, Area* a);
 	protected:
 		void move_animal(Animal* ani, Area* new_area);
 		void add_producers(Animal* ani, Area* area);
 		void remove_producers(Animal* ani, Area* area);
-		//double check_supply_storage(Animal* ani, MaterialMap& vols); ///< returns 1 if the producer's storage can be changed with vols, and with 0 if not at all
-		//double check_consumption_storage(Animal* ani, MaterialMap& vols); ///< returns 1 if the producer's storage can be changed with vols, and with 0 if not at all
-		// double get_modify_storage_success(Producer* prod, double dol);
-		//double get_rule_success(Animal* ani, MaterialMap& vols, MaterialVec& prices);
-		//virtual void update_animal_m2m(Animal* ani, ProductionRule* rule);
-		//virtual void update_animal_m2a(Animal* ani, MaterialMap& vols, Prices& prices);
-		//Prices get_prices(Area* a);
-		//std::map<std::string, Species*> species_map;
-		//std::map<std::string, Plant*> plant_map;
 		std::vector<Species*> species;
 		std::vector<Plant*> plants;
 		std::vector<Animal*> animals;
 	};
 
+	class Info
+	{
+	public:
+		static double price_buy(Area* a, Plant* p) { return _model.get_prod(a, p->id).p_buy; }
+		static double price_sell(Area* a, Plant* p) { return _model.get_prod(a, p->id).p_sell; }
+		static double resources(Area* a, Plant* p) { return _model.get_prod(a, p->id).resource; }
+
+		static double profit(Area* a, Species* s) { return _model.get_profit(s, a); }
+		static double build_cost(Area* a, Species* s) { return _model.get_build_cost(s, a); }
+	};
 }

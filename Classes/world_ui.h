@@ -54,7 +54,6 @@ protected:
 	static const int cs = 33; // cell size
 	Size _table;
 	cocos2d::Node* _map;
-	WorldModel* _model;
 };
 
 enum UIMapMode
@@ -64,6 +63,7 @@ enum UIMapMode
 	MM_PRICE_BUY,
 	MM_PROFIT,
 	MM_RESOURCES,
+	MM_BUILD_COST,
 	MM_PROFIT_RES
 };
 
@@ -127,7 +127,7 @@ public:
 	Sprite* create_sprite(Animal* ani);
 	void create_sprites_from_model();
 protected:
-	AnimalWorld& model() { return *(AnimalWorld*)_model; }
+	// AnimalWorld& model() { return *(AnimalWorld*)_model; }
 	bool is_map_point(cocos2d::Vec2& p);
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
 	Node* _animals;
@@ -155,6 +155,7 @@ public:
     // implement the "static node()" method manually
     CREATE_FUNC(WorldUI);
 protected:
+	MyPopup* _popup;
 	bool _paused;
 	int _speed;
 	UIState _state;
@@ -183,6 +184,10 @@ protected:
 	virtual bool onTouchBegan(Touch* touch, Event  *event);
 	virtual void onTouchEnded(Touch* touch, Event  *event);
 	virtual void onTouchMoved(Touch* touch, Event  *event);
+	// virtual void onMouseDown(Event  *event);
+	virtual void onMouseMove(Event  *event);
+
+
 	RadioMenu* create_left_menu();
 	void create_play_panel();
 	RadioMenu* create_species_browser();
@@ -192,6 +197,9 @@ protected:
 	virtual void setContentSize(const Size & var) override;
 	void update_panels(bool animal, bool plants);
 	void set_state(UIState state);
+	void update_popup(const Vec2& p);
+	void WorldUI::find_child(const cocos2d::Node* n, const Vec2& wp, cocos2d::Node*& child, int& z_order);
+	cocos2d::Node* WorldUI::find_child(const cocos2d::Node* node, const Vec2& wp);
 };
 
 class RouteAnimation

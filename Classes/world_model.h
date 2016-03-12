@@ -54,8 +54,8 @@ namespace simciv
 		int y;
 		std::vector<Road*> _roads;
 		RoadMap* map; ///< routes from this
-		double data1; ///< used for drawing
-		double data2; ///< used for drawing
+		//double data1; ///< used for drawing
+		//double data2; ///< used for drawing
 	};
 
 	struct Road

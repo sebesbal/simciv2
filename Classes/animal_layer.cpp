@@ -26,7 +26,7 @@ using namespace ui;
 AnimalMapLayer* AnimalMapLayer::create(AnimalWorld* model)
 {
 	AnimalMapLayer* result = new AnimalMapLayer();
-	result->_model = model;
+	// result->_model = model;
 	if (result && result->init())
 	{
 		result->autorelease();
@@ -98,7 +98,7 @@ bool AnimalMapLayer::is_map_point(cocos2d::Vec2& p)
 
 Animal* AnimalMapLayer::create_animal(Area* a, Species& s)
 {
-	Animal* ani = model().create_animal(a, s);
+	Animal* ani = _model.create_animal(a, s);
 	if (ani)
 	{
 		create_sprite(ani);
@@ -126,7 +126,7 @@ Sprite* AnimalMapLayer::create_sprite(Animal* ani)
 void AnimalMapLayer::create_sprites_from_model()
 {
 	_animals->removeAllChildrenWithCleanup(true);
-	for (Animal* ani : model().get_animals())
+	for (Animal* ani : _model.get_animals())
 	{
 		Sprite* s = create_sprite(ani);
 		_animals->addChild(s);

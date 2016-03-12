@@ -1,6 +1,7 @@
 #include "world_ui.h"
 #include "economy.h"
 #include "controls.h"
+#include "animals.h"
 #include <map>
 
 namespace simciv
@@ -13,7 +14,7 @@ using namespace ui;
 PlantMapLayer* PlantMapLayer::create(WorldModel* model, UIStateData& info)
 {
 	PlantMapLayer* result = new PlantMapLayer(info);
-	result->_model = model;
+	//result->_model = model;
 	if (result && result->init())
 	{
 		result->autorelease();
@@ -36,30 +37,30 @@ bool is_map_point(cocos2d::Vec2& p)
 { \
 	double min = std::numeric_limits<double>::max(); \
 	double max = std::numeric_limits<double>::min(); \
-	vector<double> u(_model->areas().size()); \
+	vector<double> u(_model.areas().size()); \
 	int i = 0; \
-	for (Area* area : _model->areas()) \
-		{ \
+	for (Area* area : _model.areas()) \
+	{ \
 		double v = exp; \
 		min = std::min(min, v); \
 		max = std::max(max, v); \
 		u[i++] = v; \
-		} \
+	} \
 	double d = max - min; \
 	i = 0; \
 	if (d == 0) \
 		{ \
-		for (Area* a : _model->areas()) \
-				{ \
+		for (Area* a : _model.areas()) \
+		{ \
 			draw_rect(a->x, a->y, min, 1); \
-				} \
 		} \
-		else \
+	} \
+	else \
 	{ \
-		for (Area* a : _model->areas()) \
-				{ \
+		for (Area* a : _model.areas()) \
+		{ \
 			draw_rect(a->x, a->y, (u[i++] - min) / d, 1); \
-				} \
+		} \
 	} \
 }
 
@@ -69,10 +70,10 @@ bool is_map_point(cocos2d::Vec2& p)
 	double max1 = std::numeric_limits<double>::min(); \
 	double min2 = std::numeric_limits<double>::max(); \
 	double max2 = std::numeric_limits<double>::min(); \
-	vector<double> u1(_model->areas().size()); \
-	vector<double> u2(_model->areas().size()); \
+	vector<double> u1(_model.areas().size()); \
+	vector<double> u2(_model.areas().size()); \
 	int i = 0; \
-	for (Area* area : _model->areas()) \
+	for (Area* area : _model.areas()) \
 		{ \
 		double v1 = exp1; \
 		double v2 = exp2; \
@@ -89,16 +90,16 @@ bool is_map_point(cocos2d::Vec2& p)
 	i = 0; \
 	if (d1 == 0) \
 	{ \
-		if (d2 == 0)	for (Area* a : _model->areas()) draw_circles(a->x, a->y, min1, min2); \
-		else			for (Area* a : _model->areas()) draw_circles(a->x, a->y, min1, (u2[i++] - min2) / d2); \
+		if (d2 == 0)	for (Area* a : _model.areas()) draw_circles(a->x, a->y, min1, min2); \
+		else			for (Area* a : _model.areas()) draw_circles(a->x, a->y, min1, (u2[i++] - min2) / d2); \
 	} \
-	else for (Area* a : _model->areas()) draw_circles(a->x, a->y, (u1[i] - min1) / d1, (u2[i++] - min2) / d2); \
+	else for (Area* a : _model.areas()) draw_circles(a->x, a->y, (u1[i] - min1) / d1, (u2[i++] - min2) / d2); \
 }
 
 void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 {
 	// calculate roads
-	_model->products()[info.plant->id]->routes_to_areas(info.plant->id);
+	_model.products()[info.plant->id]->routes_to_areas(info.plant->id);
 
     Director* director = Director::getInstance();
     director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
@@ -112,12 +113,12 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	{
 		glLineWidth(1);
 		float x = b.getMinX();
-		for (int i = 0; i <= _model->width(); ++i, x += cs)
+		for (int i = 0; i <= _model.width(); ++i, x += cs)
 		{
 			DrawPrimitives::drawLine( Vec2(x, b.getMinY()), Vec2(x, b.getMaxY()));
 		}
 		float y = b.getMinY();
-		for (int i = 0; i <= _model->height(); ++i, y += cs)
+		for (int i = 0; i <= _model.height(); ++i, y += cs)
 		{
 			DrawPrimitives::drawLine( Vec2(b.getMinX(), y), Vec2(b.getMaxX(), y));
 		}
@@ -131,21 +132,24 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	switch (info.mode)
 	{
 	case MM_PRICE_SELL:
-		DRAW_AREAS(area, _model->get_prod(area, info.plant->id).p_sell);
+		DRAW_AREAS(area, _model.get_prod(area, info.plant->id).p_sell);
 		break;
 	case MM_PRICE_BUY:
-		DRAW_AREAS(area, _model->get_prod(area, info.plant->id).p_buy);
+		DRAW_AREAS(area, _model.get_prod(area, info.plant->id).p_buy);
 		break;
 	case MM_RESOURCES:
-		DRAW_AREAS(area, _model->get_prod(area, info.plant->id).resource);
+		DRAW_AREAS(area, _model.get_prod(area, info.plant->id).resource);
 		break;
 	case MM_PROFIT:
-		if (info.species) DRAW_AREAS(area, ((AnimalWorld*)_model)->get_profit(info.species, area));
+		if (info.species) DRAW_AREAS(area, _model.get_profit(info.species, area));
+		break;
+	case MM_BUILD_COST:
+		if (info.species) DRAW_AREAS(area, _model.get_build_cost(info.species, area));
 		break;
 	case MM_PROFIT_RES:
 		if (info.species) DRAW_AREAS_2(area,
-			_model->get_prod(area, info.plant->id).resource,
-			((AnimalWorld*)_model)->get_profit(info.species, area));
+			_model.get_prod(area, info.plant->id).resource,
+			_model.get_profit(info.species, area));
 		break;
 	default:
 		break;
@@ -227,7 +231,7 @@ void PlantMapLayer::update(float delta)
 	{
 		for (int prod_id = 0; prod_id < material_count; ++prod_id)
 		{
-			ProductMap* prod = _model->products()[prod_id];
+			ProductMap* prod = _model.products()[prod_id];
 			auto& v = prod->transports();
 			for (auto transport : v)
 			{
@@ -244,7 +248,7 @@ void PlantMapLayer::update(float delta)
 				else
 				{
 					Transport* t = it->first;
-					if (t->volume == 0 && t->active_time + 50 < _model->time)
+					if (t->volume == 0 && t->active_time + 50 < _model.time)
 					{
 						RouteAnimation* ani = it->second;
 						ani->stop();

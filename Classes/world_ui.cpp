@@ -37,7 +37,7 @@ Scene* WorldUI::createScene()
     return scene;
 }
 
-WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_start(false), _paused(false), _speed(1)
+WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_start(false), _paused(false), _speed(1), _popup(NULL)
 {
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	auto w = visibleSize.width;
@@ -49,6 +49,11 @@ WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_s
 	listener->onTouchEnded = CC_CALLBACK_2(WorldUI::onTouchEnded, this);
 	listener->onTouchMoved = CC_CALLBACK_2(WorldUI::onTouchMoved, this);
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
+
+	auto mouse = EventListenerMouse::create();
+	//mouse->onMouseDown = CC_CALLBACK_1(WorldUI::onMouseDown, this);
+	mouse->onMouseMove = CC_CALLBACK_1(WorldUI::onMouseMove, this);
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(mouse, this);
 
 	load_from_tmx("simciv.tmx");
 
@@ -260,6 +265,13 @@ void WorldUI::onTouchMoved(Touch* touch, Event  *event)
 	}
 }
 
+void WorldUI::onMouseMove(Event *event)
+{
+	EventMouse* mouseEvent = dynamic_cast<EventMouse*>(event);
+	update_popup(mouseEvent->getLocationInView());
+}
+
+
 RadioMenu* WorldUI::create_left_menu()
 {
 	RadioMenu* result = RadioMenu::create();
@@ -431,7 +443,7 @@ void WorldUI::create_plant_layers_panel()
 	q->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
 
 	_plant_layers_panel = VBox::create();
-	_plant_layers_panel->setContentSize(Size(300, 300));
+	_plant_layers_panel->setContentSize(Size(300, 80));
 	_plant_layers_panel->setBackGroundColor(def_bck_color3B);
 	_plant_layers_panel->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
 
@@ -466,7 +478,7 @@ void WorldUI::create_plant_layers_panel()
 		}
 	};
 	_plant_layers_panel->addChild(rb);
-	_plant_layers_panel->setAnchorPoint(Vec2(1, 1));
+	_plant_layers_panel->setAnchorPoint(Vec2(1, 0));
 	this->addChild(_plant_layers_panel);
 }
 
@@ -483,7 +495,7 @@ void WorldUI::create_animal_layers_panel()
 	// left menu
 	// auto 
 	_animal_layers_panel = VBox::create();
-	_animal_layers_panel->setContentSize(Size(300, 300));
+	_animal_layers_panel->setContentSize(Size(300, 80));
 	_animal_layers_panel->setBackGroundColor(def_bck_color3B);
 	_animal_layers_panel->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
 
@@ -497,7 +509,7 @@ void WorldUI::create_animal_layers_panel()
 	// ==============================================================================================
 	// PRICE - VOL - RES
 	static int dummy;
-	defvec(vec1, "Profit", "Res.", "Both")
+	defvec(vec1, "Profit", "Cost", "Res.", "Both")
 	auto rb = RadioBox::create(&dummy, vec1, hh, marginy);
 	rb->setLayoutParameter(p);
 	rb->changed = [this](int id) {
@@ -507,9 +519,12 @@ void WorldUI::create_animal_layers_panel()
 			info.mode = MM_PROFIT;
 			break;
 		case 1:
-			info.mode = MM_RESOURCES;
+			info.mode = MM_BUILD_COST;
 			break;
 		case 2:
+			info.mode = MM_RESOURCES;
+			break;
+		case 3:
 			info.mode = MM_PROFIT_RES;
 			break;
 		default:
@@ -517,7 +532,7 @@ void WorldUI::create_animal_layers_panel()
 		}
 	};
 	_animal_layers_panel->addChild(rb);
-	_animal_layers_panel->setAnchorPoint(Vec2(1, 1));
+	_animal_layers_panel->setAnchorPoint(Vec2(1, 0));
 	this->addChild(_animal_layers_panel);
 }
 
@@ -534,11 +549,13 @@ void WorldUI::setContentSize(const Size & var)
 	_species_browser->setPosition(Vec2(m + 64 + 10, h - m));
 	_plants_browser->setPosition(Vec2(m + 64 + 10, h - m));
 	_species_view->setPosition(Vec2(var.width, h));
-	_plant_layers_panel->setPosition(Vec2(var.width, h));
-	_animal_layers_panel->setPosition(Vec2(var.width, h));
+	
 	auto r = _species_view->getBoundingBox();
 	_animal_view->setPosition(Vec2(r.getMaxX(), r.getMinY()));
 	_play_panel->setPosition(Vec2(m, m));
+
+	_plant_layers_panel->setPosition(Vec2(var.width, 0));
+	_animal_layers_panel->setPosition(Vec2(var.width, 0));
 }
 
 void WorldUI::set_state(UIState state)
@@ -552,6 +569,65 @@ void WorldUI::set_state(UIState state)
 	_plant_layers_panel->setVisible(plants);
 	_animal_layers_panel->setVisible(animals);
 	_plant_layer->setVisible(info.plant);
+
+	if (animals)
+	{
+		if (_popup) _popup->removeFromParent();
+		_popup = new AnimalPopup();
+		this->addChild(_popup);
+	}
+}
+
+void WorldUI::find_child(const cocos2d::Node* n, const Vec2& wp, cocos2d::Node*& child, int& z_order)
+{
+	auto q = n->convertToNodeSpace(wp);
+	for (auto c : n->getChildren())
+	{
+		if (_popup && c == _popup) continue;
+
+		auto r = c->getBoundingBox();
+		if (r.containsPoint(q))
+		{
+			if (c->getZOrder() >= z_order)
+			{
+				child = c;
+				z_order = c->getZOrder();
+			}
+		}
+		find_child(c, wp, child, z_order);
+	}
+}
+
+cocos2d::Node* WorldUI::find_child(const cocos2d::Node* node, const Vec2& wp)
+{
+	cocos2d::Node* child(NULL);
+	int z_order = std::numeric_limits<int>::min();
+	find_child(node, wp, child, z_order);
+	return child;
+}
+
+void WorldUI::update_popup(const Vec2& wp)
+{
+	if (!_popup) return;
+
+	auto q = _map->convertToNodeSpace(wp);
+	Area* a = _plant_layer->get_area(q);
+
+	//if (_state == UIState::UIS_ANIMAL)
+	//{
+	//	
+	//}
+
+	auto n = find_child(this, wp);
+	if (n == _animal_layer)
+	{
+		_popup->setPosition(wp + Vec2(10, 10));
+		_popup->setVisible(true);
+	}
+	else
+	{
+		_popup->setVisible(false);
+	}
 }
 
 }

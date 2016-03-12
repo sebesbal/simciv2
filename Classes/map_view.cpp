@@ -10,7 +10,7 @@ using namespace std;
 MapView* MapView::create(WorldModel* model)
 {
 	MapView* result = new MapView();
-	result->_model = model;
+	// result->_model = model;
 	if (result && result->init())
 	{
 		result->autorelease();
@@ -118,7 +118,7 @@ Area* MapView::get_area(Vec2 p)
 {
 	int x = p.x / cs;
 	int y = p.y / cs;
-	return _model->get_area(x, y);
+	return _model.get_area(x, y);
 }
 
 void MapView::draw_areas(std::vector<double>& v)
@@ -129,14 +129,14 @@ void MapView::draw_areas(std::vector<double>& v)
 	int i = 0;
 	if (d == 0)
 	{
-		for (Area* a : _model->areas())
+		for (Area* a : _model.areas())
 		{
 			draw_rect(a->x, a->y, min, 1);
 		}
 	}
 	else
 	{
-		for (Area* a : _model->areas())
+		for (Area* a : _model.areas())
 		{
 			draw_rect(a->x, a->y, (v[i++] - min) / d, 1);
 		}

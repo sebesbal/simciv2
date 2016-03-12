@@ -484,6 +484,31 @@ void MyPanel::setContentSize(const Size & var)
 	_bck->setContentSize(var);
 }
 
+void MyPopup::onDraw(const Mat4 &transform, uint32_t flags)
+{
+	Director* director = Director::getInstance();
+	director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+	director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, transform);
+	CHECK_GL_ERROR_DEBUG();
+
+	auto s = getContentSize();
+	DrawPrimitives::drawSolidRect(Vec2(0, 0), Vec2(s.height, s.height), Color4F(0.4, 0.1, 0.6, 1));
+
+	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+}
+
+void MyPopup::draw(Renderer *renderer, const Mat4& transform, uint32_t flags)
+{
+	_customCommand.init(100);
+	_customCommand.func = CC_CALLBACK_0(MyPopup::onDraw, this, transform, flags);
+	renderer->addCommand(&_customCommand);
+}
+
+void AnimalPopup::onDraw(const Mat4 &transform, uint32_t flags)
+{
+	MyPopup::onDraw(transform, flags);
+}
+
 SpeciesView::SpeciesView()
 {
 	_production_view = VBox::create();

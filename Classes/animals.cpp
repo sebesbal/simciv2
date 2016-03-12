@@ -117,6 +117,14 @@ namespace simciv
 		}
 	}
 
+	double Species::get_build_cost(const Prices& prices)
+	{
+		double price;
+		ProductionRule* rule;
+		find_best_m2a_rule(prices, rule, price);
+		return price * 100;
+	}
+
 	void Species::load(rapidxml::xml_node<>* node)
 	{
 		maintenance_cost[0] = 1;
@@ -709,6 +717,11 @@ string ExePath() {
 		species->find_best_m2a_rule(prices, rule, price);
 		profit -= price;
 		return profit;
+	}
+
+	double AnimalWorld::get_build_cost(Species* species, Area* a)
+	{
+		return species->get_build_cost(get_prices(a));
 	}
 
 	void AnimalWorld::move_animal(Animal* ani, Area* new_area)

@@ -103,6 +103,25 @@ namespace simciv
 		LayerColor* _bck;
 	};
 
+	class MyPopup : public ui::Layout
+	{
+	public:
+		// MyPopup();
+	protected:
+		CustomCommand _customCommand;
+		virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
+		virtual void onDraw(const Mat4 &transform, uint32_t flags);
+	};
+
+	class AnimalPopup : public MyPopup
+	{
+	public:
+		AnimalPopup() { setSize(Size(100, 100)); }
+
+	protected:
+		virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
+	};
+
 	/// Show one species
 	class SpeciesView : public MyPanel
 	{
