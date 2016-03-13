@@ -116,9 +116,12 @@ namespace simciv
 	class AnimalPopup : public MyPopup
 	{
 	public:
-		AnimalPopup() { setSize(Size(100, 100)); }
-
+		AnimalPopup();
+		void set_profit(double profit) { _profit = profit; }
+		void set_cost(double cost) { _cost = cost; }
 	protected:
+		double _profit;
+		double _cost;
 		virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
 	};
 

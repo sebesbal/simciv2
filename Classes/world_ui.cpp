@@ -622,6 +622,8 @@ void WorldUI::update_popup(const Vec2& wp)
 	if (n == _animal_layer)
 	{
 		_popup->setPosition(wp + Vec2(10, 10));
+		((AnimalPopup*)_popup)->set_profit(Info::profit(a, info.species));
+		((AnimalPopup*)_popup)->set_cost(Info::build_cost(a, info.species));
 		_popup->setVisible(true);
 	}
 	else

@@ -499,9 +499,41 @@ void MyPopup::onDraw(const Mat4 &transform, uint32_t flags)
 
 void MyPopup::draw(Renderer *renderer, const Mat4& transform, uint32_t flags)
 {
-	_customCommand.init(100);
+	_customCommand.init(_globalZOrder);
 	_customCommand.func = CC_CALLBACK_0(MyPopup::onDraw, this, transform, flags);
 	renderer->addCommand(&_customCommand);
+}
+
+AnimalPopup::AnimalPopup()
+{
+	setContentSize(Size(100, 100));
+	int w = 120;
+	int h = 100;
+	int rh = 30;
+	int m = 5;
+
+	VBox* v = VBox::create(Size(w - 2*m, h - 2*m));
+	v->setPosition(Vec2(m, m));
+	v->setAnchorPoint(Vec2(0, 0));
+	this->addChild(v);
+
+	auto f = [&](string str, double* d){
+		HBox* hb = HBox::create(Size(w, rh));
+		v->addChild(hb);
+
+		auto text = ui::Text::create(str, def_font, def_font_size);
+		hb->addChild(text);
+		text->ignoreContentAdaptWithSize(false);
+		text->setContentSize(Size(w / 2 - m, rh));
+
+		DebugLabel* label = new DebugLabel();
+		hb->addChild(label);
+		label->data = d;
+		label->setContentSize(Size(w / 2, rh));
+	};
+
+	f("profit: ", &_profit);
+	f("cost: ", &_cost);
 }
 
 void AnimalPopup::onDraw(const Mat4 &transform, uint32_t flags)
