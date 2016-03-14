@@ -1,33 +1,37 @@
 #pragma once
-#include "map.h"	
 #include <vector>
 #include <queue>
+
+#include "map.h"
 
 namespace simciv
 {
 	typedef std::deque<double> history_t;
 	const int history_count = 20;
-	
+	class Factory;
+	class Product;
+
+	/// Class for trading products on the map. It manages storage and pricing.
+	/// Every Factory has two Trader: a buyer (to buy inputs), and a seller (to sell output) for every Product. (most of them are unused)
 	struct Trader
 	{
 		Trader();
-		double& storage() { return _storage; }
-		int prod_id;
-		bool is_buyer;
-		Trader* storage_pair; ///< for storages: one producer for supply and one for consumption, storage_pair connects the two
-		bool fix_price;
+		Product* product;
+		bool is_buyer;							///< this is a buyer (not seller)
 		Area* area;
-		void* owner;
-		double volume; ///< trade offer.
-		double free_volume; ///< volume - actually traded volume
-		double vol_out;
-		double price; // the current price
-		double worst_profit; // the worst profit of the producers deals
-		double partner_price;
+		Factory* owner;
+		Trader* storage_pair;					///< the other trader of a seller/buyer pair (for a factory's product)
+		double volume;							///< trade offer. we can buy/sell this volume in one turn
+		double free_volume;						///< volume - actually traded volume. (the partners didn't want to buy/sell this volume)
+		double vol_out;							///< the possible volume on the current price. (there are partners on this price)
+		double price;							///< the current price
+		double worst_profit;					///< the profit of the worst transport. (used for Area's price calculation)
+		double worst_price;						///< the price of the worst transport. (used for Area's price calculation)
 
 		void modify_storage(double ideal_vol, double actual_vol);
 		void set_storage(double vol);
 
+		double& storage() { return _storage; }
 		double money();
 		void update_price();
 		void synchronize_price();
@@ -49,20 +53,21 @@ namespace simciv
 	struct AreaTrade
 	{
 		AreaTrade();
-		double p;
-		double p_buy; // buying price: the lowest buying price in the area for what there is a seller somewhere
-		double p_sell; // selling price: the highest selling price in the area for what there is a buyer somewhere
+		double p;			///< price
+		double p_buy;		///< buying price: the lowest buying price in the area for what there is a seller somewhere
+		double p_sell;		///< selling price: the highest selling price in the area for what there is a buyer somewhere
 
-		double v_buy; // volume buy
-		double v_sell; // volume sell
-		double v;
+		double v_buy;		///< volume buy
+		double v_sell;		///< volume sell
+		double v;			///< volume
 
-		double resource; // how effective the production is
+		double resource;	///< how effective the production is
 
 		std::pair<double, Trader*> best_seller;
 		std::pair<double, Trader*> best_buyer;
 	};
 
+	/// A trade route between two Trader
 	struct Transport
 	{
 		Trader* seller;
@@ -76,11 +81,11 @@ namespace simciv
 		int active_time;
 	};
 
-	/// Represents one single product's volumes and prices on the map
+	/// Manages Traders of one Product on the map
 	class TradeMap
 	{
 	public:
-		TradeMap(int prod_id);
+		TradeMap(Product& p);
 		void update();
 		AreaTrade& get_trade(Area* a) { return (*_production)[a->index]; }
 		AreaTrade& get_new_prod(Area* a) { return (*_new_production)[a->index]; }
@@ -100,7 +105,7 @@ namespace simciv
 		void find_best_producers_for_areas();
 		void update_producer_storages();
 	protected:
-		int prod_id;
+		Product& product;
 		int update_count;
 		bool unique_mode;
 		Transport* get_transport(Trader* src, Trader* dst);

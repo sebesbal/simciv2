@@ -1,7 +1,9 @@
 #pragma once
+
+#include <map>
+
 #include "map.h"
 #include "trade.h"
-#include <map>
 
 namespace rapidxml
 {
@@ -98,28 +100,26 @@ namespace simciv
 	{
 	public:
 		virtual void create(int width, int height, int prod_count) override;
-		void generate_industry();
-		void generate_factories();
+		void load_from_file(std::string file_name);
+		virtual void update() override;
 		Factory* create_factory(Area* a, Industry& industry);
 		Factory* find_factory(Area* a);
 		std::vector<Factory*>& get_factories() { return factories; }
 		std::vector<Industry*>& get_industries() { return industries; }
 		Industry* get_industries(std::string name) { for (auto p : industries) if (p->name == name) return p; return NULL; }
-		Industry* get_storage_industry() { return industries.back(); }
 		Product* get_product(std::string name) { for (auto p : products) if (p->name == name) return p; return NULL; }
 		std::vector<Product*>& get_products() { return products; }
-		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
-		virtual void update() override;
-		void load_from_file(std::string file_name);
-		void add_industry(Industry* industry) { industry->id = this->industries.size(); this->industries.push_back(industry); }
 		Prices get_prices(Area* a);
 		double get_profit(Industry* industry, Area* a);
 		double get_build_cost(Industry* industry, Area* a);
 		double get_resources(Industry* industry, Area* a);
-
 		AreaTrade& get_trade(Area* a, int id);
 		std::vector<TradeMap*>& trade_maps() { return _trade_maps; }
 	protected:
+		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
+		void add_industry(Industry* industry) { industry->id = this->industries.size(); this->industries.push_back(industry); }
+		void generate_industry();
+		void generate_factories();
 		void move_factory(Factory* f, Area* new_area);
 		std::vector<Industry*> industries;
 		std::vector<Product*> products;

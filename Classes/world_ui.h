@@ -1,25 +1,25 @@
 #pragma once
-#include "cocostudio/CocoStudio.h"
-#include "ui/CocosGUI.h"
-
 #include "cocos2d.h"
-#include "map.h"
-#include "ui\UICheckBox.h"
-#include "ui\UILayout.h"
-#include "ui\UIHBox.h"
-#include "ui\UIVBox.h"
-#include "ui\UIText.h"
-#include "ui\UIButton.h"
+#include "cocostudio/CocoStudio.h"
+#include "ui/UICheckBox.h"
+#include "ui/UILayout.h"
+#include "ui/UIHBox.h"
+#include "ui/UIVBox.h"
+#include "ui/UIText.h"
+#include "ui/UIButton.h"
+#include "ui/CocosGUI.h"
+#include "base/ccTypes.h"
 
-#include "base\ccTypes.h"
+#include "map.h"
 #include "controls.h"
+
 namespace simciv
 {
 
 USING_NS_CC;
 
 class Item;
-class RouteAnimation;
+class TransportAnimation;
 
 const Color3B def_bck_color3B(40, 0, 60);
 const Color4B def_bck_color4B(40, 0, 60, 255);
@@ -28,7 +28,7 @@ const Color4B def_bck_color4B(40, 0, 60, 255);
 	static const string arr ## vec[] = { __VA_ARGS__ }; \
 	vector<string> vec (arr ## vec, arr ## vec + sizeof(arr ## vec) / sizeof(arr ## vec[0]) );
 
-/// draw tiles, map background, routes
+/// draws tiles, map background, routes
 class MapView : public cocos2d::Layer
 {
 public:
@@ -87,7 +87,7 @@ struct UIStateData
 	bool show_products;
 };
 
-/// Draw mines and factories
+/// Draws colored cells
 class ColorMapLayer : public MapView
 {
 public:
@@ -97,10 +97,10 @@ public:
 protected:
 	UIStateData& info;
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
-	std::map<Transport*, RouteAnimation*> transports;
+	std::map<Transport*, TransportAnimation*> transports;
 };
 
-/// Render factories
+/// Draws factories and other sprites
 class FactoryMapLayer : public MapView
 {
 public:
@@ -131,7 +131,7 @@ public:
 	virtual void onEnter() override;
     CREATE_FUNC(WorldUI);
 protected:
-	MyPopup* _popup;
+	Popup* _popup;
 	bool _paused;
 	int _speed;
 	UIState _state;
@@ -180,10 +180,11 @@ protected:
 	cocos2d::Node* WorldUI::find_child(const cocos2d::Node* node, const Vec2& wp);
 };
 
-class RouteAnimation
+/// Animation for draw transports
+class TransportAnimation
 {
 public:
-	RouteAnimation();
+	TransportAnimation();
 	void set_route(int prod_id, Transport* transport, MapView* map);
 	void stop();
 	void start();

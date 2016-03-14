@@ -1,13 +1,15 @@
 #include "world_ui.h"
-#include "ui\UICheckBox.h"
-#include "ui\UILayout.h"
-#include "ui\UIHBox.h"
-#include "ui\UIVBox.h"
-#include "ui\UIText.h"
-#include "ui\UIButton.h"
-//#include "CC
-#include "base\ccTypes.h"
+
 #include <algorithm>
+
+#include "ui/UICheckBox.h"
+#include "ui/UILayout.h"
+#include "ui/UIHBox.h"
+#include "ui/UIVBox.h"
+#include "ui/UIText.h"
+#include "ui/UIButton.h"
+#include "base/ccTypes.h"
+
 #include "trade.h"
 #include "controls.h"
 
@@ -278,7 +280,7 @@ RadioMenu* WorldUI::create_left_menu()
 	result->set_toggle(true);
 
 	result->add_row();
-	auto btn = MenuButton::create(get_factory_texture(0));
+	auto btn = MenuButton::create(get_product_texture(0));
 	result->add_radio_button(btn);
 
 	result->add_row();

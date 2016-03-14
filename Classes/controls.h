@@ -1,28 +1,26 @@
 #pragma once
-#include "cocostudio/CocoStudio.h"
-#include "ui/CocosGUI.h"
-#include "cocos2d.h"
-#include "trade.h"
-#include "world.h"
-#include "ui/UIImageView.h"
-#include "ui/UILayout.h"
 #include <iomanip>
 #include <functional>
+
+#include "cocos2d.h"
+#include "cocostudio/CocoStudio.h"
+#include "ui/CocosGUI.h"
+#include "ui/UIImageView.h"
+#include "ui/UILayout.h"
+
+#include "trade.h"
+#include "world.h"
 
 USING_NS_CC;
 
 namespace simciv
 {
-	class MaterialStringView;
+	class ProductStringView;
 	class MenuButton;
 
 	ui::Layout* labelled_cb(std::string text, bool checked, ui::CheckBox::ccCheckBoxCallback cb);
-
-	std::string get_factory_texture(int id);
-
 	std::string get_product_texture(int id);
 
-	// typedef void(*int_cb)(int id);
 	typedef std::function<void(int)> int_cb;
 	typedef std::function<void(MenuButton*)> button_cb;
 
@@ -42,13 +40,6 @@ namespace simciv
 		int selected;
 		std::function<void(int)> changed;
 	};
-
-	/// Show prices, profits, volumens etc.
-	class MapLayersPanel
-	{
-
-	};
-
 
 	class MenuButton : public ui::Button
 	{
@@ -76,8 +67,6 @@ namespace simciv
 		static RadioMenu* create();
 		MenuButton* get_selected_btn() { return _selected; }
 		void set_selected_btn(MenuButton* btn);
-		//void set_selected_btn(int id);
-		// int find_btn(MenuButton* btn);
 		void add_row();
 		void add_radio_button(MenuButton* btn);
 		void set_on_changed(button_cb cb) { _on_changed = cb; }
@@ -92,30 +81,28 @@ namespace simciv
 		void on_btn_clicked(Ref* btn, Widget::TouchEventType type);
 	};
 
-	class DebugLabel;
+	class DataLabel;
 
-	class MyPanel : public ui::Layout
+	class Panel : public ui::Layout
 	{
 	public:
-		MyPanel();
+		Panel();
 		ui::Text* create_label(std::string text);
-		DebugLabel* create_data_label(double* data);
+		DataLabel* create_data_label(double* data);
 	protected:
 		virtual void setContentSize(const Size & var) override;
 		LayerColor* _bck;
 	};
 
-	class MyPopup : public ui::Layout
+	class Popup : public ui::Layout
 	{
-	public:
-		// MyPopup();
 	protected:
 		CustomCommand _customCommand;
 		virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
 		virtual void onDraw(const Mat4 &transform, uint32_t flags);
 	};
 
-	class FactoryPopup : public MyPopup
+	class FactoryPopup : public Popup
 	{
 	public:
 		FactoryPopup();
@@ -127,8 +114,8 @@ namespace simciv
 		virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
 	};
 
-	/// Show one industry
-	class IndustryView : public MyPanel
+	/// Shows one Industry
+	class IndustryView : public Panel
 	{
 	public:
 		IndustryView();
@@ -143,14 +130,14 @@ namespace simciv
 		ui::Text* _name_label;
 		ui::VBox* _production_view;
 		ui::Text* _build_cost_label;
-		MaterialStringView* _build_cost;
-		MaterialStringView* _maintenance_cost;
+		ProductStringView* _build_cost;
+		ProductStringView* _maintenance_cost;
 
 		Industry* _industry;
 	};
 
-	/// Show one factories properties
-	class FactoryView : public MyPanel
+	/// Shows one Factory's properties
+	class FactoryView : public Panel
 	{
 	public:
 		FactoryView();
@@ -163,7 +150,7 @@ namespace simciv
 		virtual void doLayout() override;
 		Factory* _factory;
 		ui::Text* _money_txt;
-		DebugLabel* _money_val;
+		DataLabel* _money_val;
 		ui::HBox* create_producer_view(Trader* p);
 		ui::HBox* create_producer_view2(Trader* p);
 		ui::VBox* _producer_views;
@@ -174,10 +161,7 @@ namespace simciv
 	public:
 		Diagram() :_data(NULL), _min(0), _max(100) { }
 		static Diagram* create();
-		void set_data(history_t* data)
-		{
-			_data = data; 
-		}
+		void set_data(history_t* data) { _data = data; }
 		void set_range(int count, double min, double max) { _count = count; _min = min; _max = max; }
 	protected:
 		double _min, _max;
@@ -187,7 +171,6 @@ namespace simciv
 		ui::Text* _text;
 		virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
 		virtual void onDraw(const Mat4 &transform, uint32_t flags);
-		//void draw(Renderer *renderer, const kmMat4& transform, bool transformUpdated) override;
 	};
 
 	template <typename T>
@@ -199,36 +182,30 @@ namespace simciv
 		return out.str();
 	}
 
-	class DebugLabel : public ui::Text
+	class DataLabel : public ui::Text
 	{
 	public:
-		DebugLabel() : data(NULL) { init(); autorelease(); scheduleUpdate(); }
-		virtual void update(float delta) override { 
-			//if (data) this->setText(std::to_string((int)(*data)));
-			//if (data) this->setText(std::to_string((*data)));
+		DataLabel() : data(NULL) { init(); autorelease(); scheduleUpdate(); }
+		virtual void update(float delta) override
+		{
 			if (data) this->setText(to_string_with_precision(*data, 1));
 		}
 		double* data;
 	};
 
-	//class TraderView : public ui::Layout
-	//{
-
-	//};
-
-	class MaterialSprite : public ui::ImageView
+	class ProductSprite : public ui::ImageView
 	{
 	public:
-		static MaterialSprite* create(int id, int size);
+		static ProductSprite* create(Product* p, int size);
 	};
 
-	class MaterialStringView : public ui::Layout
+	class ProductStringView : public ui::Layout
 	{
 	public:
-		static MaterialStringView* create(int size);
+		static ProductStringView* create(int size);
 		void set_vector(const Products& v, int size);
 		void set_map(const ProductMap& m);
-		void add_item(int prod_id, double volume);
+		void add_item(Product* p, double volume);
 	protected:
 		int _size;
 	};

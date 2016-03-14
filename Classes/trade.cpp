@@ -1,7 +1,8 @@
-
 #include "trade.h"
+
 #include <algorithm>
 #include <assert.h>
+
 #include "world.h"
 
 namespace simciv
@@ -21,13 +22,12 @@ namespace simciv
 		_storage(0),
 		storage_last(0),
 		storage_capacity(10000),
-		fix_price(false),
 		storage_pair(NULL),
 		ideal_fullness(-1),
 		free_volume(0),
 		price(0),
 		worst_profit(0),
-		partner_price(0),
+		worst_price(0),
 		owner(NULL),
 		_d_storage(0)
 	{
@@ -58,7 +58,7 @@ namespace simciv
 
 	double Trader::money()
 	{
-		return ((Factory*)owner)->money;
+		return owner->money;
 	}
 
 void Trader::update_price()
@@ -109,12 +109,12 @@ history:
 		if (history_storage.size() > history_count) history_storage.pop_front();
 	}
 
-	TradeMap::TradeMap(int prod_id) :
+	TradeMap::TradeMap(Product& p) :
 		_production(new std::vector<AreaTrade>()), 
 		_new_production(new std::vector<AreaTrade>()), 
 		unique_mode(true),
 		update_count(0),
-		prod_id(prod_id)
+		product(p)
 	{
 		int n = world.areas().size();
 		_production->resize(n);
@@ -223,12 +223,12 @@ history:
 		for (Trader* p : _sellers)
 		{
 			if (p->worst_profit == max_price) p->worst_profit = 0;
-			p->partner_price = p->price + p->worst_profit;
+			p->worst_price = p->price + p->worst_profit;
 		}
 		for (Trader* p : _buyers)
 		{
 			if (p->worst_profit == max_price) p->worst_profit = 0;
-			p->partner_price = std::max(0.0, p->price - p->worst_profit);
+			p->worst_price = std::max(0.0, p->price - p->worst_profit);
 		}
 	}
 
@@ -266,8 +266,8 @@ history:
 			auto& v = _area_buyers[a->index];
 			if (v.size() > 0)
 			{
-				auto it = std::max_element(v.begin(), v.end(), [](Trader* a, Trader* b){ return a->partner_price < b->partner_price; });
-				new_supply_price = (*it)->partner_price;
+				auto it = std::max_element(v.begin(), v.end(), [](Trader* a, Trader* b){ return a->worst_price < b->worst_price; });
+				new_supply_price = (*it)->worst_price;
 			}
 
 			for (Road* r: a->_roads)
@@ -282,8 +282,8 @@ history:
 			auto& u = _area_sellers[a->index];
 			if (u.size() > 0)
 			{
-				auto it = std::min_element(u.begin(), u.end(), [](Trader* a, Trader* b){ return a->partner_price < b->partner_price; });
-				new_cons_price = (*it)->partner_price;
+				auto it = std::min_element(u.begin(), u.end(), [](Trader* a, Trader* b){ return a->worst_price < b->worst_price; });
+				new_cons_price = (*it)->worst_price;
 			}
 
 			for (Road* r: a->_roads)
@@ -428,11 +428,8 @@ history:
 			a->set_storage(a->storage() - t->volume);
 			// b->set_storage(b->storage() + t->volume);
 
-			Factory* a_ani = (Factory*)a->owner;
-			Factory* b_ani = (Factory*)b->owner;
-
-			a_ani->income(vol * a->price);
-			b_ani->income(- vol * b->price);
+			a->owner->income(vol * a->price);
+			b->owner->income(- vol * b->price);
 		}
 
 		for (Trader* p : _sellers)
@@ -448,7 +445,7 @@ history:
 	Trader* TradeMap::create_prod(Area* area, bool consumer, double volume, double price)
 	{
 		Trader* p = new Trader();
-		p->prod_id = prod_id;
+		p->product = &product;
 		p->price = price;
 		p->is_buyer = consumer;
 		p->volume = volume;

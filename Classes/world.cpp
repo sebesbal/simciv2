@@ -1,15 +1,15 @@
 #include "world.h"
+
 #include <algorithm>
-#include <string>
-#include <algorithm>
-#include "rapidxml.hpp"
-#include "rapidxml_print.hpp"
 #include <fstream>
 #include <sstream>
-
 #include <string>
 #include <iostream>
+
+#include "rapidxml.hpp"
+#include "rapidxml_print.hpp"
 #include "cocos2d.h"
+
 using namespace std;;
 
 namespace simciv
@@ -407,31 +407,10 @@ namespace simciv
 		Map::create(width, height, prod_count);
 		for (int i = 0; i < prod_count; ++i)
 		{
-			_trade_maps.push_back(new TradeMap(i));
+			_trade_maps.push_back(new TradeMap(*products[i]));
 		}
 		generate_factories();
 	}
-
-	/*
-	void World::generate_industry()
-	{
-		for (int i = 0; i < industry_count; ++i)
-		{
-			Industry s;
-			s.id = i;
-			for (int j = 0; j < _trade_maps.size(); ++j)
-			{
-				double d = (double)rand() / RAND_MAX;
-				int n = 3;
-				int k = std::floor((2 * n + 1) * d - n);
-				s.production.push_back(k);
-				double e = (double)rand() / RAND_MAX;
-				s.maintenance_cost.push_back(e);
-			}
-			industry.push_back(s);
-		}
-	}
-	*/
 
 	/* 
 	materials:
@@ -452,68 +431,6 @@ namespace simciv
 
 	*/
 
-	//void World::generate_industry()
-	//{
-	//	const int cost[4] = { 1, 2, 4, 8 };
-	//	const int output[5] = { 1, 3, 5, 8, 13 };
-	//	auto id = [](int level, int color) {
-	//		return level * color_count + (color + color_count) % color_count;
-	//	};
-	//	auto next_color = [](int color) {
-	//		return (color + 1) % color_count;
-	//	};
-
-	//	// generate article rules
-	//	std::vector<ProductionRule> art_rules;
-	//	for (int i = 0; i < level_count; ++i)
-	//	{
-	//		ProductionRule rule;
-	//		rule.input[id(i, 0)] = pow(0.5, i);
-	//		rule.output[0] = 1;
-	//		art_rules.push_back(rule);
-	//	}
-
-	//	//ProductionRule rule;
-	//	//rule.input[0] = 1;
-	//	//rule.output[0] = 1;
-	//	//art_rules.push_back(rule);
-
-	//	// generate maintenance
-	//	ProductMap maintenance;
-	//	maintenance[0] = 0.5;
-
-	//	for (int level = 0; level < level_count; ++level)
-	//	{
-	//		for (int color = 0; color < color_count; ++color)
-	//		{
-	//			Industry s;
-	//			s.level = level;
-	//			s.color = color;
-	//			s.type = IT_TYPECOLOR;
-	//			s.maintenance_cost = maintenance;
-	//			s.m2a_rules = art_rules;
-
-	//			ProductionRule r;
-	//			if (level > 0)
-	//			{
-	//				r.input[id(level - 1, color)] = 1;
-	//			}
-	//			r.output[id(level, color)] = 1;
-	//			s.m2m_rules.push_back(r);
-	//			s.icon_file = "img/shapes/shape_" + std::to_string(level) + "_" + std::to_string(color) + ".png";
-
-	//			industry.push_back(s);
-	//		}
-	//	}
-
-	//	Industry s;
-	//	s.type = IT_STORAGE;
-	//	s.icon_file = "img/shapes/storage.png";
-	//	industry.push_back(s);
-	//}
-
-
-
 string ExePath() {
 	char buffer[MAX_PATH];
 	GetModuleFileNameA(NULL, buffer, MAX_PATH);
@@ -525,29 +442,7 @@ string ExePath() {
 	{
 		CCLOG("ExePath() %s", ExePath());
 		load_from_file("res\\mod2.xml");
-		//load_from_file("C:\\dev\\simciv2\\proj.win32\\Debug.win32\\res\\mod1.xml");
 	}
-
-	//void World::generate_factories()
-	//{
-	//	int x = 10, y = 10;
-
-	//	auto s1 = get_industries("1");
-	//	create_factory(get_area(x + 4, y), *s1);
-
-	//	auto s0 = get_industries("0");
-	//	create_factory(get_area(x, y), *s0);
-
-	//	////create_factory(get_area(x, y+1), *s0);
-
-	//	//
-
-	//	auto s2 = get_industries("2");
-	//	create_factory(get_area(x + 2, y + 3), *s2);
-
-	//	////auto storage = get_storage_industry();
-	//	////create_factory(get_area(x + 2, y - 3), *storage);
-	//}
 
 	void World::generate_factories()
 	{

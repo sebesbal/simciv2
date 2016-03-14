@@ -7,10 +7,9 @@ namespace simciv
 	struct Road;
 	struct RoadMap;
 
-	/// One cell on the map
+	/// One cell of the map
 	struct Area
 	{
-		Area(int index);
 		int index;
 		int x;
 		int y;
@@ -18,10 +17,9 @@ namespace simciv
 		RoadMap* map; ///< routes from this
 	};
 
-	/// A road between two adjacent Area
+	/// Road between two adjacent Area
 	struct Road
 	{
-		Road(double cost);
 		Area* a;
 		Area* b;
 		double cost;

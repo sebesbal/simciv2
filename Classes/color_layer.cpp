@@ -1,8 +1,10 @@
 #include "world_ui.h"
+
+#include <map>
+
 #include "trade.h"
 #include "controls.h"
 #include "world.h"
-#include <map>
 
 namespace simciv
 {
@@ -169,7 +171,7 @@ void ColorMapLayer::update(float delta)
 				{
 					if (transport->route->roads.size() > 0)
 					{
-						RouteAnimation* f = new RouteAnimation();
+						TransportAnimation* f = new TransportAnimation();
 						f->set_route(prod_id, transport, this);
 						transports[transport] = f;
 					}
@@ -179,14 +181,14 @@ void ColorMapLayer::update(float delta)
 					Transport* t = it->first;
 					if (t->volume == 0 && t->active_time + 50 < world.time)
 					{
-						RouteAnimation* f = it->second;
+						TransportAnimation* f = it->second;
 						f->stop();
 						transports.erase(it);
 						delete f;
 					}
 					else
 					{
-						//RouteAnimation* f = it->second;
+						//TransportAnimation* f = it->second;
 						//f->start();
 
 					}
@@ -196,21 +198,17 @@ void ColorMapLayer::update(float delta)
 	}
 }
 
-RouteAnimation::RouteAnimation() : sprite(NULL), transport(NULL)
+TransportAnimation::TransportAnimation() : sprite(NULL), transport(NULL)
 {
 }
 
-void RouteAnimation::set_route(int prod_id, Transport* transport, MapView* map)
+void TransportAnimation::set_route(int prod_id, Transport* transport, MapView* map)
 {
 	if (sprite) return;
 
-	// auto it = route->roads.begin();
 	Area* a = transport->seller->area;
-	//Sprite* sprite = Sprite::create(get_factory_texture(f->industry.id));
 	sprite = Sprite::create(get_product_texture(prod_id));
 	Rect r = map->get_rect(a->x, a->y);
-	//sprite->setPosition(r.getMidX(), r.getMidY());
-	//sprite->setScale(0.04f);
 	sprite->setScale(0.1f);
 	map->addChild(sprite);
 
@@ -240,7 +238,7 @@ void RouteAnimation::set_route(int prod_id, Transport* transport, MapView* map)
 		// time += 0.05;
 		//a = b;
 	}
-	//CCFiniteTimeAction* actionMoveDone = CCCallFuncN::create(this, callfuncN_selector(RouteAnimation::spriteMoveFinished));
+	//CCFiniteTimeAction* actionMoveDone = CCCallFuncN::create(this, callfuncN_selector(TransportAnimation::spriteMoveFinished));
 	CCFiniteTimeAction* actionMoveDone = CCCallFuncN::create([](CCNode* sender){});
 	v.pushBack(actionMoveDone);
 	// v.pushBack(NULL);
@@ -248,7 +246,7 @@ void RouteAnimation::set_route(int prod_id, Transport* transport, MapView* map)
 	sprite->runAction(CCRepeatForever::create(CCSequence::create(v)));
 }
 
-void RouteAnimation::stop()
+void TransportAnimation::stop()
 {
 	if (sprite)
 	{
@@ -257,7 +255,7 @@ void RouteAnimation::stop()
 	}
 }
 
-void RouteAnimation::start()
+void TransportAnimation::start()
 {
 	if (sprite)
 	{
@@ -269,7 +267,7 @@ void RouteAnimation::start()
 }
 
 //
-//void RouteAnimation::spriteMoveFinished(CCNode* sender)
+//void TransportAnimation::spriteMoveFinished(CCNode* sender)
 //{
 //	//CCSprite *sprite = (CCSprite *)sender;
 //	//this->removeChild(sprite, true);

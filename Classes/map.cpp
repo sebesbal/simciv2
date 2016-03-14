@@ -1,8 +1,9 @@
-
 #include "map.h"
-#include <queue>
-#include "trade.h"
+
 #include "assert.h"
+#include <queue>
+
+#include "trade.h"
 
 using namespace std;
 
@@ -35,14 +36,6 @@ namespace simciv
 		}
 	};
 
-	Area::Area(int index) : index(index), map(NULL)
-	{
-	}
-
-	Road::Road(double cost): cost(cost)
-	{
-	}
-
 	Map::Map() : time(0)
 	{
 
@@ -56,7 +49,9 @@ namespace simciv
 		{
 			for (int x = 0; x < width; ++x)
 			{
-				Area* a = new Area(_areas.size());
+				Area* a = new Area();
+				a->index = _areas.size();
+				a->map = NULL;
 				a->x = x;
 				a->y = y;
 				_areas.push_back(a);
@@ -84,7 +79,8 @@ namespace simciv
 	void Map::add_road(Area* a, Area* b)
 	{
 		bool orto = a->x == b->x || a->y == b->y;
-		Road* r = new Road(orto ? 1.0 : 1.414);
+		Road* r = new Road();
+		r->cost = orto ? 1.0 : 1.414;
 		r->a = a;
 		r->b = b;
 		_roads.push_back(r);

@@ -1,5 +1,5 @@
-#include "world_ui.h"
 #include "controls.h"
+#include "world_ui.h"
 
 namespace simciv
 {
@@ -47,79 +47,6 @@ Layout* labelled_cb(std::string text, bool checked, CheckBox::ccCheckBoxCallback
 
 	return l;
 }
-
-
-std::string get_factory_texture(int id)
-{
-	const std::string files[46] = { "giraffe.png",
-		"gorilla.png",
-		"hippo.png",
-		"horse.png",
-		"insect.png",
-		"lion.png",
-		"monkey.png",
-		"moose.png",
-		"mouse.png",
-		"owl.png",
-		"panda.png",
-		"penguin.png",
-		"pig.png",
-		"rabbit.png",
-		"rhino.png",
-		"rooster.png",
-		"shark.png",
-		"sheep.png",
-		"snake.png",
-		"tiger.png",
-		"turkey.png",
-		"turtle.png",
-		"wolf.png",
-		"alligator.png",
-		"ant.png",
-		"bat.png",
-		"bear.png",
-		"bee.png",
-		"bird.png",
-		"bull.png",
-		"bulldog.png",
-		"butterfly.png",
-		"cat.png",
-		"chicken.png",
-		"cow.png",
-		"crab.png",
-		"crocodile.png",
-		"deer.png",
-		"dog.png",
-		"donkey.png",
-		"duck.png",
-		"eagle.png",
-		"elephant.png",
-		"fish.png",
-		"fox.png",
-		"frog.png" };
-
-	return "img/factories/" + files[id];
-}
-
-/*
-std::string get_product_texture(int id)
-{
-	const std::string files[6] = { "Tomato-icon.png",
-		"Cabbage-icon.png",
-		"Eggproduct-icon.png",
-		"Onion-icon.png",
-		"Pepper-icon.png",
-		"Pumpkin-icon.png" };
-
-	return "img/products/" + files[id];
-}
-*/
-//std::string get_product_texture(int id)
-//{
-//	int level = id / 3;
-//	int color = id % 3;
-//	return "img/shapes/shape_" + std::to_string(level) + "_" + std::to_string(color) + ".png";
-//}
 
 std::string get_product_texture(int id)
 {
@@ -459,7 +386,7 @@ void RadioMenu::on_btn_clicked(Ref* btn, Widget::TouchEventType type)
 	}
 }
 
-MyPanel::MyPanel()
+Panel::Panel()
 {
 	_bck = LayerColor::create(def_bck_color4B);
 	_bck->setZOrder(0);
@@ -467,20 +394,20 @@ MyPanel::MyPanel()
 	addChild(_bck);
 }
 
-Text* MyPanel::create_label(std::string text)
+Text* Panel::create_label(std::string text)
 {
 	auto label = ui::Text::create(text, "Arial", 12);
 	label->ignoreContentAdaptWithSize(false);
 	return label;
 }
 
-DebugLabel* MyPanel::create_data_label(double* data)
+DataLabel* Panel::create_data_label(double* data)
 {
 	//LinearLayoutParameter* po = LinearLayoutParameter::create();
 	//po->setMargin(ui::Margin(5, 5, 5, 5));
 	//po->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
 
-	DebugLabel* label = new DebugLabel();
+	DataLabel* label = new DataLabel();
 	label->ignoreContentAdaptWithSize(false);
 	//label->setContentSize(Size(wd, h));
 	//label->setLayoutParameter(po);
@@ -489,13 +416,13 @@ DebugLabel* MyPanel::create_data_label(double* data)
 	return label;
 }
 
-void MyPanel::setContentSize(const Size & var)
+void Panel::setContentSize(const Size & var)
 {
 	Layout::setContentSize(var);
 	_bck->setContentSize(var);
 }
 
-void MyPopup::onDraw(const Mat4 &transform, uint32_t flags)
+void Popup::onDraw(const Mat4 &transform, uint32_t flags)
 {
 	Director* director = Director::getInstance();
 	director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
@@ -508,10 +435,10 @@ void MyPopup::onDraw(const Mat4 &transform, uint32_t flags)
 	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
-void MyPopup::draw(Renderer *renderer, const Mat4& transform, uint32_t flags)
+void Popup::draw(Renderer *renderer, const Mat4& transform, uint32_t flags)
 {
 	_customCommand.init(_globalZOrder);
-	_customCommand.func = CC_CALLBACK_0(MyPopup::onDraw, this, transform, flags);
+	_customCommand.func = CC_CALLBACK_0(Popup::onDraw, this, transform, flags);
 	renderer->addCommand(&_customCommand);
 }
 
@@ -537,7 +464,7 @@ FactoryPopup::FactoryPopup()
 		text->ignoreContentAdaptWithSize(false);
 		text->setContentSize(Size(w / 2 - m, rh));
 
-		DebugLabel* label = new DebugLabel();
+		DataLabel* label = new DataLabel();
 		hb->addChild(label);
 		label->data = d;
 		label->setContentSize(Size(w / 2, rh));
@@ -549,7 +476,7 @@ FactoryPopup::FactoryPopup()
 
 void FactoryPopup::onDraw(const Mat4 &transform, uint32_t flags)
 {
-	MyPopup::onDraw(transform, flags);
+	Popup::onDraw(transform, flags);
 }
 
 IndustryView::IndustryView()
@@ -569,7 +496,7 @@ IndustryView::IndustryView()
 	_name_label->setTextHorizontalAlignment(TextHAlignment::LEFT);
 	addChild(_name_label);
 
-	_build_cost = MaterialStringView::create(30);
+	_build_cost = ProductStringView::create(30);
 	addChild(_build_cost);
 
 	_build_cost_label = Text::create("Build cost", def_font, def_font_size);
@@ -635,10 +562,10 @@ void IndustryView::set_industry(Industry* industry)
 
 			HBox* h = HBox::create();
 			h->setContentSize(Size(ss.width, 30));
-			auto left = MaterialStringView::create(30);
+			auto left = ProductStringView::create(30);
 			left->set_map(rule.input);
 			left->setContentSize(Size(ss.width / 2, 30));
-			auto right = MaterialStringView::create(30);
+			auto right = ProductStringView::create(30);
 			right->set_map(rule.output);
 
 			h->addChild(left);
@@ -658,7 +585,7 @@ void IndustryView::add_prod_row(Products& prod)
 
 void IndustryView::setContentSize(const Size & var)
 {
-	MyPanel::setContentSize(var);
+	Panel::setContentSize(var);
 	int m = 5;
 	int y = var.height;
 	_icon->setPosition(Vec2(m, var.height - m));
@@ -803,7 +730,7 @@ void FactoryView::update(float delta)
 
 void FactoryView::setContentSize(const Size & var)
 {
-	MyPanel::setContentSize(var);
+	Panel::setContentSize(var);
 }
 
 void FactoryView::doLayout()
@@ -847,7 +774,7 @@ ui::HBox* FactoryView::create_producer_view(Trader* p)
 	po->setMargin(ui::Margin(5, 5, 5, 5));
 	po->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
 
-	auto sprite = MaterialSprite::create(p->prod_id, 20);
+	auto sprite = ProductSprite::create(p->product, 20);
 	sprite->setLayoutParameter(po);
 	prodview->addChild(sprite);
 
@@ -887,12 +814,12 @@ ui::HBox* FactoryView::create_producer_view2(Trader* p)
 	po->setMargin(ui::Margin(5, 5, 5, 5));
 	po->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
 
-	auto sprite = MaterialSprite::create(p->prod_id, 20);
+	auto sprite = ProductSprite::create(p->product, 20);
 	sprite->setLayoutParameter(po);
 	prodview->addChild(sprite);
 
 	auto f = [prodview, wd, h, po](double* d) {
-		DebugLabel* label = new DebugLabel();
+		DataLabel* label = new DataLabel();
 		label->ignoreContentAdaptWithSize(false);
 		label->setContentSize(Size(wd, h));
 		label->setLayoutParameter(po);
@@ -979,12 +906,12 @@ void Diagram::draw(Renderer *renderer, const Mat4& transform, uint32_t flags)
 	renderer->addCommand(&_customCommand);
 }
 
-MaterialSprite* MaterialSprite::create(int id, int size)
+ProductSprite* ProductSprite::create(Product* p, int size)
 {
-	MaterialSprite* result = new MaterialSprite();
+	ProductSprite* result = new ProductSprite();
 	if (result->init())
 	{
-		result->loadTexture(get_product_texture(id));
+		result->loadTexture(p->icon_file);
 		result->ignoreContentAdaptWithSize(false);
 		result->setAnchorPoint(Vec2(0.5, 0.5));
 		result->setContentSize(Size(size, size));
@@ -998,9 +925,9 @@ MaterialSprite* MaterialSprite::create(int id, int size)
 	}
 }
 
-MaterialStringView* MaterialStringView::create(int size)
+ProductStringView* ProductStringView::create(int size)
 {
-	MaterialStringView* result = new MaterialStringView();
+	ProductStringView* result = new ProductStringView();
 	result->_size = size;
 	if (result->init())
 	{
@@ -1014,18 +941,19 @@ MaterialStringView* MaterialStringView::create(int size)
 	}
 }
 
-void MaterialStringView::set_vector(const Products& v, int size)
+void ProductStringView::set_vector(const Products& v, int size)
 {
 	int i = 0;
 	int x = size / 2;
 	for (auto& d : v)
 	{
+		Product* p = world.get_products()[i];
 		int m = d;
 		if (m > 4)
 		{
 			int s2 = 1.3 * size;
 
-			auto s = MaterialSprite::create(i, s2);
+			auto s = ProductSprite::create(p, s2);
 			s->setPosition(Vec2(x, 0));
 			addChild(s);
 			
@@ -1045,7 +973,7 @@ void MaterialStringView::set_vector(const Products& v, int size)
 		{
 			for (int k = 0; k < m; ++k)
 			{
-				auto s = MaterialSprite::create(i, size);
+				auto s = ProductSprite::create(p, size);
 				s->setPosition(Vec2(x, 0));
 				x += size / 2;
 				addChild(s);
@@ -1060,22 +988,22 @@ void MaterialStringView::set_vector(const Products& v, int size)
 	setContentSize(Size(x, size));
 }
 
-void MaterialStringView::set_map(const ProductMap& map)
+void ProductStringView::set_map(const ProductMap& map)
 {
 	for (auto& p : map)
 	{
-		add_item(p.first, p.second);
+		add_item(world.get_products()[p.first], p.second);
 	}
 }
 
-void MaterialStringView::add_item(int prod_id, double volume)
+void ProductStringView::add_item(Product* p, double volume)
 {
 	float x = getContentSize().width + _size / 2;
 	if (volume > 4)
 	{
 		int s2 = 1.3 * _size;
 
-		auto s = MaterialSprite::create(prod_id, s2);
+		auto s = ProductSprite::create(p, s2);
 		s->setPosition(Vec2(x, 0));
 		addChild(s);
 
@@ -1095,7 +1023,7 @@ void MaterialStringView::add_item(int prod_id, double volume)
 	{
 		for (int k = 0; k < volume; ++k)
 		{
-			auto s = MaterialSprite::create(prod_id, _size);
+			auto s = ProductSprite::create(p, _size);
 			s->setPosition(Vec2(x, 0));
 			x += _size / 2;
 			addChild(s);
