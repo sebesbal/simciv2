@@ -131,7 +131,7 @@ Layout* combobox(const std::string* labels)
 	return NULL;
 }
 
-RadioBox::RadioBox (int* data, std::vector<std::string> labels, int hh, int marginy): data(data), hh(hh), marginy(marginy)
+RadioBox::RadioBox(std::vector<std::string> labels, int hh, int marginy) : hh(hh), marginy(marginy), selected(0)
 {
 	int k = 0;
 	for (auto l: labels)
@@ -160,16 +160,27 @@ void RadioBox::setSelected(int i)
 	{
 		((CheckBox*)item->getChildren().at(0))->setSelected(i == l++);
 	}
-	*(this->data) = i;
+	// *(this->data) = i;
+	selected = i;
 	if (changed)
 	{
 		changed(i);
 	}
 }
 
-RadioBox* RadioBox::create(int* data, std::vector<std::string> labels, int hh, int marginy)
+int RadioBox::getSelected()
 {
-	RadioBox* widget = new RadioBox(data, labels, hh, marginy);
+	return selected;
+}
+
+void RadioBox::update()
+{
+	changed(selected);
+}
+
+RadioBox* RadioBox::create(std::vector<std::string> labels, int hh, int marginy)
+{
+	RadioBox* widget = new RadioBox(labels, hh, marginy);
 	if (widget && widget->init())
 	{
 		widget->autorelease();
@@ -517,7 +528,7 @@ AnimalPopup::AnimalPopup()
 	v->setAnchorPoint(Vec2(0, 0));
 	this->addChild(v);
 
-	auto f = [&](string str, double* d){
+	auto f = [&](string str, double* d) {
 		HBox* hb = HBox::create(Size(w, rh));
 		v->addChild(hb);
 

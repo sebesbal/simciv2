@@ -96,7 +96,7 @@ namespace simciv
 		void remove_prod(Producer* prod);
 		void remove_prod(Area* area, double volume, double price);
 		void move_prod(Producer* prod, Area* new_area);
-		void routes_to_areas(int prod_id);
+		void routes_to_areas();
 		void generate_resources();
 		std::vector<Transport*>& transports() { return _transports; }
 		void update_transports(); ///< find possible trade routes

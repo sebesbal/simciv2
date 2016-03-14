@@ -29,15 +29,17 @@ namespace simciv
 	class RadioBox : public ui::HBox
 	{
 	public:
-		RadioBox(int* data, std::vector<std::string> labels, int hh, int marginy);
+		RadioBox(std::vector<std::string> labels, int hh, int marginy);
 		void setSelected(int i);
-		static RadioBox* create(int* data, std::vector<std::string> labels, int hh, int marginy);
+		int getSelected();
+		void update();
+		static RadioBox* create(std::vector<std::string> labels, int hh, int marginy);
 		ui::Layout* labelled_radio(std::string text, ui::CheckBox::ccCheckBoxCallback cb);
 		ui::Layout* image_radio(std::string img, ui::CheckBox::ccCheckBoxCallback cb);
 		int hh;
 		int marginy;
 		std::vector<ui::Widget*> items;
-		int* data;
+		int selected;
 		std::function<void(int)> changed;
 	};
 

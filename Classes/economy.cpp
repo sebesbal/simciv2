@@ -274,7 +274,7 @@ history:
 		_new_production->resize(n);
 		_area_buyers.resize(n);
 		_area_sellers.resize(n);
-		// generate_resources();
+		generate_resources();
 		//g = _world.create_g();
 	}
 
@@ -386,7 +386,7 @@ history:
 		}
 	}
 
-	void ProductMap::routes_to_areas(int prod_id)
+	void ProductMap::routes_to_areas()
 	{
 		for (Road* r: _world.roads())
 		{
@@ -414,10 +414,26 @@ history:
 
 	void ProductMap::generate_resources()
 	{
+		auto& v = *_production;
+
 		for (size_t i = 0; i < _world.areas().size(); ++i)
 		{
 			//AreaProd& ap = (*_production)[i];
-			(*_new_production)[i].resource = (*_production)[i].resource = pow( (double)rand() / RAND_MAX, 3);
+			//(*_new_production)[i].resource = (*_production)[i].resource = pow( (double)rand() / RAND_MAX, 3);
+			v[i].resource = pow((double)rand() / RAND_MAX, 3);
+		}
+
+		for (Area* a : _world.areas())
+		{
+			int i = a->index;
+			int k = 1;
+			double sum = v[i].resource;
+			for (Road* r : a->_roads)
+			{
+				sum += v[r->other(a)->index].resource;
+				++k;
+			}
+			(*_new_production)[i].resource = v[i].resource = sum / k;
 		}
 	}
 

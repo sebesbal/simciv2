@@ -179,6 +179,11 @@ protected:
 	ui::VBox* _animal_layers_panel;
 	ui::VBox* _plant_layers_panel;
 	ui::HBox* _play_panel;
+
+	std::function<void()> _on_state_plant;
+	std::function<void()> _on_state_build;
+	std::function<void()> _on_state_animal;
+
 	void tick(float f);
 	void load_from_tmx(std::string tmx);
 	virtual bool onTouchBegan(Touch* touch, Event  *event);

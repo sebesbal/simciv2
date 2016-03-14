@@ -47,4 +47,9 @@
       <out plant="2" vol="1" />
     </produce>
   </species>
+  <species id="3" image="castle2.png">
+    <eat>
+      <in plant="0" vol="1" />
+    </eat>
+  </species>
 </simciv>

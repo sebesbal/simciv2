@@ -346,72 +346,26 @@ void WorldUI::create_play_panel()
 RadioMenu* WorldUI::create_species_browser()
 {
 	RadioMenu* result = RadioMenu::create();
-	//for (int level = 0; level < level_count; ++level)
-	//{
-	//	result->add_row();
-	//	for (int color = 0; color < color_count; ++color)
-	//	{
-	//		Species* s = _model.get_species(level, color);
-	//		auto btn = MenuButton::create(s->icon_file);
-	//		btn->setUserData(s);
-	//		result->add_radio_button(btn);
-	//	}
-	//}
 
 	auto& species = _model.get_species();
 	int i = 0;
 	for (auto s : species)
 	{
-		if (i % 3 == 0) result->add_row();
+		if (i++ % 3 == 0) result->add_row();
 		auto btn = MenuButton::create(s->icon_file);
+		btn->setUserData(s);
 		result->add_radio_button(btn);
 	}
 
-
-	//result->add_row();
-	//Species* s = _model.get_storage_species();
-	//auto btn = MenuButton::create(s->icon_file);
-	//btn->setUserData(s);
-	//result->add_radio_button(btn);
-
 	result->set_selected_btn(0);
 	result->set_on_changed([this](MenuButton* btn) {
-		//int id = btn->getTag();
-		// this->info.animal_id = id;
 		Species* s = (Species*)btn->getUserData();
 		this->info.species = s;
 		_species_view->set_species(s);
+		set_state(_state);
 	});
 	return result;
 }
-
-//RadioMenu* WorldUI::create_plants_browser()
-//{
-//	RadioMenu* result = RadioMenu::create();
-//	for (int level = 0; level < level_count; ++level)
-//	{
-//		result->add_row();
-//		for (int color = 0; color < color_count; ++color)
-//		{
-//			auto btn = MenuButton::create(_model.get_species().at(mat_id(level, color)).icon_file);
-//			result->add_radio_button(btn);
-//		}
-//	}
-//
-//
-//	//for (int i = 0; i < mat_count; ++i)
-//	//{
-//	//	auto btn = MenuButton::create(get_plant_texture(i));
-//	//	result->add_radio_button(btn);
-//	//}
-//
-//	result->set_selected_btn(0);
-//	result->set_on_changed([this](MenuButton* btn) {
-//		info.plant_id = btn->getTag();
-//		set_state(_state);
-//	});
-//	return result;
-//}
 
 RadioMenu* WorldUI::create_plants_browser()
 {
@@ -420,14 +374,15 @@ RadioMenu* WorldUI::create_plants_browser()
 	int i = 0;
 	for (auto plant : plants)
 	{
-		if (i % 3 == 0) result->add_row();
+		if (i++ % 3 == 0) result->add_row();
 		auto btn = MenuButton::create(plant->icon_file);
+		btn->setUserData(plant);
 		result->add_radio_button(btn);
 	}
 
 	result->set_selected_btn(0);
 	result->set_on_changed([this](MenuButton* btn) {
-		info.plant->id = btn->getTag();
+		info.plant = (Plant*)btn->getUserData(); // _model.get_plants()[btn->getTag()];
 		set_state(_state);
 	});
 	return result;
@@ -457,9 +412,8 @@ void WorldUI::create_plant_layers_panel()
 	// ==============================================================================================
 	// PRICE - VOL - RES
 	info.mode = MM_PRICE_SELL;
-	static int dummy;
 	defvec(vec1, "Sell", "Buy", "Res.")
-		auto rb = RadioBox::create(&dummy, vec1, hh, marginy);
+		auto rb = RadioBox::create(vec1, hh, marginy);
 	rb->setLayoutParameter(p);
 	rb->changed = [this](int id) {
 		switch (id)
@@ -479,6 +433,11 @@ void WorldUI::create_plant_layers_panel()
 	};
 	_plant_layers_panel->addChild(rb);
 	_plant_layers_panel->setAnchorPoint(Vec2(1, 0));
+	
+	_on_state_plant = [=](){
+		rb->update();
+	};
+
 	this->addChild(_plant_layers_panel);
 }
 
@@ -508,9 +467,8 @@ void WorldUI::create_animal_layers_panel()
 
 	// ==============================================================================================
 	// PRICE - VOL - RES
-	static int dummy;
 	defvec(vec1, "Profit", "Cost", "Res.", "Both")
-	auto rb = RadioBox::create(&dummy, vec1, hh, marginy);
+	auto rb = RadioBox::create(vec1, hh, marginy);
 	rb->setLayoutParameter(p);
 	rb->changed = [this](int id) {
 		switch (id)
@@ -531,6 +489,11 @@ void WorldUI::create_animal_layers_panel()
 			break;
 		}
 	};
+
+	_on_state_animal = [=](){
+		rb->update();
+	};
+
 	_animal_layers_panel->addChild(rb);
 	_animal_layers_panel->setAnchorPoint(Vec2(1, 0));
 	this->addChild(_animal_layers_panel);
@@ -568,13 +531,18 @@ void WorldUI::set_state(UIState state)
 	_plants_browser->setVisible(plants);
 	_plant_layers_panel->setVisible(plants);
 	_animal_layers_panel->setVisible(animals);
-	_plant_layer->setVisible(info.plant);
+	_plant_layer->setVisible(true);
 
 	if (animals)
 	{
 		if (_popup) _popup->removeFromParent();
 		_popup = new AnimalPopup();
 		this->addChild(_popup);
+		_on_state_animal();
+	}
+	else if (plants)
+	{
+		_on_state_plant();
 	}
 }
 
@@ -621,10 +589,13 @@ void WorldUI::update_popup(const Vec2& wp)
 	auto n = find_child(this, wp);
 	if (n == _animal_layer)
 	{
-		_popup->setPosition(wp + Vec2(10, 10));
-		((AnimalPopup*)_popup)->set_profit(Info::profit(a, info.species));
-		((AnimalPopup*)_popup)->set_cost(Info::build_cost(a, info.species));
-		_popup->setVisible(true);
+		if (info.species)
+		{
+			_popup->setPosition(wp + Vec2(10, 10));
+			((AnimalPopup*)_popup)->set_profit(Info::profit(a, info.species));
+			((AnimalPopup*)_popup)->set_cost(Info::build_cost(a, info.species));
+			_popup->setVisible(true);
+		}
 	}
 	else
 	{

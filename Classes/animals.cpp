@@ -503,25 +503,33 @@ string ExePath() {
 		//load_from_file("C:\\dev\\simciv2\\proj.win32\\Debug.win32\\res\\mod1.xml");
 	}
 
+	//void AnimalWorld::generate_animals()
+	//{
+	//	int x = 10, y = 10;
+
+	//	auto s1 = get_species("1");
+	//	create_animal(get_area(x + 4, y), *s1);
+
+	//	auto s0 = get_species("0");
+	//	create_animal(get_area(x, y), *s0);
+
+	//	////create_animal(get_area(x, y+1), *s0);
+
+	//	//
+
+	//	auto s2 = get_species("2");
+	//	create_animal(get_area(x + 2, y + 3), *s2);
+
+	//	////auto storage = get_storage_species();
+	//	////create_animal(get_area(x + 2, y - 3), *storage);
+	//}
+
 	void AnimalWorld::generate_animals()
 	{
-		int x = 10, y = 10;
+		int x = 12, y = 10;
 
-		auto s1 = get_species("1");
-		create_animal(get_area(x + 4, y), *s1);
-
-		auto s0 = get_species("0");
-		create_animal(get_area(x, y), *s0);
-
-		////create_animal(get_area(x, y+1), *s0);
-
-		//
-
-		auto s2 = get_species("2");
-		create_animal(get_area(x + 2, y + 3), *s2);
-
-		////auto storage = get_storage_species();
-		////create_animal(get_area(x + 2, y - 3), *storage);
+		auto s1 = get_species("3");
+		create_animal(get_area(x, y), *s1);
 	}
 
 	Animal* AnimalWorld::create_animal(Area* a, Species& species)
