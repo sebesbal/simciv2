@@ -146,22 +146,22 @@ xcopy /Y /Q "$(COCOS_FRAMEWORKS)\cocos2d-x-3.8\prebuilt\win32\*.*" "$(OutDir)"
     </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Classes\animals.cpp" />
-    <ClCompile Include="..\Classes\animal_layer.cpp" />
     <ClCompile Include="..\Classes\AppDelegate.cpp" />
+    <ClCompile Include="..\Classes\color_layer.cpp" />
     <ClCompile Include="..\Classes\controls.cpp" />
+    <ClCompile Include="..\Classes\factory_layer.cpp" />
     <ClCompile Include="..\Classes\map.cpp" />
     <ClCompile Include="..\Classes\map_view.cpp" />
-    <ClCompile Include="..\Classes\plant_layer.cpp" />
     <ClCompile Include="..\Classes\trade.cpp" />
+    <ClCompile Include="..\Classes\world.cpp" />
     <ClCompile Include="..\Classes\world_ui.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Classes\animals.h" />
     <ClInclude Include="..\Classes\AppDelegate.h" />
     <ClInclude Include="..\Classes\map.h" />
     <ClInclude Include="..\Classes\trade.h" />
+    <ClInclude Include="..\Classes\world.h" />
     <ClInclude Include="..\Classes\world_ui.h" />
     <ClInclude Include="..\Classes\controls.h" />
     <ClInclude Include="main.h" />

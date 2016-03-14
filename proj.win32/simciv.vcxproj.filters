@@ -27,9 +27,6 @@
     <ClCompile Include="main.cpp">
       <Filter>win32</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\animals.cpp">
-      <Filter>src\Model</Filter>
-    </ClCompile>
     <ClCompile Include="..\Classes\world_ui.cpp">
       <Filter>src\UI</Filter>
     </ClCompile>
@@ -42,25 +39,25 @@
     <ClCompile Include="..\Classes\controls.cpp">
       <Filter>src\UI\Controls</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\plant_layer.cpp">
-      <Filter>src\UI\Map</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\animal_layer.cpp">
-      <Filter>src\UI\Map</Filter>
-    </ClCompile>
     <ClCompile Include="..\Classes\trade.cpp">
       <Filter>src\Model</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\map.cpp">
       <Filter>src\Model</Filter>
     </ClCompile>
+    <ClCompile Include="..\Classes\color_layer.cpp">
+      <Filter>src\UI\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\factory_layer.cpp">
+      <Filter>src\UI\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\world.cpp">
+      <Filter>src\Model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
       <Filter>win32</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Classes\animals.h">
-      <Filter>src\Model</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\world_ui.h">
       <Filter>src\UI</Filter>
@@ -75,6 +72,9 @@
       <Filter>src\Model</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\map.h">
+      <Filter>src\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\world.h">
       <Filter>src\Model</Filter>
     </ClInclude>
   </ItemGroup>

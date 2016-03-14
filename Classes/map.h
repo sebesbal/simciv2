@@ -5,14 +5,9 @@
 namespace simciv
 {
 	struct Road;
-	struct AreaTrade;
-	struct Trader;
-	class TradeMap;
-	struct Route;
-
-
 	struct RoadMap;
 
+	/// One cell on the map
 	struct Area
 	{
 		Area(int index);
@@ -23,6 +18,7 @@ namespace simciv
 		RoadMap* map; ///< routes from this
 	};
 
+	/// A road between two adjacent Area
 	struct Road
 	{
 		Road(double cost);
@@ -32,13 +28,14 @@ namespace simciv
 		Area* other(Area* a) { return a == this->a ? b : this->a; }
 	};
 
+	/// List of roads between two distant Area
 	struct Route
 	{
 		std::vector<Road*> roads;
 		double cost;
 	};
 
-	/// The map. Graph of areas and roads.
+	/// Graph of the areas and roads.
 	class Map
 	{
 	public:

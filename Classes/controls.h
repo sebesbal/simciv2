@@ -3,7 +3,7 @@
 #include "ui/CocosGUI.h"
 #include "cocos2d.h"
 #include "trade.h"
-#include "animals.h"
+#include "world.h"
 #include "ui/UIImageView.h"
 #include "ui/UILayout.h"
 #include <iomanip>
@@ -20,7 +20,7 @@ namespace simciv
 
 	std::string get_factory_texture(int id);
 
-	std::string get_plant_texture(int id);
+	std::string get_product_texture(int id);
 
 	// typedef void(*int_cb)(int id);
 	typedef std::function<void(int)> int_cb;
@@ -115,10 +115,10 @@ namespace simciv
 		virtual void onDraw(const Mat4 &transform, uint32_t flags);
 	};
 
-	class AnimalPopup : public MyPopup
+	class FactoryPopup : public MyPopup
 	{
 	public:
-		AnimalPopup();
+		FactoryPopup();
 		void set_profit(double profit) { _profit = profit; }
 		void set_cost(double cost) { _cost = cost; }
 	protected:
@@ -128,13 +128,13 @@ namespace simciv
 	};
 
 	/// Show one industry
-	class SpeciesView : public MyPanel
+	class IndustryView : public MyPanel
 	{
 	public:
-		SpeciesView();
-		static SpeciesView* create();
+		IndustryView();
+		static IndustryView* create();
 		bool init() override;
-		void set_species(Industry* industry);
+		void set_industry(Industry* industry);
 	protected:
 		void add_prod_row(Products& prod);
 		virtual void setContentSize(const Size & var) override;
@@ -146,15 +146,15 @@ namespace simciv
 		MaterialStringView* _build_cost;
 		MaterialStringView* _maintenance_cost;
 
-		Industry* _species;
+		Industry* _industry;
 	};
 
 	/// Show one factories properties
-	class AnimalView : public MyPanel
+	class FactoryView : public MyPanel
 	{
 	public:
-		AnimalView();
-		static AnimalView* create();
+		FactoryView();
+		static FactoryView* create();
 		bool init() override;
 		void set_factory(Factory* Factory);
 		virtual void update(float delta) override;

@@ -45,7 +45,6 @@ public:
 	void draw_rect_green(int x, int y, double rate, double alpha);
 	void draw_triangles(int x, int y, double a, double b);
 	void draw_circles(int x, int y, double a, double b);
-	void draw_vec(Vec2 a, Vec2 v);
     Rect get_rect(int x, int y);
 	Area* get_area(Vec2 p);
 	int cell_size() { return cs; }
@@ -68,68 +67,49 @@ enum UIMapMode
 	MM_SPECIES_RESOURCES
 };
 
-//struct UIMapData
-//{
-//	UIMapMode mode;
-//	Industry* industry;
-//	Product* plant;
-//};
-
 struct UIStateData
 {
 	UIStateData() : 
 		industry(NULL),
-		plant(NULL),
+		product(NULL),
 		mode(MM_NONE),
-		// price_vol_mode(0),
-		// produce_consume_mode(2),
 		show_grid(false),
 		show_transport(true),
-		show_plants(true)
+		show_products(true)
 	{
 
 	}
 	UIMapMode mode;
 	Industry* industry;
-	Product* plant;
-	// int price_vol_mode;
-	// int produce_consume_mode;
+	Product* product;
 	bool show_grid;
 	bool show_transport;
-	bool show_plants;
+	bool show_products;
 };
 
 /// Draw mines and factories
-class PlantMapLayer : public MapView
+class ColorMapLayer : public MapView
 {
 public:
-	PlantMapLayer(UIStateData& info) : info(info) { }
-	static PlantMapLayer* create(Map* model, UIStateData& info);
+	ColorMapLayer(UIStateData& info) : info(info) { }
+	static ColorMapLayer* create(Map* model, UIStateData& info);
 	void update(float delta);
 protected:
 	UIStateData& info;
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
-	
-	void set_price_vol_mode(int i);
-	void set_sup_buy_mode(int i);
 	std::map<Transport*, RouteAnimation*> transports;
 };
 
 /// Render factories
-class AnimalMapLayer : public MapView
+class FactoryMapLayer : public MapView
 {
 public:
-	static AnimalMapLayer* create(AnimalWorld* model);
+	static FactoryMapLayer* create(World* model);
 	virtual bool init() override;
-	//bool onTouchBegan(Touch* touch, Event  *event) override;
-	//void onTouchEnded(Touch* touch, Event  *event) override;
-	//void onTouchMoved(Touch* touch, Event  *event) override;
 	Factory* create_factory(Area* a, Industry& industry);
-	Sprite* create_sprite(Factory* ani);
+	Sprite* create_sprite(Factory* f);
 	void create_sprites_from_model();
 protected:
-	// AnimalWorld& model() { return *(AnimalWorld*)_model; }
-	bool is_map_point(cocos2d::Vec2& p);
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
 	Node* _factories;
 };
@@ -146,14 +126,9 @@ class WorldUI : public cocos2d::Layer
 {
 public:
 	WorldUI();
-
-    // there's no 'id' in cpp, so we recommend returning the class instance pointer
 	static cocos2d::Scene* createScene();
-    
-    // a selector callback
     void menuCloseCallback(Ref* sender);
 	virtual void onEnter() override;
-    // implement the "static node()" method manually
     CREATE_FUNC(WorldUI);
 protected:
 	MyPopup* _popup;
@@ -170,38 +145,35 @@ protected:
 	cocos2d::Vec2 _mouse_down_pos;
 
 	RadioMenu* _main_menu;
-	RadioMenu* _species_browser;
-	RadioMenu* _plants_browser;
+	RadioMenu* _industry_browser;
+	RadioMenu* _products_browser;
 
-	SpeciesView* _species_view;
-	AnimalView* _factory_view;
-	PlantMapLayer* _plant_layer;
-	AnimalMapLayer* _factory_layer;
+	IndustryView* _industry_view;
+	FactoryView* _factory_view;
+	ColorMapLayer* _product_layer;
+	FactoryMapLayer* _factory_layer;
 	ui::VBox* _factory_layers_panel;
-	ui::VBox* _plant_layers_panel;
+	ui::VBox* _product_layers_panel;
 	ui::HBox* _play_panel;
 
-	std::function<void()> _on_state_plant;
+	std::function<void()> _on_state_product;
 	std::function<void()> _on_state_build;
 	std::function<void()> _on_state_factory;
 
 	void tick(float f);
 	void load_from_tmx(std::string tmx);
-	virtual bool onTouchBegan(Touch* touch, Event  *event);
-	virtual void onTouchEnded(Touch* touch, Event  *event);
-	virtual void onTouchMoved(Touch* touch, Event  *event);
-	// virtual void onMouseDown(Event  *event);
+	virtual bool onTouchBegan(Touch* touch, Event *event);
+	virtual void onTouchEnded(Touch* touch, Event *event);
+	virtual void onTouchMoved(Touch* touch, Event *event);
 	virtual void onMouseMove(Event  *event);
-
 
 	RadioMenu* create_left_menu();
 	void create_play_panel();
-	RadioMenu* create_species_browser();
-	RadioMenu* create_plants_browser();
+	RadioMenu* create_industry_browser();
+	RadioMenu* create_products_browser();
 	void create_factory_layers_panel();
-	void create_plant_layers_panel();
+	void create_product_layers_panel();
 	virtual void setContentSize(const Size & var) override;
-	void update_panels(bool Factory, bool plants);
 	void set_state(UIState state);
 	void update_popup(const Vec2& p);
 	void WorldUI::find_child(const cocos2d::Node* n, const Vec2& wp, cocos2d::Node*& child, int& z_order);
@@ -212,14 +184,12 @@ class RouteAnimation
 {
 public:
 	RouteAnimation();
-	// ~RouteAnimation() { if (sprite) sprite-> }
 	void set_route(int prod_id, Transport* transport, MapView* map);
 	void stop();
 	void start();
 private:
 	Transport* transport;
 	Sprite* sprite;
-	//void spriteMoveFinished(CCNode* sender);
 };
 
 }

@@ -1,7 +1,7 @@
 #include "world_ui.h"
 #include "trade.h"
 #include "controls.h"
-#include "animals.h"
+#include "world.h"
 #include <map>
 
 namespace simciv
@@ -11,10 +11,10 @@ USING_NS_CC;
 using namespace std;
 using namespace ui;
 
-PlantMapLayer* PlantMapLayer::create(Map* model, UIStateData& info)
+ColorMapLayer* ColorMapLayer::create(Map* model, UIStateData& info)
 {
-	PlantMapLayer* result = new PlantMapLayer(info);
-	//result->_model = model;
+	ColorMapLayer* result = new ColorMapLayer(info);
+	//result->world = model;
 	if (result && result->init())
 	{
 		result->autorelease();
@@ -27,19 +27,13 @@ PlantMapLayer* PlantMapLayer::create(Map* model, UIStateData& info)
 	}
 }
 
-bool is_map_point(cocos2d::Vec2& p)
-{
-	//return p.y < 557 || p.x > 366;
-	return p.x > 370 || p.y > 222;
-}
-
 #define DRAW_AREAS(area, exp) \
 { \
 	double min = std::numeric_limits<double>::max(); \
 	double max = std::numeric_limits<double>::min(); \
-	vector<double> u(_model.areas().size()); \
+	vector<double> u(world.areas().size()); \
 	int i = 0; \
-	for (Area* area : _model.areas()) \
+	for (Area* area : world.areas()) \
 	{ \
 		double v = exp; \
 		min = std::min(min, v); \
@@ -50,14 +44,14 @@ bool is_map_point(cocos2d::Vec2& p)
 	i = 0; \
 	if (d == 0) \
 		{ \
-		for (Area* a : _model.areas()) \
+		for (Area* a : world.areas()) \
 		{ \
 			draw_rect(a->x, a->y, min, 1); \
 		} \
 	} \
 	else \
 	{ \
-		for (Area* a : _model.areas()) \
+		for (Area* a : world.areas()) \
 		{ \
 			draw_rect(a->x, a->y, (u[i++] - min) / d, 1); \
 		} \
@@ -70,10 +64,10 @@ bool is_map_point(cocos2d::Vec2& p)
 	double max1 = std::numeric_limits<double>::min(); \
 	double min2 = std::numeric_limits<double>::max(); \
 	double max2 = std::numeric_limits<double>::min(); \
-	vector<double> u1(_model.areas().size()); \
-	vector<double> u2(_model.areas().size()); \
+	vector<double> u1(world.areas().size()); \
+	vector<double> u2(world.areas().size()); \
 	int i = 0; \
-	for (Area* area : _model.areas()) \
+	for (Area* area : world.areas()) \
 		{ \
 		double v1 = exp1; \
 		double v2 = exp2; \
@@ -90,16 +84,16 @@ bool is_map_point(cocos2d::Vec2& p)
 	i = 0; \
 	if (d1 == 0) \
 	{ \
-		if (d2 == 0)	for (Area* a : _model.areas()) draw_circles(a->x, a->y, min1, min2); \
-		else			for (Area* a : _model.areas()) draw_circles(a->x, a->y, min1, (u2[i++] - min2) / d2); \
+		if (d2 == 0)	for (Area* a : world.areas()) draw_circles(a->x, a->y, min1, min2); \
+		else			for (Area* a : world.areas()) draw_circles(a->x, a->y, min1, (u2[i++] - min2) / d2); \
 	} \
-	else for (Area* a : _model.areas()) draw_circles(a->x, a->y, (u1[i] - min1) / d1, (u2[i++] - min2) / d2); \
+	else for (Area* a : world.areas()) draw_circles(a->x, a->y, (u1[i] - min1) / d1, (u2[i++] - min2) / d2); \
 }
 
-void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
+void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 {
 	// calculate roads
-	// if (info.plant) _model.trade_maps()[info.plant->id]->routes_to_areas();
+	// if (info.product) world.trade_maps()[info.product->id]->routes_to_areas();
 
     Director* director = Director::getInstance();
     director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
@@ -113,12 +107,12 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	{
 		glLineWidth(1);
 		float x = b.getMinX();
-		for (int i = 0; i <= _model.width(); ++i, x += cs)
+		for (int i = 0; i <= world.width(); ++i, x += cs)
 		{
 			DrawPrimitives::drawLine( Vec2(x, b.getMinY()), Vec2(x, b.getMaxY()));
 		}
 		float y = b.getMinY();
-		for (int i = 0; i <= _model.height(); ++i, y += cs)
+		for (int i = 0; i <= world.height(); ++i, y += cs)
 		{
 			DrawPrimitives::drawLine( Vec2(b.getMinX(), y), Vec2(b.getMaxX(), y));
 		}
@@ -132,27 +126,27 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	switch (info.mode)
 	{
 	case MM_PRICE_SELL:
-		if (info.plant) DRAW_AREAS(area, _model.get_trade(area, info.plant->id).p_sell);
+		if (info.product) DRAW_AREAS(area, world.get_trade(area, info.product->id).p_sell);
 		break;
 	case MM_PRICE_BUY:
-		if (info.plant) DRAW_AREAS(area, _model.get_trade(area, info.plant->id).p_buy);
+		if (info.product) DRAW_AREAS(area, world.get_trade(area, info.product->id).p_buy);
 		break;
 	case MM_PLANT_RESOURCES:
-		if (info.plant) DRAW_AREAS(area, _model.get_trade(area, info.plant->id).resource);
+		if (info.product) DRAW_AREAS(area, world.get_trade(area, info.product->id).resource);
 		break;
 	case MM_PROFIT:
-		if (info.industry) DRAW_AREAS(area, _model.get_profit(info.industry, area));
+		if (info.industry) DRAW_AREAS(area, world.get_profit(info.industry, area));
 		break;
 	case MM_BUILD_COST:
-		if (info.industry) DRAW_AREAS(area, _model.get_build_cost(info.industry, area));
+		if (info.industry) DRAW_AREAS(area, world.get_build_cost(info.industry, area));
 		break;
 	case MM_SPECIES_RESOURCES:
-		if (info.industry) DRAW_AREAS(area, _model.get_resources(info.industry, area));
+		if (info.industry) DRAW_AREAS(area, world.get_resources(info.industry, area));
 		break;
 	case MM_PROFIT_RES:
 		if (info.industry) DRAW_AREAS_2(area,
-			_model.get_trade(area, info.plant->id).resource,
-			_model.get_profit(info.industry, area));
+			world.get_trade(area, info.product->id).resource,
+			world.get_profit(info.industry, area));
 		break;
 	default:
 		break;
@@ -160,13 +154,13 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
-void PlantMapLayer::update(float delta)
+void ColorMapLayer::update(float delta)
 {
 	if (info.show_transport)
 	{
 		for (int prod_id = 0; prod_id < product_count; ++prod_id)
 		{
-			TradeMap* prod = _model.trade_maps()[prod_id];
+			TradeMap* prod = world.trade_maps()[prod_id];
 			auto& v = prod->transports();
 			for (auto transport : v)
 			{
@@ -175,25 +169,25 @@ void PlantMapLayer::update(float delta)
 				{
 					if (transport->route->roads.size() > 0)
 					{
-						RouteAnimation* ani = new RouteAnimation();
-						ani->set_route(prod_id, transport, this);
-						transports[transport] = ani;
+						RouteAnimation* f = new RouteAnimation();
+						f->set_route(prod_id, transport, this);
+						transports[transport] = f;
 					}
 				}
 				else
 				{
 					Transport* t = it->first;
-					if (t->volume == 0 && t->active_time + 50 < _model.time)
+					if (t->volume == 0 && t->active_time + 50 < world.time)
 					{
-						RouteAnimation* ani = it->second;
-						ani->stop();
+						RouteAnimation* f = it->second;
+						f->stop();
 						transports.erase(it);
-						delete ani;
+						delete f;
 					}
 					else
 					{
-						//RouteAnimation* ani = it->second;
-						//ani->start();
+						//RouteAnimation* f = it->second;
+						//f->start();
 
 					}
 				}
@@ -212,8 +206,8 @@ void RouteAnimation::set_route(int prod_id, Transport* transport, MapView* map)
 
 	// auto it = route->roads.begin();
 	Area* a = transport->seller->area;
-	//Sprite* sprite = Sprite::create(get_factory_texture(ani->industry.id));
-	sprite = Sprite::create(get_plant_texture(prod_id));
+	//Sprite* sprite = Sprite::create(get_factory_texture(f->industry.id));
+	sprite = Sprite::create(get_product_texture(prod_id));
 	Rect r = map->get_rect(a->x, a->y);
 	//sprite->setPosition(r.getMidX(), r.getMidY());
 	//sprite->setScale(0.04f);

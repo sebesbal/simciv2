@@ -2,7 +2,7 @@
 #include "trade.h"
 #include <algorithm>
 #include <assert.h>
-#include "animals.h"
+#include "world.h"
 
 namespace simciv
 {
@@ -14,7 +14,6 @@ namespace simciv
 		v_sell(0),
 		v(0)
 	{
-
 	}
 
 	Trader::Trader() :
@@ -32,11 +31,6 @@ namespace simciv
 		owner(NULL),
 		_d_storage(0)
 	{
-		//for (int i = 0; i < 20; ++i)
-		//{
-		//	price_history.push_back(0);
-		//	storage_history.push_back(50);
-		//}
 	}
 
 	void Trader::modify_storage(double demand_vol, double actual_vol)
@@ -45,10 +39,6 @@ namespace simciv
 		{
 			set_storage(_storage - actual_vol);
 			volume += demand_vol;
-			//if (storage_pair)
-			//{
-			//	storage_pair->volume -= actual_vol;
-			//}
 		}
 		else
 		{
@@ -71,146 +61,6 @@ namespace simciv
 		return ((Factory*)owner)->money;
 	}
 
-	//void Trader::update_price()
-	//{
-	//	/*
-	//	fullness
-	//	balance: production - trade
-	//	producer:
-	//	- ha a fullness túl nagy, félünk hogy megtelik, próbálunk többet eladni: --> változatlan áron többet eladni, vagy csökkenteni az árat
-	//		--> ha free_volume == 0, vagyis mindent el tudtunk adni
-	//			--> növeljük volume-t, árat hagyjuk békén
-	//		--> ha free_volume > 0, már így se tudtunk mindent eladni
-	//			--> csökkenteni kell az árat, volume-t hagyjuk békén
-	//	- ha fullness kicsi, csökkentsük az eladást: --> megpróbálnánk növelni az árat, vagy raktározni jobb idõkre
-	//		--> ha free_volume == 0, mindent el tudtunk adni
-	//			--> növeljük az árat
-	//		--> ha free_volume > 0, már így se tudtunk mindent eladni
-	//			--> csökkentsük volumet. (abban bízunk hogy késõbb jobb áron tudunk eladni)
-	//	*/
-
-	//	//if (fix_price || is_buyer && demand_volume == 0) goto history;
-
-	//	double ideal_fullness = this->ideal_fullness < 0 ?
-	//		20 * demand_volume / storage_capacity
-	//		: this->ideal_fullness;
-	//	ideal_fullness = std::min(1.0, ideal_fullness);
-	//	ideal_fullness = std::max(0.0, ideal_fullness);
-
-	//	double fullness = _storage / storage_capacity;
-
-	//	double vol_d = 0.1;
-	//	double price_d = 0.1;
-
-	//	if (is_buyer)
-	//	{
-	//		if (demand_volume == 0)
-	//		{
-	//			// Skip
-	//		}
-	//		else if (fullness < ideal_fullness)
-	//		{
-	//			//if (demand_volume == 0)
-	//			//{
-	//			//	// don't want to buy on this price (but we can't lower the price)
-	//			//}
-	//			//if (free_volume == volume
-	//			//	//&& _d_storage == 0
-	//			//	&& demand_volume == 0
-	//			//	//&& _storage > 0
-	//			//	) // consumed nothing
-	//			//{
-	//			//	// it can't consume on this price (not profitable)
-	//			//	// don't want to buy more, but it can't reduce the price
-	//			//}
-
-	//			// want to buy more
-	//			if (free_volume == 0)  // consumed everything
-	//			{
-	//				// it can buy on enough on this price, raise volume
-	//				volume += vol_d;
-	//			}
-	//			else
-	//			{
-	//				// it can't buy ebough on this price, raice price
-	//				price += price_d;
-	//			}
-	//		}
-	//		else
-	//		{
-	//			// want to buy less
-	//			if (free_volume > 0)
-	//			{
-	//				//reduce volume
-	//				volume -= vol_d;
-	//			}
-	//			else
-	//			{
-	//				// reduce price
-	//				price -= price_d;
-	//			}
-	//		}
-	//		volume = std::min(volume, free_capacity());
-	//	}
-	//	else
-	//	{
-	//		ideal_fullness = 1 - ideal_fullness;
-	//		ideal_fullness = std::min(0.9, ideal_fullness);
-	//		if (fullness < ideal_fullness)
-	//		{
-	//			if (demand_volume == 0) // sold nothing and there is no demand
-	//			{
-	//				// can't sell on this price, but we dont want to sell
-	//			}
-
-	//			// want to store more
-	//			else if (free_volume > 0)
-	//			{
-	//				// can't sell enough, reduce volume
-	//				volume -= vol_d;
-	//			}
-	//			else
-	//			{
-	//				// can sell everything, raise price
-	//				price += price_d;
-	//			}
-	//		}
-	//		else
-	//		{
-	//			// want to sell, and reduce storage
-
-	//			if (demand_volume == 0) // sold nothing and there is no demand
-	//			{
-	//				// can't sell on this price, but we want to sell more
-	//				// reduce price
-	//				price -= price_d;
-	//			}
-
-	//			else if (free_volume > 0)
-	//			{
-	//				// can't sell enough, reduce price
-	//				price -= price_d;
-	//			}
-	//			else
-	//			{
-	//				// can sell everything, raise volume on the same price
-	//				volume += vol_d;
-	//			}
-	//		}
-	//		volume = std::min(_storage, volume);
-	//	}
-
-	//	volume = std::max(0.0, volume);
-
-	//	price = std::max(1.0, price);
-
-	//history:
-	//	history_price.push_back(price);
-	//	history_trade.push_back(volume - free_volume);
-	//	if (history_price.size() > history_count) history_price.pop_front();
-	//	if (history_trade.size() > history_count) history_trade.pop_front();
-	//}
-
 void Trader::update_price()
 {
 	double price_d = 1;
@@ -218,12 +68,10 @@ void Trader::update_price()
 	if (is_buyer)
 	{
 		price += price_d * (volume - vol_out - 0.01 * _storage);
-		//volume = std::min(volume, free_capacity());
 	}
 	else
 	{
 		price += price_d * (vol_out - volume - 0.01 * _storage);
-		//volume = std::min(_storage, volume);
 	}
 
 	price = std::max(1.0, price);
@@ -268,13 +116,12 @@ history:
 		update_count(0),
 		prod_id(prod_id)
 	{
-		int n = _model.areas().size();
+		int n = world.areas().size();
 		_production->resize(n);
 		_new_production->resize(n);
 		_area_buyers.resize(n);
 		_area_sellers.resize(n);
 		generate_resources();
-		//g = _world.create_g();
 	}
 
 	void TradeMap::update()
@@ -294,7 +141,7 @@ history:
 		if (it == _transports.end())
 		{
 			Transport* t = new Transport();
-			t->route = _model.create_route(src->area, dst->area);
+			t->route = world.create_route(src->area, dst->area);
 			t->cost = t->route->cost;
 			t->buyer = dst;
 			t->seller = src;
@@ -365,7 +212,7 @@ history:
 				v_sell -= v;
 				v_buy -= v;
 				r->volume = v;
-				r->active_time = _model.time;
+				r->active_time = world.time;
 				auto& seller = r->seller->worst_profit;
 				seller = std::min(seller, r->profit);
 				auto& con = r->buyer->worst_profit;
@@ -389,14 +236,14 @@ history:
 	{
 		auto& v = *_production;
 
-		for (size_t i = 0; i < _model.areas().size(); ++i)
+		for (size_t i = 0; i < world.areas().size(); ++i)
 		{
 			//AreaTrade& ap = (*_production)[i];
 			//(*_new_production)[i].resource = (*_production)[i].resource = pow( (double)rand() / RAND_MAX, 3);
 			v[i].resource = pow((double)rand() / RAND_MAX, 3);
 		}
 
-		for (Area* a : _model.areas())
+		for (Area* a : world.areas())
 		{
 			int i = a->index;
 			int k = 1;
@@ -412,7 +259,7 @@ history:
 
 	void TradeMap::update_area_prices()
 	{
-		for (Area* a : _model.areas())
+		for (Area* a : world.areas())
 		{
 			auto& p = get_new_prod(a);
 			double new_supply_price = 0; // the highest price in this area what can a supplier use (to sell the product).
@@ -461,7 +308,7 @@ history:
 			find_best_producers_for_areas();
 		}
 
-		for (Area* a : _model.areas())
+		for (Area* a : world.areas())
 		{
 			auto& prod = get_new_prod(a);
 			prod.p_buy = prod.best_seller.second ? prod.best_seller.second->price + prod.best_seller.first : max_price;
@@ -475,7 +322,7 @@ history:
 
 	void TradeMap::find_best_producers_for_areas()
 	{
-		for (Area* a : _model.areas())
+		for (Area* a : world.areas())
 		{
 			auto& prod = get_new_prod(a);
 
@@ -486,7 +333,7 @@ history:
 				std::vector<pair_t> v;
 				for (auto p : _sellers)
 				{
-					double dist = _model.distance(a, p->area);
+					double dist = world.distance(a, p->area);
 					double price = p->price + dist;
 					v.push_back(pair_t(price, p));
 				}
@@ -508,7 +355,7 @@ history:
 				std::vector<pair_t> v;
 				for (auto p : _buyers)
 				{
-					double dist = _model.distance(a, p->area);
+					double dist = world.distance(a, p->area);
 					double price = p->price - dist;
 					v.push_back(pair_t(price, p));
 				}

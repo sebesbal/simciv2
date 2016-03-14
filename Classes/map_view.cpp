@@ -10,7 +10,7 @@ using namespace std;
 MapView* MapView::create(Map* model)
 {
 	MapView* result = new MapView();
-	// result->_model = model;
+	// result->world = model;
 	if (result && result->init())
 	{
 		result->autorelease();
@@ -42,7 +42,7 @@ bool MapView::init()
     this->addChild(_map, 0, 0);
 	_map->setLocalZOrder(-1);
 	_map->setVisible(false);
-	//_model->create(_table.width / cs, _table.height / cs, 4);
+	//world->create(_table.width / cs, _table.height / cs, 4);
 
 	auto listener = EventListenerTouchOneByOne::create();
 	listener->onTouchBegan = CC_CALLBACK_2(MapView::onTouchBegan, this);
@@ -118,7 +118,7 @@ Area* MapView::get_area(Vec2 p)
 {
 	int x = p.x / cs;
 	int y = p.y / cs;
-	return _model.get_area(x, y);
+	return world.get_area(x, y);
 }
 
 void MapView::draw_areas(std::vector<double>& v)
@@ -129,14 +129,14 @@ void MapView::draw_areas(std::vector<double>& v)
 	int i = 0;
 	if (d == 0)
 	{
-		for (Area* a : _model.areas())
+		for (Area* a : world.areas())
 		{
 			draw_rect(a->x, a->y, min, 1);
 		}
 	}
 	else
 	{
-		for (Area* a : _model.areas())
+		for (Area* a : world.areas())
 		{
 			draw_rect(a->x, a->y, (v[i++] - min) / d, 1);
 		}
@@ -160,12 +160,6 @@ void MapView::onTouchEnded(Touch* touch, Event  *event)
 
 void MapView::onTouchMoved(Touch* touch, Event  *event)
 {
-	////if (is_map_point(touch->getLocationInView()))
-	//{
-	//	auto diff = touch->getDelta();
-	//	_map->setPosition(_map->getPosition() + diff);
-	//	//_items->setPosition(_items->getPosition() + diff);
-	//}
 }
 
 }

@@ -102,28 +102,28 @@ std::string get_factory_texture(int id)
 }
 
 /*
-std::string get_plant_texture(int id)
+std::string get_product_texture(int id)
 {
 	const std::string files[6] = { "Tomato-icon.png",
 		"Cabbage-icon.png",
-		"Eggplant-icon.png",
+		"Eggproduct-icon.png",
 		"Onion-icon.png",
 		"Pepper-icon.png",
 		"Pumpkin-icon.png" };
 
-	return "img/plants/" + files[id];
+	return "img/products/" + files[id];
 }
 */
-//std::string get_plant_texture(int id)
+//std::string get_product_texture(int id)
 //{
 //	int level = id / 3;
 //	int color = id % 3;
 //	return "img/shapes/shape_" + std::to_string(level) + "_" + std::to_string(color) + ".png";
 //}
 
-std::string get_plant_texture(int id)
+std::string get_product_texture(int id)
 {
-	return _model.get_plants()[id]->icon_file;
+	return world.get_products()[id]->icon_file;
 }
 
 Layout* combobox(const std::string* labels)
@@ -515,7 +515,7 @@ void MyPopup::draw(Renderer *renderer, const Mat4& transform, uint32_t flags)
 	renderer->addCommand(&_customCommand);
 }
 
-AnimalPopup::AnimalPopup()
+FactoryPopup::FactoryPopup()
 {
 	setContentSize(Size(100, 100));
 	int w = 120;
@@ -547,12 +547,12 @@ AnimalPopup::AnimalPopup()
 	f("cost: ", &_cost);
 }
 
-void AnimalPopup::onDraw(const Mat4 &transform, uint32_t flags)
+void FactoryPopup::onDraw(const Mat4 &transform, uint32_t flags)
 {
 	MyPopup::onDraw(transform, flags);
 }
 
-SpeciesView::SpeciesView()
+IndustryView::IndustryView()
 {
 	_production_view = VBox::create();
 	_production_view->setAnchorPoint(Vec2(0, 1));
@@ -585,9 +585,9 @@ SpeciesView::SpeciesView()
 	
 }
 
-SpeciesView* SpeciesView::create()
+IndustryView* IndustryView::create()
 {
-	SpeciesView* result = new SpeciesView();
+	IndustryView* result = new IndustryView();
 	if (result && result->init())
 	{
 		result->autorelease();
@@ -600,7 +600,7 @@ SpeciesView* SpeciesView::create()
 	}
 }
 
-bool SpeciesView::init()
+bool IndustryView::init()
 {
 	if (Layout::init())
 	{
@@ -610,9 +610,9 @@ bool SpeciesView::init()
 	return false;
 }
 
-void SpeciesView::set_species(Industry* industry)
+void IndustryView::set_industry(Industry* industry)
 {
-	this->_species = industry;
+	this->_industry = industry;
 	if (industry)
 	{
 		string file = industry->icon_file; //get_factory_texture(industry->id);
@@ -651,12 +651,12 @@ void SpeciesView::set_species(Industry* industry)
 	}
 }
 
-void SpeciesView::add_prod_row(Products& prod)
+void IndustryView::add_prod_row(Products& prod)
 {
 
 }
 
-void SpeciesView::setContentSize(const Size & var)
+void IndustryView::setContentSize(const Size & var)
 {
 	MyPanel::setContentSize(var);
 	int m = 5;
@@ -679,7 +679,7 @@ void SpeciesView::setContentSize(const Size & var)
 	_production_view->setPosition(Vec2(0, y));
 }
 
-AnimalView::AnimalView() : _factory(NULL)
+FactoryView::FactoryView() : _factory(NULL)
 {
 	_producer_views = VBox::create();
 	_producer_views->setAnchorPoint(Vec2(0, 1));
@@ -687,9 +687,9 @@ AnimalView::AnimalView() : _factory(NULL)
 	addChild(_producer_views);
 }
 
-AnimalView* AnimalView::create()
+FactoryView* FactoryView::create()
 {
-	AnimalView* result = new AnimalView();
+	FactoryView* result = new FactoryView();
 	if (result && result->init())
 	{
 		result->autorelease();
@@ -702,7 +702,7 @@ AnimalView* AnimalView::create()
 	}
 }
 
-bool AnimalView::init()
+bool FactoryView::init()
 {
 	if (Layout::init())
 	{
@@ -721,7 +721,7 @@ bool AnimalView::init()
 	return false;
 }
 
-void AnimalView::set_factory(Factory* Factory)
+void FactoryView::set_factory(Factory* Factory)
 {
 	_factory = Factory;
 	_producer_views->removeAllChildrenWithCleanup(true);
@@ -792,7 +792,7 @@ void AnimalView::set_factory(Factory* Factory)
 	this->forceDoLayout();
 }
 
-void AnimalView::update(float delta)
+void FactoryView::update(float delta)
 {
 	static int k = 0;
 	if (++k % 100 == 0 && _factory)
@@ -801,12 +801,12 @@ void AnimalView::update(float delta)
 	}
 }
 
-void AnimalView::setContentSize(const Size & var)
+void FactoryView::setContentSize(const Size & var)
 {
 	MyPanel::setContentSize(var);
 }
 
-void AnimalView::doLayout()
+void FactoryView::doLayout()
 {
 	Size var = getContentSize();
 
@@ -835,7 +835,7 @@ void AnimalView::doLayout()
 	//storage->setPosition(Vec2(3 * w / 4, h2 / 2));
 }
 
-ui::HBox* AnimalView::create_producer_view(Trader* p)
+ui::HBox* FactoryView::create_producer_view(Trader* p)
 {
 	int w = getContentSize().width;
 	int wd = (getContentSize().width - 50) / 3;
@@ -875,7 +875,7 @@ ui::HBox* AnimalView::create_producer_view(Trader* p)
 	return prodview;
 }
 
-ui::HBox* AnimalView::create_producer_view2(Trader* p)
+ui::HBox* FactoryView::create_producer_view2(Trader* p)
 {
 	int w = getContentSize().width;
 	int wd = (getContentSize().width - 50) / 5;
@@ -984,7 +984,7 @@ MaterialSprite* MaterialSprite::create(int id, int size)
 	MaterialSprite* result = new MaterialSprite();
 	if (result->init())
 	{
-		result->loadTexture(get_plant_texture(id));
+		result->loadTexture(get_product_texture(id));
 		result->ignoreContentAdaptWithSize(false);
 		result->setAnchorPoint(Vec2(0.5, 0.5));
 		result->setContentSize(Size(size, size));

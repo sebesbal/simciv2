@@ -5,36 +5,9 @@
 
 namespace simciv
 {
-	// typedef std::queue<double> history_t;
 	typedef std::deque<double> history_t;
-
 	const int history_count = 20;
 	
-
-
-	struct Material
-	{
-
-	};
-
-	/// Represents one single product's volumes and prices on an area
-	struct AreaTrade
-	{
-		AreaTrade();
-		double p;
-		double p_buy; // buying price: the lowest buying price in the area for what there is a seller somewhere
-		double p_sell; // selling price: the highest selling price in the area for what there is a buyer somewhere
-
-		double v_buy; // volume buy
-		double v_sell; // volume sell
-		double v;
-
-		double resource; // how effective the production is
-
-		std::pair<double, Trader*> best_seller;
-		std::pair<double, Trader*> best_buyer;
-	};
-
 	struct Trader
 	{
 		Trader();
@@ -72,6 +45,24 @@ namespace simciv
 		double _d_storage;
 	};
 
+	/// Trade data of an Area
+	struct AreaTrade
+	{
+		AreaTrade();
+		double p;
+		double p_buy; // buying price: the lowest buying price in the area for what there is a seller somewhere
+		double p_sell; // selling price: the highest selling price in the area for what there is a buyer somewhere
+
+		double v_buy; // volume buy
+		double v_sell; // volume sell
+		double v;
+
+		double resource; // how effective the production is
+
+		std::pair<double, Trader*> best_seller;
+		std::pair<double, Trader*> best_buyer;
+	};
+
 	struct Transport
 	{
 		Trader* seller;
@@ -98,7 +89,6 @@ namespace simciv
 		void remove_prod(Trader* prod);
 		void remove_prod(Area* area, double volume, double price);
 		void move_prod(Trader* prod, Area* new_area);
-		void routes_to_areas();
 		void generate_resources();
 		std::vector<Transport*>& transports() { return _transports; }
 		void update_transports(); ///< find possible trade routes
@@ -113,7 +103,6 @@ namespace simciv
 		int prod_id;
 		int update_count;
 		bool unique_mode;
-		void create_g();
 		Transport* get_transport(Trader* src, Trader* dst);
 		std::vector<Trader*> _sellers;
 		std::vector<Trader*> _buyers;
@@ -124,5 +113,4 @@ namespace simciv
 		std::vector<AreaTrade>* _production;
 		std::vector<AreaTrade>* _new_production;
 	};
-
 }

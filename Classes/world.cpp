@@ -1,4 +1,4 @@
-#include "animals.h"
+#include "world.h"
 #include <algorithm>
 #include <string>
 #include <algorithm>
@@ -14,8 +14,8 @@ using namespace std;;
 
 namespace simciv
 {
-	//const int species_count = 12;
-	AnimalWorld _model;
+	//const int industry_count = 12;
+	World world;
 	using namespace std;
 
 	void ProductionRule::load(rapidxml::xml_node<>* node)
@@ -44,7 +44,7 @@ namespace simciv
 		//item = output->first_node("dose");
 		//while (item)
 		//{
-		//	int id = stoi(item->first_attribute("plant")->value());
+		//	int id = stoi(item->first_attribute("product")->value());
 		//	double vol = stod(item->first_attribute("vol")->value());
 		//	this->input[id] = vol;
 		//	item = item->next_sibling("dose");
@@ -128,15 +128,15 @@ namespace simciv
 	void Industry::load(rapidxml::xml_node<>* node)
 	{
 		maintenance_cost[0] = 1;
-		type = ST_NONE;
+		type = IT_NONE;
 
 		//auto t = node->first_attribute("type");
 		//if (t)
 		//{
 		//	string s = string(t->value());
-		//	if		(s == "mine") type = ST_MINE;
-		//	else if (s == "Factory") type = ST_factory;
-		//	else if (s == "storage") type = ST_STORAGE;
+		//	if		(s == "mine") type = IT_MINE;
+		//	else if (s == "Factory") type = IT_FACTORY;
+		//	else if (s == "storage") type = IT_STORAGE;
 		//}
 
 		auto image = node->first_attribute("image");
@@ -177,8 +177,8 @@ namespace simciv
 	{
 		if (m2m_rules.size() == 1)
 		{
-			int plant_id = m2m_rules[0].output.begin()->first;
-			return _model.get_plants()[plant_id];
+			int product_id = m2m_rules[0].output.begin()->first;
+			return world.get_products()[product_id];
 		}
 		return NULL;
 	}
@@ -400,9 +400,9 @@ namespace simciv
 		if (this->money < 0) this->money = 0;
 	}
 
-	void AnimalWorld::create(int width, int height, int prod_count)
+	void World::create(int width, int height, int prod_count)
 	{
-		generate_species();
+		generate_industry();
 		prod_count = product_count;
 		Map::create(width, height, prod_count);
 		for (int i = 0; i < prod_count; ++i)
@@ -413,9 +413,9 @@ namespace simciv
 	}
 
 	/*
-	void AnimalWorld::generate_species()
+	void World::generate_industry()
 	{
-		for (int i = 0; i < species_count; ++i)
+		for (int i = 0; i < industry_count; ++i)
 		{
 			Industry s;
 			s.id = i;
@@ -452,7 +452,7 @@ namespace simciv
 
 	*/
 
-	//void AnimalWorld::generate_species()
+	//void World::generate_industry()
 	//{
 	//	const int cost[4] = { 1, 2, 4, 8 };
 	//	const int output[5] = { 1, 3, 5, 8, 13 };
@@ -489,7 +489,7 @@ namespace simciv
 	//			Industry s;
 	//			s.level = level;
 	//			s.color = color;
-	//			s.type = ST_TYPECOLOR;
+	//			s.type = IT_TYPECOLOR;
 	//			s.maintenance_cost = maintenance;
 	//			s.m2a_rules = art_rules;
 
@@ -507,7 +507,7 @@ namespace simciv
 	//	}
 
 	//	Industry s;
-	//	s.type = ST_STORAGE;
+	//	s.type = IT_STORAGE;
 	//	s.icon_file = "img/shapes/storage.png";
 	//	industry.push_back(s);
 	//}
@@ -521,72 +521,72 @@ string ExePath() {
 	return string(buffer).substr(0, pos);
 }
 
-	void AnimalWorld::generate_species()
+	void World::generate_industry()
 	{
 		CCLOG("ExePath() %s", ExePath());
 		load_from_file("res\\mod2.xml");
 		//load_from_file("C:\\dev\\simciv2\\proj.win32\\Debug.win32\\res\\mod1.xml");
 	}
 
-	//void AnimalWorld::generate_factories()
+	//void World::generate_factories()
 	//{
 	//	int x = 10, y = 10;
 
-	//	auto s1 = get_species("1");
+	//	auto s1 = get_industries("1");
 	//	create_factory(get_area(x + 4, y), *s1);
 
-	//	auto s0 = get_species("0");
+	//	auto s0 = get_industries("0");
 	//	create_factory(get_area(x, y), *s0);
 
 	//	////create_factory(get_area(x, y+1), *s0);
 
 	//	//
 
-	//	auto s2 = get_species("2");
+	//	auto s2 = get_industries("2");
 	//	create_factory(get_area(x + 2, y + 3), *s2);
 
-	//	////auto storage = get_storage_species();
+	//	////auto storage = get_storage_industry();
 	//	////create_factory(get_area(x + 2, y - 3), *storage);
 	//}
 
-	void AnimalWorld::generate_factories()
+	void World::generate_factories()
 	{
 		int x = 12, y = 10;
 
-		auto s1 = get_species("3");
+		auto s1 = get_industries("3");
 		create_factory(get_area(x, y), *s1);
 	}
 
-	Factory* AnimalWorld::create_factory(Area* a, Industry& industry)
+	Factory* World::create_factory(Area* a, Industry& industry)
 	{
 		if (find_factory(a)) return NULL;
-		Factory* ani = new Factory(industry);
-		factories.push_back(ani);
-		ani->area = a;
+		Factory* f = new Factory(industry);
+		factories.push_back(f);
+		f->area = a;
 
 		// create all producers:
 		for (int i = 0; i < product_count; ++i)
 		{
-			auto p = ani->sellers[i] = _trade_maps[i]->create_prod(a, false, 0, 50);
+			auto p = f->sellers[i] = _trade_maps[i]->create_prod(a, false, 0, 50);
 			p->storage_capacity = 10000;
-			auto q = ani->buyers[i] = _trade_maps[i]->create_prod(a, true, 0, 50);
+			auto q = f->buyers[i] = _trade_maps[i]->create_prod(a, true, 0, 50);
 			q->storage_capacity = 10000;
 			p->storage_pair = q;
 			q->storage_pair = p;
-			p->owner = q->owner = ani;
-			if (industry.type == ST_STORAGE)
+			p->owner = q->owner = f;
+			if (industry.type == IT_STORAGE)
 			{
 				// p->set_storage(p->storage_capacity / 2);
 				q->ideal_fullness = p->ideal_fullness = 0.5;
 			}
 		}
 
-		return ani;
+		return f;
 	}
 
-	Factory* AnimalWorld::find_factory(Area* a)
+	Factory* World::find_factory(Area* a)
 	{
-		auto it = find_if(factories.begin(), factories.end(), [a](Factory* ani){ return ani->area == a; });
+		auto it = find_if(factories.begin(), factories.end(), [a](Factory* f){ return f->area == a; });
 		if (it == factories.end())
 		{
 			return NULL;
@@ -597,37 +597,7 @@ string ExePath() {
 		}
 	}
 
-	//Industry* AnimalWorld::get_species(int level, int color)
-	//{
-	//	for (auto& s : industry)
-	//	{
-	//		if (s.level == level && s.color == color) return &s;
-	//	}
-	//	return NULL;
-	//}
-
-	//void AnimalWorld::update()
-	//{
-	//	// update product maps
-	//	Map::update();
-
-	//	for (Factory* ani : factories)
-	//	{
-	//		Area* area = ani->area;
-	//		Prices prices = get_prices(area);
-	//		auto rule = ani->industry.find_best_m2m_rule(prices);
-	//		if (rule)
-	//		{
-	//			double rate = 1;
-	//			ani->apply_rule(rule, rate);
-	//		}
-
-	//		double expense = ani->consume_articles(prices);
-	//	}
-	//}
-
-
-	void AnimalWorld::update()
+	void World::update()
 	{
 		static int k = 0;
 		++time;
@@ -657,18 +627,18 @@ string ExePath() {
 			product->update_area_prices2(k % 100);
 		}
 
-		for (Factory* ani : factories)
+		for (Factory* f : factories)
 		{
-			Prices prices = ani->get_prices();
+			Prices prices = f->get_prices();
 			ProductionRule* rule;
 			double profit;
-			ani->industry.find_best_m2m_rule(prices, rule, profit);
+			f->industry.find_best_m2m_rule(prices, rule, profit);
 			if (rule)
 			{
-				ani->apply_rule(rule, profit, 1);
+				f->apply_rule(rule, profit, 1);
 			}
 
-			double expense = ani->consume_articles(prices);
+			double expense = f->consume_articles(prices);
 		}
 
 		//if (k % 5 == 0)
@@ -691,9 +661,9 @@ string ExePath() {
 	using namespace rapidxml;
 	using namespace std;
 
-	void AnimalWorld::load_from_file(std::string file_name)
+	void World::load_from_file(std::string file_name)
 	{
-		rapidxml::xml_document<> doc;												// character type defaults to char
+		rapidxml::xml_document<> doc; // character type defaults to char
 		std::ifstream file(file_name);
 		std::stringstream buffer;
 		buffer << file.rdbuf();
@@ -710,22 +680,22 @@ string ExePath() {
 			{
 				Industry* s = new Industry();
 				s->load(item);
-				add_species(s);
+				add_industry(s);
 			}
 			else if (name == "plant")
 			{
-				Product* plant = new Product();
-				plant->load(item);
-				add_plant(plant);
+				Product* product = new Product();
+				product->load(item);
+				add_product(product);
 			}
 
 			item = item->next_sibling();
 		}
 
-		product_count = plants.size();
+		product_count = products.size();
 	}
 
-	Prices AnimalWorld::get_prices(Area* a)
+	Prices World::get_prices(Area* a)
 	{
 		Prices p;
 		for (int i = 0; i < product_count; ++i)
@@ -737,7 +707,7 @@ string ExePath() {
 		return p;
 	}
 
-	double AnimalWorld::get_profit(Industry* industry, Area* a)
+	double World::get_profit(Industry* industry, Area* a)
 	{
 		Prices prices = get_prices(a);
 		double profit;
@@ -749,12 +719,12 @@ string ExePath() {
 		return profit;
 	}
 
-	double AnimalWorld::get_build_cost(Industry* industry, Area* a)
+	double World::get_build_cost(Industry* industry, Area* a)
 	{
 		return industry->get_build_cost(get_prices(a));
 	}
 
-	double AnimalWorld::get_resources(Industry* industry, Area* a)
+	double World::get_resources(Industry* industry, Area* a)
 	{
 		Product* p = industry->product;
 		if (p)
@@ -767,93 +737,18 @@ string ExePath() {
 		}
 	}
 
-	AreaTrade& AnimalWorld::get_trade(Area* a, int id)
+	AreaTrade& World::get_trade(Area* a, int id)
 	{
 		return _trade_maps[id]->get_trade(a);
 	}
 
-	void AnimalWorld::move_factory(Factory* ani, Area* new_area)
+	void World::move_factory(Factory* f, Area* new_area)
 	{
 		for (size_t i = 0; i < _trade_maps.size(); ++i)
 		{
-			_trade_maps[i]->move_prod(ani->sellers[i], new_area);
-			_trade_maps[i]->move_prod(ani->buyers[i], new_area);
+			_trade_maps[i]->move_prod(f->sellers[i], new_area);
+			_trade_maps[i]->move_prod(f->buyers[i], new_area);
 		}
-		ani->area = new_area;
+		f->area = new_area;
 	}
-
-	//double check_supply_storage(Factory* ani, ProductMap& vols)
-	//{
-	//	double rate = 1;
-	//	for (auto& p : vols)
-	//	{
-	//		int prod_id = p.first;
-	//		double vol = p.second;
-	//		auto& producer = ani->sellers[prod_id];
-	//		double d = producer->storage_capacity - producer->storage;
-	//		if (d == 0) return 0;
-	//		rate = std::min(rate, d / vol);
-	//	}
-	//	return rate;
-	//}
-
-	//double check_consumption_storage(Factory* ani, ProductMap& vols)
-	//{
-	//	double rate = 1;
-	//	for (auto& p : vols)
-	//	{
-	//		int prod_id = p.first;
-	//		double vol = p.second;
-	//		auto& producer = ani->buyers[prod_id];
-	//		double d = producer->storage;
-	//		if (d == 0) return 0;
-	//		rate = std::min(rate, d / vol);
-	//	}
-	//	return rate;
-	//}
-
-	//void AnimalWorld::update_factory_m2m(Factory* ani, ProductionRule* rule)
-	//{
-	//	//double rate = check_consumption_storage(ani, rule->input);
-	//	//if (rate == 0) return;
-	//	//rate = std::min(rate, check_supply_storage(ani, rule->output));
-	//	//ani->apply_rule(rule, rate);
-
-	//	double rate = 1;
-	//	ani->apply_rule(rule, rate);
-	//}
-
-	//void AnimalWorld::update_factory_m2a(Factory* ani, ProductMap& vols, Prices& prices)
-	//{
-	//	auto& s = ani->industry;
-	//	auto& rules = s.m2a_rules;
-
-	//	for (auto& p : vols)
-	//	{
-	//		int art_id = p.first;
-	//		double vol = p.second;
-	//		double best_expense = 100000;
-	//		bool rule_found = true;
-
-	//		while (vol > 0 && rule_found)
-	//		for (auto& r : rules)
-	//		{
-	//			if ()
-	//			double e = r.expense(prices);
-	//		}
-
-	//	}
-	//}
-
-	//Prices AnimalWorld::get_prices(Area* a)
-	//{
-	//	Prices result;
-	//	for (int i = 0; i < product_count; ++i)
-	//	{
-	//		auto& info = get_trade(a, i);
-	//		result.supply[i] = info.p_sell;
-	//		result.consumption[i] = info.p_buy;
-	//	}
-	//	return result;
-	//}
 }

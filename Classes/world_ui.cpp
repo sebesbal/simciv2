@@ -60,15 +60,15 @@ WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_s
 	_main_menu = create_left_menu();
 	this->addChild(_main_menu);
 
-	_species_browser = create_species_browser();
-	this->addChild(_species_browser);
+	_industry_browser = create_industry_browser();
+	this->addChild(_industry_browser);
 
-	_plants_browser = create_plants_browser();
-	this->addChild(_plants_browser);
+	_products_browser = create_products_browser();
+	this->addChild(_products_browser);
 
-	_species_view = SpeciesView::create();
-	_species_view->setAnchorPoint(Vec2(1, 1));
-	this->addChild(_species_view);
+	_industry_view = IndustryView::create();
+	_industry_view->setAnchorPoint(Vec2(1, 1));
+	this->addChild(_industry_view);
 	//auto s = new Industry();
 	//// s->id = 0;
 	//s->build_cost.push_back(9);
@@ -77,13 +77,13 @@ WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_s
 	//s->build_cost.push_back(6);
 	//s->build_cost.push_back(5);
 	//s->build_cost.push_back(4);
-	//_species_view->set_species(s);
-	_species_view->set_species(_model.get_species().at(0));
+	//_industry_view->set_industry(s);
+	_industry_view->set_industry(world.get_industries().at(0));
 
-	create_plant_layers_panel();
+	create_product_layers_panel();
 	create_factory_layers_panel();
 
-	_factory_view = AnimalView::create();
+	_factory_view = FactoryView::create();
 	_factory_view->setAnchorPoint(Vec2(1, 1));
 	_factory_view->setVisible(false);
 	this->addChild(_factory_view);
@@ -109,12 +109,12 @@ void WorldUI::tick(float f)
 	static int k = 0;
 	if (!_paused && k % _speed == 0)
 	{
-		_model.update();
+		world.update();
 	}
 
 	//if (k % 10 == 0)
 	{
-		_plant_layer->update(f);
+		_product_layer->update(f);
 	}
 
 	if (_factory_view->isVisible())
@@ -135,9 +135,9 @@ void WorldUI::load_from_tmx(std::string tmx)
 	m->setScale(1.5);
 	this->addChild(_map);
 
-	_model.create(size.width, size.height, product_count);
+	world.create(size.width, size.height, product_count);
 
-	Node* v = _plant_layer = PlantMapLayer::create(&_model, info);
+	Node* v = _product_layer = ColorMapLayer::create(&world, info);
 	v->setVisible(true);
 	v->setAnchorPoint(Vec2(0, 0));
 	v->setPosition(Vec2(0, 0));
@@ -145,7 +145,7 @@ void WorldUI::load_from_tmx(std::string tmx)
 	views.push_back(v);
 	_map->addChild(v);
 
-	v = _factory_layer = AnimalMapLayer::create(&_model);
+	v = _factory_layer = FactoryMapLayer::create(&world);
 	_factory_layer->create_sprites_from_model();
 	v->setVisible(true);
 	v->setAnchorPoint(Vec2(0, 0));
@@ -184,16 +184,16 @@ bool WorldUI::onTouchBegan(Touch* touch, Event  *event)
 	p = _map->convertToNodeSpace(p);
 
 	Area* a = _factory_layer->get_area(p);
-	Factory* ani = _model.find_factory(a);
-	if (ani)
+	Factory* f = world.find_factory(a);
+	if (f)
 	{
-		_factory_view->set_factory(ani);
+		_factory_view->set_factory(f);
 		_factory_view->setVisible(true);
-		Industry* s = &ani->industry;
-		_species_view->set_species(s);
-		_species_view->setVisible(true);
+		Industry* s = &f->industry;
+		_industry_view->set_industry(s);
+		_industry_view->setVisible(true);
 		this->info.industry = s;
-		info.plant = _model.get_plants()[s->id]; //s->color + s->level * level_count;
+		info.product = world.get_products()[s->id]; //s->color + s->level * level_count;
 		set_state(UIS_factory);
 	}
 	else
@@ -218,8 +218,8 @@ void WorldUI::onTouchEnded(Touch* touch, Event  *event)
 		// p = _factory_layer->convertToNodeSpace(p);
 		p = _map->convertToNodeSpace(p);
 		Area* a = _factory_layer->get_area(p);
-		Factory* ani = _model.find_factory(a);
-		if (ani)
+		Factory* f = world.find_factory(a);
+		if (f)
 		{
 
 		}
@@ -282,7 +282,7 @@ RadioMenu* WorldUI::create_left_menu()
 	result->add_radio_button(btn);
 
 	result->add_row();
-	btn = MenuButton::create(get_plant_texture(0));
+	btn = MenuButton::create(get_product_texture(0));
 	result->add_radio_button(btn);
 
 	result->set_on_changed([this](MenuButton* btn) {
@@ -343,11 +343,11 @@ void WorldUI::create_play_panel()
 	_play_panel->setSize(btn->getSize());
 }
 
-RadioMenu* WorldUI::create_species_browser()
+RadioMenu* WorldUI::create_industry_browser()
 {
 	RadioMenu* result = RadioMenu::create();
 
-	auto& industry = _model.get_species();
+	auto& industry = world.get_industries();
 	int i = 0;
 	for (auto s : industry)
 	{
@@ -361,34 +361,34 @@ RadioMenu* WorldUI::create_species_browser()
 	result->set_on_changed([this](MenuButton* btn) {
 		Industry* s = (Industry*)btn->getUserData();
 		this->info.industry = s;
-		_species_view->set_species(s);
+		_industry_view->set_industry(s);
 		set_state(_state);
 	});
 	return result;
 }
 
-RadioMenu* WorldUI::create_plants_browser()
+RadioMenu* WorldUI::create_products_browser()
 {
 	RadioMenu* result = RadioMenu::create();
-	auto& plants = _model.get_plants();
+	auto& products = world.get_products();
 	int i = 0;
-	for (auto plant : plants)
+	for (auto product : products)
 	{
 		if (i++ % 3 == 0) result->add_row();
-		auto btn = MenuButton::create(plant->icon_file);
-		btn->setUserData(plant);
+		auto btn = MenuButton::create(product->icon_file);
+		btn->setUserData(product);
 		result->add_radio_button(btn);
 	}
 
 	result->set_selected_btn(0);
 	result->set_on_changed([this](MenuButton* btn) {
-		info.plant = (Product*)btn->getUserData(); // _model.get_plants()[btn->getTag()];
+		info.product = (Product*)btn->getUserData(); // world.get_products()[btn->getTag()];
 		set_state(_state);
 	});
 	return result;
 }
 
-void WorldUI::create_plant_layers_panel()
+void WorldUI::create_product_layers_panel()
 {
 	auto s = Size(20, 20);
 	LinearLayoutParameter* p = LinearLayoutParameter::create();
@@ -397,10 +397,10 @@ void WorldUI::create_plant_layers_panel()
 	LinearLayoutParameter* q = LinearLayoutParameter::create();
 	q->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
 
-	_plant_layers_panel = VBox::create();
-	_plant_layers_panel->setContentSize(Size(300, 80));
-	_plant_layers_panel->setBackGroundColor(def_bck_color3B);
-	_plant_layers_panel->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+	_product_layers_panel = VBox::create();
+	_product_layers_panel->setContentSize(Size(300, 80));
+	_product_layers_panel->setBackGroundColor(def_bck_color3B);
+	_product_layers_panel->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
 
 	p = LinearLayoutParameter::create();
 	p->setMargin(Margin(10, 5, 2, 5));
@@ -431,14 +431,14 @@ void WorldUI::create_plant_layers_panel()
 			break;
 		}
 	};
-	_plant_layers_panel->addChild(rb);
-	_plant_layers_panel->setAnchorPoint(Vec2(1, 0));
+	_product_layers_panel->addChild(rb);
+	_product_layers_panel->setAnchorPoint(Vec2(1, 0));
 	
-	_on_state_plant = [=](){
+	_on_state_product = [=](){
 		rb->update();
 	};
 
-	this->addChild(_plant_layers_panel);
+	this->addChild(_product_layers_panel);
 }
 
 void WorldUI::create_factory_layers_panel()
@@ -509,15 +509,15 @@ void WorldUI::setContentSize(const Size & var)
 
 	int m = 20;
 	_main_menu->setPosition(Vec2(m, h - m));
-	_species_browser->setPosition(Vec2(m + 64 + 10, h - m));
-	_plants_browser->setPosition(Vec2(m + 64 + 10, h - m));
-	_species_view->setPosition(Vec2(var.width, h));
+	_industry_browser->setPosition(Vec2(m + 64 + 10, h - m));
+	_products_browser->setPosition(Vec2(m + 64 + 10, h - m));
+	_industry_view->setPosition(Vec2(var.width, h));
 	
-	auto r = _species_view->getBoundingBox();
+	auto r = _industry_view->getBoundingBox();
 	_factory_view->setPosition(Vec2(r.getMaxX(), r.getMinY()));
 	_play_panel->setPosition(Vec2(m, m));
 
-	_plant_layers_panel->setPosition(Vec2(var.width, 0));
+	_product_layers_panel->setPosition(Vec2(var.width, 0));
 	_factory_layers_panel->setPosition(Vec2(var.width, 0));
 }
 
@@ -525,24 +525,24 @@ void WorldUI::set_state(UIState state)
 {
 	_state = state;
 	bool factories = _state == UIS_factory;
-	bool plants = _state == UIS_PLANTS;
-	_species_browser->setVisible(factories);
-	_species_view->setVisible(factories);
-	_plants_browser->setVisible(plants);
-	_plant_layers_panel->setVisible(plants);
+	bool products = _state == UIS_PLANTS;
+	_industry_browser->setVisible(factories);
+	_industry_view->setVisible(factories);
+	_products_browser->setVisible(products);
+	_product_layers_panel->setVisible(products);
 	_factory_layers_panel->setVisible(factories);
-	_plant_layer->setVisible(true);
+	_product_layer->setVisible(true);
 
 	if (factories)
 	{
 		if (_popup) _popup->removeFromParent();
-		_popup = new AnimalPopup();
+		_popup = new FactoryPopup();
 		this->addChild(_popup);
 		_on_state_factory();
 	}
-	else if (plants)
+	else if (products)
 	{
-		_on_state_plant();
+		_on_state_product();
 	}
 }
 
@@ -579,7 +579,7 @@ void WorldUI::update_popup(const Vec2& wp)
 	if (!_popup) return;
 
 	auto q = _map->convertToNodeSpace(wp);
-	Area* a = _plant_layer->get_area(q);
+	Area* a = _product_layer->get_area(q);
 
 	//if (_state == UIState::UIS_factory)
 	//{
@@ -592,8 +592,8 @@ void WorldUI::update_popup(const Vec2& wp)
 		if (info.industry)
 		{
 			_popup->setPosition(wp + Vec2(10, 10));
-			((AnimalPopup*)_popup)->set_profit(Info::profit(a, info.industry));
-			((AnimalPopup*)_popup)->set_cost(Info::build_cost(a, info.industry));
+			((FactoryPopup*)_popup)->set_profit(Info::profit(a, info.industry));
+			((FactoryPopup*)_popup)->set_cost(Info::build_cost(a, info.industry));
 			_popup->setVisible(true);
 		}
 	}
