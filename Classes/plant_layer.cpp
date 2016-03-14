@@ -137,7 +137,7 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	case MM_PRICE_BUY:
 		if (info.plant) DRAW_AREAS(area, _model.get_prod(area, info.plant->id).p_buy);
 		break;
-	case MM_RESOURCES:
+	case MM_PLANT_RESOURCES:
 		if (info.plant) DRAW_AREAS(area, _model.get_prod(area, info.plant->id).resource);
 		break;
 	case MM_PROFIT:
@@ -145,6 +145,9 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		break;
 	case MM_BUILD_COST:
 		if (info.species) DRAW_AREAS(area, _model.get_build_cost(info.species, area));
+		break;
+	case MM_SPECIES_RESOURCES:
+		if (info.species) DRAW_AREAS(area, _model.get_resources(info.species, area));
 		break;
 	case MM_PROFIT_RES:
 		if (info.species) DRAW_AREAS_2(area,

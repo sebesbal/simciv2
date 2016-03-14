@@ -26,8 +26,18 @@ namespace simciv
 
 	enum SpeciesType
 	{
-		ST_TYPECOLOR,
+		ST_NONE,
+		ST_MINE,
+		ST_FACTORY,
 		ST_STORAGE
+	};
+
+	struct Plant
+	{
+		std::string name;
+		int id;
+		std::string icon_file;
+		void load(rapidxml::xml_node<>* node);
 	};
 
 	struct Species
@@ -43,18 +53,12 @@ namespace simciv
 		void find_best_m2a_rule(const Prices& prices, ProductionRule*& rule, double& price);
 		double get_build_cost(const Prices& prices);
 		std::string icon_file;
+		Plant* product;
 
 		//int level;
 		//int color;
 		void load(rapidxml::xml_node<>* node);
-	};
-
-	struct Plant
-	{
-		std::string name;
-		int id;
-		std::string icon_file;
-		void load(rapidxml::xml_node<>* node);
+		Plant* get_product();
 	};
 
 	//class Market
@@ -115,6 +119,7 @@ namespace simciv
 		Prices get_prices(Area* a);
 		double get_profit(Species* species, Area* a);
 		double get_build_cost(Species* species, Area* a);
+		double get_resources(Species* species, Area* a);
 	protected:
 		void move_animal(Animal* ani, Area* new_area);
 		void add_producers(Animal* ani, Area* area);

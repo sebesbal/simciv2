@@ -128,7 +128,16 @@ namespace simciv
 	void Species::load(rapidxml::xml_node<>* node)
 	{
 		maintenance_cost[0] = 1;
-		type = ST_TYPECOLOR;
+		type = ST_NONE;
+
+		//auto t = node->first_attribute("type");
+		//if (t)
+		//{
+		//	string s = string(t->value());
+		//	if		(s == "mine") type = ST_MINE;
+		//	else if (s == "factory") type = ST_FACTORY;
+		//	else if (s == "storage") type = ST_STORAGE;
+		//}
 
 		auto image = node->first_attribute("image");
 		if (image)
@@ -160,6 +169,18 @@ namespace simciv
 			this->m2a_rules.push_back(rule);
 			n = n->next_sibling("eat");
 		}
+
+		product = get_product();
+	}
+
+	Plant* Species::get_product()
+	{
+		if (m2m_rules.size() == 1)
+		{
+			int plant_id = m2m_rules[0].output.begin()->first;
+			return _model.get_plants()[plant_id];
+		}
+		return NULL;
 	}
 
 	void Plant::load(rapidxml::xml_node<>* node)
@@ -543,9 +564,9 @@ string ExePath() {
 		for (int i = 0; i < material_count; ++i)
 		{
 			auto p = ani->sellers[i] = _products[i]->create_prod(a, false, 0, 50);
-			p->storage_capacity = species.type == ST_TYPECOLOR ? 10000 : 200;
+			p->storage_capacity = 10000;
 			auto q = ani->buyers[i] = _products[i]->create_prod(a, true, 0, 50);
-			q->storage_capacity = species.type == ST_TYPECOLOR ? 10000 : 200;
+			q->storage_capacity = 10000;
 			p->storage_pair = q;
 			q->storage_pair = p;
 			p->owner = q->owner = ani;
@@ -634,19 +655,16 @@ string ExePath() {
 
 		for (Animal* ani : animals)
 		{
-			if (ani->species.type == ST_TYPECOLOR)
+			Prices prices = ani->get_prices();
+			ProductionRule* rule;
+			double profit;
+			ani->species.find_best_m2m_rule(prices, rule, profit);
+			if (rule)
 			{
-				Prices prices = ani->get_prices();
-				ProductionRule* rule;
-				double profit;
-				ani->species.find_best_m2m_rule(prices, rule, profit);
-				if (rule)
-				{
-					ani->apply_rule(rule, profit, 1);
-				}
-
-				double expense = ani->consume_articles(prices);
+				ani->apply_rule(rule, profit, 1);
 			}
+
+			double expense = ani->consume_articles(prices);
 		}
 
 		//if (k % 5 == 0)
@@ -730,6 +748,19 @@ string ExePath() {
 	double AnimalWorld::get_build_cost(Species* species, Area* a)
 	{
 		return species->get_build_cost(get_prices(a));
+	}
+
+	double AnimalWorld::get_resources(Species* species, Area* a)
+	{
+		Plant* p = species->product;
+		if (p)
+		{
+			return get_prod(a, p->id).resource;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 
 	void AnimalWorld::move_animal(Animal* ani, Area* new_area)

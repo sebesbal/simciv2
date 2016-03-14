@@ -425,7 +425,7 @@ void WorldUI::create_plant_layers_panel()
 			info.mode = MM_PRICE_BUY;
 			break;
 		case 2:
-			info.mode = MM_RESOURCES;
+			info.mode = MM_PLANT_RESOURCES;
 			break;
 		default:
 			break;
@@ -480,7 +480,7 @@ void WorldUI::create_animal_layers_panel()
 			info.mode = MM_BUILD_COST;
 			break;
 		case 2:
-			info.mode = MM_RESOURCES;
+			info.mode = MM_SPECIES_RESOURCES;
 			break;
 		case 3:
 			info.mode = MM_PROFIT_RES;
