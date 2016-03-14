@@ -835,7 +835,7 @@ void AnimalView::doLayout()
 	//storage->setPosition(Vec2(3 * w / 4, h2 / 2));
 }
 
-ui::HBox* AnimalView::create_producer_view(Producer* p)
+ui::HBox* AnimalView::create_producer_view(Trader* p)
 {
 	int w = getContentSize().width;
 	int wd = (getContentSize().width - 50) / 3;
@@ -875,7 +875,7 @@ ui::HBox* AnimalView::create_producer_view(Producer* p)
 	return prodview;
 }
 
-ui::HBox* AnimalView::create_producer_view2(Producer* p)
+ui::HBox* AnimalView::create_producer_view2(Trader* p)
 {
 	int w = getContentSize().width;
 	int wd = (getContentSize().width - 50) / 5;

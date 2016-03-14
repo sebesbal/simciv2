@@ -32,7 +32,7 @@ const Color4B def_bck_color4B(40, 0, 60, 255);
 class MapView : public cocos2d::Layer
 {
 public:
-	static MapView* create(WorldModel* model);
+	static MapView* create(Map* model);
 	virtual bool init() override;
 	virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
 	CustomCommand _customCommand;
@@ -104,7 +104,7 @@ class PlantMapLayer : public MapView
 {
 public:
 	PlantMapLayer(UIStateData& info) : info(info) { }
-	static PlantMapLayer* create(WorldModel* model, UIStateData& info);
+	static PlantMapLayer* create(Map* model, UIStateData& info);
 	void update(float delta);
 protected:
 	UIStateData& info;

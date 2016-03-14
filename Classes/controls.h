@@ -164,8 +164,8 @@ namespace simciv
 		Animal* _animal;
 		ui::Text* _money_txt;
 		DebugLabel* _money_val;
-		ui::HBox* create_producer_view(Producer* p);
-		ui::HBox* create_producer_view2(Producer* p);
+		ui::HBox* create_producer_view(Trader* p);
+		ui::HBox* create_producer_view2(Trader* p);
 		ui::VBox* _producer_views;
 	};
 
@@ -211,7 +211,7 @@ namespace simciv
 		double* data;
 	};
 
-	//class ProducerView : public ui::Layout
+	//class TraderView : public ui::Layout
 	//{
 
 	//};

@@ -54,37 +54,16 @@ namespace simciv
 		double get_build_cost(const Prices& prices);
 		std::string icon_file;
 		Plant* product;
-
-		//int level;
-		//int color;
 		void load(rapidxml::xml_node<>* node);
 		Plant* get_product();
 	};
-
-	//class Market
-	//{
-	//public:
-
-	//protected:
-	//	MaterialVec storage_capacity;
-	//	MaterialVec storage_current;
-	//	MaterialVec storage_ideal;
-	//	MaterialVec price;
-
-	//};
-
-	//class Articles
-	//{
-	//	std::map<int, int> 
-	//};
 
 	struct Animal
 	{
 		Animal(Species& species);
 		Species& species;
-		//MaterialVec storage;
-		std::vector<Producer*> sellers;
-		std::vector<Producer*> buyers;
+		std::vector<Trader*> sellers;
+		std::vector<Trader*> buyers;
 		double money;
 		Area* area;
 		void update();
@@ -98,7 +77,7 @@ namespace simciv
 		void income(double money);
 	};
 
-	class AnimalWorld : public WorldModel
+	class AnimalWorld : public Map
 	{
 	public:
 		virtual void create_map(int width, int height, int prod_count) override;
@@ -132,9 +111,9 @@ namespace simciv
 	class Info
 	{
 	public:
-		static double price_buy(Area* a, Plant* p) { return _model.get_prod(a, p->id).p_buy; }
-		static double price_sell(Area* a, Plant* p) { return _model.get_prod(a, p->id).p_sell; }
-		static double resources(Area* a, Plant* p) { return _model.get_prod(a, p->id).resource; }
+		static double price_buy(Area* a, Plant* p) { return _model.get_trade(a, p->id).p_buy; }
+		static double price_sell(Area* a, Plant* p) { return _model.get_trade(a, p->id).p_sell; }
+		static double resources(Area* a, Plant* p) { return _model.get_trade(a, p->id).resource; }
 
 		static double profit(Area* a, Species* s) { return _model.get_profit(s, a); }
 		static double build_cost(Area* a, Species* s) { return _model.get_build_cost(s, a); }

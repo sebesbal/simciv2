@@ -10,10 +10,28 @@ namespace simciv
 {
 	int material_count;
 
-	int mat_id(int level, int color)
+	struct Node
 	{
-		return color_count * level + (color + color_count) % color_count;
-	}
+		Node() : area(NULL), parent(NULL), color(0), d(0) {}
+		Road* parent;
+		Area* area;
+		double d;
+		int color; // 0 = black, unvisited, 1 = gray, opened, 2 = white, visited
+	};
+
+	struct RoadMap
+	{
+		Node* g;
+	};
+
+	class NodeComparator
+	{
+	public:
+		bool operator()(const Node* a, const Node* b)
+		{
+			return (a->d > b->d);
+		}
+	};
 
 	void bisect(const MaterialVec& v, MaterialVec& pos, MaterialVec& neg)
 	{
@@ -34,67 +52,31 @@ namespace simciv
 		}
 	}
 
-	Area::Area(int pc, int index) : index(index), map(NULL)
+	Area::Area(int index) : index(index), map(NULL)
 	{
-		//for (int i = 0; i < pc; ++i)
-		//{
-		//	_prod.push_back(AreaProd());
-		//}
 	}
 
-	void Area::get_trans(int id, double& x, double& y)
+	Road::Road(double t_price): t_price(t_price)
 	{
-		double vx = 0;
-		double vy = 0;
-		Area* a = this;
-		for (Road* r: _roads)
-		{
-			double t = r->t[id];
-			if (!(t > 0 ^ r->a == a))
-			{
-				Area* b = r->other(a);
-				vx += (b->x - a->x) * abs(t);
-				vy += (b->y - a->y) * abs(t);
-			}
-		}
-		x = vx;
-		y = vy;
 	}
 
-	Road::Road(int pc, double t_price): t_price(t_price)
-	{
-		for (int i = 0; i < pc; ++i)
-		{
-			t.push_back(0);
-		}
-	}
-
-	WorldModel::WorldModel() : time(0)
+	Map::Map() : time(0)
 	{
 
 	}
 
-	void WorldModel::create_map(int width, int height, int prod_count)
+	void Map::create_map(int width, int height, int prod_count)
 	{
 		_width = width;
 		_height = height;
-		_pc = prod_count;
 		for (int y = 0; y < height; ++y)
 		{
 			for (int x = 0; x < width; ++x)
 			{
-				Area* a = new Area(_pc, _areas.size());
+				Area* a = new Area(_areas.size());
 				a->x = x;
 				a->y = y;
 				_areas.push_back(a);
-
-				//std::vector<AreaProd> p;
-				//for (int i = 0; i < _pc; ++i)
-				//{
-				//	p.push_back(AreaProd());
-				//}
-				//_production->push_back(p);
-				//_new_production->push_back(p);
 
 				if (x > 0)
 				{
@@ -117,14 +99,14 @@ namespace simciv
 
 		for (int i = 0; i < prod_count; ++i)
 		{
-			_products.push_back( new ProductMap(*this, i) );
+			_trade_maps.push_back( new TradeMap(i) );
 		}
 	}
 
-	void WorldModel::add_road(Area* a, Area* b)
+	void Map::add_road(Area* a, Area* b)
 	{
 		bool orto = a->x == b->x || a->y == b->y;
-		Road* r = new Road(_pc, orto ? 1.0 : 1.414);
+		Road* r = new Road(orto ? 1.0 : 1.414);
 		r->a = a;
 		r->b = b;
 		_roads.push_back(r);
@@ -134,30 +116,29 @@ namespace simciv
 	
 	const double trans_rate = 1.0;
 
-	Area* WorldModel::get_area(int x, int y)
+	Area* Map::get_area(int x, int y)
 	{
 		return _areas[y * _width + x];
 	}
 
-	AreaProd& WorldModel::get_prod(Area* a, int id)
+	AreaTrade& Map::get_trade(Area* a, int id)
 	{
-		return _products[id]->get_prod(a);
-		//return (*_production)[a->index][id];
+		return _trade_maps[id]->get_trade(a);
 	}
 
-	void WorldModel::update()
+	void Map::update()
 	{
 		static int k = 0;
 		if (k++ % 1 == 0)
 		{
-			for (ProductMap* product: _products)
+			for (TradeMap* product: _trade_maps)
 			{
 				product->update();
 			}
 		}
 	}
 
-	void WorldModel::create_road_map(Area* a)
+	void Map::create_road_map(Area* a)
 	{
 		int nn = _areas.size();
 		Node* g = new Node[nn];
@@ -226,7 +207,7 @@ namespace simciv
 		}
 	}
 
-	Route* WorldModel::create_route(Area* src, Area* dst)
+	Route* Map::create_route(Area* src, Area* dst)
 	{
 		Route* route = new Route();
 		RoadMap*& map = src->map;
@@ -253,7 +234,7 @@ namespace simciv
 		return route;
 	}
 
-	double WorldModel::distance(Area* src, Area* dst)
+	double Map::distance(Area* src, Area* dst)
 	{
 		double result = 0;
 		RoadMap*& map = src->map;
@@ -275,25 +256,4 @@ namespace simciv
 
 		return result;
 	}
-
-	MaterialVec WorldModel::empty_mat_vec()
-	{
-		MaterialVec result;
-		for (int i = 0; i < _products.size(); ++i)
-		{
-			result.push_back(0);
-		}
-		return result;
-	}
-
-	//void WorldModel::add_prod(Area* area, int prod_id, double volume, double price)
-	//{
-	//	_products[prod_id]->add_prod(area, volume, price);
-	//}
-
-	//void WorldModel::remove_prod(Area* area, int prod_id, double volume, double price)
-	//{
-	//	_products[prod_id]->remove_prod(area, volume, price);
-	//}
-
 }

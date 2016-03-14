@@ -16,9 +16,9 @@ namespace simciv
 	};
 
 	/// Represents one single product's volumes and prices on an area
-	struct AreaProd
+	struct AreaTrade
 	{
-		AreaProd();
+		AreaTrade();
 		double p;
 		double p_buy; // buying price: the lowest buying price in the area for what there is a seller somewhere
 		double p_sell; // selling price: the highest selling price in the area for what there is a buyer somewhere
@@ -29,17 +29,17 @@ namespace simciv
 
 		double resource; // how effective the production is
 
-		std::pair<double, Producer*> best_seller;
-		std::pair<double, Producer*> best_buyer;
+		std::pair<double, Trader*> best_seller;
+		std::pair<double, Trader*> best_buyer;
 	};
 
-	struct Producer
+	struct Trader
 	{
-		Producer();
+		Trader();
 		double& storage() { return _storage; }
 		int prod_id;
 		bool is_buyer;
-		Producer* storage_pair; ///< for storages: one producer for supply and one for consumption, storage_pair connects the two
+		Trader* storage_pair; ///< for storages: one producer for supply and one for consumption, storage_pair connects the two
 		bool fix_price;
 		Area* area;
 		void* owner;
@@ -72,8 +72,8 @@ namespace simciv
 
 	struct Transport
 	{
-		Producer* seller;
-		Producer* buyer;
+		Trader* seller;
+		Trader* buyer;
 		Route* route;
 		bool invert_route; ///< the route directs buyer to seller
 		double volume;
@@ -84,18 +84,18 @@ namespace simciv
 	};
 
 	/// Represents one single product's volumes and prices on the map
-	class ProductMap
+	class TradeMap
 	{
 	public:
-		ProductMap(WorldModel& world, int prod_id);
+		TradeMap(int prod_id);
 		void update();
-		AreaProd& get_prod(Area* a) { return (*_production)[a->index]; }
-		AreaProd& get_new_prod(Area* a) { return (*_new_production)[a->index]; }
-		Producer* add_prod(Area* area, double volume, double price);
-		Producer* create_prod(Area* area, bool consumer, double volume, double price);
-		void remove_prod(Producer* prod);
+		AreaTrade& get_trade(Area* a) { return (*_production)[a->index]; }
+		AreaTrade& get_new_prod(Area* a) { return (*_new_production)[a->index]; }
+		Trader* add_prod(Area* area, double volume, double price);
+		Trader* create_prod(Area* area, bool consumer, double volume, double price);
+		void remove_prod(Trader* prod);
 		void remove_prod(Area* area, double volume, double price);
-		void move_prod(Producer* prod, Area* new_area);
+		void move_prod(Trader* prod, Area* new_area);
 		void routes_to_areas();
 		void generate_resources();
 		std::vector<Transport*>& transports() { return _transports; }
@@ -112,16 +112,15 @@ namespace simciv
 		int update_count;
 		bool unique_mode;
 		void create_g();
-		Transport* get_transport(Producer* src, Producer* dst);
-		WorldModel& _world;
-		std::vector<Producer*> _sellers;
-		std::vector<Producer*> _buyers;
-		std::vector<std::vector<Producer*>> _area_sellers;
-		std::vector<std::vector<Producer*>> _area_buyers;
+		Transport* get_transport(Trader* src, Trader* dst);
+		std::vector<Trader*> _sellers;
+		std::vector<Trader*> _buyers;
+		std::vector<std::vector<Trader*>> _area_sellers;
+		std::vector<std::vector<Trader*>> _area_buyers;
 
 		std::vector<Transport*> _transports; // "all" possible transports. volume > 0 means that the transport is used
-		std::vector<AreaProd>* _production;
-		std::vector<AreaProd>* _new_production;
+		std::vector<AreaTrade>* _production;
+		std::vector<AreaTrade>* _new_production;
 	};
 
 }

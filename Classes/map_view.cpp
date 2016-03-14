@@ -7,7 +7,7 @@ USING_NS_CC;
 using namespace std;
 
 
-MapView* MapView::create(WorldModel* model)
+MapView* MapView::create(Map* model)
 {
 	MapView* result = new MapView();
 	// result->_model = model;

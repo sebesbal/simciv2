@@ -11,7 +11,7 @@ USING_NS_CC;
 using namespace std;
 using namespace ui;
 
-PlantMapLayer* PlantMapLayer::create(WorldModel* model, UIStateData& info)
+PlantMapLayer* PlantMapLayer::create(Map* model, UIStateData& info)
 {
 	PlantMapLayer* result = new PlantMapLayer(info);
 	//result->_model = model;
@@ -99,7 +99,7 @@ bool is_map_point(cocos2d::Vec2& p)
 void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 {
 	// calculate roads
-	// if (info.plant) _model.products()[info.plant->id]->routes_to_areas();
+	// if (info.plant) _model.trade_maps()[info.plant->id]->routes_to_areas();
 
     Director* director = Director::getInstance();
     director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
@@ -132,13 +132,13 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	switch (info.mode)
 	{
 	case MM_PRICE_SELL:
-		if (info.plant) DRAW_AREAS(area, _model.get_prod(area, info.plant->id).p_sell);
+		if (info.plant) DRAW_AREAS(area, _model.get_trade(area, info.plant->id).p_sell);
 		break;
 	case MM_PRICE_BUY:
-		if (info.plant) DRAW_AREAS(area, _model.get_prod(area, info.plant->id).p_buy);
+		if (info.plant) DRAW_AREAS(area, _model.get_trade(area, info.plant->id).p_buy);
 		break;
 	case MM_PLANT_RESOURCES:
-		if (info.plant) DRAW_AREAS(area, _model.get_prod(area, info.plant->id).resource);
+		if (info.plant) DRAW_AREAS(area, _model.get_trade(area, info.plant->id).resource);
 		break;
 	case MM_PROFIT:
 		if (info.species) DRAW_AREAS(area, _model.get_profit(info.species, area));
@@ -151,7 +151,7 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		break;
 	case MM_PROFIT_RES:
 		if (info.species) DRAW_AREAS_2(area,
-			_model.get_prod(area, info.plant->id).resource,
+			_model.get_trade(area, info.plant->id).resource,
 			_model.get_profit(info.species, area));
 		break;
 	default:
@@ -166,7 +166,7 @@ void PlantMapLayer::update(float delta)
 	{
 		for (int prod_id = 0; prod_id < material_count; ++prod_id)
 		{
-			ProductMap* prod = _model.products()[prod_id];
+			TradeMap* prod = _model.trade_maps()[prod_id];
 			auto& v = prod->transports();
 			for (auto transport : v)
 			{

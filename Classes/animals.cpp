@@ -404,7 +404,7 @@ namespace simciv
 	{
 		generate_species();
 		prod_count = material_count;
-		WorldModel::create_map(width, height, prod_count);
+		Map::create_map(width, height, prod_count);
 		generate_animals();
 	}
 
@@ -415,7 +415,7 @@ namespace simciv
 		{
 			Species s;
 			s.id = i;
-			for (int j = 0; j < _products.size(); ++j)
+			for (int j = 0; j < _trade_maps.size(); ++j)
 			{
 				double d = (double)rand() / RAND_MAX;
 				int n = 3;
@@ -563,9 +563,9 @@ string ExePath() {
 		// create all producers:
 		for (int i = 0; i < material_count; ++i)
 		{
-			auto p = ani->sellers[i] = _products[i]->create_prod(a, false, 0, 50);
+			auto p = ani->sellers[i] = _trade_maps[i]->create_prod(a, false, 0, 50);
 			p->storage_capacity = 10000;
-			auto q = ani->buyers[i] = _products[i]->create_prod(a, true, 0, 50);
+			auto q = ani->buyers[i] = _trade_maps[i]->create_prod(a, true, 0, 50);
 			q->storage_capacity = 10000;
 			p->storage_pair = q;
 			q->storage_pair = p;
@@ -605,7 +605,7 @@ string ExePath() {
 	//void AnimalWorld::update()
 	//{
 	//	// update product maps
-	//	WorldModel::update();
+	//	Map::update();
 
 	//	for (Animal* ani : animals)
 	//	{
@@ -628,27 +628,27 @@ string ExePath() {
 		static int k = 0;
 		++time;
 
-		for (ProductMap* product : _products)
+		for (TradeMap* product : _trade_maps)
 		{
 			product->before_rules();
 		}
 
 		//if (k % 100 == 0)
 		{
-			for (ProductMap* product : _products)
+			for (TradeMap* product : _trade_maps)
 			{
 				product->update_transports();
 			}
 		}
 
 		//if (k % 10 == 0)
-		//for (ProductMap* product : _products)
+		//for (TradeMap* product : _trade_maps)
 		//{
 		//	product->update_area_prices();
 		//}
 
 		if (k % 10 == 0)
-		for (ProductMap* product : _products)
+		for (TradeMap* product : _trade_maps)
 		{
 			product->update_area_prices2(k % 100);
 		}
@@ -669,13 +669,13 @@ string ExePath() {
 
 		//if (k % 5 == 0)
 		{
-			for (ProductMap* product : _products)
+			for (TradeMap* product : _trade_maps)
 			{
 				product->update_trade();
 			}
 		}
 
-		for (ProductMap* product : _products)
+		for (TradeMap* product : _trade_maps)
 		{
 			product->update_producer_storages();
 			product->update_producer_prices();
@@ -726,7 +726,7 @@ string ExePath() {
 		Prices p;
 		for (int i = 0; i < material_count; ++i)
 		{
-			auto& prod = this->get_prod(a, i);
+			auto& prod = this->get_trade(a, i);
 			p.sell[i] = prod.p_sell;
 			p.buy[i] = prod.p_buy;
 		}
@@ -755,7 +755,7 @@ string ExePath() {
 		Plant* p = species->product;
 		if (p)
 		{
-			return get_prod(a, p->id).resource;
+			return get_trade(a, p->id).resource;
 		}
 		else
 		{
@@ -765,10 +765,10 @@ string ExePath() {
 
 	void AnimalWorld::move_animal(Animal* ani, Area* new_area)
 	{
-		for (size_t i = 0; i < _products.size(); ++i)
+		for (size_t i = 0; i < _trade_maps.size(); ++i)
 		{
-			_products[i]->move_prod(ani->sellers[i], new_area);
-			_products[i]->move_prod(ani->buyers[i], new_area);
+			_trade_maps[i]->move_prod(ani->sellers[i], new_area);
+			_trade_maps[i]->move_prod(ani->buyers[i], new_area);
 		}
 		ani->area = new_area;
 	}
@@ -841,7 +841,7 @@ string ExePath() {
 	//	Prices result;
 	//	for (int i = 0; i < material_count; ++i)
 	//	{
-	//		auto& info = get_prod(a, i);
+	//		auto& info = get_trade(a, i);
 	//		result.supply[i] = info.p_sell;
 	//		result.consumption[i] = info.p_buy;
 	//	}

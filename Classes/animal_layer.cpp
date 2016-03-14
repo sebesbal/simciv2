@@ -136,7 +136,7 @@ void AnimalMapLayer::create_sprites_from_model()
 void AnimalMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 {
 	// calculate roads
-	//_model->products()[_product_id]->routes_to_areas(_product_id);
+	//_model->trade_maps()[_product_id]->routes_to_areas(_product_id);
 
 }
 
