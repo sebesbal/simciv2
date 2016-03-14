@@ -1,5 +1,5 @@
 #pragma once
-#include "world_model.h"	
+#include "map.h"	
 #include <vector>
 #include <queue>
 
@@ -10,6 +10,8 @@ namespace simciv
 
 	const int history_count = 20;
 	
+
+
 	struct Material
 	{
 

@@ -49,7 +49,7 @@ Layout* labelled_cb(std::string text, bool checked, CheckBox::ccCheckBoxCallback
 }
 
 
-std::string get_animal_texture(int id)
+std::string get_factory_texture(int id)
 {
 	const std::string files[46] = { "giraffe.png",
 		"gorilla.png",
@@ -98,7 +98,7 @@ std::string get_animal_texture(int id)
 		"fox.png",
 		"frog.png" };
 
-	return "img/animals/" + files[id];
+	return "img/factories/" + files[id];
 }
 
 /*
@@ -610,26 +610,26 @@ bool SpeciesView::init()
 	return false;
 }
 
-void SpeciesView::set_species(Species* species)
+void SpeciesView::set_species(Industry* industry)
 {
-	this->_species = species;
-	if (species)
+	this->_species = industry;
+	if (industry)
 	{
-		string file = species->icon_file; //get_animal_texture(species->id);
+		string file = industry->icon_file; //get_factory_texture(industry->id);
 		_icon->loadTexture(file);
 
 		_name_label->setString(file.substr(12, file.length() - 4 - 12));
 
-		//_icon->setTexture(get_animal_texture(species->id));
+		//_icon->setTexture(get_factory_texture(industry->id));
 		//auto t = _icon->getTexture();
 		//_icon->setScale(50.0 / std::max(t->getPixelsWide(), t->getPixelsHigh()));
 
-		_build_cost->set_vector(species->build_cost, 30);
+		_build_cost->set_vector(industry->build_cost, 30);
 
 
 		_production_view->removeAllChildrenWithCleanup(true);
 
-		for (auto rule : species->m2m_rules)
+		for (auto rule : industry->m2m_rules)
 		{
 			Size ss = getContentSize();
 
@@ -651,7 +651,7 @@ void SpeciesView::set_species(Species* species)
 	}
 }
 
-void SpeciesView::add_prod_row(MaterialVec& prod)
+void SpeciesView::add_prod_row(Products& prod)
 {
 
 }
@@ -679,7 +679,7 @@ void SpeciesView::setContentSize(const Size & var)
 	_production_view->setPosition(Vec2(0, y));
 }
 
-AnimalView::AnimalView() : _animal(NULL)
+AnimalView::AnimalView() : _factory(NULL)
 {
 	_producer_views = VBox::create();
 	_producer_views->setAnchorPoint(Vec2(0, 1));
@@ -721,12 +721,12 @@ bool AnimalView::init()
 	return false;
 }
 
-void AnimalView::set_animal(Animal* animal)
+void AnimalView::set_factory(Factory* Factory)
 {
-	_animal = animal;
+	_factory = Factory;
 	_producer_views->removeAllChildrenWithCleanup(true);
 	
-	_money_val->data = &animal->money;
+	_money_val->data = &Factory->money;
 
 	//auto h = ui::Layout::create();
 	//auto size = Size(20, 20);
@@ -766,7 +766,7 @@ void AnimalView::set_animal(Animal* animal)
 
 	// po->setMargin(ui::Margin(5, 5, 5, 5));
 
-	for (auto* p : animal->buyers)
+	for (auto* p : Factory->buyers)
 	{
 		//if (p->prod_id % 3 != 0) continue;
 		//if (p->volume == 0 && p->storage() == 0) continue;
@@ -777,7 +777,7 @@ void AnimalView::set_animal(Animal* animal)
 		n->setLayoutParameter(po);
 	}
 	bool first = true;
-	for (auto* p : animal->sellers)
+	for (auto* p : Factory->sellers)
 	{
 		//if (p->prod_id % 3 != 0) continue;
 		//if (p->volume == 0 && p->storage() == 0) continue;
@@ -795,9 +795,9 @@ void AnimalView::set_animal(Animal* animal)
 void AnimalView::update(float delta)
 {
 	static int k = 0;
-	if (++k % 100 == 0 && _animal)
+	if (++k % 100 == 0 && _factory)
 	{
-		set_animal(_animal);
+		set_factory(_factory);
 	}
 }
 
@@ -816,7 +816,7 @@ void AnimalView::doLayout()
 	_producer_views->setPosition(Vec2(0, var.height - 20));
 	_producer_views->setContentSize(Size(var.width, var.height - 20));
 
-	if (!_animal) return;
+	if (!_factory) return;
 
 	int hh = 20;
 	int h2 = hh + 10;
@@ -1014,7 +1014,7 @@ MaterialStringView* MaterialStringView::create(int size)
 	}
 }
 
-void MaterialStringView::set_vector(const MaterialVec& v, int size)
+void MaterialStringView::set_vector(const Products& v, int size)
 {
 	int i = 0;
 	int x = size / 2;
@@ -1060,7 +1060,7 @@ void MaterialStringView::set_vector(const MaterialVec& v, int size)
 	setContentSize(Size(x, size));
 }
 
-void MaterialStringView::set_map(const MaterialMap& map)
+void MaterialStringView::set_map(const ProductMap& map)
 {
 	for (auto& p : map)
 	{

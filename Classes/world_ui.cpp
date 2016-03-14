@@ -8,7 +8,7 @@
 //#include "CC
 #include "base\ccTypes.h"
 #include <algorithm>
-#include "economy.h"
+#include "trade.h"
 #include "controls.h"
 
 namespace simciv
@@ -69,7 +69,7 @@ WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_s
 	_species_view = SpeciesView::create();
 	_species_view->setAnchorPoint(Vec2(1, 1));
 	this->addChild(_species_view);
-	//auto s = new Species();
+	//auto s = new Industry();
 	//// s->id = 0;
 	//s->build_cost.push_back(9);
 	//s->build_cost.push_back(8);
@@ -81,12 +81,12 @@ WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_s
 	_species_view->set_species(_model.get_species().at(0));
 
 	create_plant_layers_panel();
-	create_animal_layers_panel();
+	create_factory_layers_panel();
 
-	_animal_view = AnimalView::create();
-	_animal_view->setAnchorPoint(Vec2(1, 1));
-	_animal_view->setVisible(false);
-	this->addChild(_animal_view);
+	_factory_view = AnimalView::create();
+	_factory_view->setAnchorPoint(Vec2(1, 1));
+	_factory_view->setVisible(false);
+	this->addChild(_factory_view);
 
 	create_play_panel();
 
@@ -117,10 +117,10 @@ void WorldUI::tick(float f)
 		_plant_layer->update(f);
 	}
 
-	if (_animal_view->isVisible())
+	if (_factory_view->isVisible())
 	{
-		//_animal_view->scheduleUpdate();
-		//_animal_view->upda
+		//_factory_view->scheduleUpdate();
+		//_factory_view->upda
 	}
 
 	++k;
@@ -135,7 +135,7 @@ void WorldUI::load_from_tmx(std::string tmx)
 	m->setScale(1.5);
 	this->addChild(_map);
 
-	_model.create_map(size.width, size.height, material_count);
+	_model.create(size.width, size.height, product_count);
 
 	Node* v = _plant_layer = PlantMapLayer::create(&_model, info);
 	v->setVisible(true);
@@ -145,8 +145,8 @@ void WorldUI::load_from_tmx(std::string tmx)
 	views.push_back(v);
 	_map->addChild(v);
 
-	v = _animal_layer = AnimalMapLayer::create(&_model);
-	_animal_layer->create_sprites_from_model();
+	v = _factory_layer = AnimalMapLayer::create(&_model);
+	_factory_layer->create_sprites_from_model();
 	v->setVisible(true);
 	v->setAnchorPoint(Vec2(0, 0));
 	v->setPosition(Vec2(0, 0));
@@ -183,22 +183,22 @@ bool WorldUI::onTouchBegan(Touch* touch, Event  *event)
 	_mouse_down_pos = p;
 	p = _map->convertToNodeSpace(p);
 
-	Area* a = _animal_layer->get_area(p);
-	Animal* ani = _model.find_animal(a);
+	Area* a = _factory_layer->get_area(p);
+	Factory* ani = _model.find_factory(a);
 	if (ani)
 	{
-		_animal_view->set_animal(ani);
-		_animal_view->setVisible(true);
-		Species* s = &ani->species;
+		_factory_view->set_factory(ani);
+		_factory_view->setVisible(true);
+		Industry* s = &ani->industry;
 		_species_view->set_species(s);
 		_species_view->setVisible(true);
-		this->info.species = s;
+		this->info.industry = s;
 		info.plant = _model.get_plants()[s->id]; //s->color + s->level * level_count;
-		set_state(UIS_ANIMAL);
+		set_state(UIS_factory);
 	}
 	else
 	{
-		_animal_view->setVisible(false);
+		_factory_view->setVisible(false);
 	}
 
 	return true;
@@ -212,13 +212,13 @@ void WorldUI::onTouchEnded(Touch* touch, Event  *event)
 	{
 	case simciv::UIS_NONE:
 		break;
-	case simciv::UIS_ANIMAL:
+	case simciv::UIS_factory:
 	{
 		auto p = touch->getLocation();
-		// p = _animal_layer->convertToNodeSpace(p);
+		// p = _factory_layer->convertToNodeSpace(p);
 		p = _map->convertToNodeSpace(p);
-		Area* a = _animal_layer->get_area(p);
-		Animal* ani = _model.find_animal(a);
+		Area* a = _factory_layer->get_area(p);
+		Factory* ani = _model.find_factory(a);
 		if (ani)
 		{
 
@@ -227,10 +227,10 @@ void WorldUI::onTouchEnded(Touch* touch, Event  *event)
 		{
 			if (!_drag_start)
 			{
-				Species* s = info.species;
+				Industry* s = info.industry;
 				if (s)
 				{
-					_animal_layer->create_animal(a, *s);
+					_factory_layer->create_factory(a, *s);
 				}
 			}
 		}
@@ -278,7 +278,7 @@ RadioMenu* WorldUI::create_left_menu()
 	result->set_toggle(true);
 
 	result->add_row();
-	auto btn = MenuButton::create(get_animal_texture(0));
+	auto btn = MenuButton::create(get_factory_texture(0));
 	result->add_radio_button(btn);
 
 	result->add_row();
@@ -295,7 +295,7 @@ RadioMenu* WorldUI::create_left_menu()
 		switch (btn->getTag())
 		{
 		case 0:
-			this->set_state(UIS_ANIMAL);
+			this->set_state(UIS_factory);
 			break;
 		case 1:
 			this->set_state(UIS_PLANTS);
@@ -347,9 +347,9 @@ RadioMenu* WorldUI::create_species_browser()
 {
 	RadioMenu* result = RadioMenu::create();
 
-	auto& species = _model.get_species();
+	auto& industry = _model.get_species();
 	int i = 0;
-	for (auto s : species)
+	for (auto s : industry)
 	{
 		if (i++ % 3 == 0) result->add_row();
 		auto btn = MenuButton::create(s->icon_file);
@@ -359,8 +359,8 @@ RadioMenu* WorldUI::create_species_browser()
 
 	result->set_selected_btn(0);
 	result->set_on_changed([this](MenuButton* btn) {
-		Species* s = (Species*)btn->getUserData();
-		this->info.species = s;
+		Industry* s = (Industry*)btn->getUserData();
+		this->info.industry = s;
 		_species_view->set_species(s);
 		set_state(_state);
 	});
@@ -382,7 +382,7 @@ RadioMenu* WorldUI::create_plants_browser()
 
 	result->set_selected_btn(0);
 	result->set_on_changed([this](MenuButton* btn) {
-		info.plant = (Plant*)btn->getUserData(); // _model.get_plants()[btn->getTag()];
+		info.plant = (Product*)btn->getUserData(); // _model.get_plants()[btn->getTag()];
 		set_state(_state);
 	});
 	return result;
@@ -441,7 +441,7 @@ void WorldUI::create_plant_layers_panel()
 	this->addChild(_plant_layers_panel);
 }
 
-void WorldUI::create_animal_layers_panel()
+void WorldUI::create_factory_layers_panel()
 {
 	auto s = Size(20, 20);
 	LinearLayoutParameter* p = LinearLayoutParameter::create();
@@ -453,10 +453,10 @@ void WorldUI::create_animal_layers_panel()
 
 	// left menu
 	// auto 
-	_animal_layers_panel = VBox::create();
-	_animal_layers_panel->setContentSize(Size(300, 80));
-	_animal_layers_panel->setBackGroundColor(def_bck_color3B);
-	_animal_layers_panel->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+	_factory_layers_panel = VBox::create();
+	_factory_layers_panel->setContentSize(Size(300, 80));
+	_factory_layers_panel->setBackGroundColor(def_bck_color3B);
+	_factory_layers_panel->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
 
 	p = LinearLayoutParameter::create();
 	p->setMargin(Margin(10, 5, 2, 5));
@@ -490,13 +490,13 @@ void WorldUI::create_animal_layers_panel()
 		}
 	};
 
-	_on_state_animal = [=](){
+	_on_state_factory = [=](){
 		rb->update();
 	};
 
-	_animal_layers_panel->addChild(rb);
-	_animal_layers_panel->setAnchorPoint(Vec2(1, 0));
-	this->addChild(_animal_layers_panel);
+	_factory_layers_panel->addChild(rb);
+	_factory_layers_panel->setAnchorPoint(Vec2(1, 0));
+	this->addChild(_factory_layers_panel);
 }
 
 void WorldUI::setContentSize(const Size & var)
@@ -514,31 +514,31 @@ void WorldUI::setContentSize(const Size & var)
 	_species_view->setPosition(Vec2(var.width, h));
 	
 	auto r = _species_view->getBoundingBox();
-	_animal_view->setPosition(Vec2(r.getMaxX(), r.getMinY()));
+	_factory_view->setPosition(Vec2(r.getMaxX(), r.getMinY()));
 	_play_panel->setPosition(Vec2(m, m));
 
 	_plant_layers_panel->setPosition(Vec2(var.width, 0));
-	_animal_layers_panel->setPosition(Vec2(var.width, 0));
+	_factory_layers_panel->setPosition(Vec2(var.width, 0));
 }
 
 void WorldUI::set_state(UIState state)
 {
 	_state = state;
-	bool animals = _state == UIS_ANIMAL;
+	bool factories = _state == UIS_factory;
 	bool plants = _state == UIS_PLANTS;
-	_species_browser->setVisible(animals);
-	_species_view->setVisible(animals);
+	_species_browser->setVisible(factories);
+	_species_view->setVisible(factories);
 	_plants_browser->setVisible(plants);
 	_plant_layers_panel->setVisible(plants);
-	_animal_layers_panel->setVisible(animals);
+	_factory_layers_panel->setVisible(factories);
 	_plant_layer->setVisible(true);
 
-	if (animals)
+	if (factories)
 	{
 		if (_popup) _popup->removeFromParent();
 		_popup = new AnimalPopup();
 		this->addChild(_popup);
-		_on_state_animal();
+		_on_state_factory();
 	}
 	else if (plants)
 	{
@@ -581,19 +581,19 @@ void WorldUI::update_popup(const Vec2& wp)
 	auto q = _map->convertToNodeSpace(wp);
 	Area* a = _plant_layer->get_area(q);
 
-	//if (_state == UIState::UIS_ANIMAL)
+	//if (_state == UIState::UIS_factory)
 	//{
 	//	
 	//}
 
 	auto n = find_child(this, wp);
-	if (n == _animal_layer)
+	if (n == _factory_layer)
 	{
-		if (info.species)
+		if (info.industry)
 		{
 			_popup->setPosition(wp + Vec2(10, 10));
-			((AnimalPopup*)_popup)->set_profit(Info::profit(a, info.species));
-			((AnimalPopup*)_popup)->set_cost(Info::build_cost(a, info.species));
+			((AnimalPopup*)_popup)->set_profit(Info::profit(a, info.industry));
+			((AnimalPopup*)_popup)->set_cost(Info::build_cost(a, info.industry));
 			_popup->setVisible(true);
 		}
 	}

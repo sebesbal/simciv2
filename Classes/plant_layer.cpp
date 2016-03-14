@@ -1,5 +1,5 @@
 #include "world_ui.h"
-#include "economy.h"
+#include "trade.h"
 #include "controls.h"
 #include "animals.h"
 #include <map>
@@ -141,18 +141,18 @@ void PlantMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		if (info.plant) DRAW_AREAS(area, _model.get_trade(area, info.plant->id).resource);
 		break;
 	case MM_PROFIT:
-		if (info.species) DRAW_AREAS(area, _model.get_profit(info.species, area));
+		if (info.industry) DRAW_AREAS(area, _model.get_profit(info.industry, area));
 		break;
 	case MM_BUILD_COST:
-		if (info.species) DRAW_AREAS(area, _model.get_build_cost(info.species, area));
+		if (info.industry) DRAW_AREAS(area, _model.get_build_cost(info.industry, area));
 		break;
 	case MM_SPECIES_RESOURCES:
-		if (info.species) DRAW_AREAS(area, _model.get_resources(info.species, area));
+		if (info.industry) DRAW_AREAS(area, _model.get_resources(info.industry, area));
 		break;
 	case MM_PROFIT_RES:
-		if (info.species) DRAW_AREAS_2(area,
+		if (info.industry) DRAW_AREAS_2(area,
 			_model.get_trade(area, info.plant->id).resource,
-			_model.get_profit(info.species, area));
+			_model.get_profit(info.industry, area));
 		break;
 	default:
 		break;
@@ -164,7 +164,7 @@ void PlantMapLayer::update(float delta)
 {
 	if (info.show_transport)
 	{
-		for (int prod_id = 0; prod_id < material_count; ++prod_id)
+		for (int prod_id = 0; prod_id < product_count; ++prod_id)
 		{
 			TradeMap* prod = _model.trade_maps()[prod_id];
 			auto& v = prod->transports();
@@ -212,7 +212,7 @@ void RouteAnimation::set_route(int prod_id, Transport* transport, MapView* map)
 
 	// auto it = route->roads.begin();
 	Area* a = transport->seller->area;
-	//Sprite* sprite = Sprite::create(get_animal_texture(ani->species.id));
+	//Sprite* sprite = Sprite::create(get_factory_texture(ani->industry.id));
 	sprite = Sprite::create(get_plant_texture(prod_id));
 	Rect r = map->get_rect(a->x, a->y);
 	//sprite->setPosition(r.getMidX(), r.getMidY());

@@ -1,5 +1,5 @@
 
-#include "economy.h"
+#include "trade.h"
 #include <algorithm>
 #include <assert.h>
 #include "animals.h"
@@ -68,7 +68,7 @@ namespace simciv
 
 	double Trader::money()
 	{
-		return ((Animal*)owner)->money;
+		return ((Factory*)owner)->money;
 	}
 
 	//void Trader::update_price()
@@ -295,7 +295,7 @@ history:
 		{
 			Transport* t = new Transport();
 			t->route = _model.create_route(src->area, dst->area);
-			t->cost = t->route->trans_price;
+			t->cost = t->route->cost;
 			t->buyer = dst;
 			t->seller = src;
 			t->profit = dst->price - src->price - t->cost;
@@ -427,7 +427,7 @@ history:
 			{
 				Area* b = r->other(a);
 				auto& bp = get_trade(b);
-				new_supply_price = std::max(new_supply_price, bp.p_sell - r->t_price);
+				new_supply_price = std::max(new_supply_price, bp.p_sell - r->cost);
 			}
 			p.p_sell = new_supply_price;
 
@@ -443,7 +443,7 @@ history:
 			{
 				Area* b = r->other(a);
 				auto& bp = get_trade(b);
-				new_cons_price = std::min(new_cons_price, bp.p_buy + r->t_price);
+				new_cons_price = std::min(new_cons_price, bp.p_buy + r->cost);
 			}
 			p.p_buy = new_cons_price;
 
@@ -581,8 +581,8 @@ history:
 			a->set_storage(a->storage() - t->volume);
 			// b->set_storage(b->storage() + t->volume);
 
-			Animal* a_ani = (Animal*)a->owner;
-			Animal* b_ani = (Animal*)b->owner;
+			Factory* a_ani = (Factory*)a->owner;
+			Factory* b_ani = (Factory*)b->owner;
 
 			a_ani->income(vol * a->price);
 			b_ani->income(- vol * b->price);

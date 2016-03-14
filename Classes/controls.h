@@ -2,7 +2,7 @@
 #include "cocostudio/CocoStudio.h"
 #include "ui/CocosGUI.h"
 #include "cocos2d.h"
-#include "economy.h"
+#include "trade.h"
 #include "animals.h"
 #include "ui/UIImageView.h"
 #include "ui/UILayout.h"
@@ -18,7 +18,7 @@ namespace simciv
 
 	ui::Layout* labelled_cb(std::string text, bool checked, ui::CheckBox::ccCheckBoxCallback cb);
 
-	std::string get_animal_texture(int id);
+	std::string get_factory_texture(int id);
 
 	std::string get_plant_texture(int id);
 
@@ -127,16 +127,16 @@ namespace simciv
 		virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
 	};
 
-	/// Show one species
+	/// Show one industry
 	class SpeciesView : public MyPanel
 	{
 	public:
 		SpeciesView();
 		static SpeciesView* create();
 		bool init() override;
-		void set_species(Species* species);
+		void set_species(Industry* industry);
 	protected:
-		void add_prod_row(MaterialVec& prod);
+		void add_prod_row(Products& prod);
 		virtual void setContentSize(const Size & var) override;
 		
 		ui::ImageView* _icon;
@@ -146,22 +146,22 @@ namespace simciv
 		MaterialStringView* _build_cost;
 		MaterialStringView* _maintenance_cost;
 
-		Species* _species;
+		Industry* _species;
 	};
 
-	/// Show one animals properties
+	/// Show one factories properties
 	class AnimalView : public MyPanel
 	{
 	public:
 		AnimalView();
 		static AnimalView* create();
 		bool init() override;
-		void set_animal(Animal* animal);
+		void set_factory(Factory* Factory);
 		virtual void update(float delta) override;
 	protected:
 		virtual void setContentSize(const Size & var) override;
 		virtual void doLayout() override;
-		Animal* _animal;
+		Factory* _factory;
 		ui::Text* _money_txt;
 		DebugLabel* _money_val;
 		ui::HBox* create_producer_view(Trader* p);
@@ -226,8 +226,8 @@ namespace simciv
 	{
 	public:
 		static MaterialStringView* create(int size);
-		void set_vector(const MaterialVec& v, int size);
-		void set_map(const MaterialMap& m);
+		void set_vector(const Products& v, int size);
+		void set_map(const ProductMap& m);
 		void add_item(int prod_id, double volume);
 	protected:
 		int _size;

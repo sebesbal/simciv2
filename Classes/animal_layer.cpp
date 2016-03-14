@@ -1,5 +1,5 @@
 #include "world_ui.h"
-#include "economy.h"
+#include "trade.h"
 
 #if _MSC_VER > 1800
 #pragma comment(lib,"libcocos2d_2015.lib")
@@ -46,8 +46,8 @@ bool AnimalMapLayer::init()
 		return false;
 	}
 
-	_animals = Node::create();
-	addChild(_animals);
+	_factories = Node::create();
+	addChild(_factories);
 
 	return true;
 }
@@ -62,14 +62,14 @@ bool AnimalMapLayer::is_map_point(cocos2d::Vec2& p)
 //	auto p = touch->getLocation();
 //	p = convertToNodeSpace(p);
 //	Area* a = get_area(p);
-//	Animal* ani = model().find_animal(a);
+//	Factory* ani = model().find_factory(a);
 //	if (ani)
 //	{
 //
 //	}
 //	else
 //	{
-//		create_animal(a, model().get_species()[0]);
+//		create_factory(a, model().get_species()[0]);
 //	}
 //	return true;
 //}
@@ -96,9 +96,9 @@ bool AnimalMapLayer::is_map_point(cocos2d::Vec2& p)
 //	}
 //}
 
-Animal* AnimalMapLayer::create_animal(Area* a, Species& s)
+Factory* AnimalMapLayer::create_factory(Area* a, Industry& s)
 {
-	Animal* ani = _model.create_animal(a, s);
+	Factory* ani = _model.create_factory(a, s);
 	if (ani)
 	{
 		create_sprite(ani);
@@ -106,11 +106,11 @@ Animal* AnimalMapLayer::create_animal(Area* a, Species& s)
 	return ani;
 }
 
-Sprite* AnimalMapLayer::create_sprite(Animal* ani)
+Sprite* AnimalMapLayer::create_sprite(Factory* ani)
 {
 	Area* a = ani->area; 
-	//Sprite* sprite = Sprite::create(get_animal_texture(ani->species.id));
-	Sprite* sprite = Sprite::create(ani->species.icon_file);
+	//Sprite* sprite = Sprite::create(get_factory_texture(ani->industry.id));
+	Sprite* sprite = Sprite::create(ani->industry.icon_file);
 	Rect r = get_rect(a->x, a->y);
 	sprite->setPosition(r.getMidX(), r.getMidY());
 	// sprite->setScale(0.1f);
@@ -119,17 +119,17 @@ Sprite* AnimalMapLayer::create_sprite(Animal* ani)
 	sprite->setScale((cell_size() - 10) / m);
 
 
-	_animals->addChild(sprite);
+	_factories->addChild(sprite);
 	return sprite;
 }
 
 void AnimalMapLayer::create_sprites_from_model()
 {
-	_animals->removeAllChildrenWithCleanup(true);
-	for (Animal* ani : _model.get_animals())
+	_factories->removeAllChildrenWithCleanup(true);
+	for (Factory* ani : _model.get_factories())
 	{
 		Sprite* s = create_sprite(ani);
-		_animals->addChild(s);
+		_factories->addChild(s);
 	}
 }
 

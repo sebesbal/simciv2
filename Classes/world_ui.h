@@ -3,7 +3,7 @@
 #include "ui/CocosGUI.h"
 
 #include "cocos2d.h"
-#include "world_model.h"
+#include "map.h"
 #include "ui\UICheckBox.h"
 #include "ui\UILayout.h"
 #include "ui\UIHBox.h"
@@ -71,14 +71,14 @@ enum UIMapMode
 //struct UIMapData
 //{
 //	UIMapMode mode;
-//	Species* species;
-//	Plant* plant;
+//	Industry* industry;
+//	Product* plant;
 //};
 
 struct UIStateData
 {
 	UIStateData() : 
-		species(NULL),
+		industry(NULL),
 		plant(NULL),
 		mode(MM_NONE),
 		// price_vol_mode(0),
@@ -90,8 +90,8 @@ struct UIStateData
 
 	}
 	UIMapMode mode;
-	Species* species;
-	Plant* plant;
+	Industry* industry;
+	Product* plant;
 	// int price_vol_mode;
 	// int produce_consume_mode;
 	bool show_grid;
@@ -115,7 +115,7 @@ protected:
 	std::map<Transport*, RouteAnimation*> transports;
 };
 
-/// Render animals
+/// Render factories
 class AnimalMapLayer : public MapView
 {
 public:
@@ -124,20 +124,20 @@ public:
 	//bool onTouchBegan(Touch* touch, Event  *event) override;
 	//void onTouchEnded(Touch* touch, Event  *event) override;
 	//void onTouchMoved(Touch* touch, Event  *event) override;
-	Animal* create_animal(Area* a, Species& species);
-	Sprite* create_sprite(Animal* ani);
+	Factory* create_factory(Area* a, Industry& industry);
+	Sprite* create_sprite(Factory* ani);
 	void create_sprites_from_model();
 protected:
 	// AnimalWorld& model() { return *(AnimalWorld*)_model; }
 	bool is_map_point(cocos2d::Vec2& p);
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
-	Node* _animals;
+	Node* _factories;
 };
 
 enum UIState
 {
 	UIS_NONE,
-	UIS_ANIMAL,
+	UIS_factory,
 	UIS_PLANTS
 };
 
@@ -174,16 +174,16 @@ protected:
 	RadioMenu* _plants_browser;
 
 	SpeciesView* _species_view;
-	AnimalView* _animal_view;
+	AnimalView* _factory_view;
 	PlantMapLayer* _plant_layer;
-	AnimalMapLayer* _animal_layer;
-	ui::VBox* _animal_layers_panel;
+	AnimalMapLayer* _factory_layer;
+	ui::VBox* _factory_layers_panel;
 	ui::VBox* _plant_layers_panel;
 	ui::HBox* _play_panel;
 
 	std::function<void()> _on_state_plant;
 	std::function<void()> _on_state_build;
-	std::function<void()> _on_state_animal;
+	std::function<void()> _on_state_factory;
 
 	void tick(float f);
 	void load_from_tmx(std::string tmx);
@@ -198,10 +198,10 @@ protected:
 	void create_play_panel();
 	RadioMenu* create_species_browser();
 	RadioMenu* create_plants_browser();
-	void create_animal_layers_panel();
+	void create_factory_layers_panel();
 	void create_plant_layers_panel();
 	virtual void setContentSize(const Size & var) override;
-	void update_panels(bool animal, bool plants);
+	void update_panels(bool Factory, bool plants);
 	void set_state(UIState state);
 	void update_popup(const Vec2& p);
 	void WorldUI::find_child(const cocos2d::Node* n, const Vec2& wp, cocos2d::Node*& child, int& z_order);

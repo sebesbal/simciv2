@@ -1,15 +1,16 @@
 
-#include "world_model.h"
+#include "map.h"
 #include <queue>
-#include "economy.h"
+#include "trade.h"
 #include "assert.h"
 
 using namespace std;
 
 namespace simciv
 {
-	int material_count;
+	int product_count;
 
+	// Node for graph algorithms (eg. Dijstra)
 	struct Node
 	{
 		Node() : area(NULL), parent(NULL), color(0), d(0) {}
@@ -19,6 +20,7 @@ namespace simciv
 		int color; // 0 = black, unvisited, 1 = gray, opened, 2 = white, visited
 	};
 
+	// Graph
 	struct RoadMap
 	{
 		Node* g;
@@ -33,30 +35,11 @@ namespace simciv
 		}
 	};
 
-	void bisect(const MaterialVec& v, MaterialVec& pos, MaterialVec& neg)
-	{
-		pos.clear();
-		neg.clear();
-		for (double d : v)
-		{
-			if (d < 0)
-			{
-				pos.push_back(0);
-				neg.push_back(-d);
-			}
-			else
-			{
-				pos.push_back(d);
-				neg.push_back(0);
-			}
-		}
-	}
-
 	Area::Area(int index) : index(index), map(NULL)
 	{
 	}
 
-	Road::Road(double t_price): t_price(t_price)
+	Road::Road(double cost): cost(cost)
 	{
 	}
 
@@ -65,7 +48,7 @@ namespace simciv
 
 	}
 
-	void Map::create_map(int width, int height, int prod_count)
+	void Map::create(int width, int height, int prod_count)
 	{
 		_width = width;
 		_height = height;
@@ -96,11 +79,6 @@ namespace simciv
 				}
 			}
 		}
-
-		for (int i = 0; i < prod_count; ++i)
-		{
-			_trade_maps.push_back( new TradeMap(i) );
-		}
 	}
 
 	void Map::add_road(Area* a, Area* b)
@@ -121,21 +99,21 @@ namespace simciv
 		return _areas[y * _width + x];
 	}
 
-	AreaTrade& Map::get_trade(Area* a, int id)
-	{
-		return _trade_maps[id]->get_trade(a);
-	}
+	//AreaTrade& Map::get_trade(Area* a, int id)
+	//{
+	//	return _trade_maps[id]->get_trade(a);
+	//}
 
 	void Map::update()
 	{
-		static int k = 0;
-		if (k++ % 1 == 0)
-		{
-			for (TradeMap* product: _trade_maps)
-			{
-				product->update();
-			}
-		}
+		//static int k = 0;
+		//if (k++ % 1 == 0)
+		//{
+		//	for (TradeMap* product: _trade_maps)
+		//	{
+		//		product->update();
+		//	}
+		//}
 	}
 
 	void Map::create_road_map(Area* a)
@@ -186,7 +164,7 @@ namespace simciv
 				Node* m = &g[b->index];
 				if (m->color < 2) // if m is not visited yet
 				{
-					double new_d = n->d + r->t_price;
+					double new_d = n->d + r->cost;
 					if (new_d < m->d)
 					{
 						m->d = new_d;
@@ -218,13 +196,13 @@ namespace simciv
 
 		Node* n = &map->g[dst->index];
 		Area* a = dst;
-		route->trans_price = 0;
+		route->cost = 0;
 
 		while (n->parent)
 		{
 			Road* r = n->parent;
 			route->roads.push_back(r);
-			route->trans_price += r->t_price;
+			route->cost += r->cost;
 			a = r->other(a);
 			n = &map->g[a->index];
 		}
@@ -249,7 +227,7 @@ namespace simciv
 		while (n->parent)
 		{
 			Road* r = n->parent;
-			result += r->t_price;
+			result += r->cost;
 			a = r->other(a);
 			n = &map->g[a->index];
 		}
