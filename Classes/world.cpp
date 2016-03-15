@@ -26,16 +26,17 @@ namespace simciv
 		auto item = node->first_node();
 		while (item)
 		{
-			int id = stoi(item->first_attribute("plant")->value());
+			string id = item->first_attribute("product")->value();
+			int index = world.get_product(id)->id;
 			double vol = stod(item->first_attribute("vol")->value());
 			string name = item->name();
 			if (name == "in")
 			{
-				this->input[id] = vol;
+				this->input[index] = vol;
 			}
 			else if (name == "out")
 			{
-				this->output[id] = vol;
+				this->output[index] = vol;
 			}
 			item = item->next_sibling();
 		}
@@ -165,14 +166,14 @@ namespace simciv
 			n = n->next_sibling("produce");
 		}
 
-		n = node->first_node("eat");
+		n = node->first_node("maint");
 		while (n)
 		{
 			ProductionRule rule;
 			rule.load(n);
 			rule.output[0] = 1;
 			this->m2a_rules.push_back(rule);
-			n = n->next_sibling("eat");
+			n = n->next_sibling("maint");
 		}
 
 		product = get_product();
@@ -196,7 +197,7 @@ namespace simciv
 		if (image) this->icon_file = "img/" + string(image->value());
 	}
 
-	Factory::Factory(Industry& industry) : industry(industry), money(100000000), efficiency(1)
+	Factory::Factory(Industry& industry) : industry(industry), money(100000000), efficiency(1), is_under_construction(true)
 	{
 		for (int i = 0; i < product_count; ++i)
 		{
@@ -344,6 +345,7 @@ namespace simciv
 	double Factory::consume_articles(Prices& prices)
 	{
 		double expense = 0;
+		//auto& vols = is_under_construction ? industry.build_cost : industry.maintenance_cost;
 		auto& vols = industry.maintenance_cost;
 		for (auto& p : vols)
 		{
@@ -458,7 +460,7 @@ string ExePath() {
 	{
 		int x = 12, y = 10;
 
-		auto s1 = get_industries("3");
+		auto s1 = get_industry("Castle");
 		create_factory(get_area(x, y), *s1);
 	}
 
@@ -585,13 +587,13 @@ string ExePath() {
 		while (item)
 		{
 			string name = item->name();
-			if (name == "species")
+			if (name == "industry")
 			{
 				Industry* s = new Industry();
 				s->load(item);
 				add_industry(s);
 			}
-			else if (name == "plant")
+			else if (name == "product")
 			{
 				Product* product = new Product();
 				product->load(item);

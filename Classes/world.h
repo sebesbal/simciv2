@@ -86,6 +86,8 @@ namespace simciv
 		double money;
 		double efficiency;
 		Area* area;
+		bool is_under_construction;		///< firstly the Factory is under construction
+		Products built_in;				///< if built_in == industry.build_cost, the factory is completed
 		void update();
 		double apply_rule(ProductionRule* rule, double profit, double ideal_rate); ///< tries to apply the rule with "rate" times. returns the applicable rate. (depending on the storage)
 		double consume_article(int art_ind, Prices& prices, double& volume); ///< changes volume to the consumed volume, and returns the price
@@ -108,7 +110,7 @@ namespace simciv
 		Factory* find_factory(Area* a);
 		std::vector<Factory*>& get_factories() { return factories; }
 		std::vector<Industry*>& get_industries() { return industries; }
-		Industry* get_industries(std::string name) { for (auto p : industries) if (p->name == name) return p; return NULL; }
+		Industry* get_industry(std::string name) { for (auto p : industries) if (p->name == name) return p; return NULL; }
 		Product* get_product(std::string name) { for (auto p : products) if (p->name == name) return p; return NULL; }
 		std::vector<Product*>& get_products() { return products; }
 		Prices get_prices(Area* a);

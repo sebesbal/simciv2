@@ -1,55 +1,55 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <simciv>
-  <plant id="0" image="plants\\Tomato-icon.png" />
-  <plant id="1" image="plants\\Onion-icon.png" />
-  <plant id="2" image="plants\\Pepper-icon.png" />
-  <species id="0" image="plants\\Tomato-icon.png">
-    <eat>
-      <in plant="0" vol="0.5" />
-    </eat>
-    <eat>
-      <in plant="1" vol="0.25" />
-    </eat>
-    <eat>
-      <in plant="2" vol="0.125" />
-    </eat>
+  <product id="tomato" image="plants\\Tomato-icon.png" />
+  <product id="onion" image="plants\\Onion-icon.png" />
+  <product id="pepper" image="plants\\Pepper-icon.png" />
+  <industry id="Tomato" image="plants\\Tomato-icon.png">
+    <maint>
+      <in product="tomato" vol="0.5" />
+    </maint>
+    <maint>
+      <in product="onion" vol="0.25" />
+    </maint>
+    <maint>
+      <in product="pepper" vol="0.125" />
+    </maint>
     <produce>
-      <out plant="0" vol="1" />
+      <out product="tomato" vol="1" />
     </produce>
-  </species>
-  <species id="1" image="plants\\Onion-icon.png">
-    <eat>
-      <in plant="0" vol="0.5" />
-    </eat>
-    <eat>
-      <in plant="1" vol="0.25" />
-    </eat>
-    <eat>
-      <in plant="2" vol="0.125" />
-    </eat>
+  </industry>
+  <industry id="Onion" image="plants\\Onion-icon.png">
+    <maint>
+      <in product="tomato" vol="0.5" />
+    </maint>
+    <maint>
+      <in product="onion" vol="0.25" />
+    </maint>
+    <maint>
+      <in product="pepper" vol="0.125" />
+    </maint>
     <produce>
-      <in plant="0" vol="1" />
-      <out plant="1" vol="1" />
+      <in product="tomato" vol="1" />
+      <out product="onion" vol="1" />
     </produce>
-  </species>
-  <species id="2" image="plants\\Pepper-icon.png">
-    <eat>
-      <in plant="0" vol="0.5" />
-    </eat>
-    <eat>
-      <in plant="1" vol="0.25" />
-    </eat>
-    <eat>
-      <in plant="2" vol="0.125" />
-    </eat>
+  </industry>
+  <industry id="Pepper" image="plants\\Pepper-icon.png">
+    <maint>
+      <in product="tomato" vol="0.5" />
+    </maint>
+    <maint>
+      <in product="onion" vol="0.25" />
+    </maint>
+    <maint>
+      <in product="pepper" vol="0.125" />
+    </maint>
     <produce>
-      <in plant="1" vol="1" />
-      <out plant="2" vol="1" />
+      <in product="onion" vol="1" />
+      <out product="pepper" vol="1" />
     </produce>
-  </species>
-  <species id="3" image="castle2.png">
-    <eat>
-      <in plant="0" vol="1" />
-    </eat>
-  </species>
+  </industry>
+  <industry id="Castle" image="castle2.png">
+    <maint>
+      <in product="tomato" vol="1" />
+    </maint>
+  </industry>
 </simciv>
