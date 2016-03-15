@@ -87,11 +87,25 @@ namespace simciv
 		return result;
 	}
 
-	void Industry::find_best_m2m_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit)
+	ProductionRule ProductionRule::multiply(double multiply_input, double multiply_outut)
+	{
+		ProductionRule rule = *this;
+		for (auto& p : rule.input)
+		{
+			p.second *= multiply_input;
+		}
+		for (auto& p : rule.output)
+		{
+			p.second *= multiply_outut;
+		}
+		return rule;
+	}
+
+	void Industry::find_best_prod_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit)
 	{
 		double best_profit = 0;
 		ProductionRule* best_rule = NULL;
-		for (auto& rule : m2m_rules)
+		for (auto& rule : prod_rules)
 		{
 			double profit = rule.profit(prices);
 			if (profit > best_profit)
@@ -109,10 +123,10 @@ namespace simciv
 		}
 	}
 
-	void Industry::find_best_m2a_rule(const Prices& prices, ProductionRule*& rule, double& price)
+	void Industry::find_best_maint_rule(const Prices& prices, ProductionRule*& rule, double& price)
 	{
 		price = max_price;
-		for (auto& r : m2a_rules)
+		for (auto& r : maint_rules)
 		{
 			double p = r.expense(prices);
 			if (p < price)
@@ -127,14 +141,15 @@ namespace simciv
 	{
 		double price;
 		ProductionRule* rule;
-		find_best_m2a_rule(prices, rule, price);
+		find_best_maint_rule(prices, rule, price);
 		return price * 100;
 	}
 
 	void Industry::load(rapidxml::xml_node<>* node)
 	{
-		maintenance_cost[0] = 1;
+		//maint_cost[0] = 1;
 		type = IT_NONE;
+		lifetime = 10;
 
 		//auto t = node->first_attribute("type");
 		//if (t)
@@ -157,12 +172,18 @@ namespace simciv
 			this->name = id->value();
 		}
 
+		auto lt = node->first_attribute("lifetime");
+		if (lt)
+		{
+			lifetime = stoi(lt->value());
+		}
+
 		auto n = node->first_node("produce");
 		while (n)
 		{
 			ProductionRule rule;
 			rule.load(n);
-			this->m2m_rules.push_back(rule);
+			this->prod_rules.push_back(rule);
 			n = n->next_sibling("produce");
 		}
 
@@ -172,8 +193,28 @@ namespace simciv
 			ProductionRule rule;
 			rule.load(n);
 			rule.output[0] = 1;
-			this->m2a_rules.push_back(rule);
+			this->maint_rules.push_back(rule);
 			n = n->next_sibling("maint");
+		}
+
+		n = node->first_node("build");
+		if (!n)
+		{
+			for (auto& r : maint_rules)
+			{
+				build_rules.push_back(r.multiply(lifetime, 1));
+			}
+		}
+		else
+		{
+			while (n)
+			{
+				ProductionRule rule;
+				rule.load(n);
+				rule.output[0] = 1;
+				this->build_rules.push_back(rule);
+				n = n->next_sibling("build");
+			}
 		}
 
 		product = get_product();
@@ -181,9 +222,9 @@ namespace simciv
 
 	Product* Industry::get_product()
 	{
-		if (m2m_rules.size() == 1)
+		if (prod_rules.size() == 1)
 		{
-			int product_id = m2m_rules[0].output.begin()->first;
+			int product_id = prod_rules[0].output.begin()->first;
 			return world.get_products()[product_id];
 		}
 		return NULL;
@@ -213,150 +254,76 @@ namespace simciv
 	{
 		//area
 
-		//industry.find_best_m2m_rule();
+		//industry.find_best_prod_rule();
 	}
 
 	double Factory::apply_rule(ProductionRule* rule, double profit, double ideal_rate)
 	{
 		double rate = ideal_rate;
 		//if (rate == 0) return 0;
-		check_consumption_storage(rule->input, rate);
+		check_buyer_storage(rule->input, rate);
 		//if (rate == 0) return 0;
 		double rate2 = rate;
-		check_supply_storage(rule->output, rate);
+		check_seller_storage(rule->output, rate);
 		//if (rate == 0) return 0;
 
 		for (auto& p : rule->input)
 		{
 			int prod_id = p.first;
 			double vol = p.second;
-			buyers[prod_id]->modify_storage(ideal_rate * vol, rate * vol);
+			buyers[prod_id]->modify_storage(rate * vol);
+			buyers[prod_id]->vol_in += ideal_rate * vol;
 		}
 
 		for (auto& p : rule->output)
 		{
 			int prod_id = p.first;
 			double vol = p.second;
-			//sellers[prod_id]->modify_storage(ideal_rate * vol, rate * vol);
-			//sellers[prod_id]->modify_storage(0, rate * vol);
-			sellers[prod_id]->modify_storage(rate2 * vol, rate * vol);
+			sellers[prod_id]->modify_storage(rate * vol);
+			sellers[prod_id]->vol_in += rate2 * vol;
 		}
 
 		return rate;
 	}
 
-	//double Factory::consume_article(int art_ind, Prices& prices, double& volume)
-	//{
-	//	double full_expense = 0;
-	//	double best_expense = max_price;
-	//	std::set<ProductionRule*> used;
-
-	//	while (volume > 0)
-	//	{
-	//		ProductionRule* best_rule = NULL;
-	//		double best_rate;
-	//		for (auto& rule : industry.m2a_rules)
-	//		{
-	//			double rate = volume;
-	//			check_consumption_storage(rule.input, rate);
-	//			if (rate > 0)
-	//			{
-	//				double exp = rule.expense(prices);
-	//				if (exp < best_expense)
-	//				{
-	//					best_expense = exp;
-	//					best_rule = &rule;
-	//					best_rate = rate;
-	//				}
-	//			}
-	//		}
-
-	//		if (best_rule)
-	//		{
-	//			full_expense += best_expense;
-	//			for (auto& p : best_rule->input)
-	//			{
-	//				int prod_id = p.first;
-	//				double vol = p.second;
-	//				buyers[prod_id]->modify_storage(volume * vol, best_rate * vol);
-	//			}
-	//			volume -= best_rate;
-	//		}
-	//		else
-	//		{
-	//			break;
-	//		}
-	//	}
-
-	//	if (volume > 0)
-	//	{
-	//		for (auto& rule : industry.m2a_rules)
-	//		{
-	//			for (auto& p : rule.input)
-	//			{
-	//				int prod_id = p.first;
-	//				double vol = p.second;
-	//				double& v = buyers[prod_id]->volume;
-	//				v = std::max(v, volume * vol);
-	//			}
-	//		}
-	//	}
-
-	//	return full_expense;
-	//}
-
-
-	double Factory::consume_article(int art_ind, Prices& prices, double& volume)
+	double Factory::consume_articles(Prices& prices)
 	{
 		double full_expense = 0;
 		typedef std::pair<double, ProductionRule*> pair_t;
 		std::vector<pair_t> v;
+		auto& rules = is_under_construction ? industry.build_rules : industry.maint_rules;
 
-		for (auto& rule : industry.m2a_rules)
+		for (auto& rule : rules)
 		{
 			v.push_back(pair_t(rule.expense(prices), &rule));
 		}
 
 		std::sort(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
 
+		double volume = 1;
 		for (auto& p : v)
 		{
 			double rate = volume;
 			double expense = p.first;
 			auto rule = p.second;
-			check_consumption_storage(rule->input, rate);
+			check_buyer_storage(rule->input, rate);
 			expense *= rate;
-			//check_money(expense, rate);
 			full_expense += expense;
 			for (auto& p : rule->input)
 			{
 				int prod_id = p.first;
 				double vol = p.second;
-				buyers[prod_id]->modify_storage(volume * vol, rate * vol);
+				buyers[prod_id]->modify_storage(rate * vol);
+				buyers[prod_id]->vol_in += volume * vol;
 			}
 			volume -= rate;
-			//income(-expense);
 			if (volume <= 0) break;
 		}
 
 		return full_expense;
 	}
 
-	double Factory::consume_articles(Prices& prices)
-	{
-		double expense = 0;
-		//auto& vols = is_under_construction ? industry.build_cost : industry.maintenance_cost;
-		auto& vols = industry.maintenance_cost;
-		for (auto& p : vols)
-		{
-			int art_id = p.first;
-			double vol = p.second;
-			expense += consume_article(art_id, prices, vol);
-		}
-		return expense;
-	}
-
-	void Factory::check_supply_storage(ProductMap& vols, double& rate)
+	void Factory::check_seller_storage(ProductMap& vols, double& rate)
 	{
 		if (rate == 0) return;
 		for (auto& p : vols)
@@ -369,7 +336,7 @@ namespace simciv
 		}
 	}
 
-	void Factory::check_consumption_storage(ProductMap& vols, double& rate)
+	void Factory::check_buyer_storage(ProductMap& vols, double& rate)
 	{
 		if (rate == 0) return;
 		for (auto& p : vols)
@@ -390,9 +357,9 @@ namespace simciv
 		}
 	}
 
-	void Factory::find_best_m2m_rule(const Prices& prices, ProductionRule*& rule, double& profit)
+	void Factory::find_best_prod_rule(const Prices& prices, ProductionRule*& rule, double& profit)
 	{
-		industry.find_best_m2m_rule(prices, area, rule, profit);
+		industry.find_best_prod_rule(prices, area, rule, profit);
 	}
 
 	Prices Factory::get_prices()
@@ -461,7 +428,9 @@ string ExePath() {
 		int x = 12, y = 10;
 
 		auto s1 = get_industry("Castle");
-		create_factory(get_area(x, y), *s1);
+		auto f = create_factory(get_area(x, y), *s1);
+		f->is_under_construction = false;
+		f->buyers[world.get_product("tomato")->id]->set_storage(10000);
 	}
 
 	Factory* World::create_factory(Area* a, Industry& industry)
@@ -478,9 +447,9 @@ string ExePath() {
 		// create all producers:
 		for (int i = 0; i < product_count; ++i)
 		{
-			auto p = f->sellers[i] = _trade_maps[i]->create_prod(a, false, 0, 50);
+			auto p = f->sellers[i] = _trade_maps[i]->create_prod(a, false, 50);
 			p->storage_capacity = 10000;
-			auto q = f->buyers[i] = _trade_maps[i]->create_prod(a, true, 0, 50);
+			auto q = f->buyers[i] = _trade_maps[i]->create_prod(a, true, 50);
 			q->storage_capacity = 10000;
 			p->storage_pair = q;
 			q->storage_pair = p;
@@ -541,12 +510,16 @@ string ExePath() {
 		for (Factory* f : factories)
 		{
 			Prices prices = f->get_prices();
-			ProductionRule* rule;
-			double profit;
-			f->find_best_m2m_rule(prices, rule, profit);
-			if (rule)
-			{ 
-				f->apply_rule(rule, profit, f->efficiency);
+
+			if (!f->is_under_construction)
+			{
+				ProductionRule* rule;
+				double profit;
+				f->find_best_prod_rule(prices, rule, profit);
+				if (rule)
+				{
+					f->apply_rule(rule, profit, f->efficiency);
+				}
 			}
 
 			double expense = f->consume_articles(prices);
@@ -623,9 +596,9 @@ string ExePath() {
 		Prices prices = get_prices(a);
 		double profit;
 		ProductionRule* rule;
-		industry->find_best_m2m_rule(prices, a, rule, profit);
+		industry->find_best_prod_rule(prices, a, rule, profit);
 		double price;
-		industry->find_best_m2a_rule(prices, rule, price);
+		industry->find_best_maint_rule(prices, rule, price);
 		profit -= price;
 		return profit;
 	}
@@ -651,15 +624,5 @@ string ExePath() {
 	AreaData& World::get_trade(Area* a, int id)
 	{
 		return _trade_maps[id]->get_trade(a);
-	}
-
-	void World::move_factory(Factory* f, Area* new_area)
-	{
-		for (size_t i = 0; i < _trade_maps.size(); ++i)
-		{
-			_trade_maps[i]->move_prod(f->sellers[i], new_area);
-			_trade_maps[i]->move_prod(f->buyers[i], new_area);
-		}
-		f->area = new_area;
 	}
 }

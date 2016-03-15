@@ -32,14 +32,15 @@ namespace simciv
 
 	typedef std::map<int, double> ProductMap; ///< (product id, volume) pairs.
 
-	/// Describes a production chain. Creates a set of products from a set of input products
+	/// Describes a production phase. Creates a set of products from a set of input products
 	struct ProductionRule
 	{
 		ProductMap input;						///< The id's and volumes of the input products
 		ProductMap output;						///< The id's and volumes of the output products
 		void load(rapidxml::xml_node<>* node);
-		double profit(const Prices& prices);	///< used for m2m rules
-		double expense(const Prices& prices);	///< used for m2a rules
+		double profit(const Prices& prices);	///< used for prod rules
+		double expense(const Prices& prices);	///< used for maint. rules
+		ProductionRule multiply(double multiply_input, double multiply_outut); ///< multiply the volumes of the input and output
 	};
 
 	enum IndustryType
@@ -64,12 +65,12 @@ namespace simciv
 		int id;
 		std::string name;
 		IndustryType type;
-		std::vector<ProductionRule> m2m_rules;	///< creates products form products
-		std::vector<ProductionRule> m2a_rules;	///< creates articles form products.
-		Products build_cost;					///< cost of build a new instance
-		ProductMap maintenance_cost;			///< cost of maintain the instance
-		void find_best_m2m_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit);
-		void find_best_m2a_rule(const Prices& prices, ProductionRule*& rule, double& price);
+		std::vector<ProductionRule> prod_rules;		///< creates products form products
+		std::vector<ProductionRule> maint_rules;	///< cost of maintain a Factory in every turn
+		std::vector<ProductionRule> build_rules;	///< cost of build a Factory. The default build_rules = lifetime * maint_rules
+		int lifetime;								///< lifetime in world time. After lifetime turn, the Factory has to be "rebuilt" (maintain) via maint_rules
+		void find_best_prod_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit);
+		void find_best_maint_rule(const Prices& prices, ProductionRule*& rule, double& price);
 		double get_build_cost(const Prices& prices);
 		std::string icon_file;
 		Product* product;
@@ -90,12 +91,11 @@ namespace simciv
 		Products built_in;				///< if built_in == industry.build_cost, the factory is completed
 		void update();
 		double apply_rule(ProductionRule* rule, double profit, double ideal_rate); ///< tries to apply the rule with "rate" times. returns the applicable rate. (depending on the storage)
-		double consume_article(int art_ind, Prices& prices, double& volume); ///< changes volume to the consumed volume, and returns the price
 		double consume_articles(Prices& prices);
-		void check_supply_storage(ProductMap& vols, double& rate);
-		void check_consumption_storage(ProductMap& vols, double& rate);
+		void check_seller_storage(ProductMap& vols, double& rate);
+		void check_buyer_storage(ProductMap& vols, double& rate);
 		void check_money(double price, double& rate);
-		void find_best_m2m_rule(const Prices& prices, ProductionRule*& rule, double& profit);
+		void find_best_prod_rule(const Prices& prices, ProductionRule*& rule, double& profit);
 		Prices get_prices();
 		void income(double money);
 	};
@@ -124,7 +124,6 @@ namespace simciv
 		void add_industry(Industry* industry) { industry->id = this->industries.size(); this->industries.push_back(industry); }
 		void generate_industry();
 		void generate_factories();
-		void move_factory(Factory* f, Area* new_area);
 		std::vector<Industry*> industries;
 		std::vector<Product*> products;
 		std::vector<Factory*> factories;

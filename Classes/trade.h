@@ -21,19 +21,21 @@ namespace simciv
 		Factory* owner;
 		Trader* storage_pair;					///< the other trader of a seller-buyer pair (for a Factory-Product)
 		bool is_buyer;							///< this is a buyer (not seller)
-		double volume;							///< trade offer. we can buy/sell this volume in one turn
+		double vol_in;							///< the value what the owner Factory wanted to put in/take out from this Trader.
+		double vol_out;							///< the value what the partners wanted to buy/sell from this Trader. (so, there are possible partners on this price)
+		double volume;							///< the value what Trader wants to buy/sell in one turn. This is a combined value of val_in and val_out, considering the fullness of the storage too.
 		double free_volume;						///< volume - actually traded volume. (the partners didn't want to buy/sell this volume)
-		double vol_out;							///< the possible volume on the current price. (there are partners on this price)
 		double price;							///< the current price
 		double worst_profit;					///< the profit of the worst transport. (used for Area's price calculation)
 		double worst_price;						///< the price of the worst transport. (used for Area's price calculation)
 
-		void modify_storage(double ideal_vol, double actual_vol);
+		void modify_storage(double vol);
 		void set_storage(double vol);
 
 		double& storage() { return _storage; }
 		double money();
 		void update_price();
+		void update_volume();
 		void synchronize_price();
 		void update_storage();
 		double free_capacity() { return storage_capacity - _storage; }
@@ -89,11 +91,7 @@ namespace simciv
 		void update();
 		AreaData& get_trade(Area* a) { return (*_production)[a->index]; }
 		AreaData& get_new_prod(Area* a) { return (*_new_production)[a->index]; }
-		Trader* add_prod(Area* area, double volume, double price);
-		Trader* create_prod(Area* area, bool consumer, double volume, double price);
-		void remove_prod(Trader* prod);
-		void remove_prod(Area* area, double volume, double price);
-		void move_prod(Trader* prod, Area* new_area);
+		Trader* create_prod(Area* area, bool consumer, double price);
 		void generate_resources();
 		std::vector<Transport*>& transports() { return _transports; }
 		void update_transports(); ///< find possible trade routes

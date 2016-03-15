@@ -467,7 +467,8 @@ FactoryPopup::FactoryPopup()
 		DataLabel* label = new DataLabel();
 		hb->addChild(label);
 		label->data = d;
-		label->setContentSize(Size(w / 2, rh));
+		label->ignoreContentAdaptWithSize(false);
+		label->setContentSize(Size(w / 2 - m, rh));
 	};
 
 	f("profit: ", &_profit);
@@ -551,12 +552,12 @@ void IndustryView::set_industry(Industry* industry)
 		//auto t = _icon->getTexture();
 		//_icon->setScale(50.0 / std::max(t->getPixelsWide(), t->getPixelsHigh()));
 
-		_build_cost->set_vector(industry->build_cost, 30);
+		//_build_cost->set_vector(industry->build_cost, 30);
 
 
 		_production_view->removeAllChildrenWithCleanup(true);
 
-		for (auto rule : industry->m2m_rules)
+		for (auto rule : industry->prod_rules)
 		{
 			Size ss = getContentSize();
 

@@ -18,13 +18,11 @@ namespace simciv
 	}
 
 	Trader::Trader() :
-		volume(0),
 		_storage(0),
 		storage_last(0),
 		storage_capacity(10000),
 		storage_pair(NULL),
 		ideal_fullness(-1),
-		free_volume(0),
 		price(0),
 		worst_profit(0),
 		worst_price(0),
@@ -33,17 +31,15 @@ namespace simciv
 	{
 	}
 
-	void Trader::modify_storage(double demand_vol, double actual_vol)
+	void Trader::modify_storage(double vol)
 	{
 		if (is_buyer)
 		{
-			set_storage(_storage - actual_vol);
-			volume += demand_vol;
+			set_storage(_storage - vol);
 		}
 		else
 		{
-			set_storage(_storage + actual_vol);
-			volume += demand_vol;
+			set_storage(_storage + vol);
 		}
 	}
 
@@ -81,6 +77,52 @@ history:
 	history_trade.push_back(volume - free_volume);
 	if (history_price.size() > history_count) history_price.pop_front();
 	if (history_trade.size() > history_count) history_trade.pop_front();
+}
+
+void Trader::update_volume()
+{
+	if (is_buyer)
+	{
+		if (vol_in == 0)
+		{
+			volume = 0;
+		}
+		else if (vol_out > vol_in)
+		{
+			if (_storage < 50.0)
+			{
+				volume = vol_out;
+			}
+			else
+			{
+				volume = vol_in;
+			}
+		}
+		else
+		{
+			volume = vol_in;
+		}
+		volume = std::min(volume, free_capacity());
+	}
+	else
+	{
+		if (vol_out > vol_in)
+		{
+			if (_storage > 50.0)
+			{
+				volume = vol_out;
+			}
+			else
+			{
+				volume = vol_in;
+			}
+		}
+		else
+		{
+			volume = vol_in;
+		}
+		volume = std::min(volume, _storage);
+	}
 }
 
 	void Trader::synchronize_price()
@@ -172,6 +214,7 @@ history:
 	{
 		for (Trader* p : _sellers)
 		{
+			p->update_volume();
 			p->vol_out = 0;
 			p->volume = std::max(0.0, p->volume);
 			p->free_volume = p->volume;
@@ -179,6 +222,7 @@ history:
 		}
 		for (Trader* p : _buyers)
 		{
+			p->update_volume();
 			p->vol_out = 0;
 			p->free_volume = p->volume;
 			p->worst_profit = max_price;
@@ -392,7 +436,7 @@ history:
 	{
 		for (Trader* p : _sellers)
 		{
-			p->volume = 0;
+			p->vol_in = 0;
 			
 			// p->volume = p->_storage - p->storage_last + p->volume - p->free_volume;
 			//p->volume = p->_d_storage;
@@ -403,7 +447,7 @@ history:
 		}
 		for (Trader* p : _buyers)
 		{
-			p->volume = 0;
+			p->vol_in = 0;
 			p->storage_last = p->_storage;
 		}
 	}
@@ -421,12 +465,8 @@ history:
 			vol = std::min(a->storage(), vol);
 			vol = std::min(b->free_capacity(), vol);
 
-			//a->modify_storage(t->demand_volume, -t->volume);
-			// a->modify_storage(0, -t->volume);
-			b->modify_storage(0, -t->volume);
-
 			a->set_storage(a->storage() - t->volume);
-			// b->set_storage(b->storage() + t->volume);
+			b->set_storage(b->storage() + t->volume);
 
 			a->owner->income(vol * a->price);
 			b->owner->income(- vol * b->price);
@@ -442,13 +482,12 @@ history:
 		}
 	}
 
-	Trader* TradeMap::create_prod(Area* area, bool consumer, double volume, double price)
+	Trader* TradeMap::create_prod(Area* area, bool consumer, double price)
 	{
 		Trader* p = new Trader();
 		p->product = &product;
 		p->price = price;
 		p->is_buyer = consumer;
-		p->volume = volume;
 		p->area = area;
 
 		auto& v = p->is_buyer ? _buyers : _sellers;
@@ -468,76 +507,5 @@ history:
 		}
 
 		return p;
-	}
-
-	Trader* TradeMap::add_prod(Area* area, double volume, double price)
-	{
-		bool consumer = volume < 0;
-		volume = abs(volume);
-		auto& v = consumer ? _buyers : _sellers;
-		AreaData& a = get_trade(area);
-		auto it = std::find_if(v.begin(), v.end(), [area](Trader* p) { return p->area == area; });
-
-		if (it == v.end())
-		{
-			return NULL;
-		}
-		else
-		{
-			Trader* p = *it;
-			p->volume += volume;
-			return p;
-		}
-	}
-
-	void TradeMap::remove_prod(Trader* prod)
-	{
-		int id = prod->area->index;
-
-		auto& u = prod->is_buyer ? _buyers : _sellers;
-		auto it = std::find(u.begin(), u.end(), prod);
-		u.erase(it);
-
-		auto& v = prod->is_buyer ? _area_buyers[id] : _area_sellers[id];
-		it = std::find(v.begin(), v.end(), prod);
-		v.erase(it);
-
-		delete prod;
-	}
-
-	void TradeMap::remove_prod(Area* area, double volume, double price)
-	{
-		assert(unique_mode);
-		bool consumer = volume < 0;
-		volume = abs(volume);
-		auto& v = consumer ? _buyers : _sellers;
-		AreaData& a = get_trade(area);
-		auto it = std::find_if(v.begin(), v.end(), [area](Trader* p) { return p->area == area; });
-
-		if (it == v.end())
-		{
-			throw "area is empty";
-		}
-		else
-		{
-			(*it)->volume -= volume;
-		}
-
-		if ((*it)->volume == 0)
-		{
-			remove_prod(*it);
-		}
-	}
-
-	void TradeMap::move_prod(Trader* prod, Area* new_area)
-	{
-		int id = prod->area->index;
-		auto& v = prod->is_buyer ? _area_buyers[id] : _area_sellers[id];
-		auto it = std::find(v.begin(), v.end(), prod);
-		v.erase(it);
-
-		id = new_area->index;
-		auto& u = prod->is_buyer ? _area_buyers[id] : _area_sellers[id];
-		u.push_back(prod);
 	}
 }
