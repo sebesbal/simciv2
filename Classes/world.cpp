@@ -86,7 +86,7 @@ namespace simciv
 		return result;
 	}
 
-	void Industry::find_best_m2m_rule(const Prices& prices, ProductionRule*& rule, double& profit)
+	void Industry::find_best_m2m_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit)
 	{
 		double best_profit = 0;
 		ProductionRule* best_rule = NULL;
@@ -101,6 +101,11 @@ namespace simciv
 		}
 		rule = best_rule;
 		profit = best_profit;
+
+		if (product)
+		{
+			profit *= world.get_trade(area, product->id).resource;
+		}
 	}
 
 	void Industry::find_best_m2a_rule(const Prices& prices, ProductionRule*& rule, double& price)
@@ -383,6 +388,11 @@ namespace simciv
 		}
 	}
 
+	void Factory::find_best_m2m_rule(const Prices& prices, ProductionRule*& rule, double& profit)
+	{
+		industry.find_best_m2m_rule(prices, area, rule, profit);
+	}
+
 	Prices Factory::get_prices()
 	{
 		Prices p;
@@ -527,7 +537,8 @@ string ExePath() {
 			Prices prices = f->get_prices();
 			ProductionRule* rule;
 			double profit;
-			f->industry.find_best_m2m_rule(prices, rule, profit);
+			//f->industry.find_best_m2m_rule(prices, rule, profit);
+			f->find_best_m2m_rule(prices, rule, profit);
 			if (rule)
 			{
 				f->apply_rule(rule, profit, 1);
@@ -607,7 +618,7 @@ string ExePath() {
 		Prices prices = get_prices(a);
 		double profit;
 		ProductionRule* rule;
-		industry->find_best_m2m_rule(prices, rule, profit);
+		industry->find_best_m2m_rule(prices, a, rule, profit);
 		double price;
 		industry->find_best_m2a_rule(prices, rule, price);
 		profit -= price;
@@ -628,7 +639,7 @@ string ExePath() {
 		}
 		else
 		{
-			return 0;
+			return 1;
 		}
 	}
 

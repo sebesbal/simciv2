@@ -68,7 +68,7 @@ namespace simciv
 		std::vector<ProductionRule> m2a_rules;	///< creates articles form products.
 		Products build_cost;					///< cost of build a new instance
 		ProductMap maintenance_cost;			///< cost of maintain the instance
-		void find_best_m2m_rule(const Prices& prices, ProductionRule*& rule, double& profit);
+		void find_best_m2m_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit);
 		void find_best_m2a_rule(const Prices& prices, ProductionRule*& rule, double& price);
 		double get_build_cost(const Prices& prices);
 		std::string icon_file;
@@ -92,6 +92,7 @@ namespace simciv
 		void check_supply_storage(ProductMap& vols, double& rate);
 		void check_consumption_storage(ProductMap& vols, double& rate);
 		void check_money(double price, double& rate);
+		void find_best_m2m_rule(const Prices& prices, ProductionRule*& rule, double& profit);
 		Prices get_prices();
 		void income(double money);
 	};

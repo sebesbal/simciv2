@@ -17,10 +17,10 @@ namespace simciv
 	{
 		Trader();
 		Product* product;
-		bool is_buyer;							///< this is a buyer (not seller)
 		Area* area;
 		Factory* owner;
-		Trader* storage_pair;					///< the other trader of a seller/buyer pair (for a factory's product)
+		Trader* storage_pair;					///< the other trader of a seller-buyer pair (for a Factory-Product)
+		bool is_buyer;							///< this is a buyer (not seller)
 		double volume;							///< trade offer. we can buy/sell this volume in one turn
 		double free_volume;						///< volume - actually traded volume. (the partners didn't want to buy/sell this volume)
 		double vol_out;							///< the possible volume on the current price. (there are partners on this price)
@@ -49,7 +49,7 @@ namespace simciv
 		double _d_storage;
 	};
 
-	/// Trade data of an Area
+	/// Trade data of an Area-Product
 	struct AreaTrade
 	{
 		AreaTrade();
