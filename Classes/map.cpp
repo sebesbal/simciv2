@@ -4,12 +4,23 @@
 #include <queue>
 
 #include "trade.h"
+#include "world.h"
 
 using namespace std;
 
 namespace simciv
 {
 	int product_count;
+
+	AreaData& Area::data(Product* p)
+	{
+		return world.get_trade(this, p->id);
+	}
+
+	AreaData& Area::data(int prod_id)
+	{
+		return world.get_trade(this, prod_id);
+	}
 
 	// Node for graph algorithms (eg. Dijstra)
 	struct Node
@@ -95,7 +106,7 @@ namespace simciv
 		return _areas[y * _width + x];
 	}
 
-	//AreaTrade& Map::get_trade(Area* a, int id)
+	//AreaData& Map::get_trade(Area* a, int id)
 	//{
 	//	return _trade_maps[id]->get_trade(a);
 	//}

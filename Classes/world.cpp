@@ -104,7 +104,7 @@ namespace simciv
 
 		if (product)
 		{
-			profit *= world.get_trade(area, product->id).resource;
+			profit *= area->data(product).resource;
 		}
 	}
 
@@ -196,7 +196,7 @@ namespace simciv
 		if (image) this->icon_file = "img/" + string(image->value());
 	}
 
-	Factory::Factory(Industry& industry) : industry(industry), money(100000000)
+	Factory::Factory(Industry& industry) : industry(industry), money(100000000), efficiency(1)
 	{
 		for (int i = 0; i < product_count; ++i)
 		{
@@ -468,6 +468,10 @@ string ExePath() {
 		Factory* f = new Factory(industry);
 		factories.push_back(f);
 		f->area = a;
+		if (industry.product)
+		{
+			f->efficiency = a->data(industry.product).resource;
+		}
 
 		// create all producers:
 		for (int i = 0; i < product_count; ++i)
@@ -537,11 +541,10 @@ string ExePath() {
 			Prices prices = f->get_prices();
 			ProductionRule* rule;
 			double profit;
-			//f->industry.find_best_m2m_rule(prices, rule, profit);
 			f->find_best_m2m_rule(prices, rule, profit);
 			if (rule)
-			{
-				f->apply_rule(rule, profit, 1);
+			{ 
+				f->apply_rule(rule, profit, f->efficiency);
 			}
 
 			double expense = f->consume_articles(prices);
@@ -643,7 +646,7 @@ string ExePath() {
 		}
 	}
 
-	AreaTrade& World::get_trade(Area* a, int id)
+	AreaData& World::get_trade(Area* a, int id)
 	{
 		return _trade_maps[id]->get_trade(a);
 	}

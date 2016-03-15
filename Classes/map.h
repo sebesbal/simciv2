@@ -6,6 +6,8 @@ namespace simciv
 {
 	struct Road;
 	struct RoadMap;
+	struct AreaData;
+	struct Product;
 
 	/// One cell of the map
 	struct Area
@@ -15,6 +17,8 @@ namespace simciv
 		int y;
 		std::vector<Road*> _roads;
 		RoadMap* map; ///< routes from this
+		AreaData& data(Product* p);
+		AreaData& data(int prod_id);
 	};
 
 	/// Road between two adjacent Area

@@ -50,9 +50,9 @@ namespace simciv
 	};
 
 	/// Trade data of an Area-Product
-	struct AreaTrade
+	struct AreaData
 	{
-		AreaTrade();
+		AreaData();
 		double p;			///< price
 		double p_buy;		///< buying price: the lowest buying price in the area for what there is a seller somewhere
 		double p_sell;		///< selling price: the highest selling price in the area for what there is a buyer somewhere
@@ -87,8 +87,8 @@ namespace simciv
 	public:
 		TradeMap(Product& p);
 		void update();
-		AreaTrade& get_trade(Area* a) { return (*_production)[a->index]; }
-		AreaTrade& get_new_prod(Area* a) { return (*_new_production)[a->index]; }
+		AreaData& get_trade(Area* a) { return (*_production)[a->index]; }
+		AreaData& get_new_prod(Area* a) { return (*_new_production)[a->index]; }
 		Trader* add_prod(Area* area, double volume, double price);
 		Trader* create_prod(Area* area, bool consumer, double volume, double price);
 		void remove_prod(Trader* prod);
@@ -115,7 +115,7 @@ namespace simciv
 		std::vector<std::vector<Trader*>> _area_buyers;
 
 		std::vector<Transport*> _transports; // "all" possible transports. volume > 0 means that the transport is used
-		std::vector<AreaTrade>* _production;
-		std::vector<AreaTrade>* _new_production;
+		std::vector<AreaData>* _production;
+		std::vector<AreaData>* _new_production;
 	};
 }

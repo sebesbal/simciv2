@@ -84,6 +84,7 @@ namespace simciv
 		std::vector<Trader*> sellers;
 		std::vector<Trader*> buyers;
 		double money;
+		double efficiency;
 		Area* area;
 		void update();
 		double apply_rule(ProductionRule* rule, double profit, double ideal_rate); ///< tries to apply the rule with "rate" times. returns the applicable rate. (depending on the storage)
@@ -114,7 +115,7 @@ namespace simciv
 		double get_profit(Industry* industry, Area* a);
 		double get_build_cost(Industry* industry, Area* a);
 		double get_resources(Industry* industry, Area* a);
-		AreaTrade& get_trade(Area* a, int id);
+		AreaData& get_trade(Area* a, int id);
 		std::vector<TradeMap*>& trade_maps() { return _trade_maps; }
 	protected:
 		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }

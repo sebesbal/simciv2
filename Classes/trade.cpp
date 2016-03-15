@@ -7,7 +7,7 @@
 
 namespace simciv
 {
-	AreaTrade::AreaTrade(): 
+	AreaData::AreaData(): 
 		p(-1),
 		p_buy(max_price),
 		p_sell(0),
@@ -110,8 +110,8 @@ history:
 	}
 
 	TradeMap::TradeMap(Product& p) :
-		_production(new std::vector<AreaTrade>()), 
-		_new_production(new std::vector<AreaTrade>()), 
+		_production(new std::vector<AreaData>()), 
+		_new_production(new std::vector<AreaData>()), 
 		unique_mode(true),
 		update_count(0),
 		product(p)
@@ -238,7 +238,7 @@ history:
 
 		for (size_t i = 0; i < world.areas().size(); ++i)
 		{
-			//AreaTrade& ap = (*_production)[i];
+			//AreaData& ap = (*_production)[i];
 			//(*_new_production)[i].resource = (*_production)[i].resource = pow( (double)rand() / RAND_MAX, 3);
 			v[i].resource = pow((double)rand() / RAND_MAX, 3);
 		}
@@ -452,7 +452,7 @@ history:
 		p->area = area;
 
 		auto& v = p->is_buyer ? _buyers : _sellers;
-		AreaTrade& a = get_trade(area);
+		AreaData& a = get_trade(area);
 		auto it = std::find_if(v.begin(), v.end(), [area](Trader* p) { return p->area == area; });
 
 		if (p->is_buyer)
@@ -475,7 +475,7 @@ history:
 		bool consumer = volume < 0;
 		volume = abs(volume);
 		auto& v = consumer ? _buyers : _sellers;
-		AreaTrade& a = get_trade(area);
+		AreaData& a = get_trade(area);
 		auto it = std::find_if(v.begin(), v.end(), [area](Trader* p) { return p->area == area; });
 
 		if (it == v.end())
@@ -511,7 +511,7 @@ history:
 		bool consumer = volume < 0;
 		volume = abs(volume);
 		auto& v = consumer ? _buyers : _sellers;
-		AreaTrade& a = get_trade(area);
+		AreaData& a = get_trade(area);
 		auto it = std::find_if(v.begin(), v.end(), [area](Trader* p) { return p->area == area; });
 
 		if (it == v.end())
