@@ -101,6 +101,13 @@ namespace simciv
 		return rule;
 	}
 
+	Industry::Industry()
+	{
+		lifetime = 1000;
+		buildtime = 1000;
+		type = IndustryType::IT_NONE;
+	}
+
 	void Industry::find_best_prod_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit)
 	{
 		double best_profit = 0;
@@ -147,10 +154,6 @@ namespace simciv
 
 	void Industry::load(rapidxml::xml_node<>* node)
 	{
-		//maint_cost[0] = 1;
-		type = IT_NONE;
-		lifetime = 10;
-
 		//auto t = node->first_attribute("type");
 		//if (t)
 		//{
@@ -178,6 +181,12 @@ namespace simciv
 			lifetime = stoi(lt->value());
 		}
 
+		auto bt = node->first_attribute("buildtime");
+		if (bt)
+		{
+			buildtime = stoi(bt->value());
+		}
+
 		auto n = node->first_node("produce");
 		while (n)
 		{
@@ -202,7 +211,7 @@ namespace simciv
 		{
 			for (auto& r : maint_rules)
 			{
-				build_rules.push_back(r.multiply(lifetime, 1));
+				build_total_cost.push_back(r.multiply(lifetime, 1));
 			}
 		}
 		else
@@ -212,9 +221,14 @@ namespace simciv
 				ProductionRule rule;
 				rule.load(n);
 				rule.output[0] = 1;
-				this->build_rules.push_back(rule);
+				this->build_total_cost.push_back(rule);
 				n = n->next_sibling("build");
 			}
+		}
+
+		for (auto& r : build_total_cost)
+		{
+			build_rules.push_back(r.multiply(1.0 / buildtime, 1));
 		}
 
 		product = get_product();

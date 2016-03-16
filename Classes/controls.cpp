@@ -557,7 +557,7 @@ void IndustryView::set_industry(Industry* industry)
 
 		_production_view->removeAllChildrenWithCleanup(true);
 
-		for (auto rule : industry->prod_rules)
+		for (auto& rule : industry->prod_rules)
 		{
 			Size ss = getContentSize();
 

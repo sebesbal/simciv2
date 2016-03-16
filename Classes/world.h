@@ -62,13 +62,16 @@ namespace simciv
 	/// The type of a Factory.
 	struct Industry
 	{
+		Industry();
 		int id;
 		std::string name;
 		IndustryType type;
-		std::vector<ProductionRule> prod_rules;		///< creates products form products
-		std::vector<ProductionRule> maint_rules;	///< cost of maintain a Factory in every turn
-		std::vector<ProductionRule> build_rules;	///< cost of build a Factory. The default build_rules = lifetime * maint_rules
-		int lifetime;								///< lifetime in world time. After lifetime turn, the Factory has to be "rebuilt" (maintain) via maint_rules
+		std::vector<ProductionRule> prod_rules;			///< product products form products
+		std::vector<ProductionRule> maint_rules;		///< maintenance cost per turn
+		std::vector<ProductionRule> build_total_cost;	///< total building cost of a Factory. build_total_cost = lifetime * maint_rules
+		std::vector<ProductionRule> build_rules;		///< build cost per turn. build_rules = build_total_cost / build_time
+		int buildtime;									///< number of turns of the building process.
+		int lifetime;									///< lifetime in world time. During "lifetime" number turns, the Factory has to be "rebuilt" (maintain) via maint_rules
 		void find_best_prod_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit);
 		void find_best_maint_rule(const Prices& prices, ProductionRule*& rule, double& price);
 		double get_build_cost(const Prices& prices);
