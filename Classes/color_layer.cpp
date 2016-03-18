@@ -166,6 +166,7 @@ void ColorMapLayer::update(float delta)
 			auto& v = prod->transports();
 			for (auto transport : v)
 			{
+				if (transport->volume == 0) continue;
 				auto it = transports.find(transport);
 				if (it == transports.end())
 				{
@@ -185,12 +186,6 @@ void ColorMapLayer::update(float delta)
 						f->stop();
 						transports.erase(it);
 						delete f;
-					}
-					else
-					{
-						//TransportAnimation* f = it->second;
-						//f->start();
-
 					}
 				}
 			}

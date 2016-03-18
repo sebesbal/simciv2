@@ -57,7 +57,7 @@ WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_s
 	mouse->onMouseMove = CC_CALLBACK_1(WorldUI::onMouseMove, this);
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(mouse, this);
 
-	load_from_tmx("simciv.tmx");
+	load_from_tmx("simciv2.tmx");
 
 	_main_menu = create_left_menu();
 	this->addChild(_main_menu);
@@ -130,8 +130,8 @@ void WorldUI::tick(float f)
 
 void WorldUI::load_from_tmx(std::string tmx)
 {
-	_map = TMXTiledMap::create(tmx);
-	TMXTiledMap* m = (TMXTiledMap*)_map;
+	TMXTiledMap* m = TMXTiledMap::create(tmx);
+	_map = m;
 	auto size = m->getMapSize();
 	m->setAnchorPoint(Vec2(0.5, 0.5));
 	m->setScale(1.5);
