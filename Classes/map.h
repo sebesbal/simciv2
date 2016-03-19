@@ -16,6 +16,7 @@ namespace simciv
 		int x;
 		int y;
 		std::vector<Road*> _roads;
+		int road_level;
 		RoadMap* map; ///< routes from this
 		AreaData& data(Product* p);
 		AreaData& data(int prod_id);

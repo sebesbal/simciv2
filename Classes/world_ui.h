@@ -29,31 +29,29 @@ const Color4B def_bck_color4B(40, 0, 60, 255);
 	vector<string> vec (arr ## vec, arr ## vec + sizeof(arr ## vec) / sizeof(arr ## vec[0]) );
 
 /// draws tiles, map background, routes
-class MapView : public cocos2d::Layer
+class MapView : public cocos2d::Node
 {
 public:
-	static MapView* create(Map* model);
-	virtual bool init() override;
+	CREATE_FUNC(MapView)
+    Rect get_rect(int x, int y);
+	Vec2 get_point(int x, int y);
+	Area* get_area(Vec2 p);
+	int cell_size() { return cs; }
+protected:
+	static const int cs = 32; // cell size
+};
+
+class TileMapView : public MapView
+{
+public:
 	virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
 	CustomCommand _customCommand;
-    virtual void onDraw(const Mat4 &transform, uint32_t flags);
-	virtual bool onTouchBegan(Touch* touch, Event  *event);
-	virtual void onTouchEnded(Touch* touch, Event  *event);
-	virtual void onTouchMoved(Touch* touch, Event  *event);
+	virtual void onDraw(const Mat4 &transform, uint32_t flags);
 
 	void draw_rect(int x, int y, double rate, double alpha);
 	void draw_rect_green(int x, int y, double rate, double alpha);
 	void draw_triangles(int x, int y, double a, double b);
 	void draw_circles(int x, int y, double a, double b);
-    Rect get_rect(int x, int y);
-	Vec2 get_point(int x, int y);
-	Area* get_area(Vec2 p);
-	int cell_size() { return cs; }
-	void draw_areas(std::vector<double>& v);
-protected:
-	static const int cs = 32; // cell size
-	Size _table;
-	cocos2d::Node* _map;
 };
 
 enum UIMapMode
@@ -88,19 +86,36 @@ struct UIStateData
 	bool show_products;
 };
 
-/// Draws colored cells
-class ColorMapLayer : public MapView
+class RoadLayer: public MapView
 {
 public:
-	ColorMapLayer(UIStateData& info) : info(info) { }
-	static ColorMapLayer* create(Map* model, UIStateData& info);
+	RoadLayer();
+	CREATE_FUNC(RoadLayer)
+	void add_road(Area* a);
+	void remove_road(Area* a);
+	void update_roads();
+	void add_road(Area* a, Area* b, Area* c, int level);
+protected:
+	std::vector<int> area_tree;
+	SpriteBatchNode* roads_node;
+	int road_index;
+	void update_roads(Area* a);
+	
+};
+
+/// Draws colored cells
+class ColorMapLayer : public TileMapView
+{
+public:
+	ColorMapLayer(UIStateData& info);
+	static ColorMapLayer* create(UIStateData& info);
 	void update(float delta);
 	void add_road(Road* r, int level);
-	void add_road(Area* a, Area* b, Area* c, int level);
 protected:
 	UIStateData& info;
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
 	std::map<Transport*, TransportAnimation*> transports;
+	
 };
 
 /// Draws factories and other sprites
@@ -113,7 +128,6 @@ public:
 	Sprite* create_sprite(Factory* f);
 	void create_sprites_from_model();
 protected:
-	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
 	Node* _factories;
 };
 
@@ -121,7 +135,7 @@ class PavedRoad : public cocos2d::Sprite
 {
 public:
 	PavedRoad(): road(NULL), level(1), direction(0) {  }
-	CREATE_FUNC(PavedRoad);
+	CREATE_FUNC(PavedRoad)
 	//virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
 	int level;
 	int direction; //	0|		1/		2-		3\
@@ -152,7 +166,7 @@ public:
 	static cocos2d::Scene* createScene();
     void menuCloseCallback(Ref* sender);
 	virtual void onEnter() override;
-    CREATE_FUNC(WorldUI);
+    CREATE_FUNC(WorldUI)
 protected:
 	Popup* _popup;
 	bool _paused;
@@ -174,6 +188,7 @@ protected:
 	IndustryView* _industry_view;
 	FactoryView* _factory_view;
 	ColorMapLayer* _color_layer;
+	RoadLayer* _road_layer;
 	FactoryMapLayer* _factory_layer;
 	ui::VBox* _factory_layers_panel;
 	ui::VBox* _color_layers_panel;

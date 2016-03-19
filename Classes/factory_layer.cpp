@@ -89,11 +89,4 @@ void FactoryMapLayer::create_sprites_from_model()
 	}
 }
 
-void FactoryMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
-{
-	// calculate roads
-	//world->trade_maps()[_product_id]->routes_to_areas(_product_id);
-
-}
-
 }

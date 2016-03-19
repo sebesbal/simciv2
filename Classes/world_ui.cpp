@@ -137,25 +137,25 @@ namespace simciv
 		m->setScale(1.5);
 		this->addChild(_map);
 
-		// auto layer = m->getLayer("Roads");
-		// auto tileset = layer->getTileSet();
-		
-		// SpriteFrameCache::getInstance()->addSpriteFramesWithFile();
-		// cocos2d::SpriteFrameCache::
-		// auto fos = SpriteBatchNode::create("map.png");
-		
-		auto node = PavedRoad::create_batch_node("res/roads4.png");
-		node->setContentSize(size);
-		node->setAnchorPoint(Vec2(0.5, 0.5));
-		//node->setScale(1.5);
-		_map->addChild(node);
-
-		auto s = PavedRoad::create(Vec2(-1, 0), Vec2(1, 1));
-		node->addChild(s);
-
 		world.create(size.width, size.height, product_count);
 
-		_color_layer = ColorMapLayer::create(&world, info);
+		_road_layer = RoadLayer::create();
+		_map->addChild(_road_layer);
+		// ---------------------- TEST ----------------------
+		int l = 3;
+		auto a1 = world.get_area(10, 10);
+		auto a2 = world.get_area(11, 11);
+		auto a3 = world.get_area(12, 12);
+		auto a4 = world.get_area(13, 12);
+		auto a5 = world.get_area(12, 11);
+		auto a6 = world.get_area(13, 10);
+		_road_layer->add_road(a1, a2, a3, l);
+		_road_layer->add_road(a2, a3, a4, l);
+		_road_layer->add_road(a3, a4, a5, l);
+		_road_layer->add_road(a4, a5, a6, l);
+
+
+		_color_layer = ColorMapLayer::create(info);
 		Node* v = _color_layer;
 		v->setVisible(true);
 		v->setAnchorPoint(Vec2(0, 0));
@@ -163,29 +163,6 @@ namespace simciv
 		v->setContentSize(_map->getContentSize());
 		views.push_back(v);
 		_map->addChild(v);
-
-		auto f = [&](int x1, int y1, int x2, int y2, int level)
-		{
-			_color_layer->add_road(world.get_area(x1, y1)->get_road(world.get_area(x2, y2)), level);
-		};
-
-		int l = 3;
-		//f(10, 10, 11, 11, l);
-		//f(11, 11, 12, 12, l);
-		//f(12, 12, 13, 12, l);
-		//f(13, 12, 13, 13, l);
-
-		auto a1 = world.get_area(10, 10);
-		auto a2 = world.get_area(11, 11);
-		auto a3 = world.get_area(12, 12);
-		auto a4 = world.get_area(13, 12);
-		auto a5 = world.get_area(12, 11);
-		auto a6 = world.get_area(13, 10);
-
-		_color_layer->add_road(a1, a2, a3, l);
-		_color_layer->add_road(a2, a3, a4, l);
-		_color_layer->add_road(a3, a4, a5, l);
-		_color_layer->add_road(a4, a5, a6, l);
 		
 
 		v = _factory_layer = FactoryMapLayer::create(&world);

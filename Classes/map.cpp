@@ -74,6 +74,7 @@ namespace simciv
 				a->map = NULL;
 				a->x = x;
 				a->y = y;
+				a->road_level = 0;
 				_areas.push_back(a);
 
 				if (x > 0)
