@@ -127,6 +127,7 @@ void Road::set_directions(int i, int j)
 		point(1, 1),
 		point(0, 1),
 		point(-1, 1),
+		point(0, 0)
 	};
 
 	a = point(w / 2 * v[i].first, h / 2 * v[i].second);

@@ -227,6 +227,21 @@ void ColorMapLayer::add_road(Road * r, int level)
 	addChild(road);
 }
 
+void ColorMapLayer::add_road(Area * a, Area * b, Area * c, int level)
+{
+	Vec2 u(a->x - b->x, a->y - b->y);
+	Vec2 v(c->x - b->x, c->y - b->y);
+	auto road = PavedRoad::create(u, v);
+
+	road->level = level;
+	road->setContentSize(Size(cs, cs));
+	road->setAnchorPoint(Vec2(0.5, 0.5));
+
+	Vec2 p = (get_point(a->x, a->y) + get_point(b->x, b->y)) / 2;
+	road->setPosition(get_point(b->x, b->y));
+	addChild(road);
+}
+
 TransportAnimation::TransportAnimation() : sprite(NULL), transport(NULL)
 {
 }

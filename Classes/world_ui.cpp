@@ -137,6 +137,22 @@ namespace simciv
 		m->setScale(1.5);
 		this->addChild(_map);
 
+		// auto layer = m->getLayer("Roads");
+		// auto tileset = layer->getTileSet();
+		
+		// SpriteFrameCache::getInstance()->addSpriteFramesWithFile();
+		// cocos2d::SpriteFrameCache::
+		// auto fos = SpriteBatchNode::create("map.png");
+		
+		auto node = PavedRoad::create_batch_node("res/roads4.png");
+		node->setContentSize(size);
+		node->setAnchorPoint(Vec2(0.5, 0.5));
+		//node->setScale(1.5);
+		_map->addChild(node);
+
+		auto s = PavedRoad::create(Vec2(-1, 0), Vec2(1, 1));
+		node->addChild(s);
+
 		world.create(size.width, size.height, product_count);
 
 		_color_layer = ColorMapLayer::create(&world, info);
@@ -154,10 +170,22 @@ namespace simciv
 		};
 
 		int l = 3;
-		f(10, 10, 11, 11, l);
-		f(11, 11, 12, 12, l);
-		f(12, 12, 13, 12, l);
-		f(13, 12, 13, 13, l);
+		//f(10, 10, 11, 11, l);
+		//f(11, 11, 12, 12, l);
+		//f(12, 12, 13, 12, l);
+		//f(13, 12, 13, 13, l);
+
+		auto a1 = world.get_area(10, 10);
+		auto a2 = world.get_area(11, 11);
+		auto a3 = world.get_area(12, 12);
+		auto a4 = world.get_area(13, 12);
+		auto a5 = world.get_area(12, 11);
+		auto a6 = world.get_area(13, 10);
+
+		_color_layer->add_road(a1, a2, a3, l);
+		_color_layer->add_road(a2, a3, a4, l);
+		_color_layer->add_road(a3, a4, a5, l);
+		_color_layer->add_road(a4, a5, a6, l);
 		
 
 		v = _factory_layer = FactoryMapLayer::create(&world);
@@ -618,12 +646,12 @@ namespace simciv
 		}
 	}
 
-	void PavedRoad::draw(Renderer * renderer, const Mat4 & transform, uint32_t flags)
-	{
-		_customCommand.init(_globalZOrder);
-		_customCommand.func = CC_CALLBACK_0(PavedRoad::onDraw, this, transform, flags);
-		renderer->addCommand(&_customCommand);
-	}
+	//void PavedRoad::draw(Renderer * renderer, const Mat4 & transform, uint32_t flags)
+	//{
+	//	_customCommand.init(_globalZOrder);
+	//	_customCommand.func = CC_CALLBACK_0(PavedRoad::onDraw, this, transform, flags);
+	//	renderer->addCommand(&_customCommand);
+	//}
 
 	void PavedRoad::onDraw(const Mat4 & transform, uint32_t flags)
 	{
@@ -649,6 +677,101 @@ namespace simciv
 		DrawPrimitives::drawCubicBezier(e, e + Vec2(0, a/2), e + Vec2(a/2, a), e + Vec2(a, a), 100);
 
 		director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+	}
+
+	// std::vector<cocos2d::SpriteFrame*> PavedRoad::frames;
+	cocos2d::SpriteFrame* PavedRoad::frames[9][9];
+
+	//void PavedRoad::load(std::string file)
+	//{
+	//	int m = 1;
+	//	int s = 1;
+	//	int w = 50;
+	//	for (int i = 0; i < 36; ++i)
+	//	{
+	//		int row = i / 6;
+	//		int col = i % 6;
+	//		Sprite* sprite = Sprite::create(file, Rect(m + col * (w + s), m + row * (w + s), w, w));
+	//		sprites.push_back(sprite);
+	//	}
+	//}
+
+	cocos2d::SpriteBatchNode * PavedRoad::create_batch_node(std::string file)
+	{
+		SpriteBatchNode* result = SpriteBatchNode::create(file);
+		int m = 1;
+		int s = 1;
+		int w = 50;
+
+		
+
+		int k = 0;
+		const int rows = 6;
+		const int cols = 6;
+		for (int i = 0; i < 9; ++i)
+		{
+			for (int j = i + 1; j < 9; ++j)
+			{
+				Road r;
+				int row = k / rows;
+				int col = k % cols;
+				Rect rect(m + col * (w + s), m + row * (w + s), w, w);
+				SpriteFrame* f = SpriteFrame::create(file, rect);
+				frames[i][j] = f;
+				++k;
+				//Sprite* sprite = Sprite::create();
+				//sprite->setDisplayFrame(f);
+
+				//// Sprite* sprite = Sprite::create(file, Rect(m + col * (w + s), m + row * (w + s), w, w));
+				//result->addChild(sprite);
+				//sprite->setPosition(col * 50, row * 50);
+			}
+		}
+
+		//for (int i = 0; i < 36; ++i)
+		//{
+		//	int row = i / 6;
+		//	int col = i % 6;
+		//	//Sprite* sprite = Sprite::create(file, Rect(m + col * (w + s), m + row * (w + s), w, w));
+		//	
+		//	SpriteFrame* f = SpriteFrame::create(file, Rect(m + col * (w + s), m + row * (w + s), w, w));
+		//	frames.push_back(f);
+
+		//	Sprite* sprite = Sprite::create();
+		//	sprite->setDisplayFrame(f);
+
+		//	// Sprite* sprite = Sprite::create(file, Rect(m + col * (w + s), m + row * (w + s), w, w));
+		//	result->addChild(sprite);
+		//	sprite->setPosition(col * 50, row * 50);
+		//	
+		//}
+		return result;
+	}
+
+	PavedRoad * PavedRoad::create(Vec2 & a, Vec2 & b)
+	{
+#define dir(a, ad, i, j, d) if (a.x == i && a.y == - j) ad = d; else
+#define dir2(a, ad) \
+		dir(a, ad, -1, 0, 0) \
+		dir(a, ad, -1, -1, 1) \
+		dir(a, ad, 0, -1, 2) \
+		dir(a, ad, 1, -1, 3) \
+		dir(a, ad, 1, 0, 4) \
+		dir(a, ad, 1, 1, 5) \
+		dir(a, ad, 0, 1, 6) \
+		dir(a, ad, -1, 1, 7) \
+		dir(a, ad, 0, 0, 8);
+
+		int ad, bd;
+		dir2(a, ad)
+		dir2(b, bd)
+
+		if (bd < ad) swap(ad, bd);
+
+		SpriteFrame* f = frames[ad][bd];
+		PavedRoad* s = PavedRoad::create();
+		s->setSpriteFrame(f);
+		return s;
 	}
 
 }

@@ -3,9 +3,9 @@
  <tileset firstgid="1" name="bck" tilewidth="32" tileheight="32" spacing="1" margin="1" tilecount="48" columns="8">
   <image source="green_world.png" width="265" height="199"/>
  </tileset>
- <tileset firstgid="49" name="Roads" tilewidth="50" tileheight="50" tilecount="450" columns="16">
-  <tileoffset x="-9" y="9"/>
-  <image source="roads2.png" width="800" height="600"/>
+ <tileset firstgid="49" name="Roads" tilewidth="50" tileheight="50" spacing="1" margin="1" tilecount="192" columns="6">
+  <tileoffset x="-8" y="10"/>
+  <image source="../../icongen/map.png" width="307" height="307"/>
  </tileset>
  <layer name="Background" width="30" height="30">
   <data encoding="base64" compression="zlib">
@@ -14,7 +14,7 @@
  </layer>
  <layer name="Roads" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eJztwQEBAAAAgiD/r25IQAEAAPBoDhAAAQ==
+   eJxjYBgFo2AUjIJRQCvgC8QmQGxKRzvd0fi2dLLXD4gNkfgudLIXGXiOADuD8NhpiEOcUuABxA40MhsfcGSA5B8YHgWjYBSMglFAfQAAI1sEwQ==
   </data>
  </layer>
 </map>

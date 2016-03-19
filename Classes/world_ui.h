@@ -96,6 +96,7 @@ public:
 	static ColorMapLayer* create(Map* model, UIStateData& info);
 	void update(float delta);
 	void add_road(Road* r, int level);
+	void add_road(Area* a, Area* b, Area* c, int level);
 protected:
 	UIStateData& info;
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
@@ -116,18 +117,24 @@ protected:
 	Node* _factories;
 };
 
-class PavedRoad : public cocos2d::Node
+class PavedRoad : public cocos2d::Sprite
 {
 public:
 	PavedRoad(): road(NULL), level(1), direction(0) {  }
 	CREATE_FUNC(PavedRoad);
-	virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
+	//virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
 	int level;
 	int direction; //	0|		1/		2-		3\
 protected:
 	Road* road;
 	CustomCommand _customCommand;
 	virtual void onDraw(const Mat4 &transform, uint32_t flags);
+	static void load(std::string file);
+	static cocos2d::SpriteBatchNode* create_batch_node(std::string file);
+	static PavedRoad* create(Vec2& a, Vec2& b);
+protected:
+	//static std::vector<cocos2d::SpriteFrame*> frames;
+	static cocos2d::SpriteFrame* frames[9][9];
 };
 
 enum UIState
