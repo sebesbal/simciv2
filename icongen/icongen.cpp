@@ -30,13 +30,17 @@ protected:
 
 struct Tile
 {
-	int w;
-	int h;
+	double w;
+	double h;
 	virtual void drawto(cairo_t* g, cairo_surface_t* surf) = 0;
 };
 
+typedef std::pair<double, double> point;
+
 struct Road : public Tile
 {
+	point a, b;
+	void set_directions(int i, int j);
 	virtual void drawto(cairo_t* g, cairo_surface_t* surf) override;
 };
 
@@ -92,7 +96,7 @@ void TileSet::save(const std::wstring filename)
 	}
 }
 
-typedef std::pair<double, double> point;
+
 point operator+ (point& a, point& b)
 {
 	return point(a.first + b.first, a.second + b.second);
@@ -101,28 +105,63 @@ point operator- (point& a, point& b)
 {
 	return point(a.first - b.first, a.second - b.second);
 }
+point operator* (double d, point& a)
+{
+	return point(d * a.first, d * a.second);
+}
+point operator* (point& a, point& b)
+{
+	return point(a.first * b.first, a.second * b.second);
+}
 
 #define _(p) (p).first, (p).second
 
+void Road::set_directions(int i, int j)
+{
+	const point v[9] = {
+		point(-1, 0),
+		point(-1, -1),
+		point(0, -1),
+		point(1, -1),
+		point(1, 0),
+		point(1, 1),
+		point(0, 1),
+		point(-1, 1),
+	};
+
+	a = point(w / 2 * v[i].first, h / 2 * v[i].second);
+	b = point(w / 2 * v[j].first, h / 2 * v[j].second);
+}
+
 void Road::drawto(cairo_t* g, cairo_surface_t * surf)
 {
-	point i(w / 2, 0);
-	point j(0, h / 2);
-	point c(0, 0);
-	cairo_move_to(g, _(c - i - j));
-	cairo_curve_to(g, _(c), _(c), _(c + i + j));
+	//cairo_set_source_rgba(g, 1, 0, 0, 1);
+	//cairo_rectangle(g, - w / 2, - h / 2, w, h);
+	//cairo_fill(g);
+
+	point d(0, 0);
+
+	cairo_move_to(g, _(a));
+	cairo_curve_to(g
+		, _(d * a)
+		, _(d * b)
+		, _(b));
 	cairo_stroke(g);
+
+	//cairo_move_to(g, _(c - i - j));
+	//cairo_curve_to(g, _(c), _(c), _(c + i + j));
+	//cairo_stroke(g);
 }
 
 void RoadTileSet::draw()
 {
-	// cairo_set_source_rgba(g, 1, 1, 1, 1);
-	// cairo_rectangle(g, 0, 0, pixel_width, pixel_height);
-	// cairo_fill(g);
-	cairo_set_source_rgba(g, 0, 0, 0, 1);
-	cairo_set_antialias(g, CAIRO_ANTIALIAS_GOOD);
-	cairo_set_line_width(g, 4);
+	//cairo_set_source_rgba(g, 0, 0, 0, 1);
+	//cairo_rectangle(g, 0, 0, pixel_width, pixel_height);
+	//cairo_fill(g);
 
+	cairo_set_source_rgba(g, 0, 0, 0, 1);
+	//cairo_set_antialias(g, CAIRO_ANTIALIAS_GOOD);
+	cairo_set_line_width(g, 4);
 
 	int k = 0;
 	for (int i = 0; i < 9; ++i)
@@ -133,10 +172,15 @@ void RoadTileSet::draw()
 			int row = k / rows;
 			int col = k % cols;
 			r.w = r.h = 32;
+			r.set_directions(i, j);
 			cairo_save(g);
+			//cairo_translate(g
+			//	, 0.5 + margin + col * tile_width + ((col == 0) ? 0 : (col - 1) * space) + tile_width / 2.0
+			//	, 0.5 + margin + row * tile_height + ((row == 0) ? 0 : (row - 1) * space) + tile_height / 2.0);
+
 			cairo_translate(g
-				, margin + col * tile_width + ((col == 0) ? 0 : (col - 1) * space) + tile_width / 2
-				, margin + row * tile_height + ((row == 0) ? 0 : (row - 1) * space) + tile_height / 2);
+				, 0.5 + margin + col * (tile_width + space) + tile_width / 2.0
+				, 0.5 + margin + row * (tile_height + space) + tile_height / 2.0);
 
 			r.drawto(g, surf);
 
