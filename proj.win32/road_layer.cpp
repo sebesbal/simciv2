@@ -23,7 +23,7 @@ namespace simciv
 
 	void RoadLayer::add_road(Area* a, RoadView * road)
 	{
-		road->setContentSize(Size(cs, cs));
+		//road->setContentSize(Size(cs, cs));
 		road->setAnchorPoint(Vec2(0.5, 0.5));
 		road->setPosition(get_point(a->x, a->y));
 		roads_node->addChild(road);
@@ -100,10 +100,10 @@ namespace simciv
 
 		if (v.size() == 1)
 		{
-			//auto r = RoadView::create(root);
-			//r->level = it->level;
-			//add_road(a, r);
-			//da.roads.push_back(r);
+			auto r = RoadView::create(root);
+			r->level = it->level;
+			add_road(a, r);
+			da.roads.push_back(r);
 		}
 		else
 		{

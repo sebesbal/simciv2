@@ -71,15 +71,6 @@ namespace simciv
 		_industry_view = IndustryView::create();
 		_industry_view->setAnchorPoint(Vec2(1, 1));
 		this->addChild(_industry_view);
-		//auto s = new Industry();
-		//// s->id = 0;
-		//s->build_cost.push_back(9);
-		//s->build_cost.push_back(8);
-		//s->build_cost.push_back(7);
-		//s->build_cost.push_back(6);
-		//s->build_cost.push_back(5);
-		//s->build_cost.push_back(4);
-		//_industry_view->set_industry(s);
 		_industry_view->set_industry(world.get_industries().at(0));
 
 		create_color_layers_panel();
@@ -92,21 +83,26 @@ namespace simciv
 
 		create_play_panel();
 
-		//update_panels(false, false);
+		_cursor = Sprite::create("cursor.png");
+		double cs = _factory_layer->cell_size();
+		_cursor->setScale(cs / _cursor->getContentSize().width);
+		_cursor->setAnchorPoint(Vec2(0.5, 0.5));
+		_map->addChild(_cursor);
+
 		set_state(UIS_NONE);
 	}
 
 	void WorldUI::tick(float f)
 	{
-		if (view_mode != new_view_mode)
-		{
-			auto old_view = views[view_mode];
-			old_view->setVisible(false);
+		//if (view_mode != new_view_mode)
+		//{
+		//	auto old_view = views[view_mode];
+		//	old_view->setVisible(false);
 
-			view_mode = new_view_mode;
-			auto new_view = views[view_mode];
-			new_view->setVisible(true);
-		}
+		//	view_mode = new_view_mode;
+		//	auto new_view = views[view_mode];
+		//	new_view->setVisible(true);
+		//}
 
 		static int k = 0;
 		if (!_paused && k % _speed == 0)
@@ -140,6 +136,9 @@ namespace simciv
 		world.create(size.width, size.height, product_count);
 
 		_road_layer = RoadLayer::create();
+		_road_layer->setAnchorPoint(Vec2(0, 0));
+		_road_layer->setPosition(Vec2(0, 0));
+		_road_layer->setContentSize(_map->getContentSize());
 		_map->addChild(_road_layer);
 		// ---------------------- TEST ----------------------
 		int l = 3;
@@ -157,20 +156,19 @@ namespace simciv
 
 		_color_layer = ColorMapLayer::create(info);
 		Node* v = _color_layer;
-		v->setVisible(true);
-		v->setAnchorPoint(Vec2(0, 0));
-		v->setPosition(Vec2(0, 0));
-		v->setContentSize(_map->getContentSize());
+		//v->setVisible(true);
+		//v->setAnchorPoint(Vec2(0, 0));
+		//v->setPosition(Vec2(0, 0));
+		//v->setContentSize(_map->getContentSize());
 		views.push_back(v);
 		_map->addChild(v);
 
 
-		v = _factory_layer = FactoryMapLayer::create(&world);
+		v = _factory_layer = FactoryMapLayer::create();
 		_factory_layer->create_sprites_from_model();
-		v->setVisible(true);
-		v->setAnchorPoint(Vec2(0, 0));
-		v->setPosition(Vec2(0, 0));
-		v->setContentSize(_map->getContentSize());
+		//v->setAnchorPoint(Vec2(0, 0));
+		//v->setPosition(Vec2(0, 0));
+		//v->setContentSize(_map->getContentSize());
 		views.push_back(v);
 		_map->addChild(v);
 	}
@@ -282,12 +280,14 @@ namespace simciv
 				_drag_start = true;
 			}
 		}
+
+		p = _map->convertToNodeSpace(p);
+		Area* a = _factory_layer->get_area(p);
+		
 		if (_drag_start)
 		{
 			if (_state == UIS_ROAD)
 			{
-				p = _map->convertToNodeSpace(p);
-				Area* a = _factory_layer->get_area(p);
 				static Area* last_area = NULL;
 				if (last_area == a) return;
 				last_area = a;
@@ -630,15 +630,15 @@ namespace simciv
 
 	void WorldUI::update_popup(const Vec2& wp)
 	{
-		if (!_popup) return;
+		if (!_popup && !_cursor->isVisible()) return;
 
 		auto q = _map->convertToNodeSpace(wp);
 		Area* a = _color_layer->get_area(q);
 
-		//if (_state == UIState::UIS_FACTORY)
-		//{
-		//	
-		//}
+		auto p = _factory_layer->get_point(a->x, a->y);
+		_cursor->setPosition(p);
+
+		if (!_popup) return;
 
 		auto n = find_child(this, wp);
 		if (n == _factory_layer)
@@ -727,6 +727,7 @@ namespace simciv
 				Rect rect(m + col * (w + s), m + row * (w + s), w, w);
 				SpriteFrame* f = SpriteFrame::create(file, rect);
 				//SpriteFrameCache::getInstance()->addSpriteFrame(f, "anyad" + k);
+				
 				f->retain();
 				frames[i][j] = f;
 				++k;
@@ -780,13 +781,15 @@ namespace simciv
 
 		int ad, bd;
 		dir2(a, ad)
-			dir2(b, bd)
+		dir2(b, bd)
 
-			if (bd < ad) swap(ad, bd);
+		if (bd < ad) swap(ad, bd);
 
 		SpriteFrame* f = frames[ad][bd];
 		RoadView* s = RoadView::create();
 		s->setSpriteFrame(f);
+		//s->setAnchorPoint(Vec2(0.5, 0.5));
+		//s->setContentSize(Size(50, 50));
 		return s;
 	}
 

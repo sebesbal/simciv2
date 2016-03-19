@@ -131,7 +131,7 @@ protected:
 class FactoryMapLayer : public MapView
 {
 public:
-	static FactoryMapLayer* create(World* model);
+	CREATE_FUNC(FactoryMapLayer)
 	virtual bool init() override;
 	Factory* create_factory(Area* a, Industry& industry);
 	Sprite* create_sprite(Factory* f);
@@ -203,6 +203,7 @@ protected:
 	ui::VBox* _factory_layers_panel;
 	ui::VBox* _color_layers_panel;
 	ui::HBox* _play_panel;
+	Sprite* _cursor;
 
 	std::function<void()> _on_state_product;
 	std::function<void()> _on_state_build;

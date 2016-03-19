@@ -22,23 +22,6 @@ USING_NS_CC;
 using namespace std;
 using namespace ui;
 
-
-FactoryMapLayer* FactoryMapLayer::create(World* model)
-{
-	FactoryMapLayer* result = new FactoryMapLayer();
-	// result->world = model;
-	if (result && result->init())
-	{
-		result->autorelease();
-		return result;
-	}
-	else
-	{
-		CC_SAFE_DELETE(result);
-		return nullptr;
-	}
-}
-
 bool FactoryMapLayer::init()
 {
 	if (!MapView::init())
@@ -67,8 +50,10 @@ Sprite* FactoryMapLayer::create_sprite(Factory* f)
 	Area* a = f->area; 
 	//Sprite* sprite = Sprite::create(get_factory_texture(f->industry.id));
 	Sprite* sprite = Sprite::create(f->industry.icon_file);
-	Rect r = get_rect(a->x, a->y);
-	sprite->setPosition(r.getMidX(), r.getMidY());
+	//Rect r = get_rect(a->x, a->y);
+	//sprite->setPosition(r.getMidX(), r.getMidY());
+	auto p = get_point(a->x, a->y);
+	sprite->setPosition(p.x, p.y);
 	// sprite->setScale(0.1f);
 	auto size = sprite->getContentSize();
 	auto m = std::max(size.width, size.height);
