@@ -1,1 +1,4 @@
 *.VC.opendb
+/.vs/
+/Debug/
+/ipch/
