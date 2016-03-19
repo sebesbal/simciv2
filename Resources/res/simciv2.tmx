@@ -3,9 +3,18 @@
  <tileset firstgid="1" name="bck" tilewidth="32" tileheight="32" spacing="1" margin="1" tilecount="48" columns="8">
   <image source="green_world.png" width="265" height="199"/>
  </tileset>
- <layer name="Tile Layer 1" width="30" height="30">
+ <tileset firstgid="49" name="Roads" tilewidth="50" tileheight="50" tilecount="450" columns="16">
+  <tileoffset x="-9" y="9"/>
+  <image source="roads2.png" width="800" height="600"/>
+ </tileset>
+ <layer name="Background" width="30" height="30">
   <data encoding="base64" compression="zlib">
    eJzl1bEOgDAIBFBsXez/f7BTE0NsC+QuxDqw6b1QlFYRqeA6DYU2/+YeCa7VjLr93RI0I67OLwFz5Ooc7zcTdfUz/TwjfXncC5jvnW+Wy+4bsXsYLqtn1L5Fu8h/5wvzzXBZZ7xyWebMZfY6c5nmrm6T8c5j7ce2yGTs5jdTZ6LvhZn5nKHlXvD41iyru0vdjFwMzQ==
+  </data>
+ </layer>
+ <layer name="Roads" width="30" height="30">
+  <data encoding="base64" compression="zlib">
+   eJztwQEBAAAAgiD/r25IQAEAAPBoDhAAAQ==
   </data>
  </layer>
 </map>

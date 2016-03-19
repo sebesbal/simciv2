@@ -19,6 +19,7 @@ namespace simciv
 		RoadMap* map; ///< routes from this
 		AreaData& data(Product* p);
 		AreaData& data(int prod_id);
+		Road* get_road(Area* b);
 	};
 
 	/// Road between two adjacent Area

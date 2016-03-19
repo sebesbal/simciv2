@@ -22,6 +22,15 @@ namespace simciv
 		return world.get_trade(this, prod_id);
 	}
 
+	Road* Area::get_road(Area* b)
+	{
+		for (auto r : _roads)
+		{
+			if (r->other(this) == b) return r;
+		}
+		return nullptr;
+	}
+
 	// Node for graph algorithms (eg. Dijstra)
 	struct Node
 	{

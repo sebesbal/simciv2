@@ -46,11 +46,12 @@ public:
 	void draw_triangles(int x, int y, double a, double b);
 	void draw_circles(int x, int y, double a, double b);
     Rect get_rect(int x, int y);
+	Vec2 get_point(int x, int y);
 	Area* get_area(Vec2 p);
 	int cell_size() { return cs; }
 	void draw_areas(std::vector<double>& v);
 protected:
-	static const int cs = 33; // cell size
+	static const int cs = 32; // cell size
 	Size _table;
 	cocos2d::Node* _map;
 };
@@ -94,6 +95,7 @@ public:
 	ColorMapLayer(UIStateData& info) : info(info) { }
 	static ColorMapLayer* create(Map* model, UIStateData& info);
 	void update(float delta);
+	void add_road(Road* r, int level);
 protected:
 	UIStateData& info;
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
@@ -112,6 +114,20 @@ public:
 protected:
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
 	Node* _factories;
+};
+
+class PavedRoad : public cocos2d::Node
+{
+public:
+	PavedRoad(): road(NULL), level(1), direction(0) {  }
+	CREATE_FUNC(PavedRoad);
+	virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
+	int level;
+	int direction; //	0|		1/		2-		3\
+protected:
+	Road* road;
+	CustomCommand _customCommand;
+	virtual void onDraw(const Mat4 &transform, uint32_t flags);
 };
 
 enum UIState
@@ -150,10 +166,10 @@ protected:
 
 	IndustryView* _industry_view;
 	FactoryView* _factory_view;
-	ColorMapLayer* _product_layer;
+	ColorMapLayer* _color_layer;
 	FactoryMapLayer* _factory_layer;
 	ui::VBox* _factory_layers_panel;
-	ui::VBox* _product_layers_panel;
+	ui::VBox* _color_layers_panel;
 	ui::HBox* _play_panel;
 
 	std::function<void()> _on_state_product;
@@ -172,7 +188,7 @@ protected:
 	RadioMenu* create_industry_browser();
 	RadioMenu* create_products_browser();
 	void create_factory_layers_panel();
-	void create_product_layers_panel();
+	void create_color_layers_panel();
 	virtual void setContentSize(const Size & var) override;
 	void set_state(UIState state);
 	void update_popup(const Vec2& p);

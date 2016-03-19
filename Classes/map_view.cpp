@@ -109,9 +109,14 @@ void MapView::draw_rect_green(int x, int y, double rate, double alpha)
 
 Rect MapView::get_rect(int x, int y)
 {
-	// auto b = _map->getBoundingBox();
 	auto b = getBoundingBox();
 	return Rect(b.getMinX() + cs * x, b.getMinY() + cs * y, cs, cs);
+}
+
+Vec2 MapView::get_point(int x, int y)
+{
+	auto b = getBoundingBox();
+	return Vec2(b.getMinX() + cs * x + cs / 2, b.getMinY() + cs * y + cs / 2);
 }
 
 Area* MapView::get_area(Vec2 p)
