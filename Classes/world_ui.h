@@ -20,6 +20,7 @@ USING_NS_CC;
 
 class Item;
 class TransportAnimation;
+class RoadView;
 
 const Color3B def_bck_color3B(40, 0, 60);
 const Color4B def_bck_color4B(40, 0, 60, 255);
@@ -37,6 +38,7 @@ public:
 	Vec2 get_point(int x, int y);
 	Area* get_area(Vec2 p);
 	int cell_size() { return cs; }
+	Vec2 dir(Area* a, Area* b);
 protected:
 	static const int cs = 32; // cell size
 };
@@ -86,6 +88,13 @@ struct UIStateData
 	bool show_products;
 };
 
+struct RoadInfo
+{
+	RoadInfo() : id(0) {}
+	int id;
+	std::vector<cocos2d::Sprite*> roads;
+};
+
 class RoadLayer: public MapView
 {
 public:
@@ -95,12 +104,12 @@ public:
 	void remove_road(Area* a);
 	void update_roads();
 	void add_road(Area* a, Area* b, Area* c, int level);
+	void add_road(Area* a, RoadView* road);
 protected:
-	std::vector<int> area_tree;
 	SpriteBatchNode* roads_node;
 	int road_index;
 	void update_roads(Area* a);
-	
+	std::vector<RoadInfo> roads;
 };
 
 /// Draws colored cells
@@ -131,11 +140,11 @@ protected:
 	Node* _factories;
 };
 
-class PavedRoad : public cocos2d::Sprite
+class RoadView : public cocos2d::Sprite
 {
 public:
-	PavedRoad(): road(NULL), level(1), direction(0) {  }
-	CREATE_FUNC(PavedRoad)
+	RoadView(): road(NULL), level(1), direction(0) {  }
+	CREATE_FUNC(RoadView)
 	//virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
 	int level;
 	int direction; //	0|		1/		2-		3\
@@ -143,9 +152,9 @@ protected:
 	Road* road;
 	CustomCommand _customCommand;
 	virtual void onDraw(const Mat4 &transform, uint32_t flags);
-	static void load(std::string file);
 	static cocos2d::SpriteBatchNode* create_batch_node(std::string file);
-	static PavedRoad* create(Vec2& a, Vec2& b);
+	static RoadView* create(Vec2& a);
+	static RoadView* create(Vec2& a, Vec2& b);
 protected:
 	//static std::vector<cocos2d::SpriteFrame*> frames;
 	static cocos2d::SpriteFrame* frames[9][9];
@@ -154,8 +163,9 @@ protected:
 enum UIState
 {
 	UIS_NONE,
-	UIS_factory,
-	UIS_PLANTS
+	UIS_FACTORY,
+	UIS_PRODUCT,
+	UIS_ROAD
 };
 
 /// The main ui

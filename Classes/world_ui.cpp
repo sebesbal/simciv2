@@ -111,7 +111,7 @@ namespace simciv
 		static int k = 0;
 		if (!_paused && k % _speed == 0)
 		{
-			world.update();
+			// world.update();
 		}
 
 		//if (k % 10 == 0)
@@ -163,7 +163,7 @@ namespace simciv
 		v->setContentSize(_map->getContentSize());
 		views.push_back(v);
 		_map->addChild(v);
-		
+
 
 		v = _factory_layer = FactoryMapLayer::create(&world);
 		_factory_layer->create_sprites_from_model();
@@ -214,7 +214,7 @@ namespace simciv
 			_industry_view->setVisible(true);
 			this->info.industry = s;
 			info.product = world.get_products()[s->id]; //s->color + s->level * level_count;
-			set_state(UIS_factory);
+			set_state(UIS_FACTORY);
 		}
 		else
 		{
@@ -228,16 +228,16 @@ namespace simciv
 	{
 		if (event->isStopped()) return;
 
+		auto p = touch->getLocation();
+		p = _map->convertToNodeSpace(p);
+		Area* a = _factory_layer->get_area(p);
+
 		switch (_state)
 		{
 		case simciv::UIS_NONE:
 			break;
-		case simciv::UIS_factory:
+		case simciv::UIS_FACTORY:
 		{
-			auto p = touch->getLocation();
-			// p = _factory_layer->convertToNodeSpace(p);
-			p = _map->convertToNodeSpace(p);
-			Area* a = _factory_layer->get_area(p);
 			Factory* f = world.find_factory(a);
 			if (f)
 			{
@@ -256,7 +256,10 @@ namespace simciv
 			}
 		}
 		break;
-		case simciv::UIS_PLANTS:
+		case simciv::UIS_PRODUCT:
+			break;
+		case simciv::UIS_ROAD:
+			_road_layer->add_road(a);
 			break;
 		default:
 			break;
@@ -281,7 +284,19 @@ namespace simciv
 		}
 		if (_drag_start)
 		{
-			_map->setPosition(_map->getPosition() + d);
+			if (_state == UIS_ROAD)
+			{
+				p = _map->convertToNodeSpace(p);
+				Area* a = _factory_layer->get_area(p);
+				static Area* last_area = NULL;
+				if (last_area == a) return;
+				last_area = a;
+				_road_layer->add_road(a);
+			}
+			else
+			{
+				_map->setPosition(_map->getPosition() + d);
+			}
 		}
 	}
 
@@ -305,6 +320,10 @@ namespace simciv
 		btn = MenuButton::create(get_product_texture(0));
 		result->add_radio_button(btn);
 
+		result->add_row();
+		btn = MenuButton::create("res/road.png");
+		result->add_radio_button(btn);
+
 		result->set_on_changed([this](MenuButton* btn) {
 			if (!btn)
 			{
@@ -315,10 +334,13 @@ namespace simciv
 			switch (btn->getTag())
 			{
 			case 0:
-				this->set_state(UIS_factory);
+				this->set_state(UIS_FACTORY);
 				break;
 			case 1:
-				this->set_state(UIS_PLANTS);
+				this->set_state(UIS_PRODUCT);
+				break;
+			case 2:
+				this->set_state(UIS_ROAD);
 				break;
 			default:
 				this->set_state(UIS_NONE);
@@ -544,8 +566,8 @@ namespace simciv
 	void WorldUI::set_state(UIState state)
 	{
 		_state = state;
-		bool factories = _state == UIS_factory;
-		bool products = _state == UIS_PLANTS;
+		bool factories = _state == UIS_FACTORY;
+		bool products = _state == UIS_PRODUCT;
 		_industry_browser->setVisible(factories);
 		_industry_view->setVisible(factories);
 		_products_browser->setVisible(products);
@@ -553,16 +575,28 @@ namespace simciv
 		_factory_layers_panel->setVisible(factories);
 		_color_layer->setVisible(true);
 
-		if (factories)
+		switch (state)
+		{
+		case simciv::UIS_FACTORY:
 		{
 			if (_popup) _popup->removeFromParent();
 			_popup = new FactoryPopup();
 			this->addChild(_popup);
 			_on_state_factory();
 		}
-		else if (products)
+		break;
+		case simciv::UIS_PRODUCT:
 		{
 			_on_state_product();
+		}
+		break;
+		case simciv::UIS_ROAD:
+		{
+
+		}
+		break;
+		default:
+			break;
 		}
 	}
 
@@ -601,7 +635,7 @@ namespace simciv
 		auto q = _map->convertToNodeSpace(wp);
 		Area* a = _color_layer->get_area(q);
 
-		//if (_state == UIState::UIS_factory)
+		//if (_state == UIState::UIS_FACTORY)
 		//{
 		//	
 		//}
@@ -623,14 +657,14 @@ namespace simciv
 		}
 	}
 
-	//void PavedRoad::draw(Renderer * renderer, const Mat4 & transform, uint32_t flags)
+	//void RoadView::draw(Renderer * renderer, const Mat4 & transform, uint32_t flags)
 	//{
 	//	_customCommand.init(_globalZOrder);
-	//	_customCommand.func = CC_CALLBACK_0(PavedRoad::onDraw, this, transform, flags);
+	//	_customCommand.func = CC_CALLBACK_0(RoadView::onDraw, this, transform, flags);
 	//	renderer->addCommand(&_customCommand);
 	//}
 
-	void PavedRoad::onDraw(const Mat4 & transform, uint32_t flags)
+	void RoadView::onDraw(const Mat4 & transform, uint32_t flags)
 	{
 		Director* director = Director::getInstance();
 		director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
@@ -651,15 +685,15 @@ namespace simciv
 		Vec2 e(a - a*x, a - a*y);
 		Vec2 f(a + a*x, a + a*y);
 		// DrawPrimitives::drawLine(e, f);
-		DrawPrimitives::drawCubicBezier(e, e + Vec2(0, a/2), e + Vec2(a/2, a), e + Vec2(a, a), 100);
+		DrawPrimitives::drawCubicBezier(e, e + Vec2(0, a / 2), e + Vec2(a / 2, a), e + Vec2(a, a), 100);
 
 		director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 	}
 
-	// std::vector<cocos2d::SpriteFrame*> PavedRoad::frames;
-	cocos2d::SpriteFrame* PavedRoad::frames[9][9];
+	// std::vector<cocos2d::SpriteFrame*> RoadView::frames;
+	cocos2d::SpriteFrame* RoadView::frames[9][9];
 
-	//void PavedRoad::load(std::string file)
+	//void RoadView::load(std::string file)
 	//{
 	//	int m = 1;
 	//	int s = 1;
@@ -673,14 +707,12 @@ namespace simciv
 	//	}
 	//}
 
-	cocos2d::SpriteBatchNode * PavedRoad::create_batch_node(std::string file)
+	cocos2d::SpriteBatchNode * RoadView::create_batch_node(std::string file)
 	{
 		SpriteBatchNode* result = SpriteBatchNode::create(file);
 		int m = 1;
 		int s = 1;
 		int w = 50;
-
-		
 
 		int k = 0;
 		const int rows = 6;
@@ -694,6 +726,8 @@ namespace simciv
 				int col = k % cols;
 				Rect rect(m + col * (w + s), m + row * (w + s), w, w);
 				SpriteFrame* f = SpriteFrame::create(file, rect);
+				//SpriteFrameCache::getInstance()->addSpriteFrame(f, "anyad" + k);
+				f->retain();
 				frames[i][j] = f;
 				++k;
 				//Sprite* sprite = Sprite::create();
@@ -725,7 +759,12 @@ namespace simciv
 		return result;
 	}
 
-	PavedRoad * PavedRoad::create(Vec2 & a, Vec2 & b)
+	RoadView * RoadView::create(Vec2 & a)
+	{
+		return create(a, Vec2(0, 0));
+	}
+
+	RoadView * RoadView::create(Vec2 & a, Vec2 & b)
 	{
 #define dir(a, ad, i, j, d) if (a.x == i && a.y == - j) ad = d; else
 #define dir2(a, ad) \
@@ -741,12 +780,12 @@ namespace simciv
 
 		int ad, bd;
 		dir2(a, ad)
-		dir2(b, bd)
+			dir2(b, bd)
 
-		if (bd < ad) swap(ad, bd);
+			if (bd < ad) swap(ad, bd);
 
 		SpriteFrame* f = frames[ad][bd];
-		PavedRoad* s = PavedRoad::create();
+		RoadView* s = RoadView::create();
 		s->setSpriteFrame(f);
 		return s;
 	}

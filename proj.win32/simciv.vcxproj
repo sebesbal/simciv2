@@ -156,6 +156,7 @@ xcopy /Y /Q "$(COCOS_FRAMEWORKS)\cocos2d-x-3.8\prebuilt\win32\*.*" "$(OutDir)"
     <ClCompile Include="..\Classes\world.cpp" />
     <ClCompile Include="..\Classes\world_ui.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="road_layer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Classes\AppDelegate.h" />

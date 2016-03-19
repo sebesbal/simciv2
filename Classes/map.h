@@ -21,6 +21,7 @@ namespace simciv
 		AreaData& data(Product* p);
 		AreaData& data(int prod_id);
 		Road* get_road(Area* b);
+		
 	};
 
 	/// Road between two adjacent Area

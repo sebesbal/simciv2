@@ -54,6 +54,9 @@
     <ClCompile Include="..\Classes\world.cpp">
       <Filter>src\Model</Filter>
     </ClCompile>
+    <ClCompile Include="road_layer.cpp">
+      <Filter>src\UI\Map</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">

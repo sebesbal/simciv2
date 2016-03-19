@@ -13,49 +13,6 @@ USING_NS_CC;
 using namespace std;
 using namespace ui;
 
-RoadLayer::RoadLayer() : road_index(0), area_tree(world.areas().size())
-{
-	roads_node = PavedRoad::create_batch_node("res/roads4.png");
-	addChild(roads_node);
-}
-
-void RoadLayer::add_road(Area * a, Area * b, Area * c, int level)
-{
-	Vec2 u(a->x - b->x, a->y - b->y);
-	Vec2 v(c->x - b->x, c->y - b->y);
-	auto road = PavedRoad::create(u, v);
-
-	road->level = level;
-	road->setContentSize(Size(cs, cs));
-	road->setAnchorPoint(Vec2(0.5, 0.5));
-
-	Vec2 p = (get_point(a->x, a->y) + get_point(b->x, b->y)) / 2;
-	road->setPosition(get_point(b->x, b->y));
-	addChild(road);
-}
-
-void RoadLayer::add_road(Area * a)
-{
-	++a->road_level;
-	update_roads(a);
-}
-
-void RoadLayer::remove_road(Area * a)
-{
-}
-
-void RoadLayer::update_roads()
-{
-	for (Area* a : world.areas())
-	{
-
-	}
-}
-
-void RoadLayer::update_roads(Area * a)
-{
-}
-
 ColorMapLayer::ColorMapLayer(UIStateData& info) : info(info)
 {
 }
@@ -261,7 +218,7 @@ void ColorMapLayer::add_road(Road * r, int level)
 		dir = 1;
 	}
 
-	PavedRoad* road = PavedRoad::create();
+	RoadView* road = RoadView::create();
 	road->road = r;
 	road->direction = dir;
 	road->level = level;

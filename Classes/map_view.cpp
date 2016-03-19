@@ -26,6 +26,11 @@ Area* MapView::get_area(Vec2 p)
 	return world.get_area(x, y);
 }
 
+Vec2 MapView::dir(Area * a, Area * b)
+{
+	return Vec2(b->x - a->x, b->y - a->y);
+}
+
 
 void TileMapView::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
 {
