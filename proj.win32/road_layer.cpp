@@ -179,4 +179,81 @@ namespace simciv
 			//}
 		}
 	}
+
+	cocos2d::SpriteFrame* RoadView::frames[5][9][9];
+
+	cocos2d::SpriteBatchNode * RoadView::create_batch_node(std::string file)
+	{
+		SpriteBatchNode* result = SpriteBatchNode::create(file);
+		int m = 1;
+		int s = 1;
+		int w = 50;
+		const int cols = 6;
+		int k = 0;
+
+		for (int level = 0; level < 5; ++level)
+		{
+			for (int i = 0; i < 9; ++i)
+			{
+				for (int j = i + 1; j < 9; ++j)
+				{
+					Road r;
+					int row = k / cols;
+					int col = k % cols;
+					Rect rect(m + col * (w + s), m + row * (w + s), w, w);
+					SpriteFrame* f = SpriteFrame::create(file, rect);
+					f->retain();
+					frames[level][i][j] = f;
+					++k;
+				}
+			}
+		}
+		return result;
+	}
+
+	RoadView * RoadView::create(int level, Vec2 & a)
+	{
+		return create(level, a, Vec2(0, 0));
+	}
+
+	RoadView * RoadView::create(int level, const int & a)
+	{
+		return create(level, a, 8);
+	}
+
+#define dir(a, ad, i, j, d) if (a.x == i && a.y == - j) ad = d; else
+#define dir2(a, ad) \
+	dir(a, ad, -1, 0, 0) \
+	dir(a, ad, -1, -1, 1) \
+	dir(a, ad, 0, -1, 2) \
+	dir(a, ad, 1, -1, 3) \
+	dir(a, ad, 1, 0, 4) \
+	dir(a, ad, 1, 1, 5) \
+	dir(a, ad, 0, 1, 6) \
+	dir(a, ad, -1, 1, 7) \
+	dir(a, ad, 0, 0, 8);
+
+	RoadView * RoadView::create(int level, Vec2 & a, Vec2 & b)
+	{
+		int ad, bd;
+		dir2(a, ad)
+			dir2(b, bd)
+			return create(level, ad, bd);
+	}
+
+	RoadView * RoadView::create(int level, const int & ad, const int & bd)
+	{
+		SpriteFrame* f = ad < bd ? frames[level - 1][ad][bd] : frames[level - 1][bd][ad];
+		RoadView* s = RoadView::create();
+		s->level = level;
+		s->setSpriteFrame(f);
+		return s;
+	}
+
+	int RoadView::get_dir(Vec2 & a)
+	{
+		int d;
+		dir2(a, d)
+			return d;
+	}
 }

@@ -146,13 +146,10 @@ class RoadView : public cocos2d::Sprite
 public:
 	RoadView(): road(NULL), level(1), direction(0) {  }
 	CREATE_FUNC(RoadView)
-	//virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
 	int level;
 	int direction; //	0|		1/		2-		3\
 protected:
 	Road* road;
-	CustomCommand _customCommand;
-	virtual void onDraw(const Mat4 &transform, uint32_t flags);
 	static cocos2d::SpriteBatchNode* create_batch_node(std::string file);
 	static RoadView* create(int level, Vec2& a);
 	static RoadView* create(int level, const int& a);
