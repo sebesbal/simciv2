@@ -154,7 +154,10 @@ protected:
 	virtual void onDraw(const Mat4 &transform, uint32_t flags);
 	static cocos2d::SpriteBatchNode* create_batch_node(std::string file);
 	static RoadView* create(Vec2& a);
+	static RoadView* create(const int& a);
 	static RoadView* create(Vec2& a, Vec2& b);
+	static RoadView* create(const int& a, const int& b);
+	static int get_dir(Vec2& a);
 protected:
 	//static std::vector<cocos2d::SpriteFrame*> frames;
 	static cocos2d::SpriteFrame* frames[9][9];

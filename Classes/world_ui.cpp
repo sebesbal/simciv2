@@ -765,32 +765,44 @@ namespace simciv
 		return create(a, Vec2(0, 0));
 	}
 
-	RoadView * RoadView::create(Vec2 & a, Vec2 & b)
+	RoadView * RoadView::create(const int & a)
 	{
+		return create(a, 8);
+	}
+
 #define dir(a, ad, i, j, d) if (a.x == i && a.y == - j) ad = d; else
 #define dir2(a, ad) \
-		dir(a, ad, -1, 0, 0) \
-		dir(a, ad, -1, -1, 1) \
-		dir(a, ad, 0, -1, 2) \
-		dir(a, ad, 1, -1, 3) \
-		dir(a, ad, 1, 0, 4) \
-		dir(a, ad, 1, 1, 5) \
-		dir(a, ad, 0, 1, 6) \
-		dir(a, ad, -1, 1, 7) \
-		dir(a, ad, 0, 0, 8);
+	dir(a, ad, -1, 0, 0) \
+	dir(a, ad, -1, -1, 1) \
+	dir(a, ad, 0, -1, 2) \
+	dir(a, ad, 1, -1, 3) \
+	dir(a, ad, 1, 0, 4) \
+	dir(a, ad, 1, 1, 5) \
+	dir(a, ad, 0, 1, 6) \
+	dir(a, ad, -1, 1, 7) \
+	dir(a, ad, 0, 0, 8);
 
+	RoadView * RoadView::create(Vec2 & a, Vec2 & b)
+	{
 		int ad, bd;
 		dir2(a, ad)
 		dir2(b, bd)
+		return create(ad, bd);
+	}
 
-		if (bd < ad) swap(ad, bd);
-
-		SpriteFrame* f = frames[ad][bd];
+	RoadView * RoadView::create(const int & ad, const int & bd)
+	{
+		SpriteFrame* f = ad < bd ? frames[ad][bd] : frames[bd][ad];
 		RoadView* s = RoadView::create();
 		s->setSpriteFrame(f);
-		//s->setAnchorPoint(Vec2(0.5, 0.5));
-		//s->setContentSize(Size(50, 50));
 		return s;
+	}
+
+	int RoadView::get_dir(Vec2 & a)
+	{
+		int d;
+		dir2(a, d)
+		return d;
 	}
 
 }
