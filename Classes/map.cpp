@@ -24,7 +24,7 @@ namespace simciv
 
 	Road* Area::get_road(Area* b)
 	{
-		for (auto r : _roads)
+		for (auto r : roads)
 		{
 			if (r->other(this) == b) return r;
 		}
@@ -105,8 +105,10 @@ namespace simciv
 		r->a = a;
 		r->b = b;
 		_roads.push_back(r);
-		a->_roads.push_back(r);
-		b->_roads.push_back(r);
+		a->roads.push_back(r);
+		b->roads.push_back(r);
+		a->adjs.push_back(b);
+		b->adjs.push_back(a);
 	}
 	
 	const double trans_rate = 1.0;
@@ -175,7 +177,7 @@ namespace simciv
 			n->color = 2;
 			Area* a = n->area;
 
-			for (Road* r : a->_roads)
+			for (Road* r : a->roads)
 			{
 				Area* b = r->other(a);
 				Node* m = &g[b->index];

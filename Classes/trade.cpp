@@ -292,7 +292,7 @@ void Trader::update_volume()
 			int i = a->index;
 			int k = 1;
 			double sum = v[i].resource;
-			for (Road* r : a->_roads)
+			for (Road* r : a->roads)
 			{
 				sum += v[r->other(a)->index].resource;
 				++k;
@@ -314,7 +314,7 @@ void Trader::update_volume()
 				new_supply_price = (*it)->worst_price;
 			}
 
-			for (Road* r: a->_roads)
+			for (Road* r: a->roads)
 			{
 				Area* b = r->other(a);
 				auto& bp = get_trade(b);
@@ -330,7 +330,7 @@ void Trader::update_volume()
 				new_cons_price = (*it)->worst_price;
 			}
 
-			for (Road* r: a->_roads)
+			for (Road* r: a->roads)
 			{
 				Area* b = r->other(a);
 				auto& bp = get_trade(b);

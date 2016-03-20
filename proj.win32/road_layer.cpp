@@ -1,5 +1,6 @@
 #include "world_ui.h"
 #include <set>
+#include <queue>
 
 namespace simciv
 {
@@ -37,7 +38,7 @@ namespace simciv
 		auto& da = roads[a->index];
 		if (da.id == 0) da.id = ++road_index;
 		update_roads(a);
-		for (auto r : a->_roads)
+		for (auto r : a->roads)
 		{
 			update_roads(r->other(a));
 		}
@@ -54,6 +55,42 @@ namespace simciv
 			update_roads(a);
 		}
 	}
+
+	using namespace std;
+
+	vector<int> orientations;
+
+#define AREA(a) for (Area* a: world.areas())
+#define ADJS(a, b) for (Road* r: a->roads) { Area* b = r->other(a);
+
+	void set_orientation(Area* a)
+	{
+		//for (auto r : a->roads)
+		//{
+
+		//}
+
+		AREA(e)
+		{
+		}
+
+		
+		ADJS(a, b)
+			
+		}
+	}
+
+	//void RoadLayer::update_roads()
+	//{
+	//	auto& av = world.areas();
+	//	queue<Area*> q;
+	//	// q.push();
+
+	//	for (Area* a : av)
+	//	{
+
+	//	}
+	//}
 
 	void RoadLayer::update_roads(Area * a)
 	{
@@ -77,7 +114,7 @@ namespace simciv
 		};
 		vector<road_t> v;
 
-		for (auto r : a->_roads)
+		for (auto r : a->roads)
 		{
 			Area* b = r->other(a);
 			int blevel = b->road_level;
