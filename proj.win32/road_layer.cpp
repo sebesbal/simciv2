@@ -17,7 +17,7 @@ namespace simciv
 	{
 		Vec2 u(a->x - b->x, a->y - b->y);
 		Vec2 v(c->x - b->x, c->y - b->y);
-		auto road = RoadView::create(u, v);
+		auto road = RoadView::create(level, u, v);
 		road->level = level;
 		add_road(b, road);
 	}
@@ -32,6 +32,7 @@ namespace simciv
 
 	void RoadLayer::add_road(Area * a)
 	{
+		if (a->road_level == 5) return;
 		++a->road_level;
 		auto& da = roads[a->index];
 		if (da.id == 0) da.id = ++road_index;
@@ -90,11 +91,16 @@ namespace simciv
 			v.push_back(rr);
 		}
 
+		//auto it = max_element(v.begin(), v.end(), [&](const road_t& a, const road_t& b)
+		//{
+		//	return a.level < b.level
+		//		|| a.level == b.level && (a.dir % 2) > (b.dir % 2);
+		//		// || a.level == b.level && a.id > b.id;
+		//});
+
 		auto it = max_element(v.begin(), v.end(), [&](const road_t& a, const road_t& b)
 		{
-			return a.level < b.level
-				|| a.level == b.level && (a.dir % 2) > (b.dir % 2);
-				// || a.level == b.level && a.id > b.id;
+			return (a.dir % 2) >(b.dir % 2);
 		});
 
 		if (it == v.end()) return;
@@ -102,8 +108,7 @@ namespace simciv
 		int root = it->dir;
 		if (v.size() == 1)
 		{
-			auto r = RoadView::create(root);
-			r->level = it->level;
+			auto r = RoadView::create(it->level, root);
 			add_road(a, r);
 			da.roads.push_back(r);
 		}
@@ -139,16 +144,14 @@ namespace simciv
 				f[i] = s[i];
 				s[ad] = s[bd] = NULL;
 
-				auto r = RoadView::create(root, i);
-				r->level = s[i]->level;
+				auto r = RoadView::create(s[i]->level, root, i);
 				add_road(a, r);
 				da.roads.push_back(r);
 			}
 
 			if (da.roads.size() == 0)
 			{
-				auto r = RoadView::create(root);
-				r->level = it->level;
+				auto r = RoadView::create(it->level, root);
 				add_road(a, r);
 				da.roads.push_back(r);
 			}

@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include <utility>
 #include <string>
+#include <vector>
 
 
 #include "cairo/cairo.h"
@@ -47,16 +48,29 @@ struct Road : public Tile
 class RoadTileSet: public TileSet
 {
 public:
-	RoadTileSet(int cols, int rows, int tile_width, int tile_height, int margin, int space) :
-		TileSet(cols, rows, tile_width, tile_height, margin, space) { }
+	RoadTileSet(int cols, int rows, int tile_width, int tile_height, int margin, int space, std::vector<double>& line_width) :
+		TileSet(cols, line_width.size() * rows, tile_width, tile_height, margin, space), line_width(line_width) { }
 	virtual void draw() override;
+	std::vector<double> line_width;
 };
 
 int main()
 {
-	RoadTileSet map(6, 6, 50, 50, 1, 1);
-	map.draw();
-	map.save(L"map.png");
+	std::vector<double> v;
+	v.push_back(3);
+	v.push_back(5);
+	v.push_back(7);
+	v.push_back(9);
+	v.push_back(11);
+
+	//for (int i = 0; i < 5; ++i)
+	//{
+		RoadTileSet map(6, 6, 50, 50, 1, 1, v);
+		map.draw();
+		map.save(L"../Resources/res/roads4.png");
+	//}
+
+	
     return 0;
 }
 
@@ -162,32 +176,35 @@ void RoadTileSet::draw()
 
 	cairo_set_source_rgba(g, 0, 0, 0, 1);
 	//cairo_set_antialias(g, CAIRO_ANTIALIAS_GOOD);
-	cairo_set_line_width(g, 4);
 
 	int k = 0;
-	for (int i = 0; i < 9; ++i)
+	for (int level = 0; level < 5; ++level)
 	{
-		for (int j = i + 1; j < 9; ++j)
+		cairo_set_line_width(g, line_width[level]);
+		for (int i = 0; i < 9; ++i)
 		{
-			Road r;
-			int row = k / rows;
-			int col = k % cols;
-			r.w = r.h = 32;
-			r.set_directions(i, j);
-			cairo_save(g);
-			//cairo_translate(g
-			//	, 0.5 + margin + col * tile_width + ((col == 0) ? 0 : (col - 1) * space) + tile_width / 2.0
-			//	, 0.5 + margin + row * tile_height + ((row == 0) ? 0 : (row - 1) * space) + tile_height / 2.0);
+			for (int j = i + 1; j < 9; ++j)
+			{
+				Road r;
+				int row = k / cols;
+				int col = k % cols;
+				r.w = r.h = 32;
+				r.set_directions(i, j);
+				cairo_save(g);
+				//cairo_translate(g
+				//	, 0.5 + margin + col * tile_width + ((col == 0) ? 0 : (col - 1) * space) + tile_width / 2.0
+				//	, 0.5 + margin + row * tile_height + ((row == 0) ? 0 : (row - 1) * space) + tile_height / 2.0);
 
-			cairo_translate(g
-				, 0.5 + margin + col * (tile_width + space) + tile_width / 2.0
-				, 0.5 + margin + row * (tile_height + space) + tile_height / 2.0);
+				cairo_translate(g
+					, 0.5 + margin + col * (tile_width + space) + tile_width / 2.0
+					, 0.5 + margin + row * (tile_height + space) + tile_height / 2.0);
 
-			r.drawto(g, surf);
+				r.drawto(g, surf);
 
-			cairo_restore(g);
+				cairo_restore(g);
 
-			++k;
+				++k;
+			}
 		}
 	}
 }

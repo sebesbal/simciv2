@@ -691,7 +691,7 @@ namespace simciv
 	}
 
 	// std::vector<cocos2d::SpriteFrame*> RoadView::frames;
-	cocos2d::SpriteFrame* RoadView::frames[9][9];
+	cocos2d::SpriteFrame* RoadView::frames[5][9][9];
 
 	//void RoadView::load(std::string file)
 	//{
@@ -713,61 +713,37 @@ namespace simciv
 		int m = 1;
 		int s = 1;
 		int w = 50;
-
-		int k = 0;
-		const int rows = 6;
 		const int cols = 6;
-		for (int i = 0; i < 9; ++i)
-		{
-			for (int j = i + 1; j < 9; ++j)
-			{
-				Road r;
-				int row = k / rows;
-				int col = k % cols;
-				Rect rect(m + col * (w + s), m + row * (w + s), w, w);
-				SpriteFrame* f = SpriteFrame::create(file, rect);
-				//SpriteFrameCache::getInstance()->addSpriteFrame(f, "anyad" + k);
-				
-				f->retain();
-				frames[i][j] = f;
-				++k;
-				//Sprite* sprite = Sprite::create();
-				//sprite->setDisplayFrame(f);
+		int k = 0;
 
-				//// Sprite* sprite = Sprite::create(file, Rect(m + col * (w + s), m + row * (w + s), w, w));
-				//result->addChild(sprite);
-				//sprite->setPosition(col * 50, row * 50);
+		for (int level = 0; level < 5; ++level)
+		{
+			for (int i = 0; i < 9; ++i)
+			{
+				for (int j = i + 1; j < 9; ++j)
+				{
+					Road r;
+					int row = k / cols;
+					int col = k % cols;
+					Rect rect(m + col * (w + s), m + row * (w + s), w, w);
+					SpriteFrame* f = SpriteFrame::create(file, rect);
+					f->retain();
+					frames[level][i][j] = f;
+					++k;
+				}
 			}
 		}
-
-		//for (int i = 0; i < 36; ++i)
-		//{
-		//	int row = i / 6;
-		//	int col = i % 6;
-		//	//Sprite* sprite = Sprite::create(file, Rect(m + col * (w + s), m + row * (w + s), w, w));
-		//	
-		//	SpriteFrame* f = SpriteFrame::create(file, Rect(m + col * (w + s), m + row * (w + s), w, w));
-		//	frames.push_back(f);
-
-		//	Sprite* sprite = Sprite::create();
-		//	sprite->setDisplayFrame(f);
-
-		//	// Sprite* sprite = Sprite::create(file, Rect(m + col * (w + s), m + row * (w + s), w, w));
-		//	result->addChild(sprite);
-		//	sprite->setPosition(col * 50, row * 50);
-		//	
-		//}
 		return result;
 	}
 
-	RoadView * RoadView::create(Vec2 & a)
+	RoadView * RoadView::create(int level, Vec2 & a)
 	{
-		return create(a, Vec2(0, 0));
+		return create(level, a, Vec2(0, 0));
 	}
 
-	RoadView * RoadView::create(const int & a)
+	RoadView * RoadView::create(int level, const int & a)
 	{
-		return create(a, 8);
+		return create(level, a, 8);
 	}
 
 #define dir(a, ad, i, j, d) if (a.x == i && a.y == - j) ad = d; else
@@ -782,18 +758,19 @@ namespace simciv
 	dir(a, ad, -1, 1, 7) \
 	dir(a, ad, 0, 0, 8);
 
-	RoadView * RoadView::create(Vec2 & a, Vec2 & b)
+	RoadView * RoadView::create(int level, Vec2 & a, Vec2 & b)
 	{
 		int ad, bd;
 		dir2(a, ad)
 		dir2(b, bd)
-		return create(ad, bd);
+		return create(level, ad, bd);
 	}
 
-	RoadView * RoadView::create(const int & ad, const int & bd)
+	RoadView * RoadView::create(int level, const int & ad, const int & bd)
 	{
-		SpriteFrame* f = ad < bd ? frames[ad][bd] : frames[bd][ad];
+		SpriteFrame* f = ad < bd ? frames[level - 1][ad][bd] : frames[level - 1][bd][ad];
 		RoadView* s = RoadView::create();
+		s->level = level;
 		s->setSpriteFrame(f);
 		return s;
 	}
