@@ -35,6 +35,7 @@ class MapView : public cocos2d::Node
 public:
 	CREATE_FUNC(MapView)
     Rect get_rect(int x, int y);
+	Vec2 get_point(Area* a);
 	Vec2 get_point(int x, int y);
 	Area* get_area(Vec2 p);
 	int cell_size() { return cs; }
@@ -218,6 +219,8 @@ protected:
 	virtual void onTouchEnded(Touch* touch, Event *event);
 	virtual void onTouchMoved(Touch* touch, Event *event);
 	virtual void onMouseMove(Event  *event);
+
+	bool is_inside_cell(Vec2& p, Area* a = NULL);
 
 	RadioMenu* create_left_menu();
 	void create_play_panel();

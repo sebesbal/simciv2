@@ -63,12 +63,9 @@ int main()
 	v.push_back(9);
 	v.push_back(11);
 
-	//for (int i = 0; i < 5; ++i)
-	//{
-		RoadTileSet map(6, 6, 50, 50, 1, 1, v);
-		map.draw();
-		map.save(L"../Resources/res/roads4.png");
-	//}
+	RoadTileSet map(6, 6, 50, 50, 1, 1, v);
+	map.draw();
+	map.save(L"../Resources/res/roads4.png");
 
 	
     return 0;

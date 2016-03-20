@@ -290,6 +290,9 @@ namespace simciv
 			{
 				static Area* last_area = NULL;
 				if (last_area == a) return;
+
+				if (!is_inside_cell(p, a)) return;
+
 				last_area = a;
 				_road_layer->add_road(a);
 			}
@@ -306,6 +309,15 @@ namespace simciv
 		update_popup(mouseEvent->getLocationInView());
 	}
 
+	bool WorldUI::is_inside_cell(Vec2 & p, Area* a)
+	{
+		if (!a)
+		{
+			a = _factory_layer->get_area(p);
+		}
+		auto q = _factory_layer->get_point(a);
+		return (q - p).length() < 15;
+	}
 
 	RadioMenu* WorldUI::create_left_menu()
 	{
@@ -635,8 +647,11 @@ namespace simciv
 		auto q = _map->convertToNodeSpace(wp);
 		Area* a = _color_layer->get_area(q);
 
-		auto p = _factory_layer->get_point(a->x, a->y);
-		_cursor->setPosition(p);
+		if (is_inside_cell(q, a))
+		{
+			auto p = _factory_layer->get_point(a);
+			_cursor->setPosition(p);
+		}
 
 		if (!_popup) return;
 

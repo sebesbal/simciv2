@@ -13,6 +13,11 @@ Rect MapView::get_rect(int x, int y)
 	return Rect(b.getMinX() + cs * x, b.getMinY() + cs * y, cs, cs);
 }
 
+Vec2 MapView::get_point(Area * a)
+{
+	return get_point(a->x, a->y);
+}
+
 Vec2 MapView::get_point(int x, int y)
 {
 	auto b = getBoundingBox();

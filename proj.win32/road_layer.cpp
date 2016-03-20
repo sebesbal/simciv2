@@ -86,10 +86,13 @@ namespace simciv
 			auto& db = roads[b->index];
 			road_t rr;
 			rr.dir = RoadView::get_dir(dir(a, b));
-			rr.level = std::min(alevel, blevel);
+			//rr.level = std::min(alevel, blevel);
+			rr.level = (alevel + blevel) / 2;
 			rr.id = db.id;
 			v.push_back(rr);
 		}
+
+		if (v.size() == 0) return;
 
 		//auto it = max_element(v.begin(), v.end(), [&](const road_t& a, const road_t& b)
 		//{
@@ -126,17 +129,19 @@ namespace simciv
 			}
 
 			const int g[8] = { 0, 2, 4, 6, 1, 3, 5, 7 };
-
+			const int h[8] = { 1, 3, 5, 7, 0, 2, 4, 6 };
 
 			for (int k = 0; k < 8; ++k)
 			{
+				//int i = (root % 2 == 0) ? g[k] : h[k];
 				int i = g[k];
 				if (i == root || !s[i]) continue;
 
-				int ad = (i - 1) % 8;
+				int ad = (i + 7) % 8;
 				int bd = (i + 1) % 8;
 
-				if (f[ad] || f[bd])
+				//if ((root % 2 == 0) && (f[ad] || f[bd]))
+				if ( (f[ad] || f[bd]))
 				{
 					continue;
 				}
