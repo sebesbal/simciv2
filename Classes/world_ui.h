@@ -147,17 +147,12 @@ public:
 	RoadView(): road(NULL), level(1), direction(0) {  }
 	CREATE_FUNC(RoadView)
 	int level;
-	int direction; //	0|		1/		2-		3\
-protected:
+	int direction;
 	Road* road;
 	static cocos2d::SpriteBatchNode* create_batch_node(std::string file);
-	static RoadView* create(int level, Vec2& a);
 	static RoadView* create(int level, const int& a);
-	static RoadView* create(int level, Vec2& a, Vec2& b);
 	static RoadView* create(int level, const int& a, const int& b);
-	static int get_dir(Vec2& a);
 protected:
-	//static std::vector<cocos2d::SpriteFrame*> frames;
 	static cocos2d::SpriteFrame* frames[5][9][9];
 };
 

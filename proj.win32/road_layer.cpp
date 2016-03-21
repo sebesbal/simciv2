@@ -16,16 +16,13 @@ namespace simciv
 
 	void RoadLayer::add_road(Area * a, Area * b, Area * c, int level)
 	{
-		Vec2 u(a->x - b->x, a->y - b->y);
-		Vec2 v(c->x - b->x, c->y - b->y);
-		auto road = RoadView::create(level, u, v);
+		auto road = RoadView::create(level, b->dir(a), b->dir(c));
 		road->level = level;
 		add_road(b, road);
 	}
 
 	void RoadLayer::add_road(Area* a, RoadView * road)
 	{
-		//road->setContentSize(Size(cs, cs));
 		road->setAnchorPoint(Vec2(0.5, 0.5));
 		road->setPosition(get_point(a->x, a->y));
 		roads_node->addChild(road);
@@ -58,10 +55,16 @@ namespace simciv
 
 	using namespace std;
 
+	enum Orientation
+	{
+		O_NONE,
+		O_ORTO,
+		O_DIAG
+	};
+
 	vector<int> orientations;
 
 #define AREA(a) for (Area* a: world.areas())
-#define ADJS(a, b) for (Road* r: a->roads) { Area* b = r->other(a);
 
 	void set_orientation(Area* a)
 	{
@@ -70,14 +73,15 @@ namespace simciv
 
 		//}
 
-		AREA(e)
+		AREA(a)
 		{
+			for (Area* b : a->adjs)
+			{
+
+			}
 		}
 
 		
-		ADJS(a, b)
-			
-		}
 	}
 
 	//void RoadLayer::update_roads()
@@ -114,15 +118,14 @@ namespace simciv
 		};
 		vector<road_t> v;
 
-		for (auto r : a->roads)
+		for (auto b : a->adjs)
 		{
-			Area* b = r->other(a);
 			int blevel = b->road_level;
 			if (blevel == 0) continue;
 
 			auto& db = roads[b->index];
 			road_t rr;
-			rr.dir = RoadView::get_dir(dir(a, b));
+			rr.dir = a->dir(b);
 			//rr.level = std::min(alevel, blevel);
 			rr.level = (alevel + blevel) / 2;
 			rr.id = db.id;
@@ -248,34 +251,9 @@ namespace simciv
 		return result;
 	}
 
-	RoadView * RoadView::create(int level, Vec2 & a)
-	{
-		return create(level, a, Vec2(0, 0));
-	}
-
 	RoadView * RoadView::create(int level, const int & a)
 	{
 		return create(level, a, 8);
-	}
-
-#define dir(a, ad, i, j, d) if (a.x == i && a.y == - j) ad = d; else
-#define dir2(a, ad) \
-	dir(a, ad, -1, 0, 0) \
-	dir(a, ad, -1, -1, 1) \
-	dir(a, ad, 0, -1, 2) \
-	dir(a, ad, 1, -1, 3) \
-	dir(a, ad, 1, 0, 4) \
-	dir(a, ad, 1, 1, 5) \
-	dir(a, ad, 0, 1, 6) \
-	dir(a, ad, -1, 1, 7) \
-	dir(a, ad, 0, 0, 8);
-
-	RoadView * RoadView::create(int level, Vec2 & a, Vec2 & b)
-	{
-		int ad, bd;
-		dir2(a, ad)
-			dir2(b, bd)
-			return create(level, ad, bd);
 	}
 
 	RoadView * RoadView::create(int level, const int & ad, const int & bd)
@@ -285,12 +263,5 @@ namespace simciv
 		s->level = level;
 		s->setSpriteFrame(f);
 		return s;
-	}
-
-	int RoadView::get_dir(Vec2 & a)
-	{
-		int d;
-		dir2(a, d)
-			return d;
 	}
 }

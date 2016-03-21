@@ -22,13 +22,24 @@ namespace simciv
 		return world.get_trade(this, prod_id);
 	}
 
-	Road* Area::get_road(Area* b)
+	Road* Area::road(Area* b)
 	{
 		for (auto r : roads)
 		{
 			if (r->other(this) == b) return r;
 		}
 		return nullptr;
+	}
+
+	int Area::dir(Area * a)
+	{
+		return dir(road(a));
+	}
+
+	int Area::dir(Road * r)
+	{
+		if (r->a == this) return r->dir;
+		else return (r->dir + 4) % 8;
 	}
 
 	// Node for graph algorithms (eg. Dijstra)
@@ -104,6 +115,7 @@ namespace simciv
 		r->cost = orto ? 1.0 : 1.414;
 		r->a = a;
 		r->b = b;
+		r->dir = Road::direction(b->x - a->x, b->y - a->y);
 		_roads.push_back(r);
 		a->roads.push_back(r);
 		b->roads.push_back(r);
@@ -252,5 +264,22 @@ namespace simciv
 		}
 
 		return result;
+	}
+
+	int Road::direction(int x, int y)
+	{
+#define dir(i, j, d) if (x == i && y == - j) return d; else
+
+		dir(-1, 0, 0) \
+		dir(-1, -1, 1) \
+		dir(0, -1, 2) \
+		dir(1, -1, 3) \
+		dir(1, 0, 4) \
+		dir(1, 1, 5) \
+		dir(0, 1, 6) \
+		dir(-1, 1, 7) \
+		dir(0, 0, 8);
+
+#undef dir
 	}
 }

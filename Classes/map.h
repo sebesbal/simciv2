@@ -21,8 +21,9 @@ namespace simciv
 		RoadMap* map; ///< routes from this
 		AreaData& data(Product* p);
 		AreaData& data(int prod_id);
-		Road* get_road(Area* b);
-		
+		int dir(Area * a);
+		int dir(Road * r);
+		Road* road(Area* b);
 	};
 
 	/// Road between two adjacent Area
@@ -32,6 +33,8 @@ namespace simciv
 		Area* b;
 		double cost;
 		Area* other(Area* a) { return a == this->a ? b : this->a; }
+		int dir;
+		static int direction(int x, int y);
 	};
 
 	/// List of roads between two distant Area
