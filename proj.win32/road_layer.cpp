@@ -45,13 +45,13 @@ namespace simciv
 	{
 	}
 
-	void RoadLayer::update_roads()
-	{
-		for (Area* a : world.areas())
-		{
-			update_roads(a);
-		}
-	}
+	//void RoadLayer::update_roads()
+	//{
+	//	for (Area* a : world.areas())
+	//	{
+	//		update_roads(a);
+	//	}
+	//}
 
 	using namespace std;
 
@@ -59,42 +59,154 @@ namespace simciv
 	{
 		O_NONE,
 		O_ORTO,
-		O_DIAG
+		O_DIAG,
+		O_MIXED
 	};
 
 	vector<int> orientations;
+	vector<bool> roads;
 
 #define AREA(a) for (Area* a: world.areas())
 
+
+
 	void set_orientation(Area* a)
 	{
-		//for (auto r : a->roads)
-		//{
+		if (a->road_level == 0) return;
+		auto v = a->sorted_adjs();
+		int x = (v[0] && v[4]) + (v[2] && v[6]);
+		int xy = (v[1] && v[5]) + (v[3] && v[7]);
+		if (x > xy)
+		{
+			orientations[a->index] = O_ORTO;
+		}
+		else if (x < xy)
+		{
+			orientations[a->index] = O_DIAG;
+		}
+	}
 
-		//}
+	void set_orientation2(Area* a)
+	{
+		int orto = 0;
+		for (Area* b : a->connected_adjs())
+		{
+			if (orientations[b->index] == O_ORTO)
+			{
+				++orto;
+			}
+			else if (orientations[b->index] == O_DIAG)
+			{
+				--orto;
+			}
+		}
+		if (orto > 0)
+		{
+			orientations[a->index] = O_ORTO;
+		}
+		else if (orto < 0)
+		{
+			orientations[a->index] = O_DIAG;
+		}
+		else
+		{
+			orientations[a->index] = O_MIXED;
+		}
+	}
+
+	void set_orientations()
+	{
+		orientations.resize(world.areas().size(), O_NONE);
+		roads.resize(world.roads().size(), false);
+		queue<Area*> q, w;
 
 		AREA(a)
 		{
-			for (Area* b : a->adjs)
+			set_orientation(a);
+			if (orientations[a->index] != O_NONE)
 			{
-
+				w.push(a);
 			}
 		}
 
-		
+		while (w.size() > 0)
+		{
+			Area* a = w.back();
+			w.pop();
+			for (Area* b : a->connected_adjs())
+			{
+				if (orientations[b->index] == O_NONE)
+				{
+					q.push(b);
+				}
+			}
+		}
+
+		while (q.size() > 0)
+		{
+			Area* a = q.back();
+			q.pop();
+			set_orientation2(a);
+			for (Area* b : a->connected_adjs())
+			{
+				if (orientations[b->index] == O_NONE)
+				{
+					q.push(b);
+				}
+			}
+		}
 	}
 
-	//void RoadLayer::update_roads()
-	//{
-	//	auto& av = world.areas();
-	//	queue<Area*> q;
-	//	// q.push();
+	void update_roads2(Area * a)
+	{
+		auto ori = orientations[a->index];
+		auto v = a->sorted_adjs();
+		if (ori == O_ORTO)
+		{
+			if (v[0] && v[4])
+			{
+				roads[a->road(0)->id] = roads[a->road(4)->id] = true;
+			}
+			if (v[2] && v[6])
+			{
+				roads[a->road(2)->id] = roads[a->road(6)->id] = true;
+			}
+		}
+		else if (ori == O_DIAG)
+		{
+			if (v[1] && v[5])
+			{
+				roads[a->road(1)->id] = roads[a->road(5)->id] = true;
+			}
+			if (v[3] && v[7])
+			{
+				roads[a->road(3)->id] = roads[a->road(7)->id] = true;
+			}
+		}
+	}
 
-	//	for (Area* a : av)
-	//	{
+	void update_roads3(Area * a)
+	{
+	}
 
-	//	}
-	//}
+	void RoadLayer::update_roads()
+	{
+		set_orientations();
+
+		AREA(a)
+		{
+			update_roads2(a);
+		}
+
+		auto& av = world.areas();
+		queue<Area*> q;
+		// q.push();
+
+		for (Area* a : av)
+		{
+
+		}
+	}
 
 	void RoadLayer::update_roads(Area * a)
 	{

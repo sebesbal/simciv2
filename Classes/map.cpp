@@ -22,6 +22,37 @@ namespace simciv
 		return world.get_trade(this, prod_id);
 	}
 
+	std::vector<Area*> Area::sorted_adjs()
+	{
+		std::vector<Area*> result(8, NULL);
+		if (road_level == 0) return result;
+		for (auto r: roads)
+		{
+			Area* b = r->other(this);
+			if (b->road_level)
+			{
+				int d = dir(r);
+				result[d] = b;
+			}
+		}
+		return result;
+	}
+
+	std::vector<Area*> Area::connected_adjs()
+	{
+		std::vector<Area*> result;
+		if (road_level == 0) return result;
+		for (auto r : roads)
+		{
+			Area* b = r->other(this);
+			if (b->road_level)
+			{
+				result.push_back(b);
+			}
+		}
+		return result;
+	}
+
 	Road* Area::road(Area* b)
 	{
 		for (auto r : roads)
@@ -40,6 +71,15 @@ namespace simciv
 	{
 		if (r->a == this) return r->dir;
 		else return (r->dir + 4) % 8;
+	}
+
+	Road * Area::road(int dir)
+	{
+		for (Road* r : roads)
+		{
+			if (this->dir(r) == dir) return r;
+		}
+		return NULL;
 	}
 
 	// Node for graph algorithms (eg. Dijstra)
@@ -116,6 +156,7 @@ namespace simciv
 		r->a = a;
 		r->b = b;
 		r->dir = Road::direction(b->x - a->x, b->y - a->y);
+		r->id = _roads.size();
 		_roads.push_back(r);
 		a->roads.push_back(r);
 		b->roads.push_back(r);

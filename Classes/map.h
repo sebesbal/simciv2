@@ -23,12 +23,16 @@ namespace simciv
 		AreaData& data(int prod_id);
 		int dir(Area * a);
 		int dir(Road * r);
+		Road* road(int dir);
 		Road* road(Area* b);
+		std::vector<Area*> sorted_adjs();
+		std::vector<Area*> connected_adjs();
 	};
 
 	/// Road between two adjacent Area
 	struct Road
 	{
+		int id;
 		Area* a;
 		Area* b;
 		double cost;
