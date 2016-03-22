@@ -16,6 +16,7 @@ namespace simciv
 {
 	//const int industry_count = 12;
 	World world;
+	int max_road_level = 5;
 	using namespace std;
 
 	void ProductionRule::load(rapidxml::xml_node<>* node)

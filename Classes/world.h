@@ -122,6 +122,7 @@ namespace simciv
 		double get_resources(Industry* industry, Area* a);
 		AreaData& get_trade(Area* a, int id);
 		std::vector<TradeMap*>& trade_maps() { return _trade_maps; }
+		int max_road_level;
 	protected:
 		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
 		void add_industry(Industry* industry) { industry->id = this->industries.size(); this->industries.push_back(industry); }
@@ -134,6 +135,7 @@ namespace simciv
 	};
 
 	extern World world;
+	extern int max_road_level;
 
 	class Info
 	{

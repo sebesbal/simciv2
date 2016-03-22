@@ -45,9 +45,25 @@ namespace simciv
 		add_road(a, r);
 	}
 
+	//void RoadLayer::add_road(Area * a, int i, int j)
+	//{
+	//	int level;
+	//	if (j == 8)
+	//	{
+	//		level = min(a->road_level, a->area(i)->road_level);
+	//	}
+	//	else
+	//	{
+	//		level = min(min(a->road_level, a->area(i)->road_level), a->area(j)->road_level);
+	//	}
+
+	//	auto r = RoadView::create(level, i, j);
+	//	add_road(a, r);
+	//}
+
 	void RoadLayer::add_road(Area * a)
 	{
-		if (a->road_level == 5) return;
+		if (a->road_level == world.max_road_level) return;
 		++a->road_level;
 		auto& da = roads[a->index];
 		if (da.id == 0) da.id = ++road_index;
@@ -93,8 +109,31 @@ namespace simciv
 	{
 		if (a->road_level == 0) return;
 		auto v = a->sorted_adjs();
-		int x = (v[0] && v[4]) + (v[2] && v[6]);
-		int xy = (v[1] && v[5]) + (v[3] && v[7]);
+		auto f = [&](int i, int j)
+		{
+			return (v[i] && v[j]) ? (v[i]->road_level + v[j]->road_level) : 0;
+			//return (int)(v[i] && v[j]);
+		};
+
+		int x = f(0, 4) + f(2, 6);
+		int xy = f(1, 5) + f(3, 7);
+
+		//int x = 0, xy = 0;
+		//for (int i = 0; i < 8; ++i)
+		//{
+		//	if (v[i])
+		//	{
+		//		if (i % 2 == 0)
+		//		{
+		//			x += v[i]->road_level;
+		//		}
+		//		else
+		//		{
+		//			xy += v[i]->road_level;
+		//		}
+		//	}
+		//}
+
 		if (x > xy)
 		{
 			orientations[a->index] = O_ORTO;
@@ -108,24 +147,32 @@ namespace simciv
 	void set_orientation2(Area* a)
 	{
 		int orto = 0;
+		int diag = 0;
+		auto f = [&](Area* c)
+		{
+			if (orientations[c->index] == O_ORTO)
+			{
+				orto += c->road_level;
+			}
+			else if (orientations[c->index] == O_DIAG)
+			{
+				diag += c->road_level;
+			}
+		};
+
+		//f(a);
 		for (Area* b : a->connected_adjs())
 		{
-			if (orientations[b->index] == O_ORTO)
-			{
-				++orto;
-			}
-			else if (orientations[b->index] == O_DIAG)
-			{
-				--orto;
-			}
+			f(b);
 		}
-		if (orto > 0)
-		{
-			orientations[a->index] = O_ORTO;
-		}
-		else if (orto < 0)
+
+		if (diag > orto)
 		{
 			orientations[a->index] = O_DIAG;
+		}
+		else if (orto > diag )
+		{
+			orientations[a->index] = O_ORTO;
 		}
 		else
 		{
@@ -467,8 +514,11 @@ namespace simciv
 		int w = 50;
 		const int cols = 6;
 		int k = 0;
+		Sprite* tmp = Sprite::create(file);
+		auto size = tmp->getContentSize();
+		world.max_road_level = (int)((size.height - 2*m + s) / (cols * (w + s)));
 
-		for (int level = 0; level < 5; ++level)
+		for (int level = 0; level < world.max_road_level; ++level)
 		{
 			for (int i = 0; i < 9; ++i)
 			{

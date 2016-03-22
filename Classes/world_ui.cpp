@@ -141,18 +141,39 @@ namespace simciv
 		_road_layer->setContentSize(_map->getContentSize());
 		_map->addChild(_road_layer);
 		// ---------------------- TEST ----------------------
-		int l = 3;
-		auto a1 = world.get_area(10, 10);
-		auto a2 = world.get_area(11, 11);
-		auto a3 = world.get_area(12, 12);
-		auto a4 = world.get_area(13, 12);
-		auto a5 = world.get_area(12, 11);
-		auto a6 = world.get_area(13, 10);
-		_road_layer->add_road(a1, a2, a3, l);
-		_road_layer->add_road(a2, a3, a4, l);
-		_road_layer->add_road(a3, a4, a5, l);
-		_road_layer->add_road(a4, a5, a6, l);
 
+		int n = 3;
+		int x = 10, y = 10;
+		for (int i = -n; i <= n; ++i)
+		{
+			for (int j = -n; j <= n; ++j)
+			{
+				Area* a = world.get_area(x + i+j, y + i-j);
+				a->road_level = 1;
+			}
+		}
+		for (int i = -n + 1; i <= n; ++i)
+		{
+			for (int j = -n + 1; j <= n; ++j)
+			{
+				Area* a = world.get_area(x - 1 + i + j, y + i - j);
+				a->road_level = 1;
+			}
+		}
+		for (int i = -n; i <= 2 * n; ++i)
+		{
+			for (int j = -n; j <= n; ++j)
+			{
+				Area* a = world.get_area(x + i + n, y + j);
+				a->road_level = 1;
+			}
+		}
+		for (int i = -n * 2; i <= 2 * n; ++i)
+		{
+			Area* a = world.get_area(x + i, y + i);
+			a->road_level = 3;
+		}
+		_road_layer->update_roads();
 
 		_color_layer = ColorMapLayer::create(info);
 		Node* v = _color_layer;
@@ -647,7 +668,7 @@ namespace simciv
 		auto q = _map->convertToNodeSpace(wp);
 		Area* a = _color_layer->get_area(q);
 
-		if (is_inside_cell(q, a))
+		if (!_drag_start || is_inside_cell(q, a))
 		{
 			auto p = _factory_layer->get_point(a);
 			_cursor->setPosition(p);
