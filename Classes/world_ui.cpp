@@ -625,7 +625,7 @@ namespace simciv
 		break;
 		case simciv::UIS_ROAD:
 		{
-
+			info.mode = MM_ROAD;
 		}
 		break;
 		default:

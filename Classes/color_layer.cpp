@@ -153,6 +153,9 @@ void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 			world.get_trade(area, info.product->id).resource,
 			world.get_profit(info.industry, area));
 		break;
+	case MM_ROAD:
+		DRAW_AREAS(area, area->road_level);
+		break;
 	default:
 		break;
 	}
