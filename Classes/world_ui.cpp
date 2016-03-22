@@ -89,7 +89,7 @@ namespace simciv
 		_cursor->setAnchorPoint(Vec2(0.5, 0.5));
 		_map->addChild(_cursor);
 
-		set_state(UIS_NONE);
+		set_state(UIS_ROAD);
 	}
 
 	void WorldUI::tick(float f)
@@ -107,7 +107,7 @@ namespace simciv
 		static int k = 0;
 		if (!_paused && k % _speed == 0)
 		{
-			world.update();
+			// world.update();
 		}
 
 		//if (k % 10 == 0)

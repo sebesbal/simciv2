@@ -106,6 +106,7 @@ public:
 	void update_roads();
 	void add_road(Area* a, Area* b, Area* c, int level);
 	void add_road(Area* a, RoadView* road);
+	void add_road(Area* a, int i, int j);
 protected:
 	SpriteBatchNode* roads_node;
 	int road_index;

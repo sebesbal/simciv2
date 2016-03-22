@@ -24,8 +24,10 @@ namespace simciv
 		int dir(Area * a);
 		int dir(Road * r);
 		Road* road(int dir);
+		Area* area(int dir);
 		Road* road(Area* b);
 		std::vector<Area*> sorted_adjs();
+		std::vector<Road*> sorted_roads();
 		std::vector<Area*> connected_adjs();
 	};
 

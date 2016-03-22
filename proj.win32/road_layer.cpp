@@ -26,6 +26,23 @@ namespace simciv
 		road->setAnchorPoint(Vec2(0.5, 0.5));
 		road->setPosition(get_point(a->x, a->y));
 		roads_node->addChild(road);
+		roads[a->index].roads.push_back(road);
+	}
+
+	void RoadLayer::add_road(Area * a, int i, int j)
+	{
+		int level;
+		if (j == 8)
+		{
+			level = (a->road_level + a->area(i)->road_level) / 2;
+		}
+		else
+		{
+			level = (2 * a->road_level + a->area(i)->road_level + a->area(j)->road_level) / 4;
+		}
+
+		auto r = RoadView::create(level, i, j);
+		add_road(a, r);
 	}
 
 	void RoadLayer::add_road(Area * a)
@@ -34,11 +51,12 @@ namespace simciv
 		++a->road_level;
 		auto& da = roads[a->index];
 		if (da.id == 0) da.id = ++road_index;
-		update_roads(a);
-		for (auto r : a->roads)
-		{
-			update_roads(r->other(a));
-		}
+		update_roads();
+		//update_roads(a);
+		//for (auto r : a->roads)
+		//{
+		//	update_roads(r->other(a));
+		//}
 	}
 
 	void RoadLayer::remove_road(Area * a)
@@ -64,7 +82,8 @@ namespace simciv
 	};
 
 	vector<int> orientations;
-	vector<bool> roads;
+	vector<bool> roads2;
+	vector<Area*> areas;
 
 #define AREA(a) for (Area* a: world.areas())
 
@@ -116,42 +135,44 @@ namespace simciv
 
 	void set_orientations()
 	{
-		orientations.resize(world.areas().size(), O_NONE);
-		roads.resize(world.roads().size(), false);
-		queue<Area*> q, w;
+		deque<Area*> q, w;
 
 		AREA(a)
 		{
-			set_orientation(a);
-			if (orientations[a->index] != O_NONE)
+			if (a->road_level > 0)
 			{
-				w.push(a);
-			}
-		}
-
-		while (w.size() > 0)
-		{
-			Area* a = w.back();
-			w.pop();
-			for (Area* b : a->connected_adjs())
-			{
-				if (orientations[b->index] == O_NONE)
+				areas.push_back(a);
+				set_orientation(a);
+				if (orientations[a->index] != O_NONE)
 				{
-					q.push(b);
+					w.push_back(a);
 				}
 			}
 		}
 
-		while (q.size() > 0)
+		while (!w.empty())
 		{
-			Area* a = q.back();
-			q.pop();
+			Area* a = w.front();
+			w.pop_front();
+			for (Area* b : a->connected_adjs())
+			{
+				if (orientations[b->index] == O_NONE && find(q.begin(), q.end(), b) == q.end())
+				{
+					q.push_back(b);
+				}
+			}
+		}
+
+		while (!q.empty())
+		{
+			Area* a = q.front();
+			q.pop_front();
 			set_orientation2(a);
 			for (Area* b : a->connected_adjs())
 			{
-				if (orientations[b->index] == O_NONE)
+				if (orientations[b->index] == O_NONE && find(q.begin(), q.end(), b) == q.end())
 				{
-					q.push(b);
+					q.push_back(b);
 				}
 			}
 		}
@@ -163,48 +184,152 @@ namespace simciv
 		auto v = a->sorted_adjs();
 		if (ori == O_ORTO)
 		{
+			//for (int i = 0; i < 8; i += 2) if (v[i]) roads2[a->road(i)->id] = true;
 			if (v[0] && v[4])
 			{
-				roads[a->road(0)->id] = roads[a->road(4)->id] = true;
+				roads2[a->road(0)->id] = roads2[a->road(4)->id] = true;
 			}
 			if (v[2] && v[6])
 			{
-				roads[a->road(2)->id] = roads[a->road(6)->id] = true;
+				roads2[a->road(2)->id] = roads2[a->road(6)->id] = true;
 			}
 		}
 		else if (ori == O_DIAG)
 		{
+			//for (int i = 1; i < 8; i += 2) if (v[i]) roads2[a->road(i)->id] = true;
+
 			if (v[1] && v[5])
 			{
-				roads[a->road(1)->id] = roads[a->road(5)->id] = true;
+				roads2[a->road(1)->id] = roads2[a->road(5)->id] = true;
 			}
 			if (v[3] && v[7])
 			{
-				roads[a->road(3)->id] = roads[a->road(7)->id] = true;
+				roads2[a->road(3)->id] = roads2[a->road(7)->id] = true;
 			}
 		}
 	}
 
 	void update_roads3(Area * a)
 	{
+		auto ori = orientations[a->index];
+		auto v = a->sorted_adjs();
+		for (int i = 0; i < 8; ++i)
+		{
+			if (v[i] && !roads2[a->road(i)->id])
+			{
+				int j = (i + 1) % 8, k = (i + 7) % 8;
+				if ( (v[j] && !roads2[a->road(j)->id])
+				  && (v[k] && !roads2[a->road(k)->id])
+				||	(!v[j] && !v[k])
+				)
+				{
+					roads2[a->road(i)->id] = true;
+				}
+			}
+		}
 	}
 
 	void RoadLayer::update_roads()
 	{
+		orientations.assign(world.areas().size(), O_NONE);
+		roads2.assign(world.roads().size(), false);
+		areas.clear();
+
+
 		set_orientations();
 
-		AREA(a)
+		for (Area* a : areas)
 		{
 			update_roads2(a);
 		}
 
-		auto& av = world.areas();
-		queue<Area*> q;
-		// q.push();
-
-		for (Area* a : av)
+		for (Area* a : areas)
 		{
+			update_roads3(a);
+		}
 
+		deque<Area*> q;
+		for (Area* a : areas)
+		{
+			auto& da = roads[a->index];
+
+			for (Sprite* s : da.roads)
+			{
+				s->removeFromParentAndCleanup(false);
+			}
+
+			da.roads.clear();
+			q.push_back(a);
+		}
+
+		while (!q.empty())
+		{
+			Area* a = q.front();
+			q.pop_front();
+
+			auto v = a->sorted_roads();
+			set<int> s;
+			auto marked = [&](int i) { return v[i] && roads2[v[i]->id]; };
+			auto drawed = [&](int i) { return s.find(i) != s.end(); };
+			auto lofusz = [&](int dif, int n)
+			{
+				for (int i = 0; i < n; ++i)
+				{
+					int j = (i + dif) % 8;
+					if (marked(i) && marked(j) && (!drawed(i) || !drawed(j)))
+					{
+						add_road(a, i, j);
+						s.emplace(i);
+						s.emplace(j);
+					}
+				}
+			};
+
+			lofusz(4, 4);
+			lofusz(3, 8);
+			lofusz(2, 8);
+
+			//for (int i = 0; i < 4; ++i)
+			//{
+			//	int j = (i + 4) % 8;
+			//	if (marked(i) && marked(j))
+			//	{
+			//		add_road(a, i, j);
+			//		s.emplace(i);
+			//		s.emplace(j);
+			//	}
+			//}
+
+			//for (int i = 0; i < 4; ++i)
+			//{
+			//	int j = (i + 3) % 8;
+			//	if (marked(i) && marked(j) && (!drawed(i) || !drawed(j)))
+			//	{
+			//		add_road(a, i, j);
+			//		s.emplace(i);
+			//		s.emplace(j);
+			//	}
+			//}
+
+			//for (int i = 0; i < 4; ++i)
+			//{
+			//	int j = (i + 5) % 8;
+			//	if (marked(i) && marked(j) && (!drawed(i) || !drawed(j)))
+			//	{
+			//		add_road(a, i, j);
+			//		s.emplace(i);
+			//		s.emplace(j);
+			//	}
+			//}
+
+			for (int i = 0; i < 8; ++i)
+			{
+				if (marked(i) && !drawed(i))
+				{
+					add_road(a, i, 8);
+					s.emplace(i);
+				}
+			}
 		}
 	}
 

@@ -38,6 +38,22 @@ namespace simciv
 		return result;
 	}
 
+	std::vector<Road*> Area::sorted_roads()
+	{
+		std::vector<Road*> result(8, NULL);
+		if (road_level == 0) return result;
+		for (auto r : roads)
+		{
+			Area* b = r->other(this);
+			if (b->road_level)
+			{
+				int d = dir(r);
+				result[d] = r;
+			}
+		}
+		return result;
+	}
+
 	std::vector<Area*> Area::connected_adjs()
 	{
 		std::vector<Area*> result;
@@ -78,6 +94,15 @@ namespace simciv
 		for (Road* r : roads)
 		{
 			if (this->dir(r) == dir) return r;
+		}
+		return NULL;
+	}
+
+	Area * Area::area(int dir)
+	{
+		for (Road* r : roads)
+		{
+			if (this->dir(r) == dir) return r->other(this);
 		}
 		return NULL;
 	}
