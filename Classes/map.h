@@ -37,7 +37,7 @@ namespace simciv
 		int id;
 		Area* a;				///< one end of the road
 		Area* b;				///< other end of the road (adjacent to "a")
-		double cost;			///< cost, modifed by road_level
+		double cost;			///< cost, modified by road_level
 		double base_cost;		///< cost based only the terrain 
 		Area* other(Area* a) { return a == this->a ? b : this->a; }
 		int dir;				///< direction from 'a' to 'b'. 0 = W, 1 = NW, 2 = N, 3 = NE ..., 7 = SW
@@ -47,8 +47,11 @@ namespace simciv
 	/// List of roads between two distant Area
 	struct Route
 	{
-		std::vector<Road*> roads;
-		double cost;
+		std::vector<Road*> roads;	
+		Area* a;					///< one end of the route
+		Area* b;					///< other end of the route
+		double cost;				///< total cost
+		std::vector<Area*> areas();
 	};
 
 	/// Graph of the areas and roads.

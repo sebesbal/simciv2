@@ -105,9 +105,11 @@ public:
 	void add_road(Area* a);
 	void remove_road(Area* a);
 	void update_roads();
-	void add_road(Area* a, Area* b, Area* c, int level);
+	RoadView* add_road(Area* a, Area* b, int level);
+	RoadView* add_road(Area* a, Area* b, Area* c, int level);
 	void add_road(Area* a, RoadView* road);
-	void add_road(Area* a, int i, int j);
+	RoadView* add_road(Area* a, int i, int j);
+	void add_route(Route* route);
 protected:
 	SpriteBatchNode* roads_node;
 	int road_index;
@@ -189,6 +191,7 @@ protected:
 	cocos2d::Node* _map;
 	bool _drag_start;
 	cocos2d::Vec2 _mouse_down_pos;
+	Area* _drag_start_area;
 
 	RadioMenu* _main_menu;
 	RadioMenu* _industry_browser;

@@ -14,11 +14,12 @@ namespace simciv
 		addChild(roads_node);
 	}
 
-	void RoadLayer::add_road(Area * a, Area * b, Area * c, int level)
+	RoadView* RoadLayer::add_road(Area * a, Area * b, Area * c, int level)
 	{
 		auto road = RoadView::create(level, b->dir(a), b->dir(c));
 		road->level = level;
 		add_road(b, road);
+		return road;
 	}
 
 	void RoadLayer::add_road(Area* a, RoadView * road)
@@ -29,7 +30,7 @@ namespace simciv
 		roads[a->index].roads.push_back(road);
 	}
 
-	void RoadLayer::add_road(Area * a, int i, int j)
+	RoadView* RoadLayer::add_road(Area * a, int i, int j)
 	{
 		int level;
 		if (j == 8)
@@ -43,6 +44,26 @@ namespace simciv
 
 		auto r = RoadView::create(level, i, j);
 		add_road(a, r);
+		return r;
+	}
+
+	void RoadLayer::add_route(Route* route)
+	{
+		static vector<RoadView*> tmp_rws;
+		for (auto rw : tmp_rws) rw->removeFromParent();
+		tmp_rws.clear();
+
+		auto as = route->areas();
+		int n = as.size();
+		if (n > 1)
+		{
+			tmp_rws.push_back(add_road(as[0], as[1], 3));
+			tmp_rws.push_back(add_road(as[n - 1], as[n - 2], 3));
+			for (int i = 1; i < n - 1; ++i)
+			{
+				tmp_rws.push_back(add_road(as[i - 1], as[i], as[i + 1], 3));
+			}
+		}
 	}
 
 	//void RoadLayer::add_road(Area * a, int i, int j)
@@ -378,6 +399,14 @@ namespace simciv
 				}
 			}
 		}
+	}
+
+	RoadView * simciv::RoadLayer::add_road(Area * a, Area * b, int level)
+	{
+		auto road = RoadView::create(level, a->dir(b), 8);
+		road->level = level;
+		add_road(a, road);
+		return road;
 	}
 
 	void RoadLayer::update_roads(Area * a)

@@ -293,6 +293,8 @@ namespace simciv
 
 		Node* n = &map->g[dst->index];
 		Area* a = dst;
+		route->a = src;
+		route->b = dst;
 		route->cost = 0;
 
 		while (n->parent)
@@ -347,5 +349,17 @@ namespace simciv
 		dir(0, 0, 8);
 
 #undef dir
+	}
+	std::vector<Area*> Route::areas()
+	{
+		std::vector<Area*> result;
+		Area* a = this->a;
+		result.push_back(a);
+		for (Road* r : roads)
+		{
+			a = r->other(a);
+			result.push_back(a);
+		}
+		return result;
 	}
 }

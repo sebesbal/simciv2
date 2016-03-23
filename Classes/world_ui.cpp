@@ -292,6 +292,9 @@ namespace simciv
 	{
 		Vec2 p = touch->getLocation();
 		Vec2 d(0, 0);
+		p = _map->convertToNodeSpace(p);
+		Area* a = _factory_layer->get_area(p);
+
 		if (_drag_start)
 		{
 			d = touch->getDelta();
@@ -302,11 +305,9 @@ namespace simciv
 			if (d.length() > 5)
 			{
 				_drag_start = true;
+				_drag_start_area = a;
 			}
 		}
-
-		p = _map->convertToNodeSpace(p);
-		Area* a = _factory_layer->get_area(p);
 		
 		if (_drag_start)
 		{
@@ -319,6 +320,15 @@ namespace simciv
 
 				last_area = a;
 				_road_layer->add_road(a);
+			}
+			if (_state == UIS_ROAD_ROUTE)
+			{
+				if (a != _drag_start_area)
+				{
+					auto route = world.create_route(_drag_start_area, a);
+					_road_layer->add_route(route);
+					delete route;
+				}
 			}
 			else
 			{
