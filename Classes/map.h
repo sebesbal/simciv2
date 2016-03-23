@@ -15,6 +15,7 @@ namespace simciv
 		int index;
 		int x;
 		int y;
+		int terrain_level;
 		std::vector<Road*> roads;
 		std::vector<Area*> adjs;
 		int road_level;

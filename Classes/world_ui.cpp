@@ -92,7 +92,7 @@ namespace simciv
 		_cursor->setAnchorPoint(Vec2(0.5, 0.5));
 		_map->addChild(_cursor);
 
-		set_state(UIS_ROAD_AREA);
+		set_state(UIS_ROAD_ROUTE);
 	}
 
 	void WorldUI::tick(float f)
@@ -138,6 +138,47 @@ namespace simciv
 
 		world.create(size.width, size.height, product_count);
 
+		auto layer = m->getLayer("Background");
+		for (int i = 0; i < size.width; ++i)
+		{
+			for (int j = 0; j < size.height; ++j)
+			{
+				auto tile = layer->getTileGIDAt(Vec2(i, size.height - j - 1)) - 1;
+				Area* a = world.get_area(i, j);
+				a->terrain_level = tile;
+				int& level = a->terrain_level;
+				switch (tile)
+				{
+				case 0:
+				case 1:
+				case 2:
+				case 8:
+				case 9:
+					level = 100;
+					break;
+				case 16:
+				case 17:
+				case 18:
+				case 24:
+				case 25:
+					level = 100;
+					break;
+				default:
+					level = 1;
+					break;
+				}
+			}
+		}
+
+		for (Road* r : world.roads())
+		{
+			r->cost = r->base_cost = (r->a->terrain_level + r->b->terrain_level) / 2;
+			if (r->dir % 2 == 1) r->cost *= 1.414;
+			r->base_cost = r->cost;
+		}
+
+		
+
 		_road_layer = RoadLayer::create();
 		_road_layer->setAnchorPoint(Vec2(0, 0));
 		_road_layer->setPosition(Vec2(0, 0));
@@ -145,38 +186,40 @@ namespace simciv
 		_map->addChild(_road_layer);
 		// ---------------------- TEST ----------------------
 
-		int n = 3;
-		int x = 10, y = 10;
-		for (int i = -n; i <= n; ++i)
-		{
-			for (int j = -n; j <= n; ++j)
-			{
-				Area* a = world.get_area(x + i+j, y + i-j);
-				a->road_level = 1;
-			}
-		}
-		for (int i = -n + 1; i <= n; ++i)
-		{
-			for (int j = -n + 1; j <= n; ++j)
-			{
-				Area* a = world.get_area(x - 1 + i + j, y + i - j);
-				a->road_level = 1;
-			}
-		}
-		for (int i = -n; i <= 2 * n; ++i)
-		{
-			for (int j = -n; j <= n; ++j)
-			{
-				Area* a = world.get_area(x + i + n, y + j);
-				a->road_level = 1;
-			}
-		}
-		for (int i = -n * 2; i <= 2 * n; ++i)
-		{
-			Area* a = world.get_area(x + i, y + i);
-			a->road_level = 3;
-		}
-		_road_layer->update_roads();
+		//int n = 3;
+		//int x = 10, y = 10;
+		//for (int i = -n; i <= n; ++i)
+		//{
+		//	for (int j = -n; j <= n; ++j)
+		//	{
+		//		Area* a = world.get_area(x + i+j, y + i-j);
+		//		a->road_level = 1;
+		//	}
+		//}
+		//for (int i = -n + 1; i <= n; ++i)
+		//{
+		//	for (int j = -n + 1; j <= n; ++j)
+		//	{
+		//		Area* a = world.get_area(x - 1 + i + j, y + i - j);
+		//		a->road_level = 1;
+		//	}
+		//}
+		//for (int i = -n; i <= 2 * n; ++i)
+		//{
+		//	for (int j = -n; j <= n; ++j)
+		//	{
+		//		Area* a = world.get_area(x + i + n, y + j);
+		//		a->road_level = 1;
+		//	}
+		//}
+		//for (int i = -n * 2; i <= 2 * n; ++i)
+		//{
+		//	Area* a = world.get_area(x + i, y + i);
+		//	a->road_level = 3;
+		//}
+		//_road_layer->update_roads();
+
+
 
 		_color_layer = ColorMapLayer::create(info);
 		Node* v = _color_layer;
@@ -708,7 +751,7 @@ namespace simciv
 		auto q = _map->convertToNodeSpace(wp);
 		Area* a = _color_layer->get_area(q);
 
-		if (!_drag_start || is_inside_cell(q, a))
+		if (!_drag_start || _state == UIS_ROAD_ROUTE || is_inside_cell(q, a))
 		{
 			auto p = _factory_layer->get_point(a);
 			_cursor->setPosition(p);

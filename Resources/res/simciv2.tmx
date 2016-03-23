@@ -3,16 +3,16 @@
  <tileset firstgid="1" name="bck" tilewidth="32" tileheight="32" spacing="1" margin="1" tilecount="48" columns="8">
   <image source="green_world.png" width="265" height="199"/>
  </tileset>
- <tileset firstgid="49" name="Roads" tilewidth="50" tileheight="50" spacing="1" margin="1" tilecount="192" columns="6">
+ <tileset firstgid="49" name="Roads" tilewidth="50" tileheight="50" spacing="1" margin="1" tilecount="36" columns="6">
   <tileoffset x="-8" y="10"/>
   <image source="../../icongen/map.png" width="307" height="307"/>
  </tileset>
  <layer name="Background" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eJzl1bEOgDAIBFBsXez/f7BTE0NsC+QuxDqw6b1QlFYRqeA6DYU2/+YeCa7VjLr93RI0I67OLwFz5Ooc7zcTdfUz/TwjfXncC5jvnW+Wy+4bsXsYLqtn1L5Fu8h/5wvzzXBZZ7xyWebMZfY6c5nmrm6T8c5j7ce2yGTs5jdTZ6LvhZn5nKHlXvD41iyru0vdjFwMzQ==
+   eJzllbEOg0AMQw/oUrbSCf7/Q0ulRqqiu2L7jCq1Qzbwk53kMpVSJnNdgHIz/407fIGLMlVu/DuKTIWb9UeB2eJmHXZmVG7+JvJUfDHcq1Gf7a+qd9vr3sFVfAezl8v6DuZm4KKeGa8It+X5qb9UmC5ua3fWFyMzkYx7+7smJurVMVdncJH3Scn4iMvsEFuM1/C1kIxa/uzusH1k/bI6sU9oFi5uLYu5tN88103IMz0faDrvUfb5SdN1FxDmew+Ru8DwUS2U+yv1AIpVEAE=
   </data>
  </layer>
- <layer name="Roads" width="30" height="30">
+ <layer name="Roads" width="30" height="30" visible="0">
   <data encoding="base64" compression="zlib">
    eJxjYBgFo2AUjIJRQCvgC8QmQGxKRzvd0fi2dLLXD4gNkfgudLIXGXiOADuD8NhpiEOcUuABxA40MhsfcGSA5B8YHgWjYBSMglFAfQAAI1sEwQ==
   </data>
