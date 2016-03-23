@@ -163,7 +163,8 @@ enum UIState
 	UIS_NONE,
 	UIS_FACTORY,
 	UIS_PRODUCT,
-	UIS_ROAD
+	UIS_ROAD_AREA,
+	UIS_ROAD_ROUTE
 };
 
 /// The main ui
@@ -192,6 +193,7 @@ protected:
 	RadioMenu* _main_menu;
 	RadioMenu* _industry_browser;
 	RadioMenu* _products_browser;
+	RadioMenu* _roads_menu;
 
 	IndustryView* _industry_view;
 	FactoryView* _factory_view;
@@ -220,6 +222,7 @@ protected:
 	void create_play_panel();
 	RadioMenu* create_industry_browser();
 	RadioMenu* create_products_browser();
+	RadioMenu* create_roads_menu();
 	void create_factory_layers_panel();
 	void create_color_layers_panel();
 	virtual void setContentSize(const Size & var) override;

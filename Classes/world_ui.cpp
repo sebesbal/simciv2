@@ -68,6 +68,9 @@ namespace simciv
 		_products_browser = create_products_browser();
 		this->addChild(_products_browser);
 
+		_roads_menu = create_roads_menu();
+		this->addChild(_roads_menu);
+
 		_industry_view = IndustryView::create();
 		_industry_view->setAnchorPoint(Vec2(1, 1));
 		this->addChild(_industry_view);
@@ -89,7 +92,7 @@ namespace simciv
 		_cursor->setAnchorPoint(Vec2(0.5, 0.5));
 		_map->addChild(_cursor);
 
-		set_state(UIS_ROAD);
+		set_state(UIS_ROAD_AREA);
 	}
 
 	void WorldUI::tick(float f)
@@ -277,7 +280,7 @@ namespace simciv
 		break;
 		case simciv::UIS_PRODUCT:
 			break;
-		case simciv::UIS_ROAD:
+		case simciv::UIS_ROAD_AREA:
 			_road_layer->add_road(a);
 			break;
 		default:
@@ -307,7 +310,7 @@ namespace simciv
 		
 		if (_drag_start)
 		{
-			if (_state == UIS_ROAD)
+			if (_state == UIS_ROAD_AREA)
 			{
 				static Area* last_area = NULL;
 				if (last_area == a) return;
@@ -373,7 +376,7 @@ namespace simciv
 				this->set_state(UIS_PRODUCT);
 				break;
 			case 2:
-				this->set_state(UIS_ROAD);
+				this->set_state(UIS_ROAD_AREA);
 				break;
 			default:
 				this->set_state(UIS_NONE);
@@ -459,6 +462,30 @@ namespace simciv
 		result->set_on_changed([this](MenuButton* btn) {
 			info.product = (Product*)btn->getUserData(); // world.get_products()[btn->getTag()];
 			set_state(_state);
+		});
+		return result;
+	}
+
+	RadioMenu * WorldUI::create_roads_menu()
+	{
+		RadioMenu* result = RadioMenu::create();
+		result->add_row();
+		auto area = MenuButton::create("res/road.png");
+		result->add_radio_button(area);
+
+		auto route = MenuButton::create("res/route.png");
+		result->add_radio_button(route);
+
+		result->set_selected_btn(0);
+		result->set_on_changed([=](MenuButton* btn) {
+			if (btn == area)
+			{
+				set_state(UIS_ROAD_AREA);
+			}
+			else if (btn == route)
+			{
+				set_state(UIS_ROAD_ROUTE);
+			}
 		});
 		return result;
 	}
@@ -586,6 +613,7 @@ namespace simciv
 		_main_menu->setPosition(Vec2(m, h - m));
 		_industry_browser->setPosition(Vec2(m + 64 + 10, h - m));
 		_products_browser->setPosition(Vec2(m + 64 + 10, h - m));
+		_roads_menu->setPosition(Vec2(m + 64 + 10, h - m));
 		_industry_view->setPosition(Vec2(var.width, h));
 
 		auto r = _industry_view->getBoundingBox();
@@ -601,11 +629,13 @@ namespace simciv
 		_state = state;
 		bool factories = _state == UIS_FACTORY;
 		bool products = _state == UIS_PRODUCT;
+		bool roads = _state == UIS_ROAD_AREA;
 		_industry_browser->setVisible(factories);
 		_industry_view->setVisible(factories);
 		_products_browser->setVisible(products);
 		_color_layers_panel->setVisible(products);
 		_factory_layers_panel->setVisible(factories);
+		_roads_menu->setVisible(roads);
 		_color_layer->setVisible(true);
 
 		switch (state)
@@ -623,7 +653,7 @@ namespace simciv
 			_on_state_product();
 		}
 		break;
-		case simciv::UIS_ROAD:
+		case simciv::UIS_ROAD_AREA:
 		{
 			info.mode = MM_ROAD;
 		}

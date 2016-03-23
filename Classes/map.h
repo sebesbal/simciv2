@@ -35,12 +35,13 @@ namespace simciv
 	struct Road
 	{
 		int id;
-		Area* a;
-		Area* b;
-		double cost;
+		Area* a;				///< one end of the road
+		Area* b;				///< other end of the road (adjacent to "a")
+		double cost;			///< cost, modifed by road_level
+		double base_cost;		///< cost based only the terrain 
 		Area* other(Area* a) { return a == this->a ? b : this->a; }
-		int dir;
-		static int direction(int x, int y);
+		int dir;				///< direction from 'a' to 'b'. 0 = W, 1 = NW, 2 = N, 3 = NE ..., 7 = SW
+		static int direction(int x, int y); ///< eg.: W = 1 = direction(-1, 0); NE = 3 = direction(1, 1)
 	};
 
 	/// List of roads between two distant Area
