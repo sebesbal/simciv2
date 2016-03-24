@@ -85,6 +85,7 @@ namespace simciv
 
 	int Area::dir(Road * r)
 	{
+		if (!r) return 8;
 		if (r->a == this) return r->dir;
 		else return (r->dir + 4) % 8;
 	}

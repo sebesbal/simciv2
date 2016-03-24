@@ -177,7 +177,15 @@ namespace simciv
 			r->base_cost = r->cost;
 		}
 
-		
+
+		_color_layer = ColorMapLayer::create(info);
+		Node* v = _color_layer;
+		//v->setVisible(true);
+		//v->setAnchorPoint(Vec2(0, 0));
+		//v->setPosition(Vec2(0, 0));
+		//v->setContentSize(_map->getContentSize());
+		views.push_back(v);
+		_map->addChild(v);
 
 		_road_layer = RoadLayer::create();
 		_road_layer->setAnchorPoint(Vec2(0, 0));
@@ -221,14 +229,6 @@ namespace simciv
 
 
 
-		_color_layer = ColorMapLayer::create(info);
-		Node* v = _color_layer;
-		//v->setVisible(true);
-		//v->setAnchorPoint(Vec2(0, 0));
-		//v->setPosition(Vec2(0, 0));
-		//v->setContentSize(_map->getContentSize());
-		views.push_back(v);
-		_map->addChild(v);
 
 
 		v = _factory_layer = FactoryMapLayer::create();
@@ -326,6 +326,9 @@ namespace simciv
 		case simciv::UIS_ROAD_AREA:
 			_road_layer->add_road(a);
 			break;
+		case simciv::UIS_ROAD_ROUTE:
+			_road_layer->finish_route();
+			break;
 		default:
 			break;
 		}
@@ -364,12 +367,12 @@ namespace simciv
 				last_area = a;
 				_road_layer->add_road(a);
 			}
-			if (_state == UIS_ROAD_ROUTE)
+			else if (_state == UIS_ROAD_ROUTE)
 			{
 				if (a != _drag_start_area)
 				{
 					auto route = world.create_route(_drag_start_area, a);
-					_road_layer->add_route(route);
+					_road_layer->add_route(route, 3);
 					delete route;
 				}
 			}

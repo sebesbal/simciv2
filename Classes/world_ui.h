@@ -94,7 +94,7 @@ struct RoadInfo
 {
 	RoadInfo() : id(0) {}
 	int id;
-	std::vector<cocos2d::Sprite*> roads;
+	std::set<RoadView*> roads;
 };
 
 class RoadLayer: public MapView
@@ -105,16 +105,17 @@ public:
 	void add_road(Area* a);
 	void remove_road(Area* a);
 	void update_roads();
-	RoadView* add_road(Area* a, Area* b, int level);
-	RoadView* add_road(Area* a, Area* b, Area* c, int level);
-	void add_road(Area* a, RoadView* road);
-	RoadView* add_road(Area* a, int i, int j);
-	void add_route(Route* route);
+	void add_road(RoadView* rw);
+	void clear_roadviews(Area* a);
+	void add_route(Route* route, int level);
+	void finish_route();
 protected:
+	void clear_new_route();
 	SpriteBatchNode* roads_node;
 	int road_index;
-	void update_roads(Area* a);
 	std::vector<RoadInfo> roads;
+	std::vector<RoadView*> new_route; ///< temporal route's RoadViews
+	int new_route_level;
 };
 
 /// Draws colored cells
@@ -124,7 +125,6 @@ public:
 	ColorMapLayer(UIStateData& info);
 	static ColorMapLayer* create(UIStateData& info);
 	void update(float delta);
-	void add_road(Road* r, int level);
 protected:
 	UIStateData& info;
 	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
@@ -148,14 +148,17 @@ protected:
 class RoadView : public cocos2d::Sprite
 {
 public:
-	RoadView(): road(NULL), level(1), direction(0) {  }
+	RoadView(): level(1), direction(0) {  }
 	CREATE_FUNC(RoadView)
 	int level;
 	int direction;
-	Road* road;
+	Area* area;
 	static cocos2d::SpriteBatchNode* create_batch_node(std::string file);
-	static RoadView* create(int level, const int& a);
-	static RoadView* create(int level, const int& a, const int& b);
+
+	static RoadView* create(Area* a, const int& dir1, const int& dir2, int level = -1);
+	static RoadView* create(Area* a, Area* b, Area* c, int level = -1);
+	static int road_level(Area* a, Area* b, Area* c);
+
 protected:
 	static cocos2d::SpriteFrame* frames[5][9][9];
 };
