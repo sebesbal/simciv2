@@ -17,14 +17,14 @@ namespace simciv
 	void RoadLayer::add_road(RoadView * road)
 	{
 		roads_node->addChild(road);
-		roads[road->area->index].roads.emplace(road);
+		roads[road->area->id].roads.emplace(road);
 		Area* a = road->area;
 		road->setPosition(get_point(a->x, a->y));
 	}
 
 	void RoadLayer::clear_roadviews(Area * a)
 	{
-		auto& rs = roads[a->index];
+		auto& rs = roads[a->id];
 		for (RoadView* r : rs.roads)
 		{
 			r->removeFromParentAndCleanup(false);
@@ -71,7 +71,7 @@ namespace simciv
 		for (auto r : new_route)
 		{
 			r->removeFromParent();
-			roads[r->area->index].roads.erase(r);
+			roads[r->area->id].roads.erase(r);
 		}
 		new_route.clear();
 	}
@@ -80,7 +80,7 @@ namespace simciv
 	{
 		if (a->road_level == world.max_road_level) return;
 		++a->road_level;
-		auto& da = roads[a->index];
+		auto& da = roads[a->id];
 		if (da.id == 0) da.id = ++road_index;
 		update_roads();
 	}
@@ -122,11 +122,11 @@ namespace simciv
 
 		if (x > xy)
 		{
-			orientations[a->index] = O_ORTO;
+			orientations[a->id] = O_ORTO;
 		}
 		else if (x < xy)
 		{
-			orientations[a->index] = O_DIAG;
+			orientations[a->id] = O_DIAG;
 		}
 	}
 
@@ -136,11 +136,11 @@ namespace simciv
 		int diag = 0;
 		auto f = [&](Area* c)
 		{
-			if (orientations[c->index] == O_ORTO)
+			if (orientations[c->id] == O_ORTO)
 			{
 				orto += c->road_level;
 			}
-			else if (orientations[c->index] == O_DIAG)
+			else if (orientations[c->id] == O_DIAG)
 			{
 				diag += c->road_level;
 			}
@@ -154,15 +154,15 @@ namespace simciv
 
 		if (diag > orto)
 		{
-			orientations[a->index] = O_DIAG;
+			orientations[a->id] = O_DIAG;
 		}
 		else if (orto > diag )
 		{
-			orientations[a->index] = O_ORTO;
+			orientations[a->id] = O_ORTO;
 		}
 		else
 		{
-			orientations[a->index] = O_MIXED;
+			orientations[a->id] = O_MIXED;
 		}
 	}
 
@@ -176,7 +176,7 @@ namespace simciv
 			{
 				areas.push_back(a);
 				set_orientation(a);
-				if (orientations[a->index] != O_NONE)
+				if (orientations[a->id] != O_NONE)
 				{
 					w.push_back(a);
 				}
@@ -189,7 +189,7 @@ namespace simciv
 			w.pop_front();
 			for (Area* b : a->connected_adjs())
 			{
-				if (orientations[b->index] == O_NONE && find(q.begin(), q.end(), b) == q.end())
+				if (orientations[b->id] == O_NONE && find(q.begin(), q.end(), b) == q.end())
 				{
 					q.push_back(b);
 				}
@@ -203,7 +203,7 @@ namespace simciv
 			set_orientation2(a);
 			for (Area* b : a->connected_adjs())
 			{
-				if (orientations[b->index] == O_NONE && find(q.begin(), q.end(), b) == q.end())
+				if (orientations[b->id] == O_NONE && find(q.begin(), q.end(), b) == q.end())
 				{
 					q.push_back(b);
 				}
@@ -213,7 +213,7 @@ namespace simciv
 
 	void update_roads2(Area * a)
 	{
-		auto ori = orientations[a->index];
+		auto ori = orientations[a->id];
 		auto v = a->sorted_adjs();
 		if (ori == O_ORTO)
 		{
@@ -244,7 +244,7 @@ namespace simciv
 
 	void update_roads3(Area * a)
 	{
-		auto ori = orientations[a->index];
+		auto ori = orientations[a->id];
 		auto v = a->sorted_adjs();
 		for (int i = 0; i < 8; ++i)
 		{

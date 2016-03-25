@@ -12,24 +12,24 @@ namespace simciv
 	/// One cell of the map
 	struct Area
 	{
-		int index;
-		int x;
-		int y;
-		int terrain_level;
-		std::vector<Road*> roads;
-		std::vector<Area*> adjs;
-		int road_level;
-		RoadMap* map; ///< routes from this
-		AreaData& data(Product* p);
-		AreaData& data(int prod_id);
-		int dir(Area * a);
-		int dir(Road * r);
-		Road* road(int dir);
-		Area* area(int dir);
-		Road* road(Area* b);
-		std::vector<Area*> sorted_adjs();
-		std::vector<Road*> sorted_roads();
-		std::vector<Area*> connected_adjs();
+		int id;						///< index in Map._areas
+		int x;						///< x coordinate
+		int y;						///< y coordinate
+		int terrain_level;			///< terrain dependant travel cost. Road->bast_cost is calculated from this.
+		std::vector<Road*> roads;	///< connected roads
+		std::vector<Area*> adjs;	///< unsorted adjacent areas
+		int road_level;				///< level of road infrastructure on this area. Road->cost is calculated from this.
+		RoadMap* map;				///< routes from this road
+		AreaData& data(Product* p); ///< trade datas for every Product
+		AreaData& data(int prod_id);  ///< trade datas for every Product
+		int dir(Area * a);			///< get the direction for a given area
+		int dir(Road * r);			///< get the direction for a given road
+		Road* road(int dir);		///< get the road for a given direction
+		Area* area(int dir);		///< get the area for a given direction
+		Road* road(Area* b);		///< get the road to a given adjacent Area
+		std::vector<Area*> sorted_adjs();	///< adjacent areas sorted in direction, filtered by road_level > 0
+		std::vector<Road*> sorted_roads();	///< sorted and filtered roads to the sorted_adjs() Areas
+		std::vector<Area*> connected_adjs(); ///< unsorted filtered adjacendt Areas
 	};
 
 	/// Road between two adjacent Area
@@ -39,7 +39,7 @@ namespace simciv
 		Area* a;				///< one end of the road
 		Area* b;				///< other end of the road (adjacent to "a")
 		double cost;			///< cost, modified by road_level
-		double base_cost;		///< cost based only the terrain 
+		double base_cost;		///< cost based only on Area.terrain_level
 		Area* other(Area* a) { return a == this->a ? b : this->a; }
 		int dir;				///< direction from 'a' to 'b'. 0 = W, 1 = NW, 2 = N, 3 = NE ..., 7 = SW
 		static int direction(int x, int y); ///< eg.: W = 1 = direction(-1, 0); NE = 3 = direction(1, 1)
@@ -49,13 +49,13 @@ namespace simciv
 	struct Route
 	{
 		std::vector<Road*> roads;	
-		Area* a;					///< one end of the route
-		Area* b;					///< other end of the route
+		Area* a;					///< start of the route
+		Area* b;					///< destination of the route
 		double cost;				///< total cost
 		std::vector<Area*> areas();
 	};
 
-	/// Graph of the areas and roads.
+	/// Graph of Areas and Roads
 	class Map
 	{
 	public:
@@ -68,8 +68,8 @@ namespace simciv
 		int width() { return _width; }
 		int height() { return _height; }
 		void create_road_map(Area* a);
-		Route* create_route(Area* src, Area* dst);
-		double distance(Area* src, Area* dst);
+		Route* create_route(Area* start, Area* dest);
+		double distance(Area* start, Area* dest);
 		int time;
 	protected:
 		std::vector<Road*> _roads;

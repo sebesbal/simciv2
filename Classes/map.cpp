@@ -147,7 +147,7 @@ namespace simciv
 			for (int x = 0; x < width; ++x)
 			{
 				Area* a = new Area();
-				a->index = _areas.size();
+				a->id = _areas.size();
 				a->map = NULL;
 				a->x = x;
 				a->y = y;
@@ -233,7 +233,7 @@ namespace simciv
 			n.parent = NULL;
 		}
 
-		Node* src = &g[a->index];
+		Node* src = &g[a->id];
 		std::vector<Node*> Q;
 		// std::make_heap(Q.begin(), Q.end());
 		src->color = 1;
@@ -259,7 +259,7 @@ namespace simciv
 			for (Road* r : a->roads)
 			{
 				Area* b = r->other(a);
-				Node* m = &g[b->index];
+				Node* m = &g[b->id];
 				if (m->color < 2) // if m is not visited yet
 				{
 					double new_d = n->d + r->cost;
@@ -283,19 +283,19 @@ namespace simciv
 		}
 	}
 
-	Route* Map::create_route(Area* src, Area* dst)
+	Route* Map::create_route(Area* start, Area* dest)
 	{
 		Route* route = new Route();
-		RoadMap*& map = src->map;
+		RoadMap*& map = start->map;
 		if (!map)
 		{
-			create_road_map(src);
+			create_road_map(start);
 		}
 
-		Node* n = &map->g[dst->index];
-		Area* a = dst;
-		route->a = src;
-		route->b = dst;
+		Node* n = &map->g[dest->id];
+		Area* a = dest;
+		route->a = start;
+		route->b = dest;
 		route->cost = 0;
 
 		while (n->parent)
@@ -304,7 +304,7 @@ namespace simciv
 			route->roads.push_back(r);
 			route->cost += r->cost;
 			a = r->other(a);
-			n = &map->g[a->index];
+			n = &map->g[a->id];
 		}
 
 		auto& v = route->roads;
@@ -312,24 +312,24 @@ namespace simciv
 		return route;
 	}
 
-	double Map::distance(Area* src, Area* dst)
+	double Map::distance(Area* start, Area* dest)
 	{
 		double result = 0;
-		RoadMap*& map = src->map;
+		RoadMap*& map = start->map;
 		if (!map)
 		{
-			create_road_map(src);
+			create_road_map(start);
 		}
 
-		Node* n = &map->g[dst->index];
-		Area* a = dst;
+		Node* n = &map->g[dest->id];
+		Area* a = dest;
 
 		while (n->parent)
 		{
 			Road* r = n->parent;
 			result += r->cost;
 			a = r->other(a);
-			n = &map->g[a->index];
+			n = &map->g[a->id];
 		}
 
 		return result;

@@ -89,8 +89,8 @@ namespace simciv
 	public:
 		TradeMap(Product& p);
 		void update();
-		AreaData& get_trade(Area* a) { return (*_production)[a->index]; }
-		AreaData& get_new_prod(Area* a) { return (*_new_production)[a->index]; }
+		AreaData& get_trade(Area* a) { return (*_production)[a->id]; }
+		AreaData& get_new_prod(Area* a) { return (*_new_production)[a->id]; }
 		Trader* create_prod(Area* area, bool consumer, double price);
 		void generate_resources();
 		std::vector<Transport*>& transports() { return _transports; }

@@ -289,12 +289,12 @@ void Trader::update_volume()
 
 		for (Area* a : world.areas())
 		{
-			int i = a->index;
+			int i = a->id;
 			int k = 1;
 			double sum = v[i].resource;
 			for (Road* r : a->roads)
 			{
-				sum += v[r->other(a)->index].resource;
+				sum += v[r->other(a)->id].resource;
 				++k;
 			}
 			(*_new_production)[i].resource = v[i].resource = sum / k;
@@ -307,7 +307,7 @@ void Trader::update_volume()
 		{
 			auto& p = get_new_prod(a);
 			double new_supply_price = 0; // the highest price in this area what can a supplier use (to sell the product).
-			auto& v = _area_buyers[a->index];
+			auto& v = _area_buyers[a->id];
 			if (v.size() > 0)
 			{
 				auto it = std::max_element(v.begin(), v.end(), [](Trader* a, Trader* b){ return a->worst_price < b->worst_price; });
@@ -323,7 +323,7 @@ void Trader::update_volume()
 			p.p_sell = new_supply_price;
 
 			double new_cons_price = max_price; // the lowest price in this area what can a supplier use (to sell the product).
-			auto& u = _area_sellers[a->index];
+			auto& u = _area_sellers[a->id];
 			if (u.size() > 0)
 			{
 				auto it = std::min_element(u.begin(), u.end(), [](Trader* a, Trader* b){ return a->worst_price < b->worst_price; });
@@ -497,13 +497,13 @@ void Trader::update_volume()
 		if (p->is_buyer)
 		{
 			_buyers.push_back(p);
-			_area_buyers[area->index].push_back(p);
+			_area_buyers[area->id].push_back(p);
 		}
 		else
 		{
 			// p->volume *= a.resource;
 			_sellers.push_back(p);
-			_area_sellers[area->index].push_back(p);
+			_area_sellers[area->id].push_back(p);
 		}
 
 		return p;
