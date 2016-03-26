@@ -53,8 +53,9 @@ namespace simciv
 
 	struct Product
 	{
-		std::string name;
-		int id;
+		int id;						///< index in the ProductMap
+		std::string name;			///< id in the xml file
+		std::string display_name;	///< display name
 		std::string icon_file;
 		void load(rapidxml::xml_node<>* node);
 	};
@@ -63,8 +64,8 @@ namespace simciv
 	struct Industry
 	{
 		Industry();
-		int id;
-		std::string name;
+		std::string name;			///< id in the xml file
+		std::string display_name;	///< display name
 		IndustryType type;
 		std::vector<ProductionRule> prod_rules;			///< product products form products
 		std::vector<ProductionRule> maint_rules;		///< maintenance cost per turn
@@ -125,7 +126,7 @@ namespace simciv
 		int max_road_level;
 	protected:
 		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
-		void add_industry(Industry* industry) { industry->id = this->industries.size(); this->industries.push_back(industry); }
+		void add_industry(Industry* industry) { this->industries.push_back(industry); }
 		void generate_industry();
 		void generate_factories();
 		std::vector<Industry*> industries;

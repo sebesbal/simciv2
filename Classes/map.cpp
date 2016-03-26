@@ -335,6 +335,15 @@ namespace simciv
 		return result;
 	}
 
+	void Map::update_roads()
+	{
+		for (Road* r : _roads)
+		{
+			double level = (r->a->road_level + r->b->road_level) / 2.0;
+			r->cost = r->base_cost * pow(0.5, level);
+		}
+	}
+
 	int Road::direction(int x, int y)
 	{
 #define dir(i, j, d) if (x == i && y == - j) return d; else

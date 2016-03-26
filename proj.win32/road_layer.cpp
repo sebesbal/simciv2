@@ -264,6 +264,7 @@ namespace simciv
 
 	void RoadLayer::update_roads()
 	{
+		world.update_roads();
 		orientations.assign(world.areas().size(), O_NONE);
 		roads2.assign(world.roads().size(), false);
 		areas.clear();

@@ -546,7 +546,8 @@ void IndustryView::set_industry(Industry* industry)
 		string file = industry->icon_file; //get_factory_texture(industry->id);
 		_icon->loadTexture(file);
 
-		_name_label->setString(file.substr(12, file.length() - 4 - 12));
+		//_name_label->setString(file.substr(12, file.length() - 4 - 12));
+		_name_label->setString(industry->display_name);
 
 		//_icon->setTexture(get_factory_texture(industry->id));
 		//auto t = _icon->getTexture();

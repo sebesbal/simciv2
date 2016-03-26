@@ -155,37 +155,29 @@ namespace simciv
 
 	void Industry::load(rapidxml::xml_node<>* node)
 	{
-		//auto t = node->first_attribute("type");
-		//if (t)
-		//{
-		//	string s = string(t->value());
-		//	if		(s == "mine") type = IT_MINE;
-		//	else if (s == "Factory") type = IT_FACTORY;
-		//	else if (s == "storage") type = IT_STORAGE;
-		//}
-
-		auto image = node->first_attribute("image");
-		if (image)
+		if (auto a = node->first_attribute("image"))
 		{
-			this->icon_file = "img/" + string(image->value());
+			icon_file = "img/" + string(a->value());
 		}
 
-		auto id = node->first_attribute("id");
-		if (id)
+		if (auto a = node->first_attribute("id"))
 		{
-			this->name = id->value();
+			name = a->value();
 		}
 
-		auto lt = node->first_attribute("lifetime");
-		if (lt)
+		if (auto a = node->first_attribute("name"))
 		{
-			lifetime = stoi(lt->value());
+			display_name = a->value();
+		}
+		 
+		if (auto a = node->first_attribute("lifetime"))
+		{
+			lifetime = stoi(a->value());
 		}
 
-		auto bt = node->first_attribute("buildtime");
-		if (bt)
+		if (auto a = node->first_attribute("buildtime"))
 		{
-			buildtime = stoi(bt->value());
+			buildtime = stoi(a->value());
 		}
 
 		auto n = node->first_node("produce");
@@ -193,7 +185,7 @@ namespace simciv
 		{
 			ProductionRule rule;
 			rule.load(n);
-			this->prod_rules.push_back(rule);
+			prod_rules.push_back(rule);
 			n = n->next_sibling("produce");
 		}
 
@@ -203,7 +195,7 @@ namespace simciv
 			ProductionRule rule;
 			rule.load(n);
 			rule.output[0] = 1;
-			this->maint_rules.push_back(rule);
+			maint_rules.push_back(rule);
 			n = n->next_sibling("maint");
 		}
 
@@ -435,17 +427,17 @@ string ExePath() {
 	void World::generate_industry()
 	{
 		CCLOG("ExePath() %s", ExePath());
-		load_from_file("res\\mod2.xml");
+		load_from_file("res/mod3.xml");
 	}
 
 	void World::generate_factories()
 	{
 		int x = 12, y = 10;
 
-		auto s1 = get_industry("Castle");
+		auto s1 = get_industry("market");
 		auto f = create_factory(get_area(x, y), *s1);
 		f->is_under_construction = false;
-		f->buyers[world.get_product("tomato")->id]->set_storage(10000);
+		f->buyers[world.get_product("food")->id]->set_storage(10000);
 	}
 
 	Factory* World::create_factory(Area* a, Industry& industry)

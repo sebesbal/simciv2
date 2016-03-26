@@ -15,7 +15,7 @@ namespace simciv
 		int id;						///< index in Map._areas
 		int x;						///< x coordinate
 		int y;						///< y coordinate
-		int terrain_level;			///< terrain dependant travel cost. Road->bast_cost is calculated from this.
+		int terrain_level;			///< terrain dependant travel cost. Road->base_cost is calculated from this.
 		std::vector<Road*> roads;	///< connected roads
 		std::vector<Area*> adjs;	///< unsorted adjacent areas
 		int road_level;				///< level of road infrastructure on this area. Road->cost is calculated from this.
@@ -71,6 +71,7 @@ namespace simciv
 		Route* create_route(Area* start, Area* dest);
 		double distance(Area* start, Area* dest);
 		int time;
+		void update_roads(); ///< update Road::cost
 	protected:
 		std::vector<Road*> _roads;
 		std::vector<Area*> _areas;

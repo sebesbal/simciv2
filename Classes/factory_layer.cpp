@@ -45,23 +45,48 @@ Factory* FactoryMapLayer::create_factory(Area* a, Industry& s)
 	return f;
 }
 
+//Sprite* FactoryMapLayer::create_sprite(Factory* f)
+//{
+//	Area* a = f->area; 
+//	//Sprite* sprite = Sprite::create(get_factory_texture(f->industry.id));
+//	Sprite* sprite = Sprite::create(f->industry.icon_file);
+//	//Rect r = get_rect(a->x, a->y);
+//	//sprite->setPosition(r.getMidX(), r.getMidY());
+//	auto p = get_point(a->x, a->y);
+//	sprite->setPosition(p.x, p.y);
+//	// sprite->setScale(0.1f);
+//	auto size = sprite->getContentSize();
+//	auto m = std::max(size.width, size.height);
+//	sprite->setScale((cell_size() - 10) / m);
+//
+//
+//	_factories->addChild(sprite);
+//	return sprite;
+//}
+
 Sprite* FactoryMapLayer::create_sprite(Factory* f)
 {
-	Area* a = f->area; 
-	//Sprite* sprite = Sprite::create(get_factory_texture(f->industry.id));
-	Sprite* sprite = Sprite::create(f->industry.icon_file);
-	//Rect r = get_rect(a->x, a->y);
-	//sprite->setPosition(r.getMidX(), r.getMidY());
+	Area* a = f->area;
 	auto p = get_point(a->x, a->y);
-	sprite->setPosition(p.x, p.y);
-	// sprite->setScale(0.1f);
-	auto size = sprite->getContentSize();
+
+	//Sprite* bck = Sprite::create("res/img/Circle_Orange.png");
+	Sprite* bck = Sprite::create("res/img/shapes/white_circle.png");
+	bck->setPosition(p.x, p.y);
+	auto size = bck->getContentSize();
 	auto m = std::max(size.width, size.height);
-	sprite->setScale((cell_size() - 10) / m);
+	bck->setScale((cell_size() - 2) / m);
 
+	Sprite* sprite = Sprite::create(f->industry.icon_file);
+	//sprite->setPosition(p.x, p.y);
+	sprite->setPosition(size / 2);
+	//sprite->setAnchorPoint(Vec2(0.5, 0.5));
+	auto size2 = sprite->getContentSize();
+	auto m2 = std::max(size2.width, size2.height);
+	sprite->setScale(0.8 * m / m2);
 
-	_factories->addChild(sprite);
-	return sprite;
+	bck->addChild(sprite);
+	_factories->addChild(bck);
+	return bck;
 }
 
 void FactoryMapLayer::create_sprites_from_model()
@@ -69,8 +94,7 @@ void FactoryMapLayer::create_sprites_from_model()
 	_factories->removeAllChildrenWithCleanup(true);
 	for (Factory* f : world.get_factories())
 	{
-		Sprite* s = create_sprite(f);
-		_factories->addChild(s);
+		create_sprite(f);
 	}
 }
 

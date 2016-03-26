@@ -110,7 +110,7 @@ namespace simciv
 		static int k = 0;
 		if (!_paused && k % _speed == 0)
 		{
-			// world.update();
+			//world.update();
 		}
 
 		//if (k % 10 == 0)
@@ -172,10 +172,11 @@ namespace simciv
 
 		for (Road* r : world.roads())
 		{
-			r->cost = r->base_cost = (r->a->terrain_level + r->b->terrain_level) / 2;
-			if (r->dir % 2 == 1) r->cost *= 1.414;
-			r->base_cost = r->cost;
+			r->base_cost = (r->a->terrain_level + r->b->terrain_level) / 2;
+			if (r->dir % 2 == 1) r->base_cost *= 1.414;
 		}
+
+		world.update_roads();
 
 
 		_color_layer = ColorMapLayer::create(info);
@@ -265,8 +266,8 @@ namespace simciv
 		if (event->isStopped()) return false;
 		_drag_start = false;
 		auto p = touch->getLocation();
-		_mouse_down_pos = p;
 		p = _map->convertToNodeSpace(p);
+		_mouse_down_pos = p;
 
 		Area* a = _factory_layer->get_area(p);
 		Factory* f = world.find_factory(a);
@@ -278,7 +279,11 @@ namespace simciv
 			_industry_view->set_industry(s);
 			_industry_view->setVisible(true);
 			this->info.industry = s;
-			info.product = world.get_products()[s->id]; //s->color + s->level * level_count;
+			Product* p = s->get_product();
+			if (p)
+			{
+				info.product = world.get_products()[p->id];
+			}
 			set_state(UIS_FACTORY);
 		}
 		else
@@ -395,6 +400,7 @@ namespace simciv
 		{
 			a = _factory_layer->get_area(p);
 		}
+		if (!a) return false;
 		auto q = _factory_layer->get_point(a);
 		return (q - p).length() < 15;
 	}
@@ -712,6 +718,11 @@ namespace simciv
 		case simciv::UIS_ROAD_AREA:
 		{
 			info.mode = MM_ROAD;
+		}
+		break;
+		case simciv::UIS_NONE:
+		{
+			info.mode = MM_NONE;
 		}
 		break;
 		default:

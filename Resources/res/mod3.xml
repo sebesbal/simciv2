@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<simciv>
+  <product id="food" image="icons/food.png" />
+  <product id="manpow" image="icons/manpow.png" />
+  <product id="fuel" image="icons/fuel_2.png" />
+  <product id="stone" image="icons/stone_3.png" />
+  <industry id="food" name="Food" image="icons/food.png">
+    <maint>
+      <in product="food" vol="0.5" />
+    </maint>
+    <maint>
+      <in product="manpow" vol="0.25" />
+    </maint>
+    <maint>
+      <in product="fuel" vol="0.125" />
+    </maint>
+    <produce>
+      <out product="food" vol="1" />
+    </produce>
+  </industry>
+  <industry id="manpow" name="Manpower" image="icons/manpow.png">
+    <maint>
+      <in product="food" vol="0.5" />
+    </maint>
+    <maint>
+      <in product="manpow" vol="0.25" />
+    </maint>
+    <maint>
+      <in product="fuel" vol="0.125" />
+    </maint>
+    <produce>
+      <in product="food" vol="1" />
+      <out product="manpow" vol="1" />
+    </produce>
+  </industry>
+  <industry id="fuel" name="Fuel" image="icons/fuel_2.png">
+    <maint>
+      <in product="food" vol="0.5" />
+    </maint>
+    <maint>
+      <in product="manpow" vol="0.25" />
+    </maint>
+    <maint>
+      <in product="fuel" vol="0.125" />
+    </maint>
+    <produce>
+      <in product="manpow" vol="1" />
+      <out product="fuel" vol="1" />
+    </produce>
+  </industry>
+  <industry id="stone" name="Stone" image="icons/stone.png" />
+  <industry id="wood" name="Wood" image="icons/tree_2.png" />
+  <industry id="brick" name="Brick" image="icons/brick_2.png" />
+  <industry id="metal" name="Metal" image="icons/metal.png" />
+  <industry id="oil" name="Oil" image="icons/fuel_4.png" />
+
+  <industry id="market" name="Market" image="icons/market_5.png">
+    <maint>
+      <in product="food" vol="1" />
+    </maint>
+  </industry>
+</simciv>
