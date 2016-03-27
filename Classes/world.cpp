@@ -104,9 +104,10 @@ namespace simciv
 
 	Industry::Industry()
 	{
-		lifetime = 1000;
-		buildtime = 1000;
+		lifetime = default_lifetime;
+		buildtime = default_buildtime;
 		type = IndustryType::IT_NONE;
+		level = 1;
 	}
 
 	void Industry::find_best_prod_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit)
@@ -155,29 +156,48 @@ namespace simciv
 
 	void Industry::load(rapidxml::xml_node<>* node)
 	{
+		if (auto a = node->first_attribute("id"))
+		{
+			name = a->value();
+			product = world.get_product(name);
+		}
+
+		if (auto a = node->first_attribute("gid"))
+		{
+			group = a->value();
+		}
+
+		if (auto a = node->first_attribute("level"))
+		{
+			level = stoi(a->value());
+		}
+
 		if (auto a = node->first_attribute("image"))
 		{
 			icon_file = "img/" + string(a->value());
 		}
-
-		if (auto a = node->first_attribute("id"))
+		else if (product)
 		{
-			name = a->value();
+			icon_file = product->icon_file;
 		}
 
 		if (auto a = node->first_attribute("name"))
 		{
 			display_name = a->value();
 		}
+		else if (product)
+		{
+			display_name = product->display_name;
+		}
 		 
 		if (auto a = node->first_attribute("lifetime"))
 		{
-			lifetime = stoi(a->value());
+			lifetime = default_lifetime * stoi(a->value()) / 100.0;
 		}
 
 		if (auto a = node->first_attribute("buildtime"))
 		{
-			buildtime = stoi(a->value());
+			buildtime = default_buildtime * stoi(a->value()) / 100.0;
 		}
 
 		auto n = node->first_node("produce");
@@ -239,10 +259,25 @@ namespace simciv
 
 	void Product::load(rapidxml::xml_node<>* node)
 	{
-		auto name = node->first_attribute("id");
-		if (name) this->name = name->value();
-		auto image = node->first_attribute("image");
-		if (image) this->icon_file = "img/" + string(image->value());
+		if (auto a = node->first_attribute("id"))
+		{
+			name = a->value();
+		}
+
+		if (auto a = node->first_attribute("gid"))
+		{
+			group = a->value();
+		}
+
+		if (auto a = node->first_attribute("image"))
+		{
+			icon_file = "img/" + string(a->value());
+		}
+
+		if (auto a = node->first_attribute("name"))
+		{
+			display_name = a->value();
+		}
 	}
 
 	Factory::Factory(Industry& industry) : industry(industry), money(100000000), efficiency(1), is_under_construction(true)
@@ -434,10 +469,11 @@ string ExePath() {
 	{
 		int x = 12, y = 10;
 
-		auto s1 = get_industry("market");
+		auto s1 = get_industry("city_1");
+		if (!s1) throw("Industry not found!");
 		auto f = create_factory(get_area(x, y), *s1);
 		f->is_under_construction = false;
-		f->buyers[world.get_product("food")->id]->set_storage(10000);
+		f->buyers[world.get_product("food_1")->id]->set_storage(10000);
 	}
 
 	Factory* World::create_factory(Area* a, Industry& industry)

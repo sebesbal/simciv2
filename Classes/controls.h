@@ -126,7 +126,8 @@ namespace simciv
 		void add_prod_row(Products& prod);
 		virtual void setContentSize(const Size & var) override;
 		
-		ui::ImageView* _icon;
+		// ui::ImageView* _icon;
+		Node* _icon;
 		ui::Text* _name_label;
 		ui::VBox* _production_view;
 		ui::Text* _build_cost_label;

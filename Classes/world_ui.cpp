@@ -411,11 +411,11 @@ namespace simciv
 		result->set_toggle(true);
 
 		result->add_row();
-		auto btn = MenuButton::create(get_product_texture(0));
+		auto btn = MenuButton::create("res/img/icons/info.png");
 		result->add_radio_button(btn);
 
 		result->add_row();
-		btn = MenuButton::create(get_product_texture(0));
+		btn = MenuButton::create("res/img/icons/build.png");
 		result->add_radio_button(btn);
 
 		result->add_row();
@@ -432,10 +432,10 @@ namespace simciv
 			switch (btn->getTag())
 			{
 			case 0:
-				this->set_state(UIS_FACTORY);
+				this->set_state(UIS_PRODUCT);
 				break;
 			case 1:
-				this->set_state(UIS_PRODUCT);
+				this->set_state(UIS_FACTORY);
 				break;
 			case 2:
 				this->set_state(UIS_ROAD_AREA);
@@ -489,9 +489,14 @@ namespace simciv
 
 		auto& industry = world.get_industries();
 		int i = 0;
+		string group = "";
 		for (auto s : industry)
 		{
-			if (i++ % 3 == 0) result->add_row();
+			if (s->group != group)
+			{
+				group = s->group;
+				result->add_row();
+			}
 			auto btn = MenuButton::create(s->icon_file);
 			btn->setUserData(s);
 			result->add_radio_button(btn);
@@ -512,9 +517,14 @@ namespace simciv
 		RadioMenu* result = RadioMenu::create();
 		auto& products = world.get_products();
 		int i = 0;
+		string group;
 		for (auto product : products)
 		{
-			if (i++ % 3 == 0) result->add_row();
+			if (product->group != group)
+			{
+				group = product->group;
+				result->add_row();
+			}
 			auto btn = MenuButton::create(product->icon_file);
 			btn->setUserData(product);
 			result->add_radio_button(btn);
@@ -522,7 +532,7 @@ namespace simciv
 
 		result->set_selected_btn(0);
 		result->set_on_changed([this](MenuButton* btn) {
-			info.product = (Product*)btn->getUserData(); // world.get_products()[btn->getTag()];
+			info.product = (Product*)btn->getUserData();
 			set_state(_state);
 		});
 		return result;
@@ -788,5 +798,23 @@ namespace simciv
 		{
 			_popup->setVisible(false);
 		}
+	}
+
+	Sprite * Sprites::create(Industry * i, const Size& s)
+	{
+		Sprite* bck = Sprite::create("res/img/shapes/white_circle.png");
+		auto size = bck->getContentSize();
+		auto m = std::max(size.width, size.height);
+		bck->setScale((s.width - 2) / m);
+
+		Sprite* sprite = Sprite::create(i->icon_file);
+		if (!sprite) throw "File not found: " + i->icon_file;
+		sprite->setPosition(size / 2);
+		auto size2 = sprite->getContentSize();
+		auto m2 = std::max(size2.width, size2.height);
+		sprite->setScale(0.8 * m / m2);
+
+		bck->addChild(sprite);
+		return bck;
 	}
 }

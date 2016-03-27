@@ -1,62 +1,158 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <simciv>
-  <product id="food" image="icons/food.png" />
-  <product id="manpow" image="icons/manpow.png" />
-  <product id="fuel" image="icons/fuel_2.png" />
-  <product id="stone" image="icons/stone_3.png" />
-  <industry id="food" name="Food" image="icons/food.png">
-    <maint>
-      <in product="food" vol="0.5" />
+  <product id="manpow" gid="1" name="Manpower" image="icons/manpow.png" />
+  <product id="food_1" gid="2" name="Food I" image="icons/food_5.png" />
+  <product id="food_2" gid="2" name="Food II" image="icons/bread.png" />
+  <product id="wood_1" gid="3" name="Wood" image="icons/wood_2.png" />
+  <product id="wood_2" gid="3" name="Wood II" image="icons/wood_5.png" />
+  <product id="stone_1" gid="4" name="Stone I" image="icons/stone_3.png" />
+  <product id="stone_2" gid="4" name="Stone II" image="icons/brick_2.png" />
+  <product id="fuel_1" gid="5" name="Fuel" image="icons/fuel_2.png" />
+  
+  <industry id="city_1" gid="1" name="Village" image="icons/village.png">
+	<maint>
+		<in product="manpow" vol="1" />
+		<in product="food_1" vol="1" />
+		<in product="wood_1" vol="1" />
     </maint>
-    <maint>
-      <in product="manpow" vol="0.25" />
-    </maint>
-    <maint>
-      <in product="fuel" vol="0.125" />
-    </maint>
+	
     <produce>
-      <out product="food" vol="1" />
+		<out product="manpow" vol="5" />
+    </produce>
+    <produce>
+		<out product="food_1" vol="3" />
+    </produce>
+    <produce>
+		<out product="wood_1" vol="3" />
     </produce>
   </industry>
-  <industry id="manpow" name="Manpower" image="icons/manpow.png">
+  
+  
+  <industry id="city_2" gid="1" name="Town" image="icons/market_2.png">
     <maint>
-      <in product="food" vol="0.5" />
+		<in product="manpow" vol="1" />
+		<in product="food_1" vol="1" />
+		<in product="wood_1" vol="1" />
+		<in product="stone_1" vol="1" />
     </maint>
-    <maint>
-      <in product="manpow" vol="0.25" />
-    </maint>
-    <maint>
-      <in product="fuel" vol="0.125" />
-    </maint>
+	
     <produce>
-      <in product="food" vol="1" />
-      <out product="manpow" vol="1" />
+		<out product="manpow" vol="10" />
+    </produce>
+    <produce>
+		<in  product="food_1" vol="6" />
+		<out product="food_2" vol="6" />
+    </produce>
+    <produce>
+		<in  product="wood_1" vol="6" />
+		<out product="wood_2" vol="6" />
+    </produce>
+    <produce>
+		<in  product="stone_1" vol="6" />
+		<out product="stone_2" vol="6" />
     </produce>
   </industry>
-  <industry id="fuel" name="Fuel" image="icons/fuel_2.png">
-    <maint>
-      <in product="food" vol="0.5" />
+  
+  
+  <industry id="food_1" gid="2">
+	<maint>
+		<in product="manpow" vol="1" />
+		<in product="wood_1" vol="1" />
     </maint>
-    <maint>
-      <in product="manpow" vol="0.25" />
-    </maint>
-    <maint>
-      <in product="fuel" vol="0.125" />
-    </maint>
+	
     <produce>
+		<out product="food_1" vol="5" />
+    </produce>
+  </industry>
+  
+  
+  <industry id="food_1" level="2" gid="2">
+	<maint>
+		<in product="manpow" vol="1" />
+		<in product="wood_1" vol="1" />
+		<in product="stone_1" vol="1" />
+    </maint>
+	
+    <produce>
+		<out product="food_1" vol="10" />
+    </produce>
+  </industry>
+  
+  
+  <industry id="food_2" gid="2">
+	<maint>
+		<in product="manpow" vol="1" />
+		<in product="wood_1" vol="1" />
+		<in product="stone_1" vol="1" />
+    </maint>
+	
+    <produce>
+		<in  product="food_1" vol="10" />
+		<out product="food_2" vol="10" />
+    </produce>
+  </industry>
+  
+  
+  <industry id="wood_1" gid="3">
+	<maint>
+		<in product="manpow" vol="1" />
+		<in product="wood_1" vol="1" />
+    </maint>
+	
+    <produce>
+		<out product="wood_1" vol="5" />
+    </produce>
+  </industry>
+  
+  
+  <industry id="wood_1" level="2" gid="3">
+	<maint>
+		<in product="manpow" vol="1" />
+		<in product="wood_1" vol="1" />
+		<in product="stone_1" vol="1" />
+    </maint>
+	
+    <produce>
+		<out product="wood_1" vol="10" />
+    </produce>
+  </industry>
+  
+  
+  <industry id="wood_2" gid="3">
+	<maint>
+		<in product="manpow" vol="1" />
+		<in product="wood_1" vol="1" />
+		<in product="stone_1" vol="1" />
+    </maint>
+	
+    <produce>
+		<in  product="wood_1" vol="10" />
+		<out product="wood_2" vol="10" />
+    </produce>
+  </industry>
+  
+  
+  <industry id="stone_1" gid="4">
+	<maint>
       <in product="manpow" vol="1" />
-      <out product="fuel" vol="1" />
+	  <in product="wood_1" vol="1" />
+    </maint>
+	
+    <produce>
+		<out product="stone_1" vol="5" />
     </produce>
   </industry>
-  <industry id="stone" name="Stone" image="icons/stone.png" />
-  <industry id="wood" name="Wood" image="icons/tree_2.png" />
-  <industry id="brick" name="Brick" image="icons/brick_2.png" />
-  <industry id="metal" name="Metal" image="icons/metal.png" />
-  <industry id="oil" name="Oil" image="icons/fuel_4.png" />
-
-  <industry id="market" name="Market" image="icons/market_5.png">
+  
+  
+  <industry id="fuel_1" gid="4">
     <maint>
-      <in product="food" vol="1" />
+      <in product="manpow" vol="1" />
     </maint>
+	
+    <produce>
+      <out product="fuel_1" vol="5" />
+    </produce>
   </industry>
+  
+
 </simciv>

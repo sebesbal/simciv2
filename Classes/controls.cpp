@@ -486,11 +486,13 @@ IndustryView::IndustryView()
 	_production_view->setAnchorPoint(Vec2(0, 1));
 	addChild(_production_view);
 
-	_icon = ImageView::create();
-	_icon->setAnchorPoint(Vec2(0, 1));
-	_icon->ignoreContentAdaptWithSize(false);
-	_icon->setContentSize(Size(50, 50));
+	_icon = Node::create();
 	addChild(_icon);
+	//_icon = ImageView::create();
+	//_icon->setAnchorPoint(Vec2(0, 1));
+	//_icon->ignoreContentAdaptWithSize(false);
+	//_icon->setContentSize(Size(50, 50));
+	//addChild(_icon);
 
 	_name_label = Text::create("Giraffe", def_font, 20);
 	_name_label->setAnchorPoint(Vec2(0, 1));
@@ -543,17 +545,13 @@ void IndustryView::set_industry(Industry* industry)
 	this->_industry = industry;
 	if (industry)
 	{
-		string file = industry->icon_file; //get_factory_texture(industry->id);
-		_icon->loadTexture(file);
-
-		//_name_label->setString(file.substr(12, file.length() - 4 - 12));
+		string file = industry->icon_file;
+		_icon->removeFromParent();
+		_icon = Sprites::create(industry, Size(50, 50));
+		_icon->setAnchorPoint(Vec2(0, 1));
+		addChild(_icon);
 		_name_label->setString(industry->display_name);
-
-		//_icon->setTexture(get_factory_texture(industry->id));
-		//auto t = _icon->getTexture();
-		//_icon->setScale(50.0 / std::max(t->getPixelsWide(), t->getPixelsHigh()));
-
-		//_build_cost->set_vector(industry->build_cost, 30);
+		_build_cost->set_map(industry->build_total_cost[0].input);
 
 
 		_production_view->removeAllChildrenWithCleanup(true);
@@ -992,6 +990,8 @@ void ProductStringView::set_vector(const Products& v, int size)
 
 void ProductStringView::set_map(const ProductMap& map)
 {
+	removeAllChildren();
+	setContentSize(Size(0, _size));
 	for (auto& p : map)
 	{
 		add_item(world.get_products()[p.first], p.second);
@@ -1009,7 +1009,16 @@ void ProductStringView::add_item(Product* p, double volume)
 		s->setPosition(Vec2(x, 0));
 		addChild(s);
 
-		auto t = Text::create(to_string(volume), "Arial", 20);
+		string text;
+		if ((int)volume == volume)
+		{
+			text = to_string((int)volume);
+		}
+		else
+		{
+			text = to_string(volume);
+		}
+		auto t = Text::create(text, "Arial", 20);
 		t->setColor(Color3B::WHITE);
 		t->enableShadow();
 		t->setPosition(Vec2(x, 0));

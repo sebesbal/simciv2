@@ -55,6 +55,7 @@ namespace simciv
 	{
 		int id;						///< index in the ProductMap
 		std::string name;			///< id in the xml file
+		std::string group;			///< gid in the xml file
 		std::string display_name;	///< display name
 		std::string icon_file;
 		void load(rapidxml::xml_node<>* node);
@@ -65,7 +66,9 @@ namespace simciv
 	{
 		Industry();
 		std::string name;			///< id in the xml file
+		std::string group;			///< gid in the xml file
 		std::string display_name;	///< display name
+		int level;
 		IndustryType type;
 		std::vector<ProductionRule> prod_rules;			///< product products form products
 		std::vector<ProductionRule> maint_rules;		///< maintenance cost per turn
@@ -80,6 +83,8 @@ namespace simciv
 		Product* product;
 		void load(rapidxml::xml_node<>* node);
 		Product* get_product();
+		const int default_lifetime = 1000;
+		const int default_buildtime = 1000;
 	};
 
 	struct Factory

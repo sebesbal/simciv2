@@ -132,6 +132,12 @@ protected:
 	
 };
 
+class Sprites
+{
+public:
+	static Sprite* create(Industry* f, const Size& s);
+};
+
 /// Draws factories and other sprites
 class FactoryMapLayer : public MapView
 {
