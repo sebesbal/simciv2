@@ -1,14 +1,6 @@
+#include "stdafx.h"
+
 #include "world.h"
-
-#include <algorithm>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <iostream>
-
-#include "rapidxml.hpp"
-#include "rapidxml_print.hpp"
-#include "cocos2d.h"
 
 using namespace std;;
 

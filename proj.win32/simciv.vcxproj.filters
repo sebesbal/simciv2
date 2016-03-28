@@ -54,8 +54,14 @@
     <ClCompile Include="..\Classes\world.cpp">
       <Filter>src\Model</Filter>
     </ClCompile>
-    <ClCompile Include="road_layer.cpp">
+    <ClCompile Include="..\Classes\road_layer.cpp">
       <Filter>src\UI\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\sprites.cpp">
+      <Filter>src\UI\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\stdafx.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +85,15 @@
     </ClInclude>
     <ClInclude Include="..\Classes\world.h">
       <Filter>src\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\map_view.h">
+      <Filter>src\UI\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\sprites.h">
+      <Filter>src\UI\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\stdafx.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "AppDelegate.h"
 #include "world_ui.h"
 

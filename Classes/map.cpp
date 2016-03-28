@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "map.h"
 
 #include "assert.h"

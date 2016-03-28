@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "controls.h"
 #include "world_ui.h"
 

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "world_ui.h"
 
 #include <map>
@@ -199,40 +201,6 @@ void ColorMapLayer::update(float delta)
 	}
 }
 
-//void ColorMapLayer::add_road(Road * r, int level)
-//{
-//	//	0|		1/		2-		3\ 
-//	int dir;
-//	Area &a = *r->a, &b = *r->b;
-//	if (a.x == b.x)
-//	{
-//		dir = 0;
-//	}
-//	else if (a.y == b.y)
-//	{
-//		dir = 2;
-//	}
-//	else if (a.y - a.x == b.y - b.x)
-//	{
-//		dir = 3;
-//	}
-//	else
-//	{
-//		dir = 1;
-//	}
-//
-//	RoadView* road = RoadView::create();
-//	road->area = 
-//	road->direction = dir;
-//	road->level = level;
-//	road->setContentSize(Size(cs, cs));
-//	road->setAnchorPoint(Vec2(0.5, 0.5));
-//
-//	Vec2 p = (get_point(a.x, a.y) + get_point(b.x, b.y)) / 2;
-//	road->setPosition(p);
-//	addChild(road);
-//}
-
 TransportAnimation::TransportAnimation() : sprite(NULL), transport(NULL)
 {
 }
@@ -297,16 +265,7 @@ void TransportAnimation::start()
 	{
 		sprite->resume();
 		sprite->setVisible(true);
-		//sprite->getParent()->removeChild(sprite, true);
-		//sprite = NULL;
 	}
 }
-
-//
-//void TransportAnimation::spriteMoveFinished(CCNode* sender)
-//{
-//	//CCSprite *sprite = (CCSprite *)sender;
-//	//this->removeChild(sprite, true);
-//}
 
 }

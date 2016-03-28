@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "world_ui.h"
 #include "trade.h"
 
