@@ -110,7 +110,7 @@ namespace simciv
 		static int k = 0;
 		if (!_paused && k % _speed == 0)
 		{
-			//world.update();
+			world.update();
 		}
 
 		//if (k % 10 == 0)

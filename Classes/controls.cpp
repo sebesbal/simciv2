@@ -1010,13 +1010,19 @@ void ProductStringView::add_item(Product* p, double volume)
 		addChild(s);
 
 		string text;
-		if ((int)volume == volume)
+		if (volume > 999)
 		{
-			text = to_string((int)volume);
+			int i = volume;
+			i = i - i % 100;
+			text = to_string_with_precision(i / 1000.0, 1) + "K";
 		}
+		//else if ((int)volume == volume)
+		//{
+		//	text = to_string((int)volume);
+		//}
 		else
 		{
-			text = to_string(volume);
+			text = to_string_with_precision(volume, 0);
 		}
 		auto t = Text::create(text, "Arial", 20);
 		t->setColor(Color3B::WHITE);
