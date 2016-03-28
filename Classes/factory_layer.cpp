@@ -47,7 +47,8 @@ Factory* FactoryMapLayer::create_factory(Area* a, Industry& s)
 
 Sprite * FactoryMapLayer::create_sprite(Factory * f)
 {
-	Sprite* s = Sprites::create(&f->industry, Size(cell_size(), cell_size()));
+	const int m = 4;
+	Sprite* s = Sprites::create(&f->industry, Size(cell_size() - m, cell_size() - m), true);
 	Area* a = f->area;
 	auto p = get_point(a);;
 	s->setPosition(p);

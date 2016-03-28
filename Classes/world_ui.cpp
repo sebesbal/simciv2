@@ -800,21 +800,49 @@ namespace simciv
 		}
 	}
 
-	Sprite * Sprites::create(Industry * i, const Size& s)
+	Sprite * Sprites::create(Industry * i, const Size& s, bool use_bck)
 	{
-		Sprite* bck = Sprite::create("res/img/shapes/white_circle.png");
-		auto size = bck->getContentSize();
-		auto m = std::max(size.width, size.height);
-		bck->setScale((s.width - 2) / m);
+		return create(i->icon_file, s, use_bck);
+	}
 
-		Sprite* sprite = Sprite::create(i->icon_file);
-		if (!sprite) throw "File not found: " + i->icon_file;
-		sprite->setPosition(size / 2);
-		auto size2 = sprite->getContentSize();
-		auto m2 = std::max(size2.width, size2.height);
-		sprite->setScale(0.8 * m / m2);
+	Sprite * Sprites::create(Product * f, const Size & s, bool use_bck)
+	{
+		return create(f->icon_file, s, use_bck);
+	}
 
-		bck->addChild(sprite);
-		return bck;
+	Sprite * Sprites::create(std::string file_name, const Size & s, bool use_bck)
+	{
+		Sprite* sprite = Sprite::create(file_name);
+		if (!sprite) throw "File not found: " + file_name;
+
+		if (use_bck)
+		{
+			Sprite* bck = Sprite::create("res/img/shapes/white_circle.png");
+			set_scale(bck, s);
+			bck->addChild(sprite);
+			sprite->setPosition(bck->getContentSize() / 2);
+			set_scale(sprite, s * (0.8f / bck->getScale()));
+			return bck;
+		}
+		else
+		{
+			set_scale(sprite, s);
+			return sprite;
+		}
+	}
+
+	void Sprites::set_scale(Sprite * sprite, const Size & size)
+	{
+		auto s = sprite->getContentSize();
+		if (s.width / s.height > size.width / size.height)
+		{
+			// sprite is wider than size
+			sprite->setScale(size.width / s.width);
+		}
+		else
+		{
+			// sprite is taller than size
+			sprite->setScale(size.height / s.height);
+		}
 	}
 }

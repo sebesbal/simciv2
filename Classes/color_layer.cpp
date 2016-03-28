@@ -179,7 +179,7 @@ void ColorMapLayer::update(float delta)
 					if (transport->route->roads.size() > 0)
 					{
 						TransportAnimation* f = new TransportAnimation();
-						f->set_route(prod_id, transport, this);
+						f->set_route(world.get_products()[prod_id], transport, this);
 						transports[transport] = f;
 					}
 				}
@@ -237,14 +237,15 @@ TransportAnimation::TransportAnimation() : sprite(NULL), transport(NULL)
 {
 }
 
-void TransportAnimation::set_route(int prod_id, Transport* transport, MapView* map)
+void TransportAnimation::set_route(Product* prod, Transport* transport, MapView* map)
 {
 	if (sprite) return;
 
 	Area* a = transport->seller->area;
-	sprite = Sprite::create(get_product_texture(prod_id));
+	sprite = Sprites::create(prod, Size(map->cell_size(), map->cell_size()) * 0.5);
+	//sprite = Sprite::create(get_product_texture(prod_id));
 	Rect r = map->get_rect(a->x, a->y);
-	sprite->setScale(0.1f);
+	//sprite->setScale(0.1f);
 	map->addChild(sprite);
 
 	int cs = map->cell_size();

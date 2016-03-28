@@ -547,7 +547,7 @@ void IndustryView::set_industry(Industry* industry)
 	{
 		string file = industry->icon_file;
 		_icon->removeFromParent();
-		_icon = Sprites::create(industry, Size(50, 50));
+		_icon = Sprites::create(industry, Size(50, 50), true);
 		_icon->setAnchorPoint(Vec2(0, 1));
 		addChild(_icon);
 		_name_label->setString(industry->display_name);

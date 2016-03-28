@@ -135,7 +135,10 @@ protected:
 class Sprites
 {
 public:
-	static Sprite* create(Industry* f, const Size& s);
+	static Sprite* create(Industry* f, const Size& s, bool use_bck = false);
+	static Sprite* create(Product* f, const Size& s, bool use_bck = false);
+	static Sprite* create(std::string file_name, const Size& s, bool use_bck = false);
+	static void set_scale(Sprite* sprite, const Size& size);
 };
 
 /// Draws factories and other sprites
@@ -249,7 +252,7 @@ class TransportAnimation
 {
 public:
 	TransportAnimation();
-	void set_route(int prod_id, Transport* transport, MapView* map);
+	void set_route(Product* prod, Transport* transport, MapView* map);
 	void stop();
 	void start();
 private:
