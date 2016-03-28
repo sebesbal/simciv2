@@ -13,6 +13,7 @@
 #include "map.h"
 #include "controls.h"
 #include "sprites.h"
+#include "map_view.h"
 
 namespace simciv
 {
@@ -23,128 +24,7 @@ class Item;
 class TransportAnimation;
 class RoadView;
 
-const Color3B def_bck_color3B(40, 0, 60);
-const Color4B def_bck_color4B(40, 0, 60, 255);
 
-#define defvec(vec, ...) \
-	static const string arr ## vec[] = { __VA_ARGS__ }; \
-	vector<string> vec (arr ## vec, arr ## vec + sizeof(arr ## vec) / sizeof(arr ## vec[0]) );
-
-/// draws tiles, map background, routes
-class MapView : public cocos2d::Node
-{
-public:
-	CREATE_FUNC(MapView)
-    Rect get_rect(int x, int y);
-	Vec2 get_point(Area* a);
-	Vec2 get_point(int x, int y);
-	Area* get_area(Vec2 p);
-	int cell_size() { return cs; }
-	Vec2 dir(Area* a, Area* b);
-protected:
-	static const int cs = 32; // cell size
-};
-
-class TileMapView : public MapView
-{
-public:
-	virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
-	CustomCommand _customCommand;
-	virtual void onDraw(const Mat4 &transform, uint32_t flags);
-
-	void draw_rect(int x, int y, double rate, double alpha);
-	void draw_rect_green(int x, int y, double rate, double alpha);
-	void draw_triangles(int x, int y, double a, double b);
-	void draw_circles(int x, int y, double a, double b);
-};
-
-enum UIMapMode
-{
-	MM_NONE,
-	MM_PRICE_SELL,
-	MM_PRICE_BUY,
-	MM_PROFIT,
-	MM_PLANT_RESOURCES,
-	MM_BUILD_COST,
-	MM_PROFIT_RES,
-	MM_SPECIES_RESOURCES,
-	MM_ROAD
-};
-
-struct UIStateData
-{
-	UIStateData() : 
-		industry(NULL),
-		product(NULL),
-		mode(MM_NONE),
-		show_grid(false),
-		show_transport(true),
-		show_products(true)
-	{
-
-	}
-	UIMapMode mode;
-	Industry* industry;
-	Product* product;
-	bool show_grid;
-	bool show_transport;
-	bool show_products;
-};
-
-struct RoadInfo
-{
-	RoadInfo() : id(0) {}
-	int id;
-	std::set<RoadView*> roads;
-};
-
-class RoadLayer: public MapView
-{
-public:
-	RoadLayer();
-	CREATE_FUNC(RoadLayer)
-	void add_road(Area* a);
-	void remove_road(Area* a);
-	void update_roads();
-	void add_road(RoadView* rw);
-	void clear_roadviews(Area* a);
-	void add_route(Route* route, int level);
-	void finish_route();
-protected:
-	void clear_new_route();
-	SpriteBatchNode* roads_node;
-	int road_index;
-	std::vector<RoadInfo> roads;
-	std::vector<RoadView*> new_route; ///< temporal route's RoadViews
-	int new_route_level;
-};
-
-/// Draws colored cells
-class ColorMapLayer : public TileMapView
-{
-public:
-	ColorMapLayer(UIStateData& info);
-	static ColorMapLayer* create(UIStateData& info);
-	void update(float delta);
-protected:
-	UIStateData& info;
-	virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
-	std::map<Transport*, TransportAnimation*> transports;
-	
-};
-
-/// Draws factories and other sprites
-class FactoryMapLayer : public MapView
-{
-public:
-	CREATE_FUNC(FactoryMapLayer)
-	virtual bool init() override;
-	Factory* create_factory(Area* a, Industry& industry);
-	Sprite* create_sprite(Factory* f);
-	void create_sprites_from_model();
-protected:
-	Node* _factories;
-};
 
 enum UIState
 {
@@ -219,19 +99,6 @@ protected:
 	void update_popup(const Vec2& p);
 	void WorldUI::find_child(const cocos2d::Node* n, const Vec2& wp, cocos2d::Node*& child, int& z_order);
 	cocos2d::Node* WorldUI::find_child(const cocos2d::Node* node, const Vec2& wp);
-};
-
-/// Animation for draw transports
-class TransportAnimation
-{
-public:
-	TransportAnimation();
-	void set_route(Product* prod, Transport* transport, MapView* map);
-	void stop();
-	void start();
-private:
-	Transport* transport;
-	Sprite* sprite;
 };
 
 }

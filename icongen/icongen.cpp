@@ -175,7 +175,7 @@ void RoadTileSet::draw()
 	//cairo_set_antialias(g, CAIRO_ANTIALIAS_GOOD);
 
 	int k = 0;
-	for (int level = 0; level < line_width.size(); ++level)
+	for (size_t level = 0; level < line_width.size(); ++level)
 	{
 		cairo_set_line_width(g, line_width[level]);
 		for (int i = 0; i < 9; ++i)

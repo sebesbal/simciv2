@@ -4,18 +4,14 @@
 
 #include "trade.h"
 #include "controls.h"
+#include "map_view.h"
+
+#define defvec(vec, ...) \
+	static const string arr ## vec[] = { __VA_ARGS__ }; \
+	vector<string> vec (arr ## vec, arr ## vec + sizeof(arr ## vec) / sizeof(arr ## vec[0]) );
 
 namespace simciv
 {
-
-	USING_NS_CC;
-	using namespace std;
-	using namespace ui;
-
-	//const int spec_count = 6;
-	//const int mat_count = 4;
-
-
 	Scene* WorldUI::createScene()
 	{
 		// 'scene' is an autorelease object

@@ -8,8 +8,8 @@ namespace simciv
 {
 	typedef std::deque<double> history_t;
 	const int history_count = 20;
-	class Factory;
-	class Product;
+	struct Factory;
+	struct Product;
 
 	/// Class for trading products on the map. It manages storage and pricing.
 	/// Every Factory has two Trader: a buyer (to buy inputs), and a seller (to sell output) for every Product. (most of them are unused)

@@ -432,8 +432,7 @@ void Popup::onDraw(const Mat4 &transform, uint32_t flags)
 	CHECK_GL_ERROR_DEBUG();
 
 	auto s = getContentSize();
-	DrawPrimitives::drawSolidRect(Vec2(0, 0), Vec2(s.height, s.height), Color4F(0.4, 0.1, 0.6, 1));
-
+	DrawPrimitives::drawSolidRect(Vec2(0, 0), Vec2(s.height, s.height), Color4F(0.4f, 0.1f, 0.6f, 1));
 	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
@@ -877,7 +876,7 @@ void Diagram::onDraw(const Mat4 &transform, uint32_t flags)
 	double a = s.height / (_max - _min);
 	double b = -s.height * _min / (_max - _min);
 
-	DrawPrimitives::drawSolidRect(Vec2(text_w, 0), Vec2(w, s.height), Color4F(0.4, 0.1, 0.6, 1));
+	DrawPrimitives::drawSolidRect(Vec2(text_w, 0), Vec2(w, s.height), Color4F(0.4f, 0.1f, 0.6f, 1));
 	double x = text_w;
 	int i = 0;
 	for (double d : *_data)

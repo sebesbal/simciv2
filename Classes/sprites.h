@@ -5,6 +5,8 @@ USING_NS_CC;
 
 namespace simciv
 {
+	class MapView;
+
 	class Sprites
 	{
 	public:
@@ -30,5 +32,18 @@ namespace simciv
 
 	protected:
 		static cocos2d::SpriteFrame* frames[5][9][9];
+	};
+
+	/// Animation for draw transports
+	class TransportAnimation
+	{
+	public:
+		TransportAnimation();
+		void set_route(Product* prod, Transport* transport, MapView* map);
+		void stop();
+		void start();
+	private:
+		Transport* transport;
+		Sprite* sprite;
 	};
 }

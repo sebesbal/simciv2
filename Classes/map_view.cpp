@@ -47,7 +47,7 @@ void TileMapView::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags
 }
 
 
-void TileMapView::draw_rect(int x, int y, double rate, double alpha)
+void TileMapView::draw_rect(int x, int y, float rate, float alpha)
 {
 	Rect r = get_rect(x, y);
 
@@ -64,29 +64,29 @@ void TileMapView::draw_rect(int x, int y, double rate, double alpha)
 	//	alpha * r.getMaxY() + (1 - alpha) * r.getMinY()), Color4F(1 - rate, rate, 0, 1));
 }
 
-void TileMapView::draw_triangles(int x, int y, double a, double b)
+void TileMapView::draw_triangles(int x, int y, float a, float b)
 {
 	Rect r = get_rect(x, y);
 	Vec2 v[3];
 	v[0] = Vec2(r.getMinX(), r.getMinY());
 	v[1] = Vec2(r.getMaxX(), r.getMinY());
 	v[2] = Vec2(r.getMinX(), r.getMaxY());
-	DrawPrimitives::drawSolidPoly(v, 3, Color4F(1 - a, a, 0, 0.8));
+	DrawPrimitives::drawSolidPoly(v, 3, Color4F(1 - a, a, 0, 0.8f));
 	v[0] = Vec2(r.getMaxX(), r.getMaxY());
 	//DrawPrimitives::drawSolidPoly(v, 3, Color4F(b, 1 - b, 0, 0.8));
-	DrawPrimitives::drawSolidPoly(v, 3, Color4F(1 - b, b, 0, 0.8));
+	DrawPrimitives::drawSolidPoly(v, 3, Color4F(1 - b, b, 0, 0.8f));
 }
 
-void TileMapView::draw_circles(int x, int y, double a, double b)
+void TileMapView::draw_circles(int x, int y, float a, float b)
 {
 	Rect r = get_rect(x, y);
 	DrawPrimitives::drawSolidRect(Vec2(r.getMinX(), r.getMinY()), Vec2(r.getMaxX(), r.getMaxY()), Color4F(1 - a, a, 0, 1));
 	//DrawPrimitives::setDrawColor4F(1 - b, b, 0, 1);
 	DrawPrimitives::setDrawColor4F(b, 1 - b, 0, 1);
-	DrawPrimitives::drawSolidCircle(Vec2(r.getMidX(), r.getMidY()), cell_size() / 3, 2 * M_PI, 20);
+	DrawPrimitives::drawSolidCircle(Vec2(r.getMidX(), r.getMidY()), cell_size() / 3.0f, (float)(2 * M_PI), 20);
 }
 
-void TileMapView::draw_rect_green(int x, int y, double rate, double alpha)
+void TileMapView::draw_rect_green(int x, int y, float rate, float alpha)
 {
 	Rect r = get_rect(x, y);
 	//DrawPrimitives::drawSolidRect( Vec2(r.getMinX(), r.getMinY()), Vec2(r.getMaxX(), r.getMaxY()), Color4F(0, rate, 0, alpha));

@@ -13,6 +13,9 @@
 
 USING_NS_CC;
 
+const Color3B def_bck_color3B(40, 0, 60);
+const Color4B def_bck_color4B(40, 0, 60, 255);
+
 namespace simciv
 {
 	class ProductStringView;
