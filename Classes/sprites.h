@@ -1,8 +1,6 @@
 #pragma once
 #include "world.h"
 
-USING_NS_CC;
-
 namespace simciv
 {
 	class MapView;
@@ -10,10 +8,10 @@ namespace simciv
 	class Sprites
 	{
 	public:
-		static Sprite* create(Industry* f, const Size& s, bool use_bck = false);
-		static Sprite* create(Product* f, const Size& s, bool use_bck = false);
-		static Sprite* create(std::string file_name, const Size& s, bool use_bck = false);
-		static void set_scale(Sprite* sprite, const Size& size);
+		static cocos2d::Sprite* create(Industry* f, const Size& s, bool use_bck = false);
+		static cocos2d::Sprite* create(Product* f, const Size& s, bool use_bck = false);
+		static cocos2d::Sprite* create(std::string file_name, const Size& s, bool use_bck = false);
+		static void set_scale(cocos2d::Sprite* sprite, const Size& size);
 	};
 
 	class RoadView : public cocos2d::Sprite
@@ -21,7 +19,7 @@ namespace simciv
 	public:
 		RoadView() : level(1), direction(0) {  }
 		CREATE_FUNC(RoadView)
-			int level;
+		int level;
 		int direction;
 		Area* area;
 		static cocos2d::SpriteBatchNode* create_batch_node(std::string file);
@@ -44,6 +42,15 @@ namespace simciv
 		void start();
 	private:
 		Transport* transport;
-		Sprite* sprite;
+		cocos2d::Sprite* sprite;
+	};
+
+	struct FactorySprite
+	{
+		FactorySprite();
+		virtual void update(float dt);
+		Factory* _factory;
+		cocos2d::DrawNode* _progress_bar;
+		cocos2d::Sprite* _sprite;
 	};
 }

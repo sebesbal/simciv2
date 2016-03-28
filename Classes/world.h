@@ -87,6 +87,14 @@ namespace simciv
 		const int default_buildtime = 1000;
 	};
 
+	enum FactoryState
+	{
+		FS_NONE,
+		FS_UNDER_CONTRUCTION,
+		FS_RUN,
+		FS_DEAD
+	};
+
 	struct Factory
 	{
 		Factory(Industry& industry);
@@ -96,8 +104,9 @@ namespace simciv
 		double money;
 		double efficiency;
 		Area* area;
-		bool is_under_construction;		///< firstly the Factory is under construction
+		FactoryState state;		///< firstly the Factory is under construction
 		Products built_in;				///< if built_in == industry.build_cost, the factory is completed
+		double health;
 		void update();
 		double apply_rule(ProductionRule* rule, double profit, double ideal_rate); ///< tries to apply the rule with "rate" times. returns the applicable rate. (depending on the storage)
 		double consume_articles(Prices& prices);

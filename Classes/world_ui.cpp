@@ -220,7 +220,7 @@ namespace simciv
 
 
 
-		v = _factory_layer = FactoryMapLayer::create();
+		v = _factory_layer = g_factory_layer = FactoryMapLayer::create();
 		_factory_layer->create_sprites_from_model();
 		//v->setAnchorPoint(Vec2(0, 0));
 		//v->setPosition(Vec2(0, 0));

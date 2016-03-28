@@ -272,7 +272,7 @@ namespace simciv
 		}
 	}
 
-	Factory::Factory(Industry& industry) : industry(industry), money(100000000), efficiency(1), is_under_construction(true)
+	Factory::Factory(Industry& industry) : industry(industry), money(100000000), efficiency(1), state(FS_UNDER_CONTRUCTION)
 	{
 		for (int i = 0; i < product_count; ++i)
 		{
@@ -286,9 +286,7 @@ namespace simciv
 	
 	void Factory::update()
 	{
-		//area
 
-		//industry.find_best_prod_rule();
 	}
 
 	double Factory::apply_rule(ProductionRule* rule, double profit, double ideal_rate)
@@ -325,7 +323,7 @@ namespace simciv
 		double full_expense = 0;
 		typedef std::pair<double, ProductionRule*> pair_t;
 		std::vector<pair_t> v;
-		auto& rules = is_under_construction ? industry.build_rules : industry.maint_rules;
+		auto& rules = (state == FS_UNDER_CONTRUCTION) ? industry.build_rules : industry.maint_rules;
 
 		for (auto& rule : rules)
 		{
@@ -354,6 +352,24 @@ namespace simciv
 			if (volume <= 0) break;
 		}
 
+		switch (state)
+		{
+		case simciv::FS_UNDER_CONTRUCTION:
+			health += (1 - volume) / industry.buildtime;
+			if (health >= 100)
+			{
+				state = FS_RUN;
+			}
+			break;
+		case simciv::FS_RUN:
+			health -= volume / industry.lifetime;
+			break;
+		case simciv::FS_NONE:
+		case simciv::FS_DEAD:
+		default:
+			break;
+		}
+		
 		return full_expense;
 	}
 
@@ -464,7 +480,7 @@ string ExePath() {
 		auto s1 = get_industry("city_1");
 		if (!s1) throw("Industry not found!");
 		auto f = create_factory(get_area(x, y), *s1);
-		f->is_under_construction = false;
+		f->state = FS_RUN;
 		f->buyers[world.get_product("food_1")->id]->set_storage(10000);
 	}
 
@@ -546,7 +562,7 @@ string ExePath() {
 		{
 			Prices prices = f->get_prices();
 
-			if (!f->is_under_construction)
+			if (f->state == FS_RUN)
 			{
 				ProductionRule* rule;
 				double profit;
@@ -557,7 +573,10 @@ string ExePath() {
 				}
 			}
 
-			double expense = f->consume_articles(prices);
+			if (f->state == FS_RUN || f->state == FS_UNDER_CONTRUCTION)
+			{
+				double expense = f->consume_articles(prices);
+			}
 		}
 
 		//if (k % 5 == 0)

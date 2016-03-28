@@ -114,10 +114,14 @@ namespace simciv
 	public:
 		CREATE_FUNC(FactoryMapLayer)
 		virtual bool init() override;
+		virtual void update(float dt) override;
 		Factory* create_factory(Area* a, Industry& industry);
 		cocos2d::Sprite* create_sprite(Factory* f);
 		void create_sprites_from_model();
 	protected:
 		cocos2d::Node* _factories;
+		std::vector<FactorySprite*> _factory_sprites;
 	};
+
+	extern FactoryMapLayer* g_factory_layer;
 }

@@ -24,6 +24,8 @@ USING_NS_CC;
 using namespace std;
 using namespace ui;
 
+FactoryMapLayer* g_factory_layer;
+
 bool FactoryMapLayer::init()
 {
 	if (!MapView::init())
@@ -33,8 +35,18 @@ bool FactoryMapLayer::init()
 
 	_factories = Node::create();
 	addChild(_factories);
+	scheduleUpdate();
 
 	return true;
+}
+
+void FactoryMapLayer::update(float dt)
+{
+	MapView::update(dt);
+	for (auto fs : _factory_sprites)
+	{
+		fs->update(dt);
+	}
 }
 
 Factory* FactoryMapLayer::create_factory(Area* a, Industry& s)
@@ -55,6 +67,12 @@ Sprite * FactoryMapLayer::create_sprite(Factory * f)
 	auto p = get_point(a);;
 	s->setPosition(p);
 	_factories->addChild(s);
+
+	FactorySprite* fs = new FactorySprite();
+	fs->_factory = f;
+	fs->_sprite = s;
+	_factory_sprites.push_back(fs);
+
 	return s;
 }
 
