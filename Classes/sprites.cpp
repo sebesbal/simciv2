@@ -59,6 +59,21 @@ namespace simciv
 	{
 		if (_factory->state == FS_UNDER_CONTRUCTION)
 		{
+			set_show_progressbar(true);
+		}
+		else if (_factory->state == FS_RUN)
+		{
+			set_show_progressbar(_factory->health < 1);
+		}
+		else if (_factory->state == FS_DEAD)
+		{
+			set_show_progressbar(true);
+		}
+	}
+	void FactorySprite::set_show_progressbar(bool show)
+	{
+		if (show)
+		{
 			if (!_progress_bar)
 			{
 				_progress_bar = DrawNode::create();
@@ -71,14 +86,15 @@ namespace simciv
 			int w = 5;
 
 			Vec2 off(-m / 2, m / 2 - w);
+			double h = _factory->health;
 			_progress_bar->clear();
 			_progress_bar->setLineWidth(10);
 			_progress_bar->drawSolidRect(Vec2(0, 0) + off, Vec2(m, w) + off, Color4F(0, 0, 0, 1));
 			_progress_bar->setLineWidth(3);
-			_progress_bar->drawSolidRect(Vec2(1, 1) + off, Vec2(m * _factory->health, w - 1) + off, Color4F(1, 0, 0, 1));
+			_progress_bar->drawSolidRect(Vec2(1, 1) + off, Vec2(m * h, w - 1) + off, Color4F(1 - h, h, 0, 1));
 			_progress_bar->setPosition(_position);
 		}
-		else if (_factory->state == FS_RUN)
+		else
 		{
 			if (_progress_bar)
 			{

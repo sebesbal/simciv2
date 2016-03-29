@@ -370,6 +370,11 @@ namespace simciv
 			break;
 		case simciv::FS_RUN:
 			health -= volume / industry.lifetime;
+			if (health <= 0)
+			{
+				health = 0;
+				state = FS_DEAD;
+			}
 			break;
 		case simciv::FS_NONE:
 		case simciv::FS_DEAD:
@@ -489,7 +494,9 @@ string ExePath() {
 		auto f = create_factory(get_area(x, y), *s1);
 		f->state = FS_RUN;
 		f->health = 1;
-		f->buyers[world.get_product("food_1")->id]->set_storage(10000);
+		f->buyers[world.get_product("food_1")->id]->set_storage(1000);
+		f->buyers[world.get_product("manpow")->id]->set_storage(1000);
+		f->buyers[world.get_product("wood_1")->id]->set_storage(1000);
 	}
 
 	Factory* World::create_factory(Area* a, Industry& industry)

@@ -49,6 +49,7 @@ namespace simciv
 	{
 		FactorySprite();
 		virtual void update(float dt);
+		void set_show_progressbar(bool show);
 		void setPosition(const cocos2d::Vec2& p);
 		Factory* _factory;
 		cocos2d::DrawNode* _progress_bar;

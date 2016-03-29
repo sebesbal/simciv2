@@ -696,8 +696,7 @@ void FactoryView::set_factory(Factory* Factory)
 
 	for (auto* p : Factory->buyers)
 	{
-		//if (p->prod_id % 3 != 0) continue;
-		//if (p->volume == 0 && p->storage() == 0) continue;
+		if (p->volume == 0 && p->storage() == 0) continue;
 		LinearLayoutParameter* po = LinearLayoutParameter::create();
 		po->setMargin(ui::Margin(5, 5, 5, 5));
 		auto n = create_producer_view2(p);
@@ -707,8 +706,7 @@ void FactoryView::set_factory(Factory* Factory)
 	bool first = true;
 	for (auto* p : Factory->sellers)
 	{
-		//if (p->prod_id % 3 != 0) continue;
-		//if (p->volume == 0 && p->storage() == 0) continue;
+		if (p->volume == 0 && p->storage() == 0) continue;
 		LinearLayoutParameter* po = LinearLayoutParameter::create();
 		po->setMargin(ui::Margin(5, first ? 20 : 5, 5, 5));
 		first = false;
