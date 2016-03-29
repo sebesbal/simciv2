@@ -62,18 +62,38 @@ namespace simciv
 			if (!_progress_bar)
 			{
 				_progress_bar = DrawNode::create();
-				_progress_bar->setScale(1 / _sprite->getScale());
-				_sprite->addChild(_progress_bar);
+				//_progress_bar->setScale(1 / _sprite->getScale());
+				_nodes[0]->getParent()->addChild(_progress_bar);
+				_nodes.push_back(_progress_bar);
 			}
 
 			int m = g_factory_layer->cell_size();
 			int w = 5;
 
+			Vec2 off(-m / 2, m / 2 - w);
 			_progress_bar->clear();
 			_progress_bar->setLineWidth(10);
-			_progress_bar->drawSolidRect(Vec2(0, 0), Vec2(m, w), Color4F(0, 0, 0, 1));
+			_progress_bar->drawSolidRect(Vec2(0, 0) + off, Vec2(m, w) + off, Color4F(0, 0, 0, 1));
 			_progress_bar->setLineWidth(3);
-			_progress_bar->drawSolidRect(Vec2(1, 1), Vec2(m * 0.5, w - 1), Color4F(1, 0, 0, 1));
+			_progress_bar->drawSolidRect(Vec2(1, 1) + off, Vec2(m * _factory->health, w - 1) + off, Color4F(1, 0, 0, 1));
+			_progress_bar->setPosition(_position);
+		}
+		else if (_factory->state == FS_RUN)
+		{
+			if (_progress_bar)
+			{
+				_nodes.erase(find(_nodes.begin(), _nodes.end(), _progress_bar));
+				_progress_bar->removeFromParent();
+				_progress_bar = NULL;
+			}
+		}
+	}
+	void FactorySprite::setPosition(const cocos2d::Vec2& p)
+	{
+		_position = p;
+		for (auto n : _nodes)
+		{
+			n->setPosition(p);
 		}
 	}
 }

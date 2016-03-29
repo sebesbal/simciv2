@@ -49,8 +49,11 @@ namespace simciv
 	{
 		FactorySprite();
 		virtual void update(float dt);
+		void setPosition(const cocos2d::Vec2& p);
 		Factory* _factory;
 		cocos2d::DrawNode* _progress_bar;
-		cocos2d::Sprite* _sprite;
+		//cocos2d::Sprite* _sprite;
+		std::vector<cocos2d::Node*> _nodes;
+		cocos2d::Vec2 _position;
 	};
 }

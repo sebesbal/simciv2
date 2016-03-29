@@ -65,12 +65,12 @@ Sprite * FactoryMapLayer::create_sprite(Factory * f)
 	Sprite* s = Sprites::create(&f->industry, Size(cell_size() - m, cell_size() - m), true);
 	Area* a = f->area;
 	auto p = get_point(a);;
-	s->setPosition(p);
 	_factories->addChild(s);
 
 	FactorySprite* fs = new FactorySprite();
 	fs->_factory = f;
-	fs->_sprite = s;
+	fs->_nodes.push_back(s);
+	fs->setPosition(p);
 	_factory_sprites.push_back(fs);
 
 	return s;

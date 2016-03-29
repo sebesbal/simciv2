@@ -201,6 +201,8 @@ namespace simciv
 			n = n->next_sibling("produce");
 		}
 
+		// build_total_cost = maint * lifetime
+		// build_rules = build_total_cost / buildtime
 		n = node->first_node("maint");
 		while (n)
 		{
@@ -272,7 +274,11 @@ namespace simciv
 		}
 	}
 
-	Factory::Factory(Industry& industry) : industry(industry), money(100000000), efficiency(1), state(FS_UNDER_CONTRUCTION)
+	Factory::Factory(Industry& industry) : industry(industry), 
+		money(100000000), 
+		efficiency(1), 
+		state(FS_UNDER_CONTRUCTION),
+		health(0)
 	{
 		for (int i = 0; i < product_count; ++i)
 		{
@@ -356,8 +362,9 @@ namespace simciv
 		{
 		case simciv::FS_UNDER_CONTRUCTION:
 			health += (1 - volume) / industry.buildtime;
-			if (health >= 100)
+			if (health >= 1)
 			{
+				health = 1;
 				state = FS_RUN;
 			}
 			break;
@@ -481,6 +488,7 @@ string ExePath() {
 		if (!s1) throw("Industry not found!");
 		auto f = create_factory(get_area(x, y), *s1);
 		f->state = FS_RUN;
+		f->health = 1;
 		f->buyers[world.get_product("food_1")->id]->set_storage(10000);
 	}
 

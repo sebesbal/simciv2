@@ -83,8 +83,8 @@ namespace simciv
 		Product* product;
 		void load(rapidxml::xml_node<>* node);
 		Product* get_product();
-		const int default_lifetime = 1000;
-		const int default_buildtime = 1000;
+		const int default_lifetime = 5;
+		const int default_buildtime = 5;
 	};
 
 	enum FactoryState
