@@ -327,9 +327,41 @@ namespace simciv
 	double Factory::consume_articles(Prices& prices)
 	{
 		double full_expense = 0;
+		if (health < 1)
+		{
+			double volume = min((1 - health) * industry.buildtime, 1.0);
+			double unconsumed_volume;
+			switch (state)
+			{
+			case simciv::FS_UNDER_CONTRUCTION:
+				unconsumed_volume = consume_articles(prices, industry.build_rules, volume, full_expense);
+				health += (volume - unconsumed_volume) / industry.buildtime;
+				if (health >= 1)
+				{
+					health = 1;
+					state = FS_RUN;
+				}
+				break;
+			case simciv::FS_RUN:
+				unconsumed_volume = consume_articles(prices, industry.maint_rules, volume, full_expense);
+				health -= unconsumed_volume / industry.lifetime;
+				if (health <= 0)
+				{
+					health = 0;
+					state = FS_DEAD;
+				}
+				break;
+			}
+		}
+
+		consume_articles(prices, industry.build_rules, 1, full_expense);
+		return full_expense;
+	}
+
+	double Factory::consume_articles(Prices & prices, std::vector<ProductionRule>& rules, double volume, double& full_expense)
+	{
 		typedef std::pair<double, ProductionRule*> pair_t;
 		std::vector<pair_t> v;
-		auto& rules = (state == FS_UNDER_CONTRUCTION) ? industry.build_rules : industry.maint_rules;
 
 		for (auto& rule : rules)
 		{
@@ -338,7 +370,6 @@ namespace simciv
 
 		std::sort(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
 
-		double volume = 1;
 		for (auto& p : v)
 		{
 			double rate = volume;
@@ -358,31 +389,34 @@ namespace simciv
 			if (volume <= 0) break;
 		}
 
-		switch (state)
-		{
-		case simciv::FS_UNDER_CONTRUCTION:
-			health += (1 - volume) / industry.buildtime;
-			if (health >= 1)
-			{
-				health = 1;
-				state = FS_RUN;
-			}
-			break;
-		case simciv::FS_RUN:
-			health -= volume / industry.lifetime;
-			if (health <= 0)
-			{
-				health = 0;
-				state = FS_DEAD;
-			}
-			break;
-		case simciv::FS_NONE:
-		case simciv::FS_DEAD:
-		default:
-			break;
-		}
-		
-		return full_expense;
+		volume = max(volume, 0.0);
+		return volume;
+
+		//switch (state)
+		//{
+		//case simciv::FS_UNDER_CONTRUCTION:
+		//	health += (start_volume - volume) / industry.buildtime;
+		//	if (health >= 1)
+		//	{
+		//		health = 1;
+		//		state = FS_RUN;
+		//	}
+		//	break;
+		//case simciv::FS_RUN:
+		//	health -= volume / industry.lifetime;
+		//	if (health <= 0)
+		//	{
+		//		health = 0;
+		//		state = FS_DEAD;
+		//	}
+		//	break;
+		//case simciv::FS_NONE:
+		//case simciv::FS_DEAD:
+		//default:
+		//	break;
+		//}
+
+		//return full_expense;
 	}
 
 	void Factory::check_seller_storage(ProductMap& vols, double& rate)

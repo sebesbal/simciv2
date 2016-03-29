@@ -74,8 +74,8 @@ namespace simciv
 		std::vector<ProductionRule> maint_rules;		///< maintenance cost per turn
 		std::vector<ProductionRule> build_total_cost;	///< total building cost of a Factory. build_total_cost = lifetime * maint_rules
 		std::vector<ProductionRule> build_rules;		///< build cost per turn. build_rules = build_total_cost / build_time
-		int buildtime;									///< number of turns of the building process.
-		int lifetime;									///< lifetime in world time. During "lifetime" number turns, the Factory has to be "rebuilt" (maintain) via maint_rules
+		double buildtime;								///< number of turns of the building process.
+		double lifetime;								///< lifetime in world time. During "lifetime" number turns, the Factory has to be "rebuilt" (maintain) via maint_rules
 		void find_best_prod_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit);
 		void find_best_maint_rule(const Prices& prices, ProductionRule*& rule, double& price);
 		double get_build_cost(const Prices& prices);
@@ -110,6 +110,7 @@ namespace simciv
 		void update();
 		double apply_rule(ProductionRule* rule, double profit, double ideal_rate); ///< tries to apply the rule with "rate" times. returns the applicable rate. (depending on the storage)
 		double consume_articles(Prices& prices);
+		double consume_articles(Prices& prices, std::vector<ProductionRule>& rules, double volume, double& full_expense);
 		void check_seller_storage(ProductMap& vols, double& rate);
 		void check_buyer_storage(ProductMap& vols, double& rate);
 		void check_money(double price, double& rate);
