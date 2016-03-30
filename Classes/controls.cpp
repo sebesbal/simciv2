@@ -481,7 +481,7 @@ void FactoryPopup::onDraw(const Mat4 &transform, uint32_t flags)
 	Popup::onDraw(transform, flags);
 }
 
-IndustryView::IndustryView()
+bool IndustryView::init()
 {
 	_production_view = VBox::create();
 	_production_view->setAnchorPoint(Vec2(0, 1));
@@ -489,11 +489,6 @@ IndustryView::IndustryView()
 
 	_icon = Node::create();
 	addChild(_icon);
-	//_icon = ImageView::create();
-	//_icon->setAnchorPoint(Vec2(0, 1));
-	//_icon->ignoreContentAdaptWithSize(false);
-	//_icon->setContentSize(Size(50, 50));
-	//addChild(_icon);
 
 	_name_label = Text::create("Giraffe", def_font, 20);
 	_name_label->setAnchorPoint(Vec2(0, 1));
@@ -508,37 +503,11 @@ IndustryView::IndustryView()
 	_build_cost_label->setTextHorizontalAlignment(TextHAlignment::LEFT);
 	addChild(_build_cost_label);
 
-	//LinearLayoutParameter* p = LinearLayoutParameter::create();
-	//p->setGravity(LinearLayoutParameter::LinearGravity::TOP);
-	//p->setMargin(Margin(2, 2, 2, 2));
-	//_left->setLayoutParameter(p);
+	setContentSize(Size(300, 500));
 
-	
-}
+	if (!Layout::init()) return false;
 
-IndustryView* IndustryView::create()
-{
-	IndustryView* result = new IndustryView();
-	if (result && result->init())
-	{
-		result->autorelease();
-		return result;
-	}
-	else
-	{
-		CC_SAFE_DELETE(result);
-		return nullptr;
-	}
-}
-
-bool IndustryView::init()
-{
-	if (Layout::init())
-	{
-		setContentSize(Size(300, 500));
-		return true;
-	}
-	return false;
+	return true;
 }
 
 void IndustryView::set_industry(Industry* industry)
@@ -607,33 +576,15 @@ void IndustryView::setContentSize(const Size & var)
 	_production_view->setPosition(Vec2(0, y));
 }
 
-FactoryView::FactoryView() : _factory(NULL)
-{
-	_producer_views = VBox::create();
-	_producer_views->setAnchorPoint(Vec2(0, 1));
-	_producer_views->setPosition(Vec2(0, 0));
-	addChild(_producer_views);
-}
-
-FactoryView* FactoryView::create()
-{
-	FactoryView* result = new FactoryView();
-	if (result && result->init())
-	{
-		result->autorelease();
-		return result;
-	}
-	else
-	{
-		CC_SAFE_DELETE(result);
-		return nullptr;
-	}
-}
-
 bool FactoryView::init()
 {
 	if (Layout::init())
 	{
+		_producer_views = VBox::create();
+		_producer_views->setAnchorPoint(Vec2(0, 1));
+		_producer_views->setPosition(Vec2(0, 0));
+		addChild(_producer_views);
+
 		setContentSize(Size(300, 500));
 
 		_money_txt = create_label("Money");

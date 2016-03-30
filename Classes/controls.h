@@ -121,22 +121,18 @@ namespace simciv
 	class IndustryView : public Panel
 	{
 	public:
-		IndustryView();
-		static IndustryView* create();
+		CREATE_FUNC(IndustryView)
 		bool init() override;
 		void set_industry(Industry* industry);
 	protected:
 		void add_prod_row(Products& prod);
 		virtual void setContentSize(const Size & var) override;
-		
-		// ui::ImageView* _icon;
 		Node* _icon;
 		ui::Text* _name_label;
 		ui::VBox* _production_view;
 		ui::Text* _build_cost_label;
 		ProductStringView* _build_cost;
 		ProductStringView* _maintenance_cost;
-
 		Industry* _industry;
 	};
 
@@ -144,8 +140,7 @@ namespace simciv
 	class FactoryView : public Panel
 	{
 	public:
-		FactoryView();
-		static FactoryView* create();
+		CREATE_FUNC(FactoryView)
 		bool init() override;
 		void set_factory(Factory* Factory);
 		virtual void update(float delta) override;
@@ -158,6 +153,13 @@ namespace simciv
 		ui::HBox* create_producer_view(Trader* p);
 		ui::HBox* create_producer_view2(Trader* p);
 		ui::VBox* _producer_views;
+	};
+
+	class EconomyView : public Panel
+	{
+	public:
+		CREATE_FUNC(EconomyView)
+
 	};
 
 	class Diagram : public ui::Layout
