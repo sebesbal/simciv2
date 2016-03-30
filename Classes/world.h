@@ -58,6 +58,7 @@ namespace simciv
 		std::string group;			///< gid in the xml file
 		std::string display_name;	///< display name
 		std::string icon_file;
+		map<int, double> tile_res;	///< tile guid -> resource modifier map
 		void load(rapidxml::xml_node<>* node);
 	};
 

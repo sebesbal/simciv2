@@ -135,32 +135,37 @@ namespace simciv
 		world.create(size.width, size.height, product_count);
 
 		auto layer = m->getLayer("Background");
+		vector<int> w(world.areas().size());
+
 		for (int i = 0; i < size.width; ++i)
 		{
 			for (int j = 0; j < size.height; ++j)
 			{
-				auto tile = layer->getTileGIDAt(Vec2(i, size.height - j - 1)) - 1;
 				Area* a = world.get_area(i, j);
-				a->terrain_level = tile;
-				int& level = a->terrain_level;
-				switch (tile)
+				a->tile_gid = layer->getTileGIDAt(Vec2(i, size.height - j - 1)) - 1;
+				int& level = w[a->id];
+				switch (a->tile_gid)
 				{
 				case 0:
 				case 1:
 				case 2:
 				case 8:
 				case 9:
-					level = 100;
+					level = 500;
+					a->type = AT_SEA;
 					break;
+				// mountain
 				case 16:
 				case 17:
 				case 18:
 				case 24:
 				case 25:
 					level = 100;
+					a->type = AT_MOUNTAIN;
 					break;
 				default:
 					level = 1;
+					a->type = AT_PLAIN;
 					break;
 				}
 			}
@@ -168,7 +173,8 @@ namespace simciv
 
 		for (Road* r : world.roads())
 		{
-			r->base_cost = (r->a->terrain_level + r->b->terrain_level) / 2;
+			//r->base_cost = (r->a->tile_gid + r->b->tile_gid) / 2;
+			r->base_cost = (w[r->a->id] + w[r->b->id]) / 2;
 			if (r->dir % 2 == 1) r->base_cost *= 1.414;
 		}
 

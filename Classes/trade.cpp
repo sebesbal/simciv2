@@ -165,6 +165,7 @@ void Trader::update_volume()
 		_new_production->resize(n);
 		_area_buyers.resize(n);
 		_area_sellers.resize(n);
+
 		generate_resources();
 	}
 
@@ -282,11 +283,11 @@ void Trader::update_volume()
 	{
 		auto& v = *_production;
 
-		for (size_t i = 0; i < world.areas().size(); ++i)
+		for (Area* a: world.areas())
 		{
 			//AreaData& ap = (*_production)[i];
 			//(*_new_production)[i].resource = (*_production)[i].resource = pow( (double)rand() / RAND_MAX, 3);
-			v[i].resource = pow((double)rand() / RAND_MAX, 3);
+			v[a->id].resource = product.tile_res.at(a->tile_gid) * pow((double)rand() / RAND_MAX, 3);
 		}
 
 		for (Area* a : world.areas())

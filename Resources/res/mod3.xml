@@ -1,5 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <simciv>
+  <area id="sea" tiles="0,1,2,8,9">
+	<res product="*" val="0"/>
+  </area>
+  <area id="plain" tiles="3">
+	<res product="food_1" val="1"/>
+	<res product="food_1" val="1"/>
+  </area>
   <product id="manpow" gid="1" name="Manpower" image="icons/manpow.png" />
   <product id="food_1" gid="2" name="Food I" image="icons/food_5.png" />
   <product id="food_2" gid="2" name="Food II" image="icons/bread.png" />

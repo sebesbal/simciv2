@@ -9,13 +9,22 @@ namespace simciv
 	struct AreaData;
 	struct Product;
 
+	enum AreaType
+	{
+		AT_NONE,
+		AT_PLAIN,
+		AT_MOUNTAIN,
+		AT_SEA
+	};
+
 	/// One cell of the map
 	struct Area
 	{
 		int id;						///< index in Map._areas
 		int x;						///< x coordinate
 		int y;						///< y coordinate
-		int terrain_level;			///< terrain dependant travel cost. Road->base_cost is calculated from this.
+		int tile_gid;				///< TileMap GID
+		AreaType type;
 		std::vector<Road*> roads;	///< connected roads
 		std::vector<Area*> adjs;	///< unsorted adjacent areas
 		int road_level;				///< level of road infrastructure on this area. Road->cost is calculated from this.
@@ -39,7 +48,7 @@ namespace simciv
 		Area* a;				///< one end of the road
 		Area* b;				///< other end of the road (adjacent to "a")
 		double cost;			///< cost, modified by road_level
-		double base_cost;		///< cost based only on Area.terrain_level
+		double base_cost;		///< cost based only on Area.tile_gid
 		Area* other(Area* a) { return a == this->a ? b : this->a; }
 		int dir;				///< direction from 'a' to 'b'. 0 = W, 1 = NW, 2 = N, 3 = NE ..., 7 = SW
 		static int direction(int x, int y); ///< eg.: W = 1 = direction(-1, 0); NE = 3 = direction(1, 1)
