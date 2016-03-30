@@ -786,23 +786,16 @@ ui::HBox* FactoryView::create_producer_view2(Trader* p)
 	return prodview;
 }
 
-Diagram* Diagram::create()
+bool Diagram::init()
 {
-	Diagram* result = new Diagram();
-	//result->setZOrder(99);
-	if (result && result->init())
-	{
-		result->autorelease();
-		result->_text = ui::Text::create();
-		result->_text->setZOrder(result->getZOrder() + 10);
-		result->addChild(result->_text);
-		return result;
-	}
-	else
-	{
-		CC_SAFE_DELETE(result);
-		return nullptr;
-	}
+	if (!Layout::init()) return false;
+	_data = NULL;
+	_min = 0;
+	_max = 100;
+	_text = ui::Text::create();
+	_text->setZOrder(getZOrder() + 10);
+	addChild(_text);
+	return true;
 }
 
 void Diagram::onDraw(const Mat4 &transform, uint32_t flags)

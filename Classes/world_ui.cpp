@@ -83,6 +83,9 @@ namespace simciv
 		set_state(UIS_ROAD_ROUTE);
 	}
 
+	bool working = false;
+	std::thread th;
+
 	void WorldUI::tick(float f)
 	{
 		//if (view_mode != new_view_mode)
@@ -96,9 +99,14 @@ namespace simciv
 		//}
 
 		static int k = 0;
-		if (!_paused && k % _speed == 0)
+		if (!_paused && k % _speed == 0 && !working)
 		{
-			world.update();
+			if (th.joinable()) th.join();
+			th = std::thread([]() {
+				working = true;
+				world.update();
+				working = false;
+			});
 		}
 
 		//if (k % 10 == 0)

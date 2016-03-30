@@ -579,6 +579,11 @@ string ExePath() {
 
 	void World::update()
 	{
+		static bool working = false;
+		if (working) return;
+
+		working = true;
+
 		static int k = 0;
 		++time;
 
@@ -643,6 +648,8 @@ string ExePath() {
 		}
 
 		++k;
+
+		working = false;
 	}
 
 	using namespace rapidxml;

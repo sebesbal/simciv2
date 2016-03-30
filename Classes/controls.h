@@ -165,8 +165,8 @@ namespace simciv
 	class Diagram : public ui::Layout
 	{
 	public:
-		Diagram() :_data(NULL), _min(0), _max(100) { }
-		static Diagram* create();
+		CREATE_FUNC(Diagram)
+		bool init() override;
 		void set_data(history_t* data) { _data = data; }
 		void set_range(int count, double min, double max) { _count = count; _min = min; _max = max; }
 	protected:
