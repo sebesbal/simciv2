@@ -65,11 +65,11 @@ void Trader::update_price()
 
 	if (is_buyer)
 	{
-		price += price_d * (volume - vol_out - 0.01 * _storage);
+		price += max(-10.0, min(10.0, price_d * (volume - vol_out - 0.01 * _storage)));
 	}
 	else
 	{
-		price += price_d * (vol_out - volume - 0.01 * _storage);
+		price += max(-10.0, min(10.0, price_d * (vol_out - volume - 0.01 * _storage)));
 	}
 
 	price = std::max(1.0, price);
@@ -166,7 +166,7 @@ void Trader::update_volume()
 		_area_buyers.resize(n);
 		_area_sellers.resize(n);
 
-		generate_resources();
+		//generate_resources();
 	}
 
 	void TradeMap::update()
@@ -287,7 +287,7 @@ void Trader::update_volume()
 		{
 			//AreaData& ap = (*_production)[i];
 			//(*_new_production)[i].resource = (*_production)[i].resource = pow( (double)rand() / RAND_MAX, 3);
-			v[a->id].resource = product.tile_res.at(a->tile_gid) * pow((double)rand() / RAND_MAX, 3);
+			v[a->id].resource = product.tile_res.at(a->type) * pow((double)rand() / RAND_MAX, 3);
 		}
 
 		for (Area* a : world.areas())

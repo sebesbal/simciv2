@@ -681,6 +681,11 @@ string ExePath() {
 				Product* product = new Product();
 				product->load(item);
 				add_product(product);
+
+				product->tile_res[AT_NONE] = 1;
+				product->tile_res[AT_SEA] = 0;
+				product->tile_res[AT_PLAIN] = 1;
+				product->tile_res[AT_MOUNTAIN] = 0.5;
 			}
 
 			item = item->next_sibling();

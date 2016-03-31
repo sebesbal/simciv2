@@ -171,6 +171,11 @@ namespace simciv
 			}
 		}
 
+		for (TradeMap* m : world.trade_maps())
+		{
+			m->generate_resources();
+		}
+
 		for (Road* r : world.roads())
 		{
 			//r->base_cost = (r->a->tile_gid + r->b->tile_gid) / 2;
