@@ -48,6 +48,7 @@ namespace simciv
 	{
 	public:
 		MenuButton();
+		CREATE_FUNC(MenuButton)
 		static MenuButton* create(std::string texture);
 		static MenuButton* create(Size size, std::string image, std::string bck_normal, std::string bck_selected, std::string bck_disabled);
 		void set_toggle(bool toggle) { _is_toggle = toggle; }
@@ -66,8 +67,8 @@ namespace simciv
 	class RadioMenu : public ui::VBox
 	{
 	public:
-		RadioMenu();
-		static RadioMenu* create();
+		CREATE_FUNC(RadioMenu)
+		bool init() override;
 		MenuButton* get_selected_btn() { return _selected; }
 		void set_selected_btn(MenuButton* btn);
 		void add_row();
@@ -89,7 +90,8 @@ namespace simciv
 	class Panel : public ui::Layout
 	{
 	public:
-		Panel();
+		CREATE_FUNC(Panel)
+		virtual bool init() override;
 		ui::Text* create_label(std::string text);
 		DataLabel* create_data_label(double* data);
 	protected:
@@ -99,6 +101,8 @@ namespace simciv
 
 	class Popup : public ui::Layout
 	{
+	public:
+		CREATE_FUNC(Popup)
 	protected:
 		CustomCommand _customCommand;
 		virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
@@ -108,7 +112,8 @@ namespace simciv
 	class FactoryPopup : public Popup
 	{
 	public:
-		FactoryPopup();
+		CREATE_FUNC(FactoryPopup)
+		bool init() override;
 		void set_profit(double profit) { _profit = profit; }
 		void set_cost(double cost) { _cost = cost; }
 	protected:
@@ -145,7 +150,6 @@ namespace simciv
 		void set_factory(Factory* Factory);
 		virtual void update(float delta) override;
 	protected:
-		virtual void setContentSize(const Size & var) override;
 		virtual void doLayout() override;
 		Factory* _factory;
 		ui::Text* _money_txt;
@@ -158,7 +162,9 @@ namespace simciv
 	class EconomyView : public Panel
 	{
 	public:
-		CREATE_FUNC(EconomyView)
+		CREATE_FUNC(EconomyView);
+		virtual bool init() override;
+		void add(Product* p);
 
 	};
 

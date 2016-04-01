@@ -223,10 +223,9 @@ MenuButton* MenuButton::create(std::string texture)
 
 MenuButton* MenuButton::create(Size size, std::string image, std::string bck_normal, std::string bck_selected, std::string bck_disabled)
 {
-	MenuButton* result = new MenuButton();
-	if (result->init())
+	MenuButton* result = MenuButton::create();
+	if (result)
 	{
-		result->autorelease();
 		result->setContentSize(size);
 		result->_bck_normal = "img/" + bck_normal;
 		result->_bck_selected = "img/" + bck_selected;
@@ -248,14 +247,8 @@ MenuButton* MenuButton::create(Size size, std::string image, std::string bck_nor
 		result->_img->loadTexture(image);
 		result->_img->setPosition(size / 2);
 		result->addChild(result->_img);
-
-		return result;
 	}
-	else
-	{
-		CC_SAFE_DELETE(result);
-		return nullptr;
-	}
+	return result;
 }
 
 void MenuButton::onPressStateChangedToNormal()
@@ -288,24 +281,14 @@ void MenuButton::onTouchEnded(Touch *touch, Event *unusedEvent)
 	}
 }
 
-RadioMenu::RadioMenu() : _selected(NULL), _space(15), _toggle(false), _count(0)
+bool RadioMenu::init()
 {
-	//add_row();
-}
-
-RadioMenu* RadioMenu::create()
-{
-	RadioMenu* result = new RadioMenu();
-	if (result && result->init())
-	{
-		result->autorelease();
-		return result;
-	}
-	else
-	{
-		CC_SAFE_DELETE(result);
-		return nullptr;
-	}
+	if (!VBox::init()) return false;
+	_selected = NULL;
+	_space = 15;
+	_toggle = false;
+	_count = 0;
+	return true;
 }
 
 void RadioMenu::set_selected_btn(MenuButton* btn)
@@ -388,12 +371,13 @@ void RadioMenu::on_btn_clicked(Ref* btn, Widget::TouchEventType type)
 	}
 }
 
-Panel::Panel()
+bool Panel::init()
 {
+	if (!Layout::init()) return false;
 	_bck = LayerColor::create(def_bck_color4B);
 	_bck->setZOrder(0);
-	//_bck->setVisible(false);
 	addChild(_bck);
+	return true;
 }
 
 Text* Panel::create_label(std::string text)
@@ -420,6 +404,7 @@ DataLabel* Panel::create_data_label(double* data)
 
 void Panel::setContentSize(const Size & var)
 {
+	if (var.width == 0) return;
 	Layout::setContentSize(var);
 	_bck->setContentSize(var);
 }
@@ -443,15 +428,16 @@ void Popup::draw(Renderer *renderer, const Mat4& transform, uint32_t flags)
 	renderer->addCommand(&_customCommand);
 }
 
-FactoryPopup::FactoryPopup()
+bool FactoryPopup::init()
 {
+	if (!Popup::init()) return false;
 	setContentSize(Size(100, 100));
 	int w = 120;
 	int h = 100;
 	int rh = 30;
 	int m = 5;
 
-	VBox* v = VBox::create(Size(w - 2*m, h - 2*m));
+	VBox* v = VBox::create(Size(w - 2 * m, h - 2 * m));
 	v->setPosition(Vec2(m, m));
 	v->setAnchorPoint(Vec2(0, 0));
 	this->addChild(v);
@@ -474,6 +460,7 @@ FactoryPopup::FactoryPopup()
 
 	f("profit: ", &_profit);
 	f("cost: ", &_cost);
+	return true;
 }
 
 void FactoryPopup::onDraw(const Mat4 &transform, uint32_t flags)
@@ -483,6 +470,7 @@ void FactoryPopup::onDraw(const Mat4 &transform, uint32_t flags)
 
 bool IndustryView::init()
 {
+	if (!Panel::init()) return false;
 	_production_view = VBox::create();
 	_production_view->setAnchorPoint(Vec2(0, 1));
 	addChild(_production_view);
@@ -502,11 +490,8 @@ bool IndustryView::init()
 	_build_cost_label->setAnchorPoint(Vec2(0, 1));
 	_build_cost_label->setTextHorizontalAlignment(TextHAlignment::LEFT);
 	addChild(_build_cost_label);
-
+	
 	setContentSize(Size(300, 500));
-
-	if (!Layout::init()) return false;
-
 	return true;
 }
 
@@ -555,6 +540,7 @@ void IndustryView::add_prod_row(Products& prod)
 
 void IndustryView::setContentSize(const Size & var)
 {
+	if (var.width == 0) return;
 	Panel::setContentSize(var);
 	int m = 5;
 	int y = var.height;
@@ -578,7 +564,7 @@ void IndustryView::setContentSize(const Size & var)
 
 bool FactoryView::init()
 {
-	if (Layout::init())
+	if (Panel::init())
 	{
 		_producer_views = VBox::create();
 		_producer_views->setAnchorPoint(Vec2(0, 1));
@@ -676,11 +662,6 @@ void FactoryView::update(float delta)
 	{
 		set_factory(_factory);
 	}
-}
-
-void FactoryView::setContentSize(const Size & var)
-{
-	Panel::setContentSize(var);
 }
 
 void FactoryView::doLayout()
@@ -995,6 +976,17 @@ void ProductStringView::add_item(Product* p, double volume)
 	}
 
 	setContentSize(Size(x, _size));
+}
+
+bool EconomyView::init()
+{
+	if (!Panel::init()) return false;
+	return true;
+}
+
+void EconomyView::add(Product * p)
+{
+
 }
 
 }

@@ -50,7 +50,7 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	double d = max - min; \
 	i = 0; \
 	if (d == 0) \
-		{ \
+	{ \
 		for (Area* a : world.areas()) \
 		{ \
 			draw_rect(a->x, a->y, min, 1); \
@@ -95,6 +95,32 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 		else			for (Area* a : world.areas()) draw_circles(a->x, a->y, min1, (u2[i++] - min2) / d2); \
 	} \
 	else for (Area* a : world.areas()) draw_circles(a->x, a->y, (u1[i] - min1) / d1, (u2[i++] - min2) / d2); \
+}
+
+#define DRAW_AREAS_3(area, exp, min_, max_) \
+{ \
+	vector<double> u(world.areas().size()); \
+	int i = 0; \
+	for (Area* area : world.areas()) \
+	{ \
+		u[i++] = std::min(max_, std::max(exp, min_)); \
+	} \
+	double d = max_ - min_; \
+	i = 0; \
+	if (d == 0) \
+	{ \
+		for (Area* a : world.areas()) \
+		{ \
+			draw_rect(a->x, a->y, min_, 1); \
+		} \
+	} \
+	else \
+	{ \
+		for (Area* a : world.areas()) \
+		{ \
+			draw_rect(a->x, a->y, (u[i++] - min_) / d, 1); \
+		} \
+	} \
 }
 
 void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
@@ -142,7 +168,7 @@ void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		if (info.product) DRAW_AREAS(area, world.get_trade(area, info.product->id).resource);
 		break;
 	case MM_PROFIT:
-		if (info.industry) DRAW_AREAS(area, world.get_profit(info.industry, area));
+		if (info.industry) DRAW_AREAS_3(area, world.get_profit(info.industry, area), 0.0, 10.0);
 		break;
 	case MM_BUILD_COST:
 		if (info.industry) DRAW_AREAS(area, world.get_build_cost(info.industry, area));
