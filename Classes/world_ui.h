@@ -85,8 +85,8 @@ protected:
 	virtual void setContentSize(const cocos2d::Size & var) override;
 	void set_state(UIState state);
 	void update_popup(const cocos2d::Vec2& p);
-	void WorldUI::find_child(const cocos2d::Node* n, const cocos2d::Vec2& wp, cocos2d::Node*& child, int& z_order);
-	cocos2d::Node* WorldUI::find_child(const cocos2d::Node* node, const cocos2d::Vec2& wp);
+	cocos2d::Node* find_child(const cocos2d::Node* node, const Vec2& wp);
+	void find_child(const cocos2d::Node* n, const cocos2d::Vec2& wp, cocos2d::Node*& child, int& z_order);
 };
 
 }

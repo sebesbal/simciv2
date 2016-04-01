@@ -241,9 +241,7 @@ namespace simciv
 
 		v = _factory_layer = g_factory_layer = FactoryMapLayer::create();
 		_factory_layer->create_sprites_from_model();
-		//v->setAnchorPoint(Vec2(0, 0));
-		//v->setPosition(Vec2(0, 0));
-		//v->setContentSize(_map->getContentSize());
+		v->setContentSize(_map->getContentSize()); // without this, find_child doesn't find _factory_layer
 		views.push_back(v);
 		_map->addChild(v);
 	}
@@ -648,23 +646,20 @@ namespace simciv
 
 		// ==============================================================================================
 		// PRICE - VOL - RES
-		defvec(vec1, "Profit", "Cost", "Res.", "Both")
+		defvec(vec1, "Res.", "Profit", "Cost")
 			auto rb = RadioBox::create(vec1, hh, marginy);
 		rb->setLayoutParameter(p);
 		rb->changed = [this](int id) {
 			switch (id)
 			{
 			case 0:
-				info.mode = MM_PROFIT;
-				break;
-			case 1:
-				info.mode = MM_BUILD_COST;
-				break;
-			case 2:
 				info.mode = MM_SPECIES_RESOURCES;
 				break;
-			case 3:
-				info.mode = MM_PROFIT_RES;
+			case 1:
+				info.mode = MM_PROFIT;
+				break;
+			case 2:
+				info.mode = MM_BUILD_COST;
 				break;
 			default:
 				break;
@@ -676,7 +671,7 @@ namespace simciv
 		};
 
 		_factory_layers_panel->addChild(rb);
-		_factory_layers_panel->setAnchorPoint(Vec2(1, 0));
+		_factory_layers_panel->setAnchorPoint(Vec2(0, 1));
 		this->addChild(_factory_layers_panel);
 	}
 
@@ -693,14 +688,16 @@ namespace simciv
 		_industry_browser->setPosition(Vec2(m + 64 + 10, h - m));
 		_products_browser->setPosition(Vec2(m + 64 + 10, h - m));
 		_roads_menu->setPosition(Vec2(m + 64 + 10, h - m));
+		_factory_layers_panel->setPosition(Vec2(m + 64 + 200, h - m));
+
 		_industry_view->setPosition(Vec2(var.width, h));
 
 		auto r = _industry_view->getBoundingBox();
 		_factory_view->setPosition(Vec2(r.getMaxX(), r.getMinY()));
 		_play_panel->setPosition(Vec2(m, m));
 
+		
 		_color_layers_panel->setPosition(Vec2(var.width, 0));
-		_factory_layers_panel->setPosition(Vec2(var.width, 0));
 	}
 
 	void WorldUI::set_state(UIState state)
@@ -753,6 +750,7 @@ namespace simciv
 		for (auto c : n->getChildren())
 		{
 			if (_popup && c == _popup) continue;
+			if (_cursor && c == _cursor) continue;
 
 			auto r = c->getBoundingBox();
 			if (r.containsPoint(q))
@@ -790,7 +788,7 @@ namespace simciv
 
 		if (!_popup) return;
 
-		auto n = find_child(this, wp);
+		cocos2d::Node* n = find_child(this, wp);
 		if (n == _factory_layer)
 		{
 			if (info.industry)
