@@ -712,7 +712,7 @@ namespace simciv
 		case simciv::UIS_FACTORY:
 		{
 			if (_popup) _popup->removeFromParent();
-			_popup = new FactoryPopup();
+			_popup = FactoryPopup::create();
 			this->addChild(_popup);
 			_on_state_factory();
 		}
