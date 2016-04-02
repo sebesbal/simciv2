@@ -189,10 +189,9 @@ namespace simciv
 	class Diagram : public ui::Layout
 	{
 	public:
-		CREATE_FUNC(Diagram)
-		bool init() override;
-		void set_data(history_t* data) { _data = data; }
-		void set_range(int count, double min, double max) { _count = count; _min = min; _max = max; }
+		static Diagram* create(history_t* data, int count, double min, double max)
+			CREATE_FUNC_BODY(Diagram, data, count, min, max)
+		bool init(history_t* data, int count, double min, double max);
 	protected:
 		double _min, _max;
 		int _count;

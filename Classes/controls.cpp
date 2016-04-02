@@ -709,25 +709,19 @@ ui::HBox* FactoryView::create_producer_view(Trader* p)
 	sprite->setLayoutParameter(po);
 	prodview->addChild(sprite);
 
-	Diagram* dia = Diagram::create();
+	Diagram* dia = Diagram::create(&p->history_price, 20, 0, 100);
 	prodview->addChild(dia);
 	dia->setContentSize(Size(wd, h));
-	dia->set_range(20, 0, 100);
-	dia->set_data(&p->history_price);
 	dia->setLayoutParameter(po);
 	
-	dia = Diagram::create();
+	dia = Diagram::create(&p->history_storage, 20, 0, 100);
 	prodview->addChild(dia);
 	dia->setContentSize(Size(wd, h));
-	dia->set_range(20, 0, 100);
-	dia->set_data(&p->history_storage);
 	dia->setLayoutParameter(po);
 
-	dia = Diagram::create();
+	dia = Diagram::create(&p->history_trade, 20, 0, 100);
 	prodview->addChild(dia);
 	dia->setContentSize(Size(wd, h));
-	dia->set_range(20, 0, 10);
-	dia->set_data(&p->history_trade);
 	dia->setLayoutParameter(po);
 
 	return prodview;
@@ -767,12 +761,13 @@ ui::HBox* FactoryView::create_producer_view2(Trader* p)
 	return prodview;
 }
 
-bool Diagram::init()
+bool Diagram::init(history_t* data, int count, double min, double max)
 {
 	if (!Layout::init()) return false;
-	_data = NULL;
-	_min = 0;
-	_max = 100;
+	_data = data;
+	_count = count;
+	_min = min;
+	_max = max;
 	_text = ui::Text::create();
 	_text->setZOrder(getZOrder() + 10);
 	addChild(_text);
