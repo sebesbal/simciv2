@@ -387,21 +387,6 @@ Text* Panel::create_label(std::string text)
 	return label;
 }
 
-DataLabel* Panel::create_data_label(double* data)
-{
-	//LinearLayoutParameter* po = LinearLayoutParameter::create();
-	//po->setMargin(ui::Margin(5, 5, 5, 5));
-	//po->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
-
-	DataLabel* label = new DataLabel();
-	label->ignoreContentAdaptWithSize(false);
-	//label->setContentSize(Size(wd, h));
-	//label->setLayoutParameter(po);
-	//prodview->addChild(label);
-	label->data = data;
-	return label;
-}
-
 void Panel::setContentSize(const Size & var)
 {
 	if (var.width == 0) return;
@@ -451,10 +436,8 @@ bool FactoryPopup::init()
 		text->ignoreContentAdaptWithSize(false);
 		text->setContentSize(Size(w / 2 - m, rh));
 
-		DataLabel* label = new DataLabel();
+		DataLabel* label = DataLabel::create(d);
 		hb->addChild(label);
-		label->data = d;
-		label->ignoreContentAdaptWithSize(false);
 		label->setContentSize(Size(w / 2 - m, rh));
 	};
 
@@ -576,7 +559,7 @@ bool FactoryView::init()
 		_money_txt = create_label("Money");
 		addChild(_money_txt);
 
-		_money_val = create_data_label(NULL);
+		_money_val = DataLabel::create(NULL);
 		_money_val->setSize(Size(100, 20));
 		addChild(_money_val);
 
@@ -744,12 +727,10 @@ ui::HBox* FactoryView::create_producer_view2(Trader* p)
 	prodview->addChild(sprite);
 
 	auto f = [prodview, wd, h, po](double* d) {
-		DataLabel* label = new DataLabel();
-		label->ignoreContentAdaptWithSize(false);
+		DataLabel* label = DataLabel::create(d);
 		label->setContentSize(Size(wd, h));
 		label->setLayoutParameter(po);
 		prodview->addChild(label);
-		label->data = d;
 	};
 
 	f(&p->price);
@@ -1057,6 +1038,7 @@ bool DataLabel::init(double * data)
 	if (!Text::init()) return false;
 	this->data = data;
 	scheduleUpdate();
+	ignoreContentAdaptWithSize(false);
 	return true;
 }
 

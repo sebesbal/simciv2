@@ -110,7 +110,6 @@ namespace simciv
 		CREATE_FUNC(Panel)
 		virtual bool init() override;
 		ui::Text* create_label(std::string text);
-		DataLabel* create_data_label(double* data);
 	protected:
 		virtual void setContentSize(const Size & var) override;
 		LayerColor* _bck;
