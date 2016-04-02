@@ -830,23 +830,33 @@ void Diagram::draw(Renderer *renderer, const Mat4& transform, uint32_t flags)
 	renderer->addCommand(&_customCommand);
 }
 
-ProductSprite* ProductSprite::create(Product* p, int size)
+//ProductSprite* ProductSprite::create(Product* p, int size)
+//{
+//	ProductSprite* result = new ProductSprite();
+//	if (result->init())
+//	{
+//		result->loadTexture(p->icon_file);
+//		result->ignoreContentAdaptWithSize(false);
+//		result->setAnchorPoint(Vec2(0.5, 0.5));
+//		result->setContentSize(Size(size, size));
+//		result->autorelease();
+//		return result;
+//	}
+//	else
+//	{
+//		CC_SAFE_DELETE(result);
+//		return nullptr;
+//	}
+//}
+
+bool ProductSprite::init(Product * p, int size)
 {
-	ProductSprite* result = new ProductSprite();
-	if (result->init())
-	{
-		result->loadTexture(p->icon_file);
-		result->ignoreContentAdaptWithSize(false);
-		result->setAnchorPoint(Vec2(0.5, 0.5));
-		result->setContentSize(Size(size, size));
-		result->autorelease();
-		return result;
-	}
-	else
-	{
-		CC_SAFE_DELETE(result);
-		return nullptr;
-	}
+	if (!ImageView::init(p->icon_file)) return false;
+	loadTexture(p->icon_file);
+	ignoreContentAdaptWithSize(false);
+	setAnchorPoint(Vec2(0.5, 0.5));
+	setSize(Size(size, size));
+	return true;
 }
 
 ProductStringView* ProductStringView::create(int size)
@@ -981,12 +991,78 @@ void ProductStringView::add_item(Product* p, double volume)
 bool EconomyView::init()
 {
 	if (!Panel::init()) return false;
+	_table = DataTable::create();
+	_table->set_cell_size(20, 20);
 	return true;
 }
 
 void EconomyView::add(Product * p)
 {
+	auto row = _table->create_row();
+	row->addChild(ProductSprite::create(p, 20));
+	row->addChild(DataLabel::create(&p->average_price));
+}
 
+bool DataTable::init()
+{
+	if (!Layout::init()) return false;
+	pad_x = pad_y = left = top = right = bottom = 0;
+	return true;
+}
+
+void DataTable::set_sizes(float cell_height, std::vector<float> col_sizes)
+{
+	this->cell_height = cell_height;
+	this->col_sizes = col_sizes;
+}
+
+void DataTable::set_cell_size(float width, float height)
+{
+	this->cell_width = width;
+	this->cell_height = height;
+}
+
+void DataTable::set_margins(float pad_x, float pad_y, float left, float top, float right, float bottom)
+{
+	this->pad_x = pad_x;
+	this->pad_y = pad_y;
+	this->left = left;
+	this->top = top;
+	this->right = right;
+	this->bottom = bottom;
+}
+
+void DataTable::doLayout()
+{
+	float x = left, y = top;
+	for (Node* row : getChildren())
+	{
+		int col = 0;
+		for (Node* cell : row->getChildren())
+		{
+			cell->setPosition(Vec2(x, y));
+			float col_width = col < col_sizes.size() ? col_sizes[col] : cell_width;
+			cell->setContentSize(Size(col_width, cell_height));
+			x += pad_x + col_width;
+		}
+		y += pad_y;
+		x = left;
+	}
+}
+
+Node * DataTable::create_row()
+{
+	Node* row = Node::create();
+	this->addChild(row);
+	return row;
+}
+
+bool DataLabel::init(double * data)
+{
+	if (!Text::init()) return false;
+	this->data = data;
+	scheduleUpdate();
+	return true;
 }
 
 }

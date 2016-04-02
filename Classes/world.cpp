@@ -253,6 +253,8 @@ namespace simciv
 
 	void Product::load(rapidxml::xml_node<>* node)
 	{
+		average_price = 42;
+
 		if (auto a = node->first_attribute("id"))
 		{
 			name = a->value();

@@ -20,6 +20,23 @@ namespace simciv
 {
 	class ProductStringView;
 	class MenuButton;
+	class DataTable;
+
+#define CREATE_FUNC_BODY(__TYPE__, ...) \
+{ \
+    __TYPE__ *pRet = new(std::nothrow) __TYPE__(); \
+    if (pRet && pRet->init(##__VA_ARGS__)) \
+    { \
+        pRet->autorelease(); \
+        return pRet; \
+    } \
+    else \
+    { \
+        delete pRet; \
+        pRet = NULL; \
+        return NULL; \
+    } \
+}
 
 	ui::Layout* labelled_cb(std::string text, bool checked, ui::CheckBox::ccCheckBoxCallback cb);
 	std::string get_product_texture(int id);
@@ -165,7 +182,8 @@ namespace simciv
 		CREATE_FUNC(EconomyView);
 		virtual bool init() override;
 		void add(Product* p);
-
+	protected:
+		DataTable* _table;
 	};
 
 	class Diagram : public ui::Layout
@@ -197,7 +215,8 @@ namespace simciv
 	class DataLabel : public ui::Text
 	{
 	public:
-		DataLabel() : data(NULL) { init(); autorelease(); scheduleUpdate(); }
+		static DataLabel* create(double* data) CREATE_FUNC_BODY(DataLabel, data);
+		bool init(double* data);
 		virtual void update(float delta) override
 		{
 			if (data) this->setText(to_string_with_precision(*data, 1));
@@ -205,10 +224,28 @@ namespace simciv
 		double* data;
 	};
 
+	class DataTable : public ui::Layout
+	{
+	public:
+		CREATE_FUNC(DataTable);
+		bool init() override;
+		void set_sizes(float cell_height, std::vector<float> col_sizes);
+		void set_cell_size(float width, float height);
+		void set_margins(float pad_x, float pad_y, float left, float top, float right, float bottom);
+		virtual void doLayout() override;
+		Node* create_row();
+	protected:
+		std::vector<float> col_sizes;
+		std::vector<Node*> _rows;
+		float pad_x, pad_y, left, top, right, bottom;
+		float cell_width, cell_height;
+	};
+
 	class ProductSprite : public ui::ImageView
 	{
 	public:
-		static ProductSprite* create(Product* p, int size);
+		static ProductSprite* create(Product* p, int size = 20) CREATE_FUNC_BODY(ProductSprite, p, size);
+		virtual bool init(Product* p, int size = 20);
 	};
 
 	class ProductStringView : public ui::Layout

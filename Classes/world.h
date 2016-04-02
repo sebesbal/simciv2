@@ -60,6 +60,8 @@ namespace simciv
 		std::string icon_file;
 		map<AreaType, double> tile_res;	///< tile guid -> resource modifier map
 		void load(rapidxml::xml_node<>* node);
+
+		double average_price;
 	};
 
 	/// The type of a Factory.
