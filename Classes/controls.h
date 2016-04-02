@@ -110,9 +110,6 @@ namespace simciv
 		CREATE_FUNC(Panel)
 		virtual bool init() override;
 		ui::Text* create_label(std::string text);
-	protected:
-		virtual void setContentSize(const Size & var) override;
-		LayerColor* _bck;
 	};
 
 	class Popup : public ui::Layout
@@ -164,6 +161,7 @@ namespace simciv
 		CREATE_FUNC(FactoryView)
 		bool init() override;
 		void set_factory(Factory* Factory);
+		Factory* get_factory() { return _factory; }
 		virtual void update(float delta) override;
 	protected:
 		virtual void doLayout() override;

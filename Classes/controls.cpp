@@ -215,7 +215,9 @@ MenuButton::MenuButton() : _is_toggle(false)
 
 MenuButton* MenuButton::create(std::string texture)
 {
-	auto btn = MenuButton::create(Size(64, 64), texture, "Circle_Orange2.png", "Circle_Orange2_sel.png", "Circle_Blue2.png");
+	//auto btn = MenuButton::create(Size(64, 64), texture, "Circle_Orange2.png", "Circle_Orange2_sel.png", "Circle_Blue2.png");
+	//auto btn = MenuButton::create(Size(64, 64), texture, "circle_blue3.png", "circle_blue3.png", "circle_blue3.png");
+	auto btn = MenuButton::create(Size(54, 54), texture, "circle_blue3.png", "circle_blue3.png", "circle_blue3.png");
 	btn->setAnchorPoint(Vec2(0, 1));
 	btn->ignoreContentAdaptWithSize(false);
 	return btn;
@@ -340,7 +342,11 @@ void RadioMenu::set_selected_btn(MenuButton* btn)
 
 void RadioMenu::add_row()
 {
+	auto p = LinearLayoutParameter::create();
+	int m = 3;
+	p->setMargin(Margin(m, m, m, m));
 	_row = HBox::create();
+	_row->setLayoutParameter(p);
 	addChild(_row);
 }
 
@@ -349,6 +355,10 @@ void RadioMenu::add_radio_button(MenuButton* btn)
 	btn->set_toggle(true);
 	btn->addTouchEventListener(CC_CALLBACK_2(RadioMenu::on_btn_clicked, this));
 	btn->setTag(_count++);
+	auto p = LinearLayoutParameter::create();
+	int m = 3;
+	p->setMargin(Margin(m, m, m, m));
+	btn->setLayoutParameter(p);
 	_row->addChild(btn);
 	auto s = _row->getContentSize();
 	auto v = btn->getContentSize();
@@ -374,9 +384,9 @@ void RadioMenu::on_btn_clicked(Ref* btn, Widget::TouchEventType type)
 bool Panel::init()
 {
 	if (!Layout::init()) return false;
-	_bck = LayerColor::create(def_bck_color4B);
-	_bck->setZOrder(0);
-	addChild(_bck);
+	setBackGroundImageScale9Enabled(true);
+	setBackGroundImage("img/button2.png");
+	//setBackGroundImage("img/11949847621854578794pill-button-blue_benji_p_01.svg.med.png");
 	return true;
 }
 
@@ -385,13 +395,6 @@ Text* Panel::create_label(std::string text)
 	auto label = ui::Text::create(text, "Arial", 12);
 	label->ignoreContentAdaptWithSize(false);
 	return label;
-}
-
-void Panel::setContentSize(const Size & var)
-{
-	if (var.width == 0) return;
-	Layout::setContentSize(var);
-	_bck->setContentSize(var);
 }
 
 void Popup::onDraw(const Mat4 &transform, uint32_t flags)
@@ -574,6 +577,7 @@ void FactoryView::set_factory(Factory* Factory)
 	_factory = Factory;
 	_producer_views->removeAllChildrenWithCleanup(true);
 	
+	if (!_factory) return;
 	_money_val->data = &Factory->money;
 
 	//auto h = ui::Layout::create();

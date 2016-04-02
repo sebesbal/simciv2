@@ -19,6 +19,7 @@ namespace simciv
 
 		// 'layer' is an autorelease object
 		WorldUI *layer = WorldUI::create();
+		layer->setContentSize(scene->getContentSize());
 
 		// add layer as a child to scene
 		scene->addChild(layer);
@@ -27,11 +28,17 @@ namespace simciv
 		return scene;
 	}
 
-	WorldUI::WorldUI() : _menu_size(64, 64), view_mode(0), new_view_mode(0), _drag_start(false), _paused(false), _speed(20), _popup(NULL)
+
+	bool WorldUI::init()
 	{
+		if (!Layout::init()) return false;
+		_menu_size = Size(64, 64);
+		_drag_start = false;
+		_paused = false;
+		_speed = 20;
+		_popup = NULL;
 		auto visibleSize = Director::getInstance()->getVisibleSize();
-		auto w = visibleSize.width;
-		auto h = visibleSize.height;
+		setContentSize(visibleSize);
 
 		this->schedule(schedule_selector(WorldUI::tick), 0.05f, kRepeatForever, 0.f);
 		auto listener = EventListenerTouchOneByOne::create();
@@ -64,14 +71,13 @@ namespace simciv
 		this->addChild(_industry_view);
 		_industry_view->set_industry(world.get_industries().at(0));
 
-		create_color_layers_panel();
-		create_factory_layers_panel();
-
 		_factory_view = FactoryView::create();
 		_factory_view->setAnchorPoint(Vec2(1, 1));
 		_factory_view->setVisible(false);
 		this->addChild(_factory_view);
 
+		create_color_layers_panel();
+		create_factory_layers_panel();
 		create_play_panel();
 
 		_cursor = Sprite::create("cursor.png");
@@ -80,7 +86,7 @@ namespace simciv
 		_cursor->setAnchorPoint(Vec2(0.5, 0.5));
 		_map->addChild(_cursor);
 
-		set_state(UIS_ROAD_ROUTE);
+		set_state(UIS_BROWSING);
 	}
 
 	bool working = false;
@@ -88,16 +94,6 @@ namespace simciv
 
 	void WorldUI::tick(float f)
 	{
-		//if (view_mode != new_view_mode)
-		//{
-		//	auto old_view = views[view_mode];
-		//	old_view->setVisible(false);
-
-		//	view_mode = new_view_mode;
-		//	auto new_view = views[view_mode];
-		//	new_view->setVisible(true);
-		//}
-
 		static int k = 0;
 		if (!_paused && k % _speed == 0 && !working)
 		{
@@ -131,6 +127,7 @@ namespace simciv
 		m->setAnchorPoint(Vec2(0.5, 0.5));
 		m->setScale(1.5);
 		this->addChild(_map);
+		_map->setPosition(getContentSize() / 2);
 
 		world.create(size.width, size.height, product_count);
 
@@ -246,12 +243,6 @@ namespace simciv
 		_map->addChild(v);
 	}
 
-	void WorldUI::onEnter()
-	{
-		// setContentSize(Size(500, 500));
-		Layer::onEnter();
-	}
-
 	void WorldUI::menuCloseCallback(Ref* sender)
 	{
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
@@ -276,13 +267,11 @@ namespace simciv
 
 		Area* a = _factory_layer->get_area(p);
 		Factory* f = world.find_factory(a);
+		_factory_view->set_factory(f);
 		if (f)
 		{
-			_factory_view->set_factory(f);
-			_factory_view->setVisible(true);
 			Industry* s = &f->industry;
 			_industry_view->set_industry(s);
-			_industry_view->setVisible(true);
 			this->info.industry = s;
 			Product* p = s->get_product();
 			if (p)
@@ -293,7 +282,7 @@ namespace simciv
 		}
 		else
 		{
-			_factory_view->setVisible(false);
+			update_ui();
 		}
 
 		return true;
@@ -620,6 +609,29 @@ namespace simciv
 		this->addChild(_color_layers_panel);
 	}
 
+	void WorldUI::doLayout()
+	{
+		Layout::doLayout();
+		auto var = getContentSize();
+		auto s = Director::getInstance()->getWinSize();
+		int h = var.height;
+
+		int m = 20;
+		_main_menu->setPosition(Vec2(m, h - m));
+		_industry_browser->setPosition(Vec2(m + 64 + 10, h - m));
+		_products_browser->setPosition(Vec2(m + 64 + 10, h - m));
+		_roads_menu->setPosition(Vec2(m + 64 + 10, h - m));
+		_factory_layers_panel->setPosition(Vec2(m + 64 + 200, h - m));
+
+		_industry_view->setPosition(Vec2(var.width, h));
+
+		auto r = _industry_view->getBoundingBox();
+		_factory_view->setPosition(Vec2(r.getMaxX(), r.getMinY()));
+		_play_panel->setPosition(Vec2(m, m));
+
+		_color_layers_panel->setPosition(Vec2(var.width, 0));
+	}
+
 	void WorldUI::create_factory_layers_panel()
 	{
 		auto s = Size(20, 20);
@@ -675,34 +687,14 @@ namespace simciv
 		this->addChild(_factory_layers_panel);
 	}
 
-	void WorldUI::setContentSize(const Size & var)
-	{
-		Layer::setContentSize(var);
-		auto s = Director::getInstance()->getWinSize();
-		int h = var.height;
-
-		_map->setPosition(var / 2);
-
-		int m = 20;
-		_main_menu->setPosition(Vec2(m, h - m));
-		_industry_browser->setPosition(Vec2(m + 64 + 10, h - m));
-		_products_browser->setPosition(Vec2(m + 64 + 10, h - m));
-		_roads_menu->setPosition(Vec2(m + 64 + 10, h - m));
-		_factory_layers_panel->setPosition(Vec2(m + 64 + 200, h - m));
-
-		_industry_view->setPosition(Vec2(var.width, h));
-
-		auto r = _industry_view->getBoundingBox();
-		_factory_view->setPosition(Vec2(r.getMaxX(), r.getMinY()));
-		_play_panel->setPosition(Vec2(m, m));
-
-		
-		_color_layers_panel->setPosition(Vec2(var.width, 0));
-	}
-
 	void WorldUI::set_state(UIState state)
 	{
 		_state = state;
+		update_ui();
+	}
+
+	void WorldUI::update_ui()
+	{
 		bool factories = _state == UIS_FACTORY;
 		bool products = _state == UIS_PRODUCT;
 		bool roads = _state == UIS_ROAD_AREA;
@@ -711,10 +703,11 @@ namespace simciv
 		_products_browser->setVisible(products);
 		_color_layers_panel->setVisible(products);
 		_factory_layers_panel->setVisible(factories);
+		_factory_view->setVisible(factories && _factory_view->get_factory());
 		_roads_menu->setVisible(roads);
 		_color_layer->setVisible(true);
 
-		switch (state)
+		switch (_state)
 		{
 		case simciv::UIS_FACTORY:
 		{

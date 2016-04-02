@@ -17,6 +17,7 @@ class RoadView;
 enum UIState
 {
 	UIS_NONE,
+	UIS_BROWSING,
 	UIS_FACTORY,
 	UIS_PRODUCT,
 	UIS_ROAD_AREA,
@@ -24,14 +25,13 @@ enum UIState
 };
 
 /// The main ui
-class WorldUI : public cocos2d::Layer
+class WorldUI : public cocos2d::ui::Layout
 {
 public:
-	WorldUI();
+	CREATE_FUNC(WorldUI)
+	virtual bool init() override;
 	static cocos2d::Scene* createScene();
     void menuCloseCallback(Ref* sender);
-	virtual void onEnter() override;
-    CREATE_FUNC(WorldUI)
 protected:
 	Popup* _popup;
 	bool _paused;
@@ -40,7 +40,6 @@ protected:
 	UIStateData info;
 	cocos2d::Size _menu_size;
 	int _menu_space;
-	int view_mode, new_view_mode;
 	std::vector<cocos2d::Node*> views;
 	cocos2d::Node* _map;
 	bool _drag_start;
@@ -54,6 +53,7 @@ protected:
 
 	IndustryView* _industry_view;
 	FactoryView* _factory_view;
+	EconomyView* _economy_view;
 	ColorMapLayer* _color_layer;
 	RoadLayer* _road_layer;
 	FactoryMapLayer* _factory_layer;
@@ -82,8 +82,9 @@ protected:
 	RadioMenu* create_roads_menu();
 	void create_factory_layers_panel();
 	void create_color_layers_panel();
-	virtual void setContentSize(const cocos2d::Size & var) override;
+	virtual void doLayout() override;
 	void set_state(UIState state);
+	void update_ui();
 	void update_popup(const cocos2d::Vec2& p);
 	cocos2d::Node* find_child(const cocos2d::Node* node, const Vec2& wp);
 	void find_child(const cocos2d::Node* n, const cocos2d::Vec2& wp, cocos2d::Node*& child, int& z_order);
