@@ -57,8 +57,9 @@ protected:
 	ColorMapLayer* _color_layer;
 	RoadLayer* _road_layer;
 	FactoryMapLayer* _factory_layer;
-	cocos2d::ui::VBox* _factory_layers_panel;
-	cocos2d::ui::VBox* _color_layers_panel;
+
+	Panel* _factory_layers_options;
+	Panel* _color_layers_options;
 	cocos2d::ui::HBox* _play_panel;
 	cocos2d::Sprite* _cursor;
 
@@ -80,8 +81,7 @@ protected:
 	RadioMenu* create_industry_browser();
 	RadioMenu* create_products_browser();
 	RadioMenu* create_roads_menu();
-	void create_factory_layers_panel();
-	void create_color_layers_panel();
+	void create_option_panels();
 	virtual void doLayout() override;
 	void set_state(UIState state);
 	void update_ui();

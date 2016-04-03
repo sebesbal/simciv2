@@ -76,8 +76,7 @@ namespace simciv
 		_factory_view->setVisible(false);
 		this->addChild(_factory_view);
 
-		create_color_layers_panel();
-		create_factory_layers_panel();
+		create_option_panels();
 		create_play_panel();
 
 		_cursor = Sprite::create("cursor.png");
@@ -556,59 +555,6 @@ namespace simciv
 		return result;
 	}
 
-	void WorldUI::create_color_layers_panel()
-	{
-		auto s = Size(20, 20);
-		LinearLayoutParameter* p = LinearLayoutParameter::create();
-		p->setGravity(LinearLayoutParameter::LinearGravity::TOP);
-		p->setMargin(Margin(2, 2, 2, 2));
-		LinearLayoutParameter* q = LinearLayoutParameter::create();
-		q->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
-
-		_color_layers_panel = VBox::create();
-		_color_layers_panel->setContentSize(Size(300, 80));
-		_color_layers_panel->setBackGroundColor(def_bck_color3B);
-		_color_layers_panel->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
-
-		p = LinearLayoutParameter::create();
-		p->setMargin(Margin(10, 5, 2, 5));
-		p->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
-
-		int hh = 30;
-		int marginy = 0;
-
-		// ==============================================================================================
-		// PRICE - VOL - RES
-		info.mode = MM_PRICE_SELL;
-		defvec(vec1, "Sell", "Buy", "Res.")
-			auto rb = RadioBox::create(vec1, hh, marginy);
-		rb->setLayoutParameter(p);
-		rb->changed = [this](int id) {
-			switch (id)
-			{
-			case 0:
-				info.mode = MM_PRICE_SELL;
-				break;
-			case 1:
-				info.mode = MM_PRICE_BUY;
-				break;
-			case 2:
-				info.mode = MM_PLANT_RESOURCES;
-				break;
-			default:
-				break;
-			}
-		};
-		_color_layers_panel->addChild(rb);
-		_color_layers_panel->setAnchorPoint(Vec2(1, 0));
-
-		_on_state_product = [=]() {
-			rb->update();
-		};
-
-		this->addChild(_color_layers_panel);
-	}
-
 	void WorldUI::doLayout()
 	{
 		Layout::doLayout();
@@ -621,46 +567,24 @@ namespace simciv
 		_industry_browser->setPosition(Vec2(m + 64 + 10, h - m));
 		_products_browser->setPosition(Vec2(m + 64 + 10, h - m));
 		_roads_menu->setPosition(Vec2(m + 64 + 10, h - m));
-		_factory_layers_panel->setPosition(Vec2(m + 64 + 200, h - m));
+
+		_factory_layers_options->setPosition(Vec2(m + 64 + 200, h - m));
+		_color_layers_options->setPosition(Vec2(m + 64 + 200, h - m));
 
 		_industry_view->setPosition(Vec2(var.width, h));
 
 		auto r = _industry_view->getBoundingBox();
 		_factory_view->setPosition(Vec2(r.getMaxX(), r.getMinY()));
 		_play_panel->setPosition(Vec2(m, m));
-
-		_color_layers_panel->setPosition(Vec2(var.width, 0));
 	}
 
-	void WorldUI::create_factory_layers_panel()
+	void WorldUI::create_option_panels()
 	{
-		auto s = Size(20, 20);
-		LinearLayoutParameter* p = LinearLayoutParameter::create();
-		p->setGravity(LinearLayoutParameter::LinearGravity::TOP);
-		p->setMargin(Margin(2, 2, 2, 2));
-		LinearLayoutParameter* q = LinearLayoutParameter::create();
-		q->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
-		//q->setMargin(Margin(2, 2, 2, 2));
+		_factory_layers_options = Panel::create();
+		_factory_layers_options->setContentSize(Size(280, 40));
 
-		// left menu
-		// auto 
-		_factory_layers_panel = VBox::create();
-		_factory_layers_panel->setContentSize(Size(300, 80));
-		_factory_layers_panel->setBackGroundColor(def_bck_color3B);
-		_factory_layers_panel->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
-
-		p = LinearLayoutParameter::create();
-		p->setMargin(Margin(10, 5, 2, 5));
-		p->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
-
-		int hh = 30;
-		int marginy = 0;
-
-		// ==============================================================================================
-		// PRICE - VOL - RES
 		defvec(vec1, "Res.", "Profit", "Cost")
-			auto rb = RadioBox::create(vec1, hh, marginy);
-		rb->setLayoutParameter(p);
+		auto rb = RadioBox::create(vec1, 30, 0);
 		rb->changed = [this](int id) {
 			switch (id)
 			{
@@ -682,9 +606,40 @@ namespace simciv
 			rb->update();
 		};
 
-		_factory_layers_panel->addChild(rb);
-		_factory_layers_panel->setAnchorPoint(Vec2(0, 1));
-		this->addChild(_factory_layers_panel);
+		_factory_layers_options->addChild(rb);
+		_factory_layers_options->setAnchorPoint(Vec2(0, 1));
+		this->addChild(_factory_layers_options);
+
+
+		_color_layers_options = Panel::create();
+		_color_layers_options->setContentSize(Size(300, 40));
+		info.mode = MM_PRICE_SELL;
+		defvec(vec2, "Sell", "Buy", "Res.")
+		rb = RadioBox::create(vec2, 30, 0);
+		rb->changed = [this](int id) {
+			switch (id)
+			{
+			case 0:
+				info.mode = MM_PRICE_SELL;
+				break;
+			case 1:
+				info.mode = MM_PRICE_BUY;
+				break;
+			case 2:
+				info.mode = MM_PLANT_RESOURCES;
+				break;
+			default:
+				break;
+			}
+		};
+		_color_layers_options->addChild(rb);
+		_color_layers_options->setAnchorPoint(Vec2(0, 1));
+
+		_on_state_product = [=]() {
+			rb->update();
+		};
+
+		this->addChild(_color_layers_options);
 	}
 
 	void WorldUI::set_state(UIState state)
@@ -701,8 +656,8 @@ namespace simciv
 		_industry_browser->setVisible(factories);
 		_industry_view->setVisible(factories);
 		_products_browser->setVisible(products);
-		_color_layers_panel->setVisible(products);
-		_factory_layers_panel->setVisible(factories);
+		_color_layers_options->setVisible(products);
+		_factory_layers_options->setVisible(factories);
 		_factory_view->setVisible(factories && _factory_view->get_factory());
 		_roads_menu->setVisible(roads);
 		_color_layer->setVisible(true);

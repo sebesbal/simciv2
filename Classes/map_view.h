@@ -43,7 +43,7 @@ namespace simciv
 	{
 	public:
 		CREATE_FUNC(MapView)
-			Rect get_rect(int x, int y);
+		Rect get_rect(int x, int y);
 		Vec2 get_point(Area* a);
 		Vec2 get_point(int x, int y);
 		Area* get_area(Vec2 p);

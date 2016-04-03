@@ -12,7 +12,7 @@ namespace simciv
 	struct Product;
 
 	/// Class for trading products on the map. It manages storage and pricing.
-	/// Every Factory has two Trader: a buyer (to buy inputs), and a seller (to sell output) for every Product. (most of them are unused)
+	/// Every Factory has two Trader for every Product: a buyer (to buy inputs), and a seller (to sell output). (most of them are unused)
 	struct Trader
 	{
 		Trader();

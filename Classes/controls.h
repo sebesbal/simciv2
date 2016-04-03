@@ -15,12 +15,14 @@ USING_NS_CC;
 
 const Color3B def_bck_color3B(40, 0, 60);
 const Color4B def_bck_color4B(40, 0, 60, 255);
+const int MARGIN_NORMAL = 5;
+const int PAD_NORMAL = 5;
 
 namespace simciv
 {
 	class ProductStringView;
 	class MenuButton;
-	class DataTable;
+	class Table;
 
 #define CREATE_FUNC_BODY(__TYPE__, ...) \
 { \
@@ -102,7 +104,7 @@ namespace simciv
 		void on_btn_clicked(Ref* btn, Widget::TouchEventType type);
 	};
 
-	class DataLabel;
+	class Label;
 
 	class Panel : public ui::Layout
 	{
@@ -112,14 +114,13 @@ namespace simciv
 		ui::Text* create_label(std::string text);
 	};
 
-	class Popup : public ui::Layout
+	class Popup : public Panel
 	{
 	public:
 		CREATE_FUNC(Popup)
-	protected:
-		CustomCommand _customCommand;
-		virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
-		virtual void onDraw(const Mat4 &transform, uint32_t flags);
+		virtual bool init() override;
+		virtual void doLayout() override;
+		Table* table;
 	};
 
 	class FactoryPopup : public Popup
@@ -132,7 +133,6 @@ namespace simciv
 	protected:
 		double _profit;
 		double _cost;
-		virtual void onDraw(const Mat4 &transform, uint32_t flags) override;
 	};
 
 	/// Shows one Industry
@@ -167,7 +167,7 @@ namespace simciv
 		virtual void doLayout() override;
 		Factory* _factory;
 		ui::Text* _money_txt;
-		DataLabel* _money_val;
+		Label* _money_val;
 		ui::HBox* create_producer_view(Trader* p);
 		ui::HBox* create_producer_view2(Trader* p);
 		ui::VBox* _producer_views;
@@ -180,7 +180,7 @@ namespace simciv
 		virtual bool init() override;
 		void add(Product* p);
 	protected:
-		DataTable* _table;
+		Table* _table;
 	};
 
 	class Diagram : public ui::Layout
@@ -208,22 +208,30 @@ namespace simciv
 		return out.str();
 	}
 
-	class DataLabel : public ui::Text
+	enum LabelSize
+	{
+		LS_NONE,
+		LS_SMALL,
+		LS_NORMAL,
+		LS_LARGE
+	};
+
+	class Label : public ui::Text
 	{
 	public:
-		static DataLabel* create(double* data) CREATE_FUNC_BODY(DataLabel, data);
-		bool init(double* data);
-		virtual void update(float delta) override
-		{
-			if (data) this->setText(to_string_with_precision(*data, 1));
-		}
+		static Label* create(const std::string& text, const LabelSize& size = LS_NORMAL) CREATE_FUNC_BODY(Label, text, size);
+		static Label* create(double* data, const LabelSize& size = LS_NORMAL) CREATE_FUNC_BODY(Label, data, size);
+		bool init(const std::string& text, const LabelSize& size = LS_NORMAL);
+		bool init(double* data, const LabelSize& size = LS_NORMAL);
+		static float font_size(const LabelSize& size);
+		virtual void update(float delta) override;
 		double* data;
 	};
 
-	class DataTable : public ui::Layout
+	class Table : public ui::Layout
 	{
 	public:
-		CREATE_FUNC(DataTable);
+		CREATE_FUNC(Table);
 		bool init() override;
 		void set_sizes(float cell_height, std::vector<float> col_sizes);
 		void set_cell_size(float width, float height);

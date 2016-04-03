@@ -10,8 +10,8 @@ USING_NS_CC;
 using namespace std;
 using namespace ui;
 
-const string def_font = "verdana";
-const int def_font_size = 12;
+//const string def_font = "verdana";
+//const int def_font_size = 12;
 
 Layout* labelled_cb(std::string text, bool checked, CheckBox::ccCheckBoxCallback cb)
 {
@@ -397,61 +397,49 @@ Text* Panel::create_label(std::string text)
 	return label;
 }
 
-void Popup::onDraw(const Mat4 &transform, uint32_t flags)
-{
-	Director* director = Director::getInstance();
-	director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-	director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, transform);
-	CHECK_GL_ERROR_DEBUG();
-
-	auto s = getContentSize();
-	DrawPrimitives::drawSolidRect(Vec2(0, 0), Vec2(s.height, s.height), Color4F(0.4f, 0.1f, 0.6f, 1));
-	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-}
-
-void Popup::draw(Renderer *renderer, const Mat4& transform, uint32_t flags)
-{
-	_customCommand.init(_globalZOrder);
-	_customCommand.func = CC_CALLBACK_0(Popup::onDraw, this, transform, flags);
-	renderer->addCommand(&_customCommand);
-}
+//bool FactoryPopup::init()
+//{
+//	if (!Popup::init()) return false;
+//	setContentSize(Size(100, 100));
+//	int w = 120;
+//	int h = 100;
+//	int rh = 30;
+//	int m = 5;
+//
+//	VBox* v = VBox::create(Size(w - 2 * m, h - 2 * m));
+//	v->setPosition(Vec2(m, m));
+//	v->setAnchorPoint(Vec2(0, 0));
+//	this->addChild(v);
+//
+//	auto f = [&](string str, double* d) {
+//		HBox* hb = HBox::create(Size(w, rh));
+//		v->addChild(hb);
+//
+//		auto text = ui::Text::create(str, def_font, def_font_size);
+//		hb->addChild(text);
+//		text->ignoreContentAdaptWithSize(false);
+//		text->setContentSize(Size(w / 2 - m, rh));
+//
+//		Label* label = Label::create(d);
+//		hb->addChild(label);
+//		label->setContentSize(Size(w / 2 - m, rh));
+//	};
+//
+//	f("profit: ", &_profit);
+//	f("cost: ", &_cost);
+//	return true;
+//}
 
 bool FactoryPopup::init()
 {
 	if (!Popup::init()) return false;
-	setContentSize(Size(100, 100));
-	int w = 120;
-	int h = 100;
-	int rh = 30;
-	int m = 5;
-
-	VBox* v = VBox::create(Size(w - 2 * m, h - 2 * m));
-	v->setPosition(Vec2(m, m));
-	v->setAnchorPoint(Vec2(0, 0));
-	this->addChild(v);
-
-	auto f = [&](string str, double* d) {
-		HBox* hb = HBox::create(Size(w, rh));
-		v->addChild(hb);
-
-		auto text = ui::Text::create(str, def_font, def_font_size);
-		hb->addChild(text);
-		text->ignoreContentAdaptWithSize(false);
-		text->setContentSize(Size(w / 2 - m, rh));
-
-		DataLabel* label = DataLabel::create(d);
-		hb->addChild(label);
-		label->setContentSize(Size(w / 2 - m, rh));
-	};
-
-	f("profit: ", &_profit);
-	f("cost: ", &_cost);
+	auto row = table->create_row();
+	row->addChild(Label::create("profit"));
+	row->addChild(Label::create(&_profit));
+	row = table->create_row();
+	row->addChild(Label::create("cost"));
+	row->addChild(Label::create(&_cost));
 	return true;
-}
-
-void FactoryPopup::onDraw(const Mat4 &transform, uint32_t flags)
-{
-	Popup::onDraw(transform, flags);
 }
 
 bool IndustryView::init()
@@ -464,17 +452,17 @@ bool IndustryView::init()
 	_icon = Node::create();
 	addChild(_icon);
 
-	_name_label = Text::create("Giraffe", def_font, 20);
+	_name_label = Label::create("anyad", LS_LARGE);
 	_name_label->setAnchorPoint(Vec2(0, 1));
-	_name_label->setTextHorizontalAlignment(TextHAlignment::LEFT);
+	//_name_label->setTextHorizontalAlignment(TextHAlignment::LEFT);
 	addChild(_name_label);
 
 	_build_cost = ProductStringView::create(30);
 	addChild(_build_cost);
 
-	_build_cost_label = Text::create("Build cost", def_font, def_font_size);
+	_build_cost_label = Label::create("Build cost");
 	_build_cost_label->setAnchorPoint(Vec2(0, 1));
-	_build_cost_label->setTextHorizontalAlignment(TextHAlignment::LEFT);
+	//_build_cost_label->setTextHorizontalAlignment(TextHAlignment::LEFT);
 	addChild(_build_cost_label);
 	
 	setContentSize(Size(300, 500));
@@ -562,7 +550,7 @@ bool FactoryView::init()
 		_money_txt = create_label("Money");
 		addChild(_money_txt);
 
-		_money_val = DataLabel::create(NULL);
+		_money_val = Label::create(NULL);
 		_money_val->setSize(Size(100, 20));
 		addChild(_money_val);
 
@@ -731,7 +719,7 @@ ui::HBox* FactoryView::create_producer_view2(Trader* p)
 	prodview->addChild(sprite);
 
 	auto f = [prodview, wd, h, po](double* d) {
-		DataLabel* label = DataLabel::create(d);
+		Label* label = Label::create(d);
 		label->setContentSize(Size(wd, h));
 		label->setLayoutParameter(po);
 		prodview->addChild(label);
@@ -971,7 +959,7 @@ void ProductStringView::add_item(Product* p, double volume)
 bool EconomyView::init()
 {
 	if (!Panel::init()) return false;
-	_table = DataTable::create();
+	_table = Table::create();
 	_table->set_cell_size(20, 20);
 	return true;
 }
@@ -980,29 +968,30 @@ void EconomyView::add(Product * p)
 {
 	auto row = _table->create_row();
 	row->addChild(ProductSprite::create(p, 20));
-	row->addChild(DataLabel::create(&p->average_price));
+	row->addChild(Label::create(&p->average_price));
 }
 
-bool DataTable::init()
+bool Table::init()
 {
 	if (!Layout::init()) return false;
-	pad_x = pad_y = left = top = right = bottom = 0;
+	left = top = right = bottom = MARGIN_NORMAL;
+	pad_x = pad_y = PAD_NORMAL;
 	return true;
 }
 
-void DataTable::set_sizes(float cell_height, std::vector<float> col_sizes)
+void Table::set_sizes(float cell_height, std::vector<float> col_sizes)
 {
 	this->cell_height = cell_height;
 	this->col_sizes = col_sizes;
 }
 
-void DataTable::set_cell_size(float width, float height)
+void Table::set_cell_size(float width, float height)
 {
 	this->cell_width = width;
 	this->cell_height = height;
 }
 
-void DataTable::set_margins(float pad_x, float pad_y, float left, float top, float right, float bottom)
+void Table::set_margins(float pad_x, float pad_y, float left, float top, float right, float bottom)
 {
 	this->pad_x = pad_x;
 	this->pad_y = pad_y;
@@ -1012,38 +1001,93 @@ void DataTable::set_margins(float pad_x, float pad_y, float left, float top, flo
 	this->bottom = bottom;
 }
 
-void DataTable::doLayout()
+void Table::doLayout()
 {
-	float x = left, y = top;
+	float x, y = top;
 	for (Node* row : getChildren())
 	{
+		x = left;
 		int col = 0;
 		for (Node* cell : row->getChildren())
 		{
 			cell->setPosition(Vec2(x, y));
+			cell->setAnchorPoint(Vec2(0, 0));
 			float col_width = col < col_sizes.size() ? col_sizes[col] : cell_width;
 			cell->setContentSize(Size(col_width, cell_height));
 			x += pad_x + col_width;
 		}
-		y += pad_y;
-		x = left;
+		y += cell_height + pad_y;
 	}
+	_contentSize = Size(x - pad_x + right, y - pad_y + bottom);
 }
 
-Node * DataTable::create_row()
+Node * Table::create_row()
 {
 	Node* row = Node::create();
+	row->setAnchorPoint(Vec2(0, 0));
 	this->addChild(row);
 	return row;
 }
 
-bool DataLabel::init(double * data)
+bool Label::init(const std::string & text, const LabelSize & size)
 {
-	if (!Text::init()) return false;
-	this->data = data;
-	scheduleUpdate();
-	ignoreContentAdaptWithSize(false);
+	if (Text::init(text, "verdana", font_size(size)))
+	{
+		scheduleUpdate();
+		ignoreContentAdaptWithSize(false);
+		return true;
+	}
+	return false;
+}
+
+bool Label::init(double * data, const LabelSize& size)
+{
+	if (init("", size))
+	{
+		this->data = data;
+		return true;
+	}
+	return false;
+}
+
+float Label::font_size(const LabelSize & size)
+{
+	switch (size)
+	{
+	case LS_SMALL:
+		return 8.0f;
+	case LS_LARGE:
+		return 20.0f;
+	case LS_NORMAL:
+	default:
+		return 12.0f;
+	}
+}
+
+void Label::update(float delta)
+{
+	if (data) this->setText(to_string_with_precision(*data, 1));
+}
+
+bool Popup::init()
+{
+	if (!Panel::init()) return false;
+	table = Table::create();
+	vector<float> cells;
+	cells.push_back(40);
+	cells.push_back(100);
+	table->set_sizes(Label::font_size(LS_NORMAL) + 5, cells);
+	addChild(table);
 	return true;
+}
+
+void Popup::doLayout()
+{
+	Panel::doLayout();
+	table->setPosition(Vec2(0, 0));
+	table->doLayout();
+	Size s = table->getContentSize();
+	setContentSize(s);
 }
 
 }
