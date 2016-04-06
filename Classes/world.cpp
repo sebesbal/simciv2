@@ -710,6 +710,7 @@ string ExePath() {
 
 	double World::get_profit(Industry* industry, Area* a)
 	{
+		if (a->type == AT_SEA) return -1;
 		Prices prices = get_prices(a);
 		double profit;
 		ProductionRule* rule;

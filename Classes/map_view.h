@@ -78,7 +78,7 @@ namespace simciv
 	public:
 		RoadLayer();
 		CREATE_FUNC(RoadLayer)
-			void add_road(Area* a);
+		void add_road(Area* a);
 		void remove_road(Area* a);
 		void update_roads();
 		void add_road(RoadView* rw);

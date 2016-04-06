@@ -103,7 +103,8 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	int i = 0; \
 	for (Area* area : world.areas()) \
 	{ \
-		u[i++] = std::min(max_, std::max(exp, min_)); \
+		double e = exp; \
+		u[i++] = e == -1 ? -1 : std::min(max_, std::max(e, min_)); \
 	} \
 	double d = max_ - min_; \
 	i = 0; \

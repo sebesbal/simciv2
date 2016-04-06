@@ -265,23 +265,31 @@ namespace simciv
 		_mouse_down_pos = p;
 
 		Area* a = _factory_layer->get_area(p);
-		Factory* f = world.find_factory(a);
-		_factory_view->set_factory(f);
-		if (f)
+
+		if (_state == UIS_ROAD_AREA || _state == UIS_ROAD_ROUTE)
 		{
-			Industry* s = &f->industry;
-			_industry_view->set_industry(s);
-			this->info.industry = s;
-			Product* p = s->get_product();
-			if (p)
-			{
-				info.product = world.get_products()[p->id];
-			}
-			set_state(UIS_FACTORY);
+
 		}
 		else
 		{
-			update_ui();
+			Factory* f = world.find_factory(a);
+			_factory_view->set_factory(f);
+			if (f)
+			{
+				Industry* s = &f->industry;
+				_industry_view->set_industry(s);
+				this->info.industry = s;
+				Product* p = s->get_product();
+				if (p)
+				{
+					info.product = world.get_products()[p->id];
+				}
+				set_state(UIS_FACTORY);
+			}
+			else
+			{
+				update_ui();
+			}
 		}
 
 		return true;
