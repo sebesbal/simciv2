@@ -95,11 +95,11 @@ namespace simciv
 	}
 
 	Industry::Industry():
-		lifetime(default_lifetime),
-		buildtime(default_buildtime),
 		type(IndustryType::IT_NONE),
 		base(NULL)
 	{
+		build_cost.duration = default_buildtime;
+		maint_cost.duration = default_lifetime;
 	}
 
 	bool Industry::can_upgrade_to(Industry * ind, std::vector<ProductionRule>& cost)
@@ -140,7 +140,7 @@ namespace simciv
 	void Industry::find_best_maint_rule(const Prices& prices, ProductionRule*& rule, double& price)
 	{
 		price = max_price;
-		for (auto& r : maint_rules)
+		for (auto& r : maint_cost.per_turn)
 		{
 			double p = r.expense(prices);
 			if (p < price)
@@ -201,14 +201,14 @@ namespace simciv
 			base->upgrades.push_back(this);
 		}
 		 
-		if (auto a = node->first_attribute("lifetime"))
+		if (auto a = node->first_attribute("maint_cost.duration"))
 		{
-			lifetime = default_lifetime * stoi(a->value()) / 100.0;
+			maint_cost.duration = default_lifetime * stoi(a->value()) / 100.0;
 		}
 
-		if (auto a = node->first_attribute("buildtime"))
+		if (auto a = node->first_attribute("build_cost.duration"))
 		{
-			buildtime = default_buildtime * stoi(a->value()) / 100.0;
+			build_cost.duration = default_buildtime * stoi(a->value()) / 100.0;
 		}
 
 		auto n = node->first_node("produce");
@@ -220,24 +220,24 @@ namespace simciv
 			n = n->next_sibling("produce");
 		}
 
-		// build_total_cost = maint * lifetime
-		// build_rules = build_total_cost / buildtime
+		// build_cost.total = maint * maint_cost.duration
+		// build_cost.per_turn = build_cost.total / build_cost.duration
 		n = node->first_node("maint");
 		while (n)
 		{
 			ProductionRule rule;
 			rule.load(n);
 			rule.output[0] = 1;
-			maint_rules.push_back(rule);
+			maint_cost.per_turn.push_back(rule);
 			n = n->next_sibling("maint");
 		}
 
 		n = node->first_node("build");
 		if (!n)
 		{
-			for (auto& r : maint_rules)
+			for (auto& r : maint_cost.per_turn)
 			{
-				build_total_cost.push_back(r.multiply(lifetime, 1));
+				build_cost.total.push_back(r.multiply(maint_cost.duration, 1));
 			}
 		}
 		else
@@ -247,14 +247,14 @@ namespace simciv
 				ProductionRule rule;
 				rule.load(n);
 				rule.output[0] = 1;
-				this->build_total_cost.push_back(rule);
+				this->build_cost.total.push_back(rule);
 				n = n->next_sibling("build");
 			}
 		}
 
-		for (auto& r : build_total_cost)
+		for (auto& r : build_cost.total)
 		{
-			build_rules.push_back(r.multiply(1.0 / buildtime, 1));
+			build_cost.per_turn.push_back(r.multiply(1.0 / build_cost.duration, 1));
 		}
 
 		product = get_product();
@@ -319,12 +319,10 @@ namespace simciv
 		case simciv::FS_NONE:
 			break;
 		case simciv::FS_UNDER_CONTRUCTION:
-			current_building_cost = industry->build_rules;
-			current_building_time = industry->buildtime;
+			current_healing_cost = industry->build_cost;
 			break;
 		case simciv::FS_RUN:
-			current_building_cost = industry->build_rules;
-			current_building_time = industry->buildtime;
+			current_healing_cost = industry->build_cost;
 			break;
 		case simciv::FS_UPGRADE:
 			break;
@@ -339,16 +337,14 @@ namespace simciv
 	void Factory::set_industry(Industry * industry)
 	{
 		this->industry = industry;
-		current_building_cost = industry->build_rules;
-		current_building_time = industry->buildtime;
+		current_healing_cost = industry->build_cost;
 	}
 
 	void Factory::start_upgrade_to(Industry * industry)
 	{
 		set_state(FS_UPGRADE);
 		set_industry(industry);
-		current_building_cost = industry->build_rules;
-		current_building_time = industry->buildtime;
+		current_healing_cost = industry->build_cost;
 	}
 
 	void Factory::update()
@@ -392,9 +388,9 @@ namespace simciv
 		if (health < 1)
 		{
 			// Build / Repair / Upgrade
-			double volume = min((1 - health) * current_building_time, 1.0);
-			double unconsumed_volume = consume_articles(prices, current_building_cost, volume, full_expense);
-			health += (volume - unconsumed_volume) / current_building_time;
+			double volume = min((1 - health) * current_healing_cost.duration, 1.0);
+			double unconsumed_volume = consume_articles(prices, current_healing_cost.per_turn, volume, full_expense);
+			health += (volume - unconsumed_volume) / current_healing_cost.duration;
 		}
 
 		switch (state)
@@ -411,8 +407,8 @@ namespace simciv
 		case simciv::FS_RUN:
 		{
 			// Maintenance
-			double unconsumed_volume = consume_articles(prices, industry->maint_rules, 1, full_expense);
-			health -= unconsumed_volume / industry->lifetime;
+			double unconsumed_volume = consume_articles(prices, industry->maint_cost.per_turn, 1, full_expense);
+			health -= unconsumed_volume / industry->maint_cost.duration;
 			if (health <= 0)
 			{
 				health = 0;
@@ -470,7 +466,7 @@ namespace simciv
 		//switch (state)
 		//{
 		//case simciv::FS_UNDER_CONTRUCTION:
-		//	health += (start_volume - volume) / industry.buildtime;
+		//	health += (start_volume - volume) / industry.build_cost.duration;
 		//	if (health >= 1)
 		//	{
 		//		health = 1;
@@ -478,7 +474,7 @@ namespace simciv
 		//	}
 		//	break;
 		//case simciv::FS_RUN:
-		//	health -= volume / industry.lifetime;
+		//	health -= volume / industry.maint_cost.duration;
 		//	if (health <= 0)
 		//	{
 		//		health = 0;

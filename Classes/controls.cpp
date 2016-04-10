@@ -480,7 +480,7 @@ void IndustryView::set_industry(Industry* industry)
 		_icon->setAnchorPoint(Vec2(0, 1));
 		addChild(_icon);
 		_name_label->setString(industry->display_name);
-		_build_cost->set_map(industry->build_total_cost[0].input);
+		_build_cost->set_map(industry->build_cost.total[0].input);
 
 
 		_production_view->removeAllChildrenWithCleanup(true);

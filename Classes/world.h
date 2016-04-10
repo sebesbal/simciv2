@@ -43,6 +43,14 @@ namespace simciv
 		ProductionRule multiply(double multiply_input, double multiply_outut); ///< multiply the volumes of the input and output
 	};
 
+	/// Describe the cost of a building (or upgrading, maintaining) process.
+	struct ProductionCost
+	{
+		std::vector<ProductionRule> per_turn;
+		std::vector<ProductionRule> total;		///< cost_per_turn * duration
+		double duration;
+	};
+
 	enum IndustryType
 	{
 		IT_NONE,
@@ -79,11 +87,10 @@ namespace simciv
 		bool can_upgrade_to(Industry* ind, std::vector<ProductionRule>& cost);
 		
 		std::vector<ProductionRule> prod_rules;			///< product products form products
-		std::vector<ProductionRule> maint_rules;		///< maintenance cost per turn
-		std::vector<ProductionRule> build_total_cost;	///< total building cost of a Factory. build_total_cost = lifetime * maint_rules
-		std::vector<ProductionRule> build_rules;		///< build cost per turn. build_rules = build_total_cost / build_time
-		double buildtime;								///< number of turns of the building process.
-		double lifetime;								///< lifetime in world time. During "lifetime" number turns, the Factory has to be "rebuilt" (maintain) via maint_rules
+
+		ProductionCost maint_cost;						///< cost of maintenance
+		ProductionCost build_cost;						///< cost of building/repairing
+
 		void find_best_prod_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit);
 		void find_best_maint_rule(const Prices& prices, ProductionRule*& rule, double& price);
 		bool is_infra();								///< is infrastructure. (doesn't have production)
@@ -116,8 +123,8 @@ namespace simciv
 		Area* area;
 		FactoryState state;		///< firstly the Factory is under construction
 		Products built_in;				///< if built_in == industry.build_cost, the factory is completed
-		std::vector<ProductionRule> current_building_cost;	///< building cost per turn for build/repair/upgrade
-		double current_building_time;						///< total time of building (when health == 0)
+		ProductionCost current_healing_cost;					///< cost for build/repair/upgrade
+
 		double health;
 		void set_state(FactoryState state);
 		void set_industry(Industry* industry);
