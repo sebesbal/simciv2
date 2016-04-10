@@ -59,10 +59,28 @@ Factory* FactoryMapLayer::create_factory(Area* a, Industry& s)
 	return f;
 }
 
+Factory * FactoryMapLayer::try_create_factory(Area * a, Industry & industry)
+{
+	auto v = world.find_factories(a);
+	//for (auto f : v)
+	//{
+	//	if ()
+	//}
+	if (v.size() == 0)
+	{
+		return create_factory(a, industry);
+	}
+	else
+	{
+		return nullptr;
+	}
+	//return f;
+}
+
 Sprite * FactoryMapLayer::create_sprite(Factory * f)
 {
 	const int m = 4;
-	Sprite* s = Sprites::create(&f->industry, Size(cell_size() - m, cell_size() - m), true);
+	Sprite* s = Sprites::create(f->industry, Size(cell_size() - m, cell_size() - m), true);
 	Area* a = f->area;
 	auto p = get_point(a);;
 	_factories->addChild(s);

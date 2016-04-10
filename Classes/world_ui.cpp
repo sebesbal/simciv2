@@ -272,11 +272,12 @@ namespace simciv
 		}
 		else
 		{
-			Factory* f = world.find_factory(a);
+			auto v = world.find_factories(a);
+			Factory* f = v.size() > 0 ? v[0] : nullptr;
 			_factory_view->set_factory(f);
 			if (f)
 			{
-				Industry* s = &f->industry;
+				Industry* s = f->industry;
 				_industry_view->set_industry(s);
 				this->info.industry = s;
 				Product* p = s->get_product();
@@ -309,22 +310,31 @@ namespace simciv
 			break;
 		case simciv::UIS_FACTORY:
 		{
-			Factory* f = world.find_factory(a);
-			if (f)
+			if (!_drag_start)
 			{
-
-			}
-			else
-			{
-				if (!_drag_start)
+				Industry* s = info.industry;
+				if (s)
 				{
-					Industry* s = info.industry;
-					if (s)
-					{
-						_factory_layer->create_factory(a, *s);
-					}
+					_factory_layer->try_create_factory(a, *s);
 				}
 			}
+
+			//Factory* f = world.find_factory(a);
+			//if (f)
+			//{
+
+			//}
+			//else
+			//{
+			//	if (!_drag_start)
+			//	{
+			//		Industry* s = info.industry;
+			//		if (s)
+			//		{
+			//			_factory_layer->create_factory(a, *s);
+			//		}
+			//	}
+			//}
 		}
 		break;
 		case simciv::UIS_PRODUCT:
@@ -489,17 +499,17 @@ namespace simciv
 		RadioMenu* result = RadioMenu::create();
 
 		auto& industry = world.get_industries();
-		int i = 0;
 		string group = "";
-		for (auto s : industry)
+		for (auto i: industry)
 		{
-			if (s->group != group)
+			if (i->is_infra()) continue;
+			if (i->group != group)
 			{
-				group = s->group;
+				group = i->group;
 				result->add_row();
 			}
-			auto btn = MenuButton::create(s->icon_file);
-			btn->setUserData(s);
+			auto btn = MenuButton::create(i->icon_file);
+			btn->setUserData(i);
 			result->add_radio_button(btn);
 		}
 

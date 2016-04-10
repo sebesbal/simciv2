@@ -71,8 +71,13 @@ namespace simciv
 		std::string name;			///< id in the xml file
 		std::string group;			///< gid in the xml file
 		std::string display_name;	///< display name
-		int level;
+		//int level;
 		IndustryType type;
+
+		Industry* base;									///< lower level variant of this industry
+		std::vector<Industry*> upgrades;				///< higher level variants of this industry
+		bool can_upgrade_to(Industry* ind, std::vector<ProductionRule>& cost);
+		
 		std::vector<ProductionRule> prod_rules;			///< product products form products
 		std::vector<ProductionRule> maint_rules;		///< maintenance cost per turn
 		std::vector<ProductionRule> build_total_cost;	///< total building cost of a Factory. build_total_cost = lifetime * maint_rules
@@ -81,13 +86,14 @@ namespace simciv
 		double lifetime;								///< lifetime in world time. During "lifetime" number turns, the Factory has to be "rebuilt" (maintain) via maint_rules
 		void find_best_prod_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit);
 		void find_best_maint_rule(const Prices& prices, ProductionRule*& rule, double& price);
+		bool is_infra();								///< is infrastructure. (doesn't have production)
 		double get_build_cost(const Prices& prices);
 		std::string icon_file;
 		Product* product;
 		void load(rapidxml::xml_node<>* node);
 		Product* get_product();
-		const int default_lifetime = 5;
-		const int default_buildtime = 5;
+		static const int default_lifetime = 5;
+		static const int default_buildtime = 5;
 	};
 
 	enum FactoryState
@@ -95,13 +101,14 @@ namespace simciv
 		FS_NONE,
 		FS_UNDER_CONTRUCTION,
 		FS_RUN,
+		FS_UPGRADE,
 		FS_DEAD
 	};
 
 	struct Factory
 	{
-		Factory(Industry& industry);
-		Industry& industry;
+		Factory(Industry* industry);
+		Industry* industry;
 		std::vector<Trader*> sellers;
 		std::vector<Trader*> buyers;
 		double money;
@@ -109,7 +116,12 @@ namespace simciv
 		Area* area;
 		FactoryState state;		///< firstly the Factory is under construction
 		Products built_in;				///< if built_in == industry.build_cost, the factory is completed
+		std::vector<ProductionRule> current_building_cost;	///< building cost per turn for build/repair/upgrade
+		double current_building_time;						///< total time of building (when health == 0)
 		double health;
+		void set_state(FactoryState state);
+		void set_industry(Industry* industry);
+		void start_upgrade_to(Industry* industry);
 		void update();
 		double apply_rule(ProductionRule* rule, double profit, double ideal_rate); ///< tries to apply the rule with "rate" times. returns the applicable rate. (depending on the storage)
 		double consume_articles(Prices& prices);
@@ -129,7 +141,7 @@ namespace simciv
 		void load_from_file(std::string file_name);
 		virtual void update() override;
 		Factory* create_factory(Area* a, Industry& industry);
-		Factory* find_factory(Area* a);
+		std::vector<Factory*> find_factories(Area* a);
 		std::vector<Factory*>& get_factories() { return factories; }
 		std::vector<Industry*>& get_industries() { return industries; }
 		Industry* get_industry(std::string name) { for (auto p : industries) if (p->name == name) return p; return NULL; }

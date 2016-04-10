@@ -28,7 +28,7 @@
   </industry>
   
   
-  <industry id="city_2" gid="1" name="Town" image="icons/market_2.png">
+  <industry id="city_2" gid="1" name="Town" image="icons/market_2.png" base="city_1">
     <maint>
 		<in product="manpow" vol="1" />
 		<in product="food_1" vol="1" />
@@ -66,7 +66,7 @@
   </industry>
   
   
-  <industry id="food_1" level="2" gid="2">
+  <industry id="food_1_1" gid="2" base="food_1">
 	<maint>
 		<in product="manpow" vol="1" />
 		<in product="wood_1" vol="1" />
@@ -105,7 +105,7 @@
   </industry>
   
   
-  <industry id="wood_1" level="2" gid="3">
+  <industry id="wood_1_1" gid="3">
 	<maint>
 		<in product="manpow" vol="1" />
 		<in product="wood_1" vol="1" />
@@ -154,5 +154,17 @@
     </produce>
   </industry>
   
-
+  
+  <industry id="road_1" gid="5">
+    <maint>
+      <in product="manpow" vol="0.1" />
+    </maint>
+  </industry>
+  
+  <industry id="road_2" gid="5" base="road_1">
+    <maint>
+      <in product="manpow" vol="0.1" />
+	  <in product="stone_1" vol="0.1" />
+    </maint>
+  </industry>
 </simciv>

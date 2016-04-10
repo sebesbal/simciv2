@@ -169,7 +169,7 @@ void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		if (info.product) DRAW_AREAS(area, world.get_trade(area, info.product->id).resource);
 		break;
 	case MM_PROFIT:
-		if (info.industry) DRAW_AREAS_3(area, world.get_profit(info.industry, area), 0.0, 10.0);
+		if (info.industry) DRAW_AREAS_3(area, world.get_profit(info.industry, area), 0.0, 50.0);
 		break;
 	case MM_BUILD_COST:
 		if (info.industry) DRAW_AREAS(area, world.get_build_cost(info.industry, area));

@@ -94,12 +94,25 @@ namespace simciv
 		return rule;
 	}
 
-	Industry::Industry()
+	Industry::Industry():
+		lifetime(default_lifetime),
+		buildtime(default_buildtime),
+		type(IndustryType::IT_NONE),
+		base(NULL)
 	{
-		lifetime = default_lifetime;
-		buildtime = default_buildtime;
-		type = IndustryType::IT_NONE;
-		level = 1;
+	}
+
+	bool Industry::can_upgrade_to(Industry * ind, std::vector<ProductionRule>& cost)
+	{
+		if (find(upgrades.begin(), upgrades.end(), ind) == upgrades.end())
+		{
+			return false;
+		}
+		else
+		{
+
+			return true;
+		}
 	}
 
 	void Industry::find_best_prod_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit)
@@ -138,6 +151,11 @@ namespace simciv
 		}
 	}
 
+	bool Industry::is_infra()
+	{
+		return prod_rules.size() == 0;
+	}
+
 	double Industry::get_build_cost(const Prices& prices)
 	{
 		double price;
@@ -159,11 +177,6 @@ namespace simciv
 			group = a->value();
 		}
 
-		if (auto a = node->first_attribute("level"))
-		{
-			level = stoi(a->value());
-		}
-
 		if (auto a = node->first_attribute("image"))
 		{
 			icon_file = "img/" + string(a->value());
@@ -180,6 +193,12 @@ namespace simciv
 		else if (product)
 		{
 			display_name = product->display_name;
+		}
+
+		if (auto a = node->first_attribute("base"))
+		{
+			base = world.get_industry(a->value());
+			base->upgrades.push_back(this);
 		}
 		 
 		if (auto a = node->first_attribute("lifetime"))
@@ -276,12 +295,13 @@ namespace simciv
 		}
 	}
 
-	Factory::Factory(Industry& industry) : industry(industry), 
+	Factory::Factory(Industry* industry) :
 		money(100000000), 
 		efficiency(1), 
 		state(FS_UNDER_CONTRUCTION),
 		health(0)
 	{
+		set_industry(industry);
 		for (int i = 0; i < product_count; ++i)
 		{
 			sellers.push_back(NULL);
@@ -292,6 +312,45 @@ namespace simciv
 		}
 	}
 	
+	void Factory::set_state(FactoryState state)
+	{
+		switch (state)
+		{
+		case simciv::FS_NONE:
+			break;
+		case simciv::FS_UNDER_CONTRUCTION:
+			current_building_cost = industry->build_rules;
+			current_building_time = industry->buildtime;
+			break;
+		case simciv::FS_RUN:
+			current_building_cost = industry->build_rules;
+			current_building_time = industry->buildtime;
+			break;
+		case simciv::FS_UPGRADE:
+			break;
+		case simciv::FS_DEAD:
+			break;
+		default:
+			break;
+		}
+		this->state = state;
+	}
+
+	void Factory::set_industry(Industry * industry)
+	{
+		this->industry = industry;
+		current_building_cost = industry->build_rules;
+		current_building_time = industry->buildtime;
+	}
+
+	void Factory::start_upgrade_to(Industry * industry)
+	{
+		set_state(FS_UPGRADE);
+		set_industry(industry);
+		current_building_cost = industry->build_rules;
+		current_building_time = industry->buildtime;
+	}
+
 	void Factory::update()
 	{
 
@@ -329,34 +388,48 @@ namespace simciv
 	double Factory::consume_articles(Prices& prices)
 	{
 		double full_expense = 0;
+
 		if (health < 1)
 		{
-			double volume = min((1 - health) * industry.buildtime, 1.0);
-			double unconsumed_volume;
-			switch (state)
-			{
-			case simciv::FS_UNDER_CONTRUCTION:
-				unconsumed_volume = consume_articles(prices, industry.build_rules, volume, full_expense);
-				health += (volume - unconsumed_volume) / industry.buildtime;
-				if (health >= 1)
-				{
-					health = 1;
-					state = FS_RUN;
-				}
-				break;
-			case simciv::FS_RUN:
-				unconsumed_volume = consume_articles(prices, industry.maint_rules, volume, full_expense);
-				health -= unconsumed_volume / industry.lifetime;
-				if (health <= 0)
-				{
-					health = 0;
-					state = FS_DEAD;
-				}
-				break;
-			}
+			// Build / Repair / Upgrade
+			double volume = min((1 - health) * current_building_time, 1.0);
+			double unconsumed_volume = consume_articles(prices, current_building_cost, volume, full_expense);
+			health += (volume - unconsumed_volume) / current_building_time;
 		}
 
-		consume_articles(prices, industry.build_rules, 1, full_expense);
+		switch (state)
+		{
+		case simciv::FS_UNDER_CONTRUCTION:
+		{
+			if (health >= 1)
+			{
+				health = 1;
+				set_state(FS_RUN);
+			}
+			break;
+		}
+		case simciv::FS_RUN:
+		{
+			// Maintenance
+			double unconsumed_volume = consume_articles(prices, industry->maint_rules, 1, full_expense);
+			health -= unconsumed_volume / industry->lifetime;
+			if (health <= 0)
+			{
+				health = 0;
+				set_state(FS_DEAD);
+			}
+			break;
+		}
+		case simciv::FS_UPGRADE:
+		{
+			if (health >= 1)
+			{
+				health = 1;
+				set_state(FS_RUN);
+			}
+			break;
+		}
+		}
 		return full_expense;
 	}
 
@@ -457,7 +530,7 @@ namespace simciv
 
 	void Factory::find_best_prod_rule(const Prices& prices, ProductionRule*& rule, double& profit)
 	{
-		industry.find_best_prod_rule(prices, area, rule, profit);
+		industry->find_best_prod_rule(prices, area, rule, profit);
 	}
 
 	Prices Factory::get_prices()
@@ -528,7 +601,7 @@ string ExePath() {
 		auto s1 = get_industry("city_1");
 		if (!s1) throw("Industry not found!");
 		auto f = create_factory(get_area(x, y), *s1);
-		f->state = FS_RUN;
+		f->set_state(FS_RUN);
 		f->health = 1;
 		f->buyers[world.get_product("food_1")->id]->set_storage(1000);
 		f->buyers[world.get_product("manpow")->id]->set_storage(1000);
@@ -537,8 +610,8 @@ string ExePath() {
 
 	Factory* World::create_factory(Area* a, Industry& industry)
 	{
-		if (find_factory(a)) return NULL;
-		Factory* f = new Factory(industry);
+		if (find_factories(a).size() > 0) return NULL;
+		Factory* f = new Factory(&industry);
 		factories.push_back(f);
 		f->area = a;
 		if (industry.product)
@@ -566,17 +639,17 @@ string ExePath() {
 		return f;
 	}
 
-	Factory* World::find_factory(Area* a)
+	vector<Factory*> World::find_factories(Area* a)
 	{
-		auto it = find_if(factories.begin(), factories.end(), [a](Factory* f){ return f->area == a; });
-		if (it == factories.end())
+		vector<Factory*> result;
+		for (auto f : factories)
 		{
-			return NULL;
+			if (f->area == a)
+			{
+				result.push_back(f);
+			}
 		}
-		else
-		{
-			return *it;
-		}
+		return result;
 	}
 
 	void World::update()
