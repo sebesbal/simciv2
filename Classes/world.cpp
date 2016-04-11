@@ -102,17 +102,9 @@ namespace simciv
 		maint_cost.duration = default_lifetime;
 	}
 
-	bool Industry::can_upgrade_to(Industry * ind, std::vector<ProductionRule>& cost)
+	bool Industry::can_upgrade_to(Industry * ind)
 	{
-		if (find(upgrades.begin(), upgrades.end(), ind) == upgrades.end())
-		{
-			return false;
-		}
-		else
-		{
-
-			return true;
-		}
+		return find(upgrades.begin(), upgrades.end(), ind) != upgrades.end();
 	}
 
 	void Industry::find_best_prod_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit)
@@ -596,7 +588,7 @@ string ExePath() {
 
 		auto s1 = get_industry("city_1");
 		if (!s1) throw("Industry not found!");
-		auto f = create_factory(get_area(x, y), *s1);
+		auto f = create_factory(get_area(x, y), s1);
 		f->set_state(FS_RUN);
 		f->health = 1;
 		f->buyers[world.get_product("food_1")->id]->set_storage(1000);
@@ -604,15 +596,15 @@ string ExePath() {
 		f->buyers[world.get_product("wood_1")->id]->set_storage(1000);
 	}
 
-	Factory* World::create_factory(Area* a, Industry& industry)
+	Factory* World::create_factory(Area* a, Industry* industry)
 	{
 		if (find_factories(a).size() > 0) return NULL;
-		Factory* f = new Factory(&industry);
+		Factory* f = new Factory(industry);
 		factories.push_back(f);
 		f->area = a;
-		if (industry.product)
+		if (industry->product)
 		{
-			f->efficiency = a->data(industry.product).resource;
+			f->efficiency = a->data(industry->product).resource;
 		}
 
 		// create all producers:
@@ -625,7 +617,7 @@ string ExePath() {
 			p->storage_pair = q;
 			q->storage_pair = p;
 			p->owner = q->owner = f;
-			if (industry.type == IT_STORAGE)
+			if (industry->type == IT_STORAGE)
 			{
 				// p->set_storage(p->storage_capacity / 2);
 				q->ideal_fullness = p->ideal_fullness = 0.5;

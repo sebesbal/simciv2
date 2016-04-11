@@ -84,7 +84,7 @@ namespace simciv
 
 		Industry* base;									///< lower level variant of this industry
 		std::vector<Industry*> upgrades;				///< higher level variants of this industry
-		bool can_upgrade_to(Industry* ind, std::vector<ProductionRule>& cost);
+		bool can_upgrade_to(Industry* ind);
 		
 		std::vector<ProductionRule> prod_rules;			///< product products form products
 
@@ -147,7 +147,7 @@ namespace simciv
 		virtual void create(int width, int height, int prod_count) override;
 		void load_from_file(std::string file_name);
 		virtual void update() override;
-		Factory* create_factory(Area* a, Industry& industry);
+		Factory* create_factory(Area* a, Industry* industry);
 		std::vector<Factory*> find_factories(Area* a);
 		std::vector<Factory*>& get_factories() { return factories; }
 		std::vector<Industry*>& get_industries() { return industries; }

@@ -315,7 +315,7 @@ namespace simciv
 				Industry* s = info.industry;
 				if (s)
 				{
-					_factory_layer->try_create_factory(a, *s);
+					_factory_layer->try_create_factory(a, s);
 				}
 			}
 

@@ -49,7 +49,7 @@ void FactoryMapLayer::update(float dt)
 	}
 }
 
-Factory* FactoryMapLayer::create_factory(Area* a, Industry& s)
+Factory* FactoryMapLayer::create_factory(Area* a, Industry * s)
 {
 	Factory* f = world.create_factory(a, s);
 	if (f)
@@ -59,22 +59,19 @@ Factory* FactoryMapLayer::create_factory(Area* a, Industry& s)
 	return f;
 }
 
-Factory * FactoryMapLayer::try_create_factory(Area * a, Industry & industry)
+Factory * FactoryMapLayer::try_create_factory(Area * a, Industry * industry)
 {
 	auto v = world.find_factories(a);
-	//for (auto f : v)
-	//{
-	//	if ()
-	//}
-	if (v.size() == 0)
+	for (auto f: v)
 	{
-		return create_factory(a, industry);
+		if (f->industry->can_upgrade_to(industry))
+		{
+			f->start_upgrade_to(industry);
+			return f;
+		}
 	}
-	else
-	{
-		return nullptr;
-	}
-	//return f;
+
+	return create_factory(a, industry);
 }
 
 Sprite * FactoryMapLayer::create_sprite(Factory * f)

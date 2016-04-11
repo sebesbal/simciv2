@@ -115,8 +115,8 @@ namespace simciv
 		CREATE_FUNC(FactoryMapLayer)
 		virtual bool init() override;
 		virtual void update(float dt) override;
-		Factory* create_factory(Area* a, Industry& industry);
-		Factory* try_create_factory(Area* a, Industry& industry);
+		Factory* create_factory(Area* a, Industry* industry);
+		Factory* try_create_factory(Area* a, Industry* industry);
 		cocos2d::Sprite* create_sprite(Factory* f);
 		void create_sprites_from_model();
 	protected:
