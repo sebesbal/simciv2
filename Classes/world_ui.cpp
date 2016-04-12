@@ -270,7 +270,7 @@ namespace simciv
 		{
 
 		}
-		else
+		else if (_state == UIS_BROWSING)
 		{
 			auto v = world.find_factories(a);
 			Factory* f = v.size() > 0 ? v[0] : nullptr;

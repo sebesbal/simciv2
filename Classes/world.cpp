@@ -190,7 +190,12 @@ namespace simciv
 		if (auto a = node->first_attribute("base"))
 		{
 			base = world.get_industry(a->value());
-			base->upgrades.push_back(this);
+			auto i = base;
+			while (i)
+			{
+				i->upgrades.push_back(this);
+				i = i->base;
+			}
 		}
 		 
 		if (auto a = node->first_attribute("maint_cost.duration"))
@@ -337,6 +342,7 @@ namespace simciv
 		set_state(FS_UPGRADE);
 		set_industry(industry);
 		current_healing_cost = industry->build_cost;
+		health = 0.5;
 	}
 
 	void Factory::update()
@@ -387,6 +393,7 @@ namespace simciv
 
 		switch (state)
 		{
+		case simciv::FS_UPGRADE:
 		case simciv::FS_UNDER_CONTRUCTION:
 		{
 			if (health >= 1)
@@ -405,15 +412,6 @@ namespace simciv
 			{
 				health = 0;
 				set_state(FS_DEAD);
-			}
-			break;
-		}
-		case simciv::FS_UPGRADE:
-		{
-			if (health >= 1)
-			{
-				health = 1;
-				set_state(FS_RUN);
 			}
 			break;
 		}
@@ -594,6 +592,7 @@ string ExePath() {
 		f->buyers[world.get_product("food_1")->id]->set_storage(1000);
 		f->buyers[world.get_product("manpow")->id]->set_storage(1000);
 		f->buyers[world.get_product("wood_1")->id]->set_storage(1000);
+		f->buyers[world.get_product("stone_1")->id]->set_storage(1000);
 	}
 
 	Factory* World::create_factory(Area* a, Industry* industry)
@@ -690,7 +689,7 @@ string ExePath() {
 				}
 			}
 
-			if (f->state == FS_RUN || f->state == FS_UNDER_CONTRUCTION)
+			if (f->state == FS_RUN || f->state == FS_UNDER_CONTRUCTION || f->state == FS_UPGRADE)
 			{
 				double expense = f->consume_articles(prices);
 			}

@@ -57,17 +57,20 @@ namespace simciv
 
 	void FactorySprite::update(float dt)
 	{
-		if (_factory->state == FS_UNDER_CONTRUCTION)
+		switch (_factory->state)
 		{
+		case FS_UNDER_CONTRUCTION:
+		case FS_UPGRADE:
 			set_show_progressbar(true);
-		}
-		else if (_factory->state == FS_RUN)
-		{
+			break;
+		case FS_RUN:
 			set_show_progressbar(_factory->health < 1);
-		}
-		else if (_factory->state == FS_DEAD)
-		{
+			break;
+		case FS_DEAD:
 			set_show_progressbar(true);
+			break;
+		default:
+			break;
 		}
 	}
 	void FactorySprite::set_show_progressbar(bool show)

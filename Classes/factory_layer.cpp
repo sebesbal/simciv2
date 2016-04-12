@@ -67,6 +67,7 @@ Factory * FactoryMapLayer::try_create_factory(Area * a, Industry * industry)
 		if (f->industry->can_upgrade_to(industry))
 		{
 			f->start_upgrade_to(industry);
+			create_sprite(f);
 			return f;
 		}
 	}
