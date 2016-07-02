@@ -105,7 +105,7 @@
   </industry>
   
   
-  <industry id="wood_1_1" gid="3" image="icons/wood_4.png">
+  <industry id="wood_1_1" gid="3" base="wood_1" image="icons/wood_4.png">
 	<maint>
 		<in product="manpow" vol="1" />
 		<in product="wood_1" vol="1" />

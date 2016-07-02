@@ -186,6 +186,7 @@ void Trader::update_volume()
 		if (it == _transports.end())
 		{
 			Transport* t = new Transport();
+			t->creation_time = world.time;
 			t->route = world.create_route(src->area, dst->area);
 			t->cost = t->route->cost;
 			t->buyer = dst;
@@ -195,7 +196,23 @@ void Trader::update_volume()
 		}
 		else
 		{
-			return *it;
+			Transport* t = *it;
+			if (t->volume > 0 && t->cost > 0)
+			{
+				int time = t->creation_time;
+				Area* a = src->area;
+				Area* b = dst->area;
+				if (a->map->time > time || b->map->time > time)
+				{
+					t->creation_time = world.time;
+					t->route = NULL;
+					delete t->route;
+					t->route = world.create_route(a, b);
+					t->cost = t->route->cost;
+					t->profit = dst->price - src->price - t->cost;
+				}
+			}
+			return t;
 		}
 	}
 
@@ -485,6 +502,11 @@ void Trader::update_volume()
 		}
 	}
 
+	bool TradeMap::is_used(Area * a)
+	{
+		return _area_sellers.size() + _area_buyers.size() > 0;
+	}
+
 	Trader* TradeMap::create_prod(Area* area, bool consumer, double price)
 	{
 		Trader* p = new Trader();
@@ -492,6 +514,7 @@ void Trader::update_volume()
 		p->price = price;
 		p->is_buyer = consumer;
 		p->area = area;
+		world.area_changed(area);
 
 		auto& v = p->is_buyer ? _buyers : _sellers;
 		AreaData& a = get_trade(area);

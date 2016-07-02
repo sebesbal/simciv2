@@ -81,6 +81,7 @@ namespace simciv
 		double cost;
 		double profit;
 		int active_time;
+		int creation_time;
 	};
 
 	/// Manages Traders of one Product on the map
@@ -102,6 +103,7 @@ namespace simciv
 		void update_area_prices2(bool full_update = false);
 		void find_best_producers_for_areas();
 		void update_producer_storages();
+		bool is_used(Area* a);
 	protected:
 		Product& product;
 		int update_count;

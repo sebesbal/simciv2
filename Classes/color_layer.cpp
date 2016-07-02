@@ -201,10 +201,11 @@ void ColorMapLayer::update(float delta)
 			auto& v = prod->transports();
 			for (auto transport : v)
 			{
-				if (transport->volume == 0) continue;
+				//if (transport->volume == 0) continue;
 				auto it = transports.find(transport);
 				if (it == transports.end())
 				{
+					if (transport->volume == 0) continue;
 					if (transport->route->roads.size() > 0)
 					{
 						TransportAnimation* f = new TransportAnimation();
@@ -215,12 +216,16 @@ void ColorMapLayer::update(float delta)
 				else
 				{
 					Transport* t = it->first;
-					if (t->volume == 0 && t->active_time + 50 < world.time)
+					TransportAnimation* f = it->second;
+					if (t->volume == 0 && t->active_time + 5 < world.time)
 					{
-						TransportAnimation* f = it->second;
 						f->stop();
 						transports.erase(it);
 						delete f;
+					}
+					else if (f->time < t->creation_time)
+					{
+						f->update_route(this);
 					}
 				}
 			}
@@ -230,6 +235,7 @@ void ColorMapLayer::update(float delta)
 
 TransportAnimation::TransportAnimation() : sprite(NULL), transport(NULL)
 {
+	time = world.time;
 }
 
 void TransportAnimation::set_route(Product* prod, Transport* transport, MapView* map)
@@ -238,43 +244,63 @@ void TransportAnimation::set_route(Product* prod, Transport* transport, MapView*
 
 	Area* a = transport->seller->area;
 	sprite = Sprites::create(prod, Size(map->cell_size(), map->cell_size()) * 0.5);
-	//sprite = Sprite::create(get_product_texture(prod_id));
 	Rect r = map->get_rect(a->x, a->y);
-	//sprite->setScale(0.1f);
 	map->addChild(sprite);
 
-	int cs = map->cell_size();
-	this->transport = transport;
-	float time = 0;
-
 	
-	Vector<FiniteTimeAction*> v;
+	this->transport = transport;
+	update_route(map);
 
+	//int cs = map->cell_size();
+	//Vector<FiniteTimeAction*> v;
+
+	//CCFiniteTimeAction* actionMove = CCMoveTo::create(0, ccp(a->x * cs + cs / 2, a->y * cs + cs / 2));
+	//v.pushBack(actionMove);
+
+	//for (auto r : transport->route->roads)
+	//{
+	//	Area* b = r->other(a);
+	//	//Area* a = r->a;
+	//	//Area* b = r->b;
+
+	//	int i = abs(b->x - a->x) + abs(b->y - a->y);
+
+	//	CCFiniteTimeAction* actionMove = CCMoveTo::create(i == 2 ? sqrt(2) : 1, ccp(b->x * cs + cs / 2, b->y * cs + cs / 2));
+	//	v.pushBack(actionMove);
+	//	
+	//	a = b;
+
+	//	// time += 0.05;
+	//	//a = b;
+	//}
+	////CCFiniteTimeAction* actionMoveDone = CCCallFuncN::create(this, callfuncN_selector(TransportAnimation::spriteMoveFinished));
+	//CCFiniteTimeAction* actionMoveDone = CCCallFuncN::create([](CCNode* sender){});
+	//v.pushBack(actionMoveDone);
+	//// v.pushBack(NULL);
+	//
+	//sprite->runAction(CCRepeatForever::create(CCSequence::create(v)));
+}
+
+void TransportAnimation::update_route(MapView * map)
+{
+	Area* a = transport->seller->area;
+	int cs = map->cell_size();
+	Vector<FiniteTimeAction*> v;
 	CCFiniteTimeAction* actionMove = CCMoveTo::create(0, ccp(a->x * cs + cs / 2, a->y * cs + cs / 2));
 	v.pushBack(actionMove);
-
 	for (auto r : transport->route->roads)
 	{
 		Area* b = r->other(a);
-		//Area* a = r->a;
-		//Area* b = r->b;
-
 		int i = abs(b->x - a->x) + abs(b->y - a->y);
-
 		CCFiniteTimeAction* actionMove = CCMoveTo::create(i == 2 ? sqrt(2) : 1, ccp(b->x * cs + cs / 2, b->y * cs + cs / 2));
 		v.pushBack(actionMove);
-		
 		a = b;
-
-		// time += 0.05;
-		//a = b;
 	}
-	//CCFiniteTimeAction* actionMoveDone = CCCallFuncN::create(this, callfuncN_selector(TransportAnimation::spriteMoveFinished));
-	CCFiniteTimeAction* actionMoveDone = CCCallFuncN::create([](CCNode* sender){});
+	CCFiniteTimeAction* actionMoveDone = CCCallFuncN::create([](CCNode* sender) {});
 	v.pushBack(actionMoveDone);
-	// v.pushBack(NULL);
-	
+	sprite->stopAllActions();
 	sprite->runAction(CCRepeatForever::create(CCSequence::create(v)));
+	time = transport->creation_time;
 }
 
 void TransportAnimation::stop()

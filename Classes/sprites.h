@@ -38,8 +38,10 @@ namespace simciv
 	public:
 		TransportAnimation();
 		void set_route(Product* prod, Transport* transport, MapView* map);
+		void update_route(MapView* map);
 		void stop();
 		void start();
+		int time;
 	private:
 		Transport* transport;
 		cocos2d::Sprite* sprite;

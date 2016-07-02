@@ -649,6 +649,8 @@ string ExePath() {
 		static int k = 0;
 		++time;
 
+		update_road_maps();
+
 		for (TradeMap* product : _trade_maps)
 		{
 			product->before_rules();
@@ -802,5 +804,60 @@ string ExePath() {
 	AreaData& World::get_trade(Area* a, int id)
 	{
 		return _trade_maps[id]->get_trade(a);
+	}
+
+	void World::update_road_maps()
+	{
+		static int k = 0;
+		int n = _areas.size();
+		int old_k = k;
+
+		for (int l = 0; l < 20;)
+		{
+			Area* a = _areas[k];
+			RoadMap* m = a->map;
+			if (m)
+			{
+				if (is_used(a))
+				{
+					create_road_map(a);
+					++l;
+				}
+/*
+				int t = time - m->time;
+				if (m->invalidated && t > 0
+					|| !m->invalidated && t > 20)
+				{
+					create_road_map(a);
+					++l;
+				}*/
+			}
+			k = (k + 1) % n;
+			if (k == old_k) break;
+		}
+	}
+	void World::area_changed(Area * a)
+	{
+		int m = 5;
+		int x = a->x, y = a->y;
+		for (int i = max(0, x - m); i < min(x + m, width()); ++i)
+		{
+			for (int j = max(0, y - m); j < min(y + m, height()); ++j)
+			{
+				Area* b = get_area(i, j);
+				if (is_used(b) && b->map)
+				{
+					b->map->invalidated = true;
+				}
+			}
+		}
+	}
+	bool World::is_used(Area * a)
+	{
+		for (auto t : trade_maps())
+		{
+			if (t->is_used(a)) return true;
+		}
+		return false;
 	}
 }

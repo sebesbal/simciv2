@@ -82,6 +82,7 @@ namespace simciv
 	{
 		if (a->road_level == world.max_road_level) return;
 		++a->road_level;
+		world.area_changed(a);
 		auto& da = roads[a->id];
 		if (da.id == 0) da.id = ++road_index;
 		update_roads();

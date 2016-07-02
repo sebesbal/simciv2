@@ -1021,7 +1021,7 @@ void Table::doLayout()
 	_contentSize = Size(x - pad_x + right, y - pad_y + bottom);
 }
 
-Node * Table::create_row()
+cocos2d::Node * Table::create_row()
 {
 	Node* row = Node::create();
 	row->setAnchorPoint(Vec2(0, 0));

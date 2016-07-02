@@ -161,6 +161,9 @@ namespace simciv
 		AreaData& get_trade(Area* a, int id);
 		std::vector<TradeMap*>& trade_maps() { return _trade_maps; }
 		int max_road_level;
+		virtual void update_road_maps();
+		void area_changed(Area* a);
+		bool is_used(Area* a);
 	protected:
 		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
 		void add_industry(Industry* industry) { this->industries.push_back(industry); }

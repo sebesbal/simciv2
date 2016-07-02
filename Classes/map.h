@@ -64,6 +64,25 @@ namespace simciv
 		std::vector<Area*> areas();
 	};
 
+	// Node for graph algorithms (eg. Dijstra)
+	struct Node
+	{
+		Node() : area(NULL), parent(NULL), color(0), d(0) {}
+		Road* parent;
+		Area* area;
+		double d;
+		int color; // 0 = black, unvisited, 1 = gray, opened, 2 = white, visited
+	};
+
+	// Graph
+	struct RoadMap
+	{
+		RoadMap(): invalidated(false) {}
+		Node* g;
+		int time;
+		bool invalidated;
+	};
+
 	/// Graph of Areas and Roads
 	class Map
 	{

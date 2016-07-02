@@ -110,21 +110,22 @@ namespace simciv
 		return NULL;
 	}
 
-	// Node for graph algorithms (eg. Dijstra)
-	struct Node
-	{
-		Node() : area(NULL), parent(NULL), color(0), d(0) {}
-		Road* parent;
-		Area* area;
-		double d;
-		int color; // 0 = black, unvisited, 1 = gray, opened, 2 = white, visited
-	};
+	//// Node for graph algorithms (eg. Dijstra)
+	//struct Node
+	//{
+	//	Node() : area(NULL), parent(NULL), color(0), d(0) {}
+	//	Road* parent;
+	//	Area* area;
+	//	double d;
+	//	int color; // 0 = black, unvisited, 1 = gray, opened, 2 = white, visited
+	//};
 
-	// Graph
-	struct RoadMap
-	{
-		Node* g;
-	};
+	//// Graph
+	//struct RoadMap
+	//{
+	//	Node* g;
+	//	int time;
+	//};
 
 	class NodeComparator
 	{
@@ -220,8 +221,14 @@ namespace simciv
 	{
 		int nn = _areas.size();
 		Node* g = new Node[nn];
+		if (a->map)
+		{
+			delete a->map;
+		}
 		a->map = new RoadMap();
+		a->map->time = time;
 		a->map->g = g;
+		a->map->invalidated = false;
 		for (int i = 0; i < nn; ++i)
 		{
 			g[i].area = _areas[i];
@@ -342,6 +349,8 @@ namespace simciv
 		for (Road* r : _roads)
 		{
 			double level = (r->a->road_level + r->b->road_level) / 2.0;
+			if (r->a->road_level > 0 && r->b->road_level > 0) level = 20;
+			else level = 0;
 			r->cost = r->base_cost * pow(0.5, level);
 		}
 	}
