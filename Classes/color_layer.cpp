@@ -195,17 +195,37 @@ void ColorMapLayer::update(float delta)
 {
 	if (info.show_transport)
 	{
+		// update/delete existing transport animations
+		auto it = transports.begin();
+		while (it != transports.end())
+		{
+			Transport* t = it->first;
+			TransportAnimation*& f = it->second;
+			if (t->volume == 0 && t->active_time + 5 < world.time)
+			{
+				f->stop();
+				it = transports.erase(it);
+				delete f;
+				continue;
+			}
+			else if (f->time < t->creation_time)
+			{
+				f->update_route(this);
+			}
+			++it;
+		}
+
+		// create new transport animations
 		for (int prod_id = 0; prod_id < product_count; ++prod_id)
 		{
 			TradeMap* prod = world.trade_maps()[prod_id];
 			auto& v = prod->transports();
 			for (auto transport : v)
 			{
-				//if (transport->volume == 0) continue;
+				if (transport->volume == 0) continue;
 				auto it = transports.find(transport);
 				if (it == transports.end())
 				{
-					if (transport->volume == 0) continue;
 					if (transport->route->roads.size() > 0)
 					{
 						TransportAnimation* f = new TransportAnimation();
@@ -213,25 +233,11 @@ void ColorMapLayer::update(float delta)
 						transports[transport] = f;
 					}
 				}
-				else
-				{
-					Transport* t = it->first;
-					TransportAnimation* f = it->second;
-					if (t->volume == 0 && t->active_time + 5 < world.time)
-					{
-						f->stop();
-						transports.erase(it);
-						delete f;
-					}
-					else if (f->time < t->creation_time)
-					{
-						f->update_route(this);
-					}
-				}
 			}
 		}
 	}
 }
+
 
 TransportAnimation::TransportAnimation() : sprite(NULL), transport(NULL)
 {
