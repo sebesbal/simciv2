@@ -178,6 +178,7 @@ namespace simciv
 	public:
 		CREATE_FUNC(EconomyView);
 		virtual bool init() override;
+		virtual void doLayout() override;
 		void add(Product* p);
 	protected:
 		Table* _table;
@@ -233,16 +234,19 @@ namespace simciv
 	public:
 		CREATE_FUNC(Table);
 		bool init() override;
-		void set_sizes(float cell_height, std::vector<float> col_sizes);
+		// void set_sizes(float cell_height, std::vector<float> col_sizes);
+		void add_column(float widht);
+		void set_default_row_height(float height) { cell_height = height; }
 		void set_cell_size(float width, float height);
 		void set_margins(float pad_x, float pad_y, float left, float top, float right, float bottom);
 		virtual void doLayout() override;
-		Node* create_row();
+		Node* create_row(float height = 0);
+		std::vector<Node*>& rows() { return _rows; }
 	protected:
 		std::vector<float> col_sizes;
 		std::vector<Node*> _rows;
 		float pad_x, pad_y, left, top, right, bottom;
-		float cell_width, cell_height;
+		float cell_height;
 	};
 
 	class ProductSprite : public ui::ImageView

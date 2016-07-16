@@ -69,6 +69,13 @@ namespace simciv
 		std::pair<double, Trader*> best_buyer;
 	};
 
+	struct WorldTradeData
+	{
+		double storage;
+		double d_storage;
+		double price;
+	};
+
 	/// A trade route between two Trader
 	struct Transport
 	{
@@ -104,8 +111,11 @@ namespace simciv
 		void find_best_producers_for_areas();
 		void update_producer_storages();
 		bool is_used(Area* a);
-	protected:
+		WorldTradeData& get_world_data() { return data; }
 		Product& product;
+		void TradeMap::update_data();
+	protected:
+		WorldTradeData data;
 		int update_count;
 		bool unique_mode;
 		Transport* get_transport(Trader* src, Trader* dst);

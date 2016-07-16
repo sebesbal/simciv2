@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <mutex>
 
 #include "map.h"
 #include "trade.h"
@@ -112,6 +113,9 @@ namespace simciv
 		FS_DEAD
 	};
 
+	double consume_articles(std::vector<Trader*>& storage, Prices& prices, std::vector<ProductionRule>& rules, double volume, double& full_expense);
+	void check_storage(bool is_buyer, std::vector<Trader*>& storage, ProductMap& vols, double& rate);
+
 	struct Factory
 	{
 		Factory(Industry* industry);
@@ -133,13 +137,28 @@ namespace simciv
 		double apply_rule(ProductionRule* rule, double profit, double ideal_rate); ///< tries to apply the rule with "rate" times. returns the applicable rate. (depending on the storage)
 		double consume_articles(Prices& prices);
 		double consume_articles(Prices& prices, std::vector<ProductionRule>& rules, double volume, double& full_expense);
-		void check_seller_storage(ProductMap& vols, double& rate);
-		void check_buyer_storage(ProductMap& vols, double& rate);
+		//void check_seller_storage(ProductMap& vols, double& rate);
+		//void check_buyer_storage(ProductMap& vols, double& rate);
 		void check_money(double price, double& rate);
 		void find_best_prod_rule(const Prices& prices, ProductionRule*& rule, double& profit);
 		Prices get_prices();
 		void income(double money);
 	};
+
+#define MULTITHREAD
+
+#ifdef MULTITHREAD
+	extern std::recursive_mutex g_mutex;
+#define LOCK_WORLD g_mutex.lock();
+#define UNLOCK_WORLD g_mutex.unlock();
+#define TRY_LOCK_WORLD g_mutex.try_lock()
+#define GUARD_LOCK_WORLD std::lock_guard<std::recursive_mutex> guard(g_mutex);
+#else
+#define LOCK_WORLD
+#define UNLOCK_WORLD
+#define TRY_LOCK_WORLD true
+#define GUARD_LOCK_WORLD
+#endif
 
 	class World : public Map
 	{
@@ -164,6 +183,7 @@ namespace simciv
 		virtual void update_road_maps();
 		void area_changed(Area* a);
 		bool is_used(Area* a);
+		double transport_cost(Area* a, Area* b);
 	protected:
 		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
 		void add_industry(Industry* industry) { this->industries.push_back(industry); }

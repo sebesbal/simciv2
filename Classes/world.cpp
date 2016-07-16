@@ -6,6 +6,7 @@ using namespace std;;
 
 namespace simciv
 {
+	std::recursive_mutex g_mutex;
 	//const int industry_count = 12;
 	World world;
 	int max_road_level = 5;
@@ -354,10 +355,11 @@ namespace simciv
 	{
 		double rate = ideal_rate;
 		//if (rate == 0) return 0;
-		check_buyer_storage(rule->input, rate);
+		//check_buyer_storage(rule->input, rate);
+		check_storage(true, buyers, rule->input, rate);
 		//if (rate == 0) return 0;
 		double rate2 = rate;
-		check_seller_storage(rule->output, rate);
+		check_storage(false, sellers, rule->output, rate);
 		//if (rate == 0) return 0;
 
 		for (auto& p : rule->input)
@@ -421,90 +423,66 @@ namespace simciv
 
 	double Factory::consume_articles(Prices & prices, std::vector<ProductionRule>& rules, double volume, double& full_expense)
 	{
-		typedef std::pair<double, ProductionRule*> pair_t;
-		std::vector<pair_t> v;
+		return simciv::consume_articles(buyers, prices, rules, volume, full_expense);
 
-		for (auto& rule : rules)
-		{
-			v.push_back(pair_t(rule.expense(prices), &rule));
-		}
+		//typedef std::pair<double, ProductionRule*> pair_t;
+		//std::vector<pair_t> v;
 
-		std::sort(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
-
-		for (auto& p : v)
-		{
-			double rate = volume;
-			double expense = p.first;
-			auto rule = p.second;
-			check_buyer_storage(rule->input, rate);
-			expense *= rate;
-			full_expense += expense;
-			for (auto& p : rule->input)
-			{
-				int prod_id = p.first;
-				double vol = p.second;
-				buyers[prod_id]->modify_storage(rate * vol);
-				buyers[prod_id]->vol_in += volume * vol;
-			}
-			volume -= rate;
-			if (volume <= 0) break;
-		}
-
-		volume = max(volume, 0.0);
-		return volume;
-
-		//switch (state)
+		//for (auto& rule : rules)
 		//{
-		//case simciv::FS_UNDER_CONTRUCTION:
-		//	health += (start_volume - volume) / industry.build_cost.duration;
-		//	if (health >= 1)
-		//	{
-		//		health = 1;
-		//		state = FS_RUN;
-		//	}
-		//	break;
-		//case simciv::FS_RUN:
-		//	health -= volume / industry.maint_cost.duration;
-		//	if (health <= 0)
-		//	{
-		//		health = 0;
-		//		state = FS_DEAD;
-		//	}
-		//	break;
-		//case simciv::FS_NONE:
-		//case simciv::FS_DEAD:
-		//default:
-		//	break;
+		//	v.push_back(pair_t(rule.expense(prices), &rule));
 		//}
 
-		//return full_expense;
+		//std::sort(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
+
+		//for (auto& p : v)
+		//{
+		//	double rate = volume;
+		//	double expense = p.first;
+		//	auto rule = p.second;
+		//	check_buyer_storage(rule->input, rate);
+		//	expense *= rate;
+		//	full_expense += expense;
+		//	for (auto& p : rule->input)
+		//	{
+		//		int prod_id = p.first;
+		//		double vol = p.second;
+		//		buyers[prod_id]->modify_storage(rate * vol);
+		//		buyers[prod_id]->vol_in += volume * vol;
+		//	}
+		//	volume -= rate;
+		//	if (volume <= 0) break;
+		//}
+
+		//volume = max(volume, 0.0);
+		//return volume;
 	}
 
-	void Factory::check_seller_storage(ProductMap& vols, double& rate)
-	{
-		if (rate == 0) return;
-		for (auto& p : vols)
-		{
-			int prod_id = p.first;
-			double vol = p.second;
-			auto& producer = sellers[prod_id];
-			rate = std::min(rate, (producer->storage_capacity - producer->storage()) / vol);
-			if (rate == 0) return;
-		}
-	}
+	//void Factory::check_seller_storage(ProductMap& vols, double& rate)
+	//{
+	//	if (rate == 0) return;
+	//	for (auto& p : vols)
+	//	{
+	//		int prod_id = p.first;
+	//		double vol = p.second;
+	//		auto& producer = sellers[prod_id];
+	//		rate = std::min(rate, (producer->storage_capacity - producer->storage()) / vol);
+	//		if (rate == 0) return;
+	//	}
+	//}
 
-	void Factory::check_buyer_storage(ProductMap& vols, double& rate)
-	{
-		if (rate == 0) return;
-		for (auto& p : vols)
-		{
-			int prod_id = p.first;
-			double vol = p.second;
-			auto& producer = buyers[prod_id];
-			rate = std::min(rate, producer->storage() / vol);
-			if (rate == 0) return;
-		}
-	}
+	//void Factory::check_buyer_storage(ProductMap& vols, double& rate)
+	//{
+	//	if (rate == 0) return;
+	//	for (auto& p : vols)
+	//	{
+	//		int prod_id = p.first;
+	//		double vol = p.second;
+	//		auto& producer = buyers[prod_id];
+	//		rate = std::min(rate, producer->storage() / vol);
+	//		if (rate == 0) return;
+	//	}
+	//}
 
 	void Factory::check_money(double price, double& rate)
 	{
@@ -709,6 +687,8 @@ string ExePath() {
 		{
 			product->update_producer_storages();
 			product->update_producer_prices();
+
+			product->update_data();
 		}
 
 		++k;
@@ -818,19 +798,13 @@ string ExePath() {
 			RoadMap* m = a->map;
 			if (m)
 			{
-				if (is_used(a))
-				{
-					create_road_map(a);
-					++l;
-				}
-/*
 				int t = time - m->time;
-				if (m->invalidated && t > 0
+				if (m->invalidated && t > 5
 					|| !m->invalidated && t > 20)
 				{
 					create_road_map(a);
 					++l;
-				}*/
+				}
 			}
 			k = (k + 1) % n;
 			if (k == old_k) break;
@@ -859,5 +833,65 @@ string ExePath() {
 			if (t->is_used(a)) return true;
 		}
 		return false;
+	}
+	double World::transport_cost(Area * a, Area * b)
+	{
+		double d = distance(a, b);
+		return 0.0;
+	}
+
+	double consume_articles(std::vector<Trader*>& storage, Prices & prices, std::vector<ProductionRule>& rules, double volume, double & full_expense)
+	{
+		typedef std::pair<double, ProductionRule*> pair_t;
+		std::vector<pair_t> v;
+
+		for (auto& rule : rules)
+		{
+			v.push_back(pair_t(rule.expense(prices), &rule));
+		}
+
+		std::sort(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
+
+		for (auto& p : v)
+		{
+			double rate = volume;
+			double expense = p.first;
+			auto rule = p.second;
+			check_storage(true, storage, rule->input, rate);
+			expense *= rate;
+			full_expense += expense;
+			for (auto& p : rule->input)
+			{
+				int prod_id = p.first;
+				double vol = p.second;
+				storage[prod_id]->modify_storage(rate * vol);
+				storage[prod_id]->vol_in += volume * vol;
+			}
+			volume -= rate;
+			if (volume <= 0) break;
+		}
+
+		volume = max(volume, 0.0);
+		return volume;
+	}
+
+	void check_storage(bool is_buyer, std::vector<Trader*>& storage, ProductMap & vols, double & rate)
+	{
+		if (rate == 0) return;
+		for (auto& p : vols)
+		{
+			int prod_id = p.first;
+			double vol = p.second;
+			auto& producer = storage[prod_id];
+			if (is_buyer)
+			{
+				rate = std::min(rate, producer->storage() / vol);
+			}
+			else
+			{
+				rate = std::min(rate, (producer->storage_capacity - producer->storage()) / vol);
+			}
+			if (rate == 0) return;
+		}
 	}
 }

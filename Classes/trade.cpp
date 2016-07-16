@@ -507,6 +507,26 @@ void Trader::update_volume()
 		return _area_sellers.size() + _area_buyers.size() > 0;
 	}
 
+	void TradeMap::update_data()
+	{
+		data.storage = 0;
+		double v = 0, p = 0, s = 0;
+		for (auto t: _sellers)
+		{
+			v += t->volume;
+			p += t->volume * t->price;
+			s += t->_storage;
+		}
+		for (auto t : _sellers)
+		{
+			v += t->volume;
+			p += t->volume * t->price;
+			s += t->_storage;
+		}
+		data.price = p / v;
+		data.storage = s;
+	}
+
 	Trader* TradeMap::create_prod(Area* area, bool consumer, double price)
 	{
 		Trader* p = new Trader();

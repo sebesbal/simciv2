@@ -76,6 +76,11 @@ namespace simciv
 		_factory_view->setVisible(false);
 		this->addChild(_factory_view);
 
+		_economy_view = EconomyView::create();
+		_economy_view->setAnchorPoint(Vec2(0, 1));
+		_economy_view->setVisible(true);
+		this->addChild(_economy_view);
+
 		create_option_panels();
 		create_play_panel();
 
@@ -88,20 +93,23 @@ namespace simciv
 		set_state(UIS_BROWSING);
 	}
 
-	bool working = false;
-	std::thread th;
-
 	void WorldUI::tick(float f)
 	{
 		static int k = 0;
+		static bool working = false;
 		if (!_paused && k % _speed == 0 && !working)
 		{
-			if (th.joinable()) th.join();
-			th = std::thread([]() {
+#if 1
+			if (_worker.joinable()) _worker.join();
+			_worker = std::thread([]() {
 				working = true;
+				GUARD_LOCK_WORLD
 				world.update();
 				working = false;
 			});
+#else
+			world.update();
+#endif
 		}
 
 		//if (k % 10 == 0)
@@ -586,8 +594,11 @@ namespace simciv
 		_products_browser->setPosition(Vec2(m + 64 + 10, h - m));
 		_roads_menu->setPosition(Vec2(m + 64 + 10, h - m));
 
-		_factory_layers_options->setPosition(Vec2(m + 64 + 200, h - m));
-		_color_layers_options->setPosition(Vec2(m + 64 + 200, h - m));
+		_economy_view->setPosition(Vec2(m + 64 + 200, h - m));
+
+		_factory_layers_options->setPosition(Vec2(m + 64 + 500, h - m));
+		_color_layers_options->setPosition(Vec2(m + 64 + 500, h - m));
+		
 
 		_industry_view->setPosition(Vec2(var.width, h));
 

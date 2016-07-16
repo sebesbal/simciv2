@@ -29,10 +29,12 @@ class WorldUI : public cocos2d::ui::Layout
 {
 public:
 	CREATE_FUNC(WorldUI)
+	~WorldUI() { if (_worker.joinable()) _worker.join(); }
 	virtual bool init() override;
 	static cocos2d::Scene* createScene();
     void menuCloseCallback(Ref* sender);
 protected:
+	std::thread _worker;
 	Popup* _popup;
 	bool _paused;
 	int _speed;

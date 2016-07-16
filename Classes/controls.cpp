@@ -960,15 +960,45 @@ bool EconomyView::init()
 {
 	if (!Panel::init()) return false;
 	_table = Table::create();
-	_table->set_cell_size(20, 20);
+	_table->add_column(40);
+	_table->set_margins(5, 5, 5, 5, 5, 5);
+	_table->set_default_row_height(20);
+	addChild(_table);
+	auto icon = _table->create_row(); // icons
+	auto storage = _table->create_row(); // storage
+	auto price = _table->create_row(); // price
+
+	for (auto& map : world.trade_maps())
+	{
+		Product& p = map->product;
+		auto& data = map->get_world_data();
+		icon->addChild(ProductSprite::create(&p, 20));
+		storage->addChild(Label::create(&data.storage));
+		price->addChild(Label::create(&data.price));
+	}
+
 	return true;
+}
+
+void EconomyView::doLayout()
+{
+	Panel::doLayout();
+	_table->setPosition(Vec2(0, 0));
+	_table->doLayout();
+	Size s = _table->getContentSize();
+	setContentSize(s);
 }
 
 void EconomyView::add(Product * p)
 {
-	auto row = _table->create_row();
-	row->addChild(ProductSprite::create(p, 20));
-	row->addChild(Label::create(&p->average_price));
+	//auto& rows = _table->rows();
+
+	//auto& icon = rows[0];
+	//auto& storage = rows[1];
+	//auto& price = rows[2];
+
+	//icon->addChild(ProductSprite::create(p, 20));
+	//storage->addChild(Label::create(&p->average_price));
 }
 
 bool Table::init()
@@ -979,15 +1009,19 @@ bool Table::init()
 	return true;
 }
 
-void Table::set_sizes(float cell_height, std::vector<float> col_sizes)
+//void Table::set_sizes(float cell_height, std::vector<float> col_sizes)
+//{
+//	this->cell_height = cell_height;
+//	this->col_sizes = col_sizes;
+//}
+
+void Table::add_column(float widht)
 {
-	this->cell_height = cell_height;
-	this->col_sizes = col_sizes;
+	col_sizes.push_back(widht);
 }
 
 void Table::set_cell_size(float width, float height)
 {
-	this->cell_width = width;
 	this->cell_height = height;
 }
 
@@ -1004,16 +1038,22 @@ void Table::set_margins(float pad_x, float pad_y, float left, float top, float r
 void Table::doLayout()
 {
 	float x, y = top;
-	for (Node* row : getChildren())
+	auto& rows = getChildren();
+	for (auto it = rows.rbegin(); it != rows.rend(); ++it)
 	{
+		auto& row = *it;
 		x = left;
 		int col = 0;
+		float cell_height = row->getContentSize().height;
 		for (Node* cell : row->getChildren())
 		{
 			cell->setPosition(Vec2(x, y));
 			cell->setAnchorPoint(Vec2(0, 0));
-			float col_width = col < col_sizes.size() ? col_sizes[col] : cell_width;
-			cell->setContentSize(Size(col_width, cell_height));
+			float col_width = col < col_sizes.size() ? col_sizes[col] : col_sizes.back();
+			if (!dynamic_cast<ui::ImageView*>(cell))
+			{
+				cell->setContentSize(Size(col_width, cell_height));
+			}
 			x += pad_x + col_width;
 		}
 		y += cell_height + pad_y;
@@ -1021,10 +1061,11 @@ void Table::doLayout()
 	_contentSize = Size(x - pad_x + right, y - pad_y + bottom);
 }
 
-cocos2d::Node * Table::create_row()
+cocos2d::Node * Table::create_row(float height)
 {
 	Node* row = Node::create();
 	row->setAnchorPoint(Vec2(0, 0));
+	row->setContentSize(Size(0, height == 0 ? cell_height : height));
 	this->addChild(row);
 	return row;
 }
@@ -1073,10 +1114,9 @@ bool Popup::init()
 {
 	if (!Panel::init()) return false;
 	table = Table::create();
-	vector<float> cells;
-	cells.push_back(40);
-	cells.push_back(100);
-	table->set_sizes(Label::font_size(LS_NORMAL) + 5, cells);
+	table->add_column(40);
+	table->add_column(100);
+	table->set_default_row_height(Label::font_size(LS_NORMAL) + 5);
 	addChild(table);
 	return true;
 }
