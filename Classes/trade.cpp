@@ -188,7 +188,8 @@ void Trader::update_volume()
 			Transport* t = new Transport();
 			t->creation_time = world.time;
 			t->route = world.create_route(src->area, dst->area);
-			t->cost = t->route->cost;
+			t->fuel_volume = t->route->cost;
+			t->cost = t->fuel_volume * distance_cost * world.fuel_price(src->area);
 			t->buyer = dst;
 			t->seller = src;
 			t->profit = dst->price - src->price - t->cost;
@@ -208,7 +209,8 @@ void Trader::update_volume()
 					t->route = NULL;
 					delete t->route;
 					t->route = world.create_route(a, b);
-					t->cost = t->route->cost;
+					t->fuel_volume = t->route->cost;
+					t->cost = t->fuel_volume * distance_cost * world.fuel_price(src->area);
 					t->profit = dst->price - src->price - t->cost;
 				}
 			}
@@ -264,17 +266,25 @@ void Trader::update_volume()
 			if (r->buyer->money() <= 0) continue;
 			double& v_sell = r->seller->free_volume;
 			double& v_buy = r->buyer->free_volume;
-			double v = std::min(v_sell, v_buy);
-			double u = std::max(v_sell, v_buy);
+			Trader* fuel = world.fuel_seller(r->seller->area);
+			double& v_fuel = fuel->free_volume;
+			double fuel_rate = 
 
-			r->seller->vol_out += r->buyer->free_volume;
-			r->buyer->vol_out += r->seller->free_volume;
+			double v = min(v_sell, v_buy);
+			double u = max(v_sell, v_buy);
+
+			r->seller->vol_out += min(v_fuel, v_buy);
+			r->buyer->vol_out += min(v_fuel, v_sell);
+			fuel->vol_out += v;
+
+			v = min(v_fuel, v);
 
 			r->demand_volume = u;
 			if (v > 0)
 			{
 				v_sell -= v;
 				v_buy -= v;
+				v_fuel -= v;
 				r->volume = v;
 				r->active_time = world.time;
 				auto& seller = r->seller->worst_profit;
@@ -397,7 +407,8 @@ void Trader::update_volume()
 				std::vector<pair_t> v;
 				for (auto p : _sellers)
 				{
-					double dist = world.distance(a, p->area);
+					// double dist = world.distance(a, p->area);
+					double dist = world.transport_cost(a, p->area);
 					double price = p->price + dist;
 					v.push_back(pair_t(price, p));
 				}
@@ -419,7 +430,9 @@ void Trader::update_volume()
 				std::vector<pair_t> v;
 				for (auto p : _buyers)
 				{
-					double dist = world.distance(a, p->area);
+					//double dist = world.distance(a, p->area);
+					double dist = world.transport_cost(a, p->area);
+
 					double price = p->price - dist;
 					v.push_back(pair_t(price, p));
 				}

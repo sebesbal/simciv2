@@ -86,6 +86,7 @@ namespace simciv
 		double volume;
 		double demand_volume;
 		double cost;
+		double fuel_volume; ///< fuel 
 		double profit;
 		int active_time;
 		int creation_time;
@@ -94,6 +95,8 @@ namespace simciv
 	/// Manages Traders of one Product on the map
 	class TradeMap
 	{
+		friend class World;
+
 	public:
 		TradeMap(Product& p);
 		void update();
@@ -126,6 +129,6 @@ namespace simciv
 
 		std::vector<Transport*> _transports; // "all" possible transports. volume > 0 means that the transport is used
 		std::vector<AreaData>* _production;
-		std::vector<AreaData>* _new_production;
+		std::vector<AreaData>* _new_production; // temporary variable for _production
 	};
 }

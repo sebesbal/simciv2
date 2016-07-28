@@ -14,6 +14,7 @@ namespace rapidxml
 
 namespace simciv
 {
+	const double distance_cost = 0.1;
 	const double max_price = 100000000000;
 	extern int product_count; ///< The number of product types
 
@@ -137,8 +138,6 @@ namespace simciv
 		double apply_rule(ProductionRule* rule, double profit, double ideal_rate); ///< tries to apply the rule with "rate" times. returns the applicable rate. (depending on the storage)
 		double consume_articles(Prices& prices);
 		double consume_articles(Prices& prices, std::vector<ProductionRule>& rules, double volume, double& full_expense);
-		//void check_seller_storage(ProductMap& vols, double& rate);
-		//void check_buyer_storage(ProductMap& vols, double& rate);
 		void check_money(double price, double& rate);
 		void find_best_prod_rule(const Prices& prices, ProductionRule*& rule, double& profit);
 		Prices get_prices();
@@ -184,6 +183,8 @@ namespace simciv
 		void area_changed(Area* a);
 		bool is_used(Area* a);
 		double transport_cost(Area* a, Area* b);
+		double fuel_price(Area* a);
+		Trader* fuel_seller(Area* a);
 	protected:
 		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
 		void add_industry(Industry* industry) { this->industries.push_back(industry); }
@@ -193,6 +194,8 @@ namespace simciv
 		std::vector<Product*> products;
 		std::vector<Factory*> factories;
 		std::vector<TradeMap*> _trade_maps;
+		TradeMap* _fuel_map;
+		int _fuel_id;
 	};
 
 	extern World world;

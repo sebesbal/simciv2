@@ -9,6 +9,12 @@
   <product id="stone_2" gid="4" name="Stone II" image="icons/brick_2.png" />
   <product id="fuel_1" gid="5" name="Fuel" image="icons/fuel_2.png" />
   
+  <service id="transport">
+    <produce>
+		<out product="manpow" vol="5" />
+    </produce>
+  </service>
+  
   <industry id="city_1" gid="1" name="Village" image="icons/village.png">
 	<maint>
 		<in product="manpow" vol="1" />

@@ -424,71 +424,13 @@ namespace simciv
 	double Factory::consume_articles(Prices & prices, std::vector<ProductionRule>& rules, double volume, double& full_expense)
 	{
 		return simciv::consume_articles(buyers, prices, rules, volume, full_expense);
-
-		//typedef std::pair<double, ProductionRule*> pair_t;
-		//std::vector<pair_t> v;
-
-		//for (auto& rule : rules)
-		//{
-		//	v.push_back(pair_t(rule.expense(prices), &rule));
-		//}
-
-		//std::sort(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
-
-		//for (auto& p : v)
-		//{
-		//	double rate = volume;
-		//	double expense = p.first;
-		//	auto rule = p.second;
-		//	check_buyer_storage(rule->input, rate);
-		//	expense *= rate;
-		//	full_expense += expense;
-		//	for (auto& p : rule->input)
-		//	{
-		//		int prod_id = p.first;
-		//		double vol = p.second;
-		//		buyers[prod_id]->modify_storage(rate * vol);
-		//		buyers[prod_id]->vol_in += volume * vol;
-		//	}
-		//	volume -= rate;
-		//	if (volume <= 0) break;
-		//}
-
-		//volume = max(volume, 0.0);
-		//return volume;
 	}
-
-	//void Factory::check_seller_storage(ProductMap& vols, double& rate)
-	//{
-	//	if (rate == 0) return;
-	//	for (auto& p : vols)
-	//	{
-	//		int prod_id = p.first;
-	//		double vol = p.second;
-	//		auto& producer = sellers[prod_id];
-	//		rate = std::min(rate, (producer->storage_capacity - producer->storage()) / vol);
-	//		if (rate == 0) return;
-	//	}
-	//}
-
-	//void Factory::check_buyer_storage(ProductMap& vols, double& rate)
-	//{
-	//	if (rate == 0) return;
-	//	for (auto& p : vols)
-	//	{
-	//		int prod_id = p.first;
-	//		double vol = p.second;
-	//		auto& producer = buyers[prod_id];
-	//		rate = std::min(rate, producer->storage() / vol);
-	//		if (rate == 0) return;
-	//	}
-	//}
 
 	void Factory::check_money(double price, double& rate)
 	{
 		if (price > money)
 		{
-			rate = std::min(rate, money / price);;
+			rate = std::min(rate, money / price);
 		}
 	}
 
@@ -521,7 +463,13 @@ namespace simciv
 		Map::create(width, height, prod_count);
 		for (int i = 0; i < prod_count; ++i)
 		{
-			_trade_maps.push_back(new TradeMap(*products[i]));
+			auto tm = new TradeMap(*products[i]);
+			_trade_maps.push_back(tm);
+			if (products[i]->name == "fuel_1")
+			{
+				_fuel_map = tm;
+				_fuel_id = i;
+			}
 		}
 		generate_factories();
 	}
@@ -571,6 +519,7 @@ string ExePath() {
 		f->buyers[world.get_product("manpow")->id]->set_storage(1000);
 		f->buyers[world.get_product("wood_1")->id]->set_storage(1000);
 		f->buyers[world.get_product("stone_1")->id]->set_storage(1000);
+		f->buyers[world.get_product("fuel_1")->id]->set_storage(1000);
 	}
 
 	Factory* World::create_factory(Area* a, Industry* industry)
@@ -837,7 +786,18 @@ string ExePath() {
 	double World::transport_cost(Area * a, Area * b)
 	{
 		double d = distance(a, b);
-		return 0.0;
+		double fuel_price = _fuel_map->get_trade(a).p_buy;
+		return distance_cost * d * fuel_price;
+	}
+
+	double World::fuel_price(Area * a)
+	{
+		return _fuel_map->get_trade(a).p_buy;
+	}
+
+	Trader * World::fuel_seller(Area * a)
+	{
+		return _fuel_map->_area_sellers[a->id][_fuel_id];
 	}
 
 	double consume_articles(std::vector<Trader*>& storage, Prices & prices, std::vector<ProductionRule>& rules, double volume, double & full_expense)
