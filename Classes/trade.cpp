@@ -191,8 +191,8 @@ void Trader::update_volume()
 			t->fuel_volume = distance_cost * t->route->cost;
 			t->buyer = dst;
 			t->seller = src;
-			t->fuel_seller = world.fuel_seller(src->area);
-			t->cost = t->fuel_volume * t->fuel_seller->price;
+			t->fuel_buyer = world.fuel_buyer(src->area);
+			t->cost = t->fuel_volume * t->fuel_buyer->price;
 			t->profit = dst->price - src->price - t->cost;
 			_transports.push_back(t);
 		}
@@ -211,7 +211,7 @@ void Trader::update_volume()
 					delete t->route;
 					t->route = world.create_route(a, b);
 					t->fuel_volume = distance_cost * t->route->cost;
-					t->cost = t->fuel_volume * t->fuel_seller->price;
+					t->cost = t->fuel_volume * t->fuel_buyer->price;
 					t->profit = dst->price - src->price - t->cost;
 				}
 			}
@@ -267,18 +267,16 @@ void Trader::update_volume()
 			if (r->buyer->money() <= 0) continue;
 			double& v_sell = r->seller->free_volume;
 			double& v_buy = r->buyer->free_volume;
-			double& v_fuel = r->fuel_seller->free_volume;
+			double& v_fuel = r->fuel_buyer->storage();
 			double fuel_rate = r->fuel_volume;
 			double v_transportable = fuel_rate == 0 ? std::numeric_limits<int>::max() : v_fuel / fuel_rate;
 
 			double v = min(v_sell, v_buy);
 			double u = max(v_sell, v_buy);
 
-			//r->seller->vol_out += min(v_transportable, v_buy);
-			//r->buyer->vol_out += min(v_transportable, v_sell);
-			r->seller->vol_out += v_buy;
-			r->buyer->vol_out += v_sell;
-			r->fuel_seller->vol_in += v * fuel_rate;
+			r->seller->vol_out += min(v_transportable, v_buy);
+			r->buyer->vol_out += min(v_transportable, v_sell);
+			r->fuel_buyer->vol_in += v * fuel_rate;
 
 			v = min(v_transportable, v);
 
@@ -287,7 +285,7 @@ void Trader::update_volume()
 			{
 				v_sell -= v;
 				v_buy -= v;
-				v_fuel -= v * fuel_rate;
+				//v_fuel -= v * fuel_rate;
 				r->volume = v;
 				r->active_time = world.time;
 				auto& seller = r->seller->worst_profit;
@@ -493,12 +491,11 @@ void Trader::update_volume()
 		for (Transport* t : _transports)
 		{
 			double& vol = t->volume;
-			//if (vol == 0 && t->demand_volume == 0) continue;
 			if (vol == 0) continue;
 
 			Trader* a = t->seller;
 			Trader* b = t->buyer;
-			Trader* c = t->fuel_seller;
+			Trader* c = t->fuel_buyer;
 			
 			vol = std::min(a->storage(), vol);
 			vol = std::min(b->free_capacity(), vol);

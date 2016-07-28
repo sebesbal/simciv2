@@ -81,7 +81,7 @@ namespace simciv
 	{
 		Trader* seller;
 		Trader* buyer;
-		Trader* fuel_seller;
+		Trader* fuel_buyer;
 		Route* route;
 		bool invert_route; ///< the route directs buyer to seller
 		double volume;

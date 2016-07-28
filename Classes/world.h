@@ -184,7 +184,7 @@ namespace simciv
 		bool is_used(Area* a);
 		double transport_cost(Area* a, Area* b);
 		//double fuel_price(Area* a);
-		Trader* fuel_seller(Area* a);
+		Trader* fuel_buyer(Area* a);
 	protected:
 		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
 		void add_industry(Industry* industry) { this->industries.push_back(industry); }

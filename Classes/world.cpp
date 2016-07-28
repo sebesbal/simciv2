@@ -797,7 +797,7 @@ string ExePath() {
 	//	return _fuel_map->get_trade(a).p_buy;
 	//}
 
-	Trader * World::fuel_seller(Area * a)
+	Trader * World::fuel_buyer(Area * a)
 	{
 		return _fuel_map->_area_buyers[a->id][0];
 	}
