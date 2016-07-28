@@ -278,11 +278,12 @@ namespace simciv
 		{
 
 		}
-		else if (_state == UIS_BROWSING)
+		else if (_state == UIS_BROWSING || _state == UIS_PRODUCT || _state == UIS_FACTORY)
 		{
 			auto v = world.find_factories(a);
 			Factory* f = v.size() > 0 ? v[0] : nullptr;
 			_factory_view->set_factory(f);
+			_factory_view->setVisible(true);
 			if (f)
 			{
 				Industry* s = f->industry;

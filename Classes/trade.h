@@ -81,12 +81,13 @@ namespace simciv
 	{
 		Trader* seller;
 		Trader* buyer;
+		Trader* fuel_seller;
 		Route* route;
 		bool invert_route; ///< the route directs buyer to seller
 		double volume;
 		double demand_volume;
-		double cost;
-		double fuel_volume; ///< fuel 
+		double cost;		///< delivery cost for one unit of product
+		double fuel_volume; ///< fuel consumption of delivering one unit of product
 		double profit;
 		int active_time;
 		int creation_time;

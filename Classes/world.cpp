@@ -786,18 +786,20 @@ string ExePath() {
 	double World::transport_cost(Area * a, Area * b)
 	{
 		double d = distance(a, b);
-		double fuel_price = _fuel_map->get_trade(a).p_buy;
+		//double fuel_price = _fuel_map->get_trade(a).p_buy;
+		auto& seller = _fuel_map->_area_buyers[a->id];
+		double fuel_price = seller.size() > 0 ? seller[0]->price : _fuel_map->get_trade(a).p_buy;
 		return distance_cost * d * fuel_price;
 	}
 
-	double World::fuel_price(Area * a)
-	{
-		return _fuel_map->get_trade(a).p_buy;
-	}
+	//double World::fuel_price(Area * a)
+	//{
+	//	return _fuel_map->get_trade(a).p_buy;
+	//}
 
 	Trader * World::fuel_seller(Area * a)
 	{
-		return _fuel_map->_area_sellers[a->id][_fuel_id];
+		return _fuel_map->_area_buyers[a->id][0];
 	}
 
 	double consume_articles(std::vector<Trader*>& storage, Prices & prices, std::vector<ProductionRule>& rules, double volume, double & full_expense)

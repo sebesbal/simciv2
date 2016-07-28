@@ -706,7 +706,7 @@ ui::HBox* FactoryView::create_producer_view2(Trader* p)
 {
 	int w = getContentSize().width;
 	int wd = (getContentSize().width - 50) / 5;
-	int h = 50;
+	int h = 20;
 	ui::HBox* prodview = HBox::create();
 	prodview->setContentSize(Size(w, h));
 

@@ -14,7 +14,7 @@ namespace rapidxml
 
 namespace simciv
 {
-	const double distance_cost = 0.1;
+	const double distance_cost = 0.01;
 	const double max_price = 100000000000;
 	extern int product_count; ///< The number of product types
 
@@ -183,7 +183,7 @@ namespace simciv
 		void area_changed(Area* a);
 		bool is_used(Area* a);
 		double transport_cost(Area* a, Area* b);
-		double fuel_price(Area* a);
+		//double fuel_price(Area* a);
 		Trader* fuel_seller(Area* a);
 	protected:
 		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
