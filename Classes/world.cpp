@@ -542,7 +542,7 @@ string ExePath() {
 			q->storage_capacity = 10000;
 			p->storage_pair = q;
 			q->storage_pair = p;
-			p->owner = q->owner = f;
+			// p->owner = q->owner = f;
 			if (industry->type == IT_STORAGE)
 			{
 				// p->set_storage(p->storage_capacity / 2);

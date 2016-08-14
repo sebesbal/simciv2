@@ -21,7 +21,8 @@ enum UIState
 	UIS_FACTORY,
 	UIS_PRODUCT,
 	UIS_ROAD_AREA,
-	UIS_ROAD_ROUTE
+	UIS_ROAD_ROUTE,
+	UIS_MILITARY 
 };
 
 /// The main ui
@@ -52,6 +53,7 @@ protected:
 	RadioMenu* _industry_browser;
 	RadioMenu* _products_browser;
 	RadioMenu* _roads_menu;
+	RadioMenu* _military_menu;
 
 	IndustryView* _industry_view;
 	FactoryView* _factory_view;
@@ -83,6 +85,7 @@ protected:
 	RadioMenu* create_industry_browser();
 	RadioMenu* create_products_browser();
 	RadioMenu* create_roads_menu();
+	RadioMenu * create_military_menu();
 	void create_option_panels();
 	virtual void doLayout() override;
 	void set_state(UIState state);

@@ -36,6 +36,7 @@ namespace simciv
 		bool show_grid;
 		bool show_transport;
 		bool show_products;
+		MilitaryImportance mil_importance;
 	};
 
 	/// draws tiles, map background, routes

@@ -18,7 +18,7 @@ namespace simciv
 		Trader();
 		Product* product;
 		Area* area;
-		Factory* owner;
+		//Factory* owner;
 		Trader* storage_pair;					///< the other trader of a seller-buyer pair (for a Factory-Product)
 		bool is_buyer;							///< this is a buyer (not seller)
 		double vol_in;							///< the value what the owner Factory wanted to put in/take out from this Trader.
@@ -33,7 +33,8 @@ namespace simciv
 		void set_storage(double vol);
 
 		double& storage() { return _storage; }
-		double money();
+		double money() { return 1; }
+		void pay(double d) { }
 		void update_price();
 		void update_volume();
 		void synchronize_price();

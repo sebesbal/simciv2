@@ -17,6 +17,21 @@ namespace simciv
 		AT_SEA
 	};
 
+	enum MilitaryImportance
+	{
+		MILIMP_NONE,
+		MILIMP_LOW,
+		MILIMP_NORMAL,
+		MILIMP_HIGH
+	};
+
+	struct MilData
+	{
+		MilitaryImportance importance;
+		double health;
+
+	};
+
 	/// One cell of the map
 	struct Area
 	{
@@ -39,6 +54,7 @@ namespace simciv
 		std::vector<Area*> sorted_adjs();	///< adjacent areas sorted in direction, filtered by road_level > 0
 		std::vector<Road*> sorted_roads();	///< sorted and filtered roads to the sorted_adjs() Areas
 		std::vector<Area*> connected_adjs(); ///< unsorted filtered adjacendt Areas
+
 	};
 
 	/// Road between two adjacent Area

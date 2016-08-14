@@ -66,6 +66,9 @@ namespace simciv
 		_roads_menu = create_roads_menu();
 		this->addChild(_roads_menu);
 
+		_military_menu = create_military_menu();
+		this->addChild(_military_menu);
+
 		_industry_view = IndustryView::create();
 		_industry_view->setAnchorPoint(Vec2(1, 1));
 		this->addChild(_industry_view);
@@ -442,6 +445,10 @@ namespace simciv
 		btn = MenuButton::create("res/road.png");
 		result->add_radio_button(btn);
 
+		result->add_row();
+		btn = MenuButton::create("res/little_castle.png");
+		result->add_radio_button(btn);
+
 		result->set_on_changed([this](MenuButton* btn) {
 			if (!btn)
 			{
@@ -459,6 +466,9 @@ namespace simciv
 				break;
 			case 2:
 				this->set_state(UIS_ROAD_AREA);
+				break;
+			case 3:
+				this->set_state(UIS_MILITARY);
 				break;
 			default:
 				this->set_state(UIS_NONE);
@@ -582,6 +592,48 @@ namespace simciv
 		return result;
 	}
 
+	RadioMenu * WorldUI::create_military_menu()
+	{
+		RadioMenu* result = RadioMenu::create();
+		result->add_row();
+
+		auto none = MenuButton::create("res/trash.png");
+		result->add_radio_button(none);
+
+		auto low = MenuButton::create("res/tent.png");
+		result->add_radio_button(low);
+
+		result->add_row();
+
+		auto normal = MenuButton::create("res/little_castle.png");
+		result->add_radio_button(normal);
+
+		auto high = MenuButton::create("res/castle.png");
+		result->add_radio_button(high);
+
+		result->set_selected_btn(0);
+		result->set_on_changed([=](MenuButton* btn) {
+			set_state(UIS_MILITARY);
+			if (btn == none)
+			{
+				info.mil_importance = MILIMP_NONE;
+			}
+			else if (btn == low)
+			{
+				info.mil_importance = MILIMP_LOW;
+			}
+			else if (btn == normal)
+			{
+				info.mil_importance = MILIMP_NORMAL;
+			}
+			else if (btn == high)
+			{
+				info.mil_importance = MILIMP_HIGH;
+			}
+		});
+		return result;
+	}
+
 	void WorldUI::doLayout()
 	{
 		Layout::doLayout();
@@ -594,6 +646,7 @@ namespace simciv
 		_industry_browser->setPosition(Vec2(m + 64 + 10, h - m));
 		_products_browser->setPosition(Vec2(m + 64 + 10, h - m));
 		_roads_menu->setPosition(Vec2(m + 64 + 10, h - m));
+		_military_menu->setPosition(Vec2(m + 64 + 10, h - m));
 
 		_economy_view->setPosition(Vec2(m + 64 + 200, h - m));
 
@@ -683,6 +736,7 @@ namespace simciv
 		bool factories = _state == UIS_FACTORY;
 		bool products = _state == UIS_PRODUCT;
 		bool roads = _state == UIS_ROAD_AREA;
+		bool military = _state == UIS_MILITARY;
 		_industry_browser->setVisible(factories);
 		_industry_view->setVisible(factories);
 		_products_browser->setVisible(products);
@@ -690,6 +744,7 @@ namespace simciv
 		_factory_layers_options->setVisible(factories);
 		_factory_view->setVisible(factories && _factory_view->get_factory());
 		_roads_menu->setVisible(roads);
+		_military_menu->setVisible(military);
 		_color_layer->setVisible(true);
 
 		switch (_state)

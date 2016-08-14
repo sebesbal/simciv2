@@ -28,7 +28,6 @@ namespace simciv
 		price(0),
 		worst_profit(0),
 		worst_price(0),
-		owner(NULL),
 		_d_storage(0)
 	{
 	}
@@ -52,11 +51,6 @@ namespace simciv
 		{
 			storage_pair->_storage = _storage;
 		}
-	}
-
-	double Trader::money()
-	{
-		return owner->money;
 	}
 
 void Trader::update_price()
@@ -504,8 +498,8 @@ void Trader::update_volume()
 			b->set_storage(b->storage() + vol);
 			c->set_storage(c->storage() - vol * t->fuel_volume);
 
-			a->owner->income(vol * a->price);
-			b->owner->income(- vol * b->price);
+			a->pay(- vol * a->price);
+			b->pay(vol * b->price);
 		}
 
 		for (Trader* p : _sellers)
