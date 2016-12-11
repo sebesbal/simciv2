@@ -61,6 +61,7 @@ protected:
 	ColorMapLayer* _color_layer;
 	RoadLayer* _road_layer;
 	FactoryMapLayer* _factory_layer;
+	MilitaryView* _military_view;
 
 	Panel* _factory_layers_options;
 	Panel* _color_layers_options;

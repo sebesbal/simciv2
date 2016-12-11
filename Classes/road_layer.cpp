@@ -10,7 +10,7 @@ namespace simciv
 	USING_NS_CC;
 	using namespace std;
 
-	RoadLayer::RoadLayer() : road_index(0), roads(world.areas().size())
+	RoadLayer::RoadLayer() : roads(world.areas().size())
 	{
 		roads_node = RoadView::create_batch_node("res/roads4.png");
 		addChild(roads_node);
@@ -84,12 +84,19 @@ namespace simciv
 		++a->road_level;
 		world.area_changed(a);
 		auto& da = roads[a->id];
-		if (da.id == 0) da.id = ++road_index;
 		update_roads();
 	}
 
 	void RoadLayer::remove_road(Area * a)
 	{
+		if (a->road_level == 0) return;
+		--a->road_level;
+		world.area_changed(a);
+		if (a->road_level == 0)
+		{
+			clear_roadviews(a);
+		}
+		update_roads();
 	}
 
 	using namespace std;

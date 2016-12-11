@@ -159,6 +159,12 @@ namespace simciv
 #define GUARD_LOCK_WORLD
 #endif
 
+	struct MilitaryData
+	{
+		double desired_size;
+		double actual_size;
+	};
+
 	class World : public Map
 	{
 	public:
@@ -185,6 +191,8 @@ namespace simciv
 		double transport_cost(Area* a, Area* b);
 		//double fuel_price(Area* a);
 		Trader* fuel_buyer(Area* a);
+
+		MilitaryData mil_data;
 	protected:
 		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
 		void add_industry(Industry* industry) { this->industries.push_back(industry); }

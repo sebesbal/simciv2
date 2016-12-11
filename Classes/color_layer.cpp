@@ -183,7 +183,10 @@ void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 			world.get_profit(info.industry, area));
 		break;
 	case MM_ROAD:
-		DRAW_AREAS(area, area->road_level);
+		DRAW_AREAS_3(area, area->road_level, 0.0, 3.0);
+		break;
+	case MM_MIL_LEVEL:
+		DRAW_AREAS_3(area, area->mil_level, 0.0, 3.0);
 		break;
 	default:
 		break;

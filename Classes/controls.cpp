@@ -1130,4 +1130,25 @@ void Popup::doLayout()
 	setContentSize(s);
 }
 
+bool MilitaryView::init()
+{
+	if (!Panel::init()) return false;
+	setContentSize(Size(100, 100));
+	_global_mil_level = Slider::create();
+	addChild(_global_mil_level);
+	_global_mil_level->ignoreContentAdaptWithSize(false);
+	_global_mil_level->setAnchorPoint(Vec2(0, 0));
+	_global_mil_level->loadBarTexture("res/ui/Slider_Back.png"); // what the slider looks like
+	_global_mil_level->loadSlidBallTextures("res/ui/SliderNode_Normal.png", "res/ui/SliderNode_Press.png", "res/ui/SliderNode_Disable.png");
+	_global_mil_level->loadProgressBarTexture("res/ui/Slider_PressBar.png");
+	return true;
+}
+
+void MilitaryView::doLayout()
+{
+	Panel::doLayout();
+	_global_mil_level->setPosition(Vec2(10, 10));
+	_global_mil_level->setSize(Size(60, 20));
+}
+
 }

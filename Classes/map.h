@@ -38,14 +38,16 @@ namespace simciv
 		int id;						///< index in Map._areas
 		int x;						///< x coordinate
 		int y;						///< y coordinate
-		int tile_gid;				///< TileMap GID
+		int tile_gid;				///< TileMap GID (can be 0 when unexplored)
+		int ori_tile_gid;			///< Original TileMap GID
 		AreaType type;
 		std::vector<Road*> roads;	///< connected roads
 		std::vector<Area*> adjs;	///< unsorted adjacent areas
 		int road_level;				///< level of road infrastructure on this area. Road->cost is calculated from this.
+		int mil_level;				///< military importance of the area. 0=nothing, 1=explore, 2=low, 3=medium, 4=high
 		RoadMap* map;				///< routes from this road
-		AreaData& data(Product* p); ///< trade datas for every Product
-		AreaData& data(int prod_id);  ///< trade datas for every Product
+		AreaData& data(Product* p); ///< trade data for every Product
+		AreaData& data(int prod_id);  ///< trade data for every Product
 		int dir(Area * a);			///< get the direction for a given area
 		int dir(Road * r);			///< get the direction for a given road
 		Road* road(int dir);		///< get the road for a given direction

@@ -176,12 +176,22 @@ namespace simciv
 	class EconomyView : public Panel
 	{
 	public:
-		CREATE_FUNC(EconomyView);
+		CREATE_FUNC(EconomyView)
 		virtual bool init() override;
 		virtual void doLayout() override;
 		void add(Product* p);
 	protected:
 		Table* _table;
+	};
+
+	class MilitaryView : public Panel
+	{
+	public:
+		CREATE_FUNC(MilitaryView)
+		virtual bool init() override;
+		virtual void doLayout() override;
+	protected:
+		Slider* _global_mil_level;
 	};
 
 	class Diagram : public ui::Layout

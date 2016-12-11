@@ -15,7 +15,21 @@ namespace simciv
 		MM_BUILD_COST,
 		MM_PROFIT_RES,
 		MM_SPECIES_RESOURCES,
-		MM_ROAD
+		MM_ROAD,
+		MM_MIL_LEVEL
+	};
+
+	enum UIAction
+	{
+		UIA_NONE,
+		UIA_FACT_CREATE,
+		UIA_FACT_INFO,
+		UIA_MIL_PLUS,
+		UIA_MIL_MINUS,
+		UIA_ROAD_PLUS,
+		UIA_ROAD_MINUS,
+		UIA_ROAD_ROUTE,
+		UIA_EXPLORE
 	};
 
 	struct UIStateData
@@ -36,7 +50,8 @@ namespace simciv
 		bool show_grid;
 		bool show_transport;
 		bool show_products;
-		MilitaryImportance mil_importance;
+		UIAction action;
+		//MilitaryImportance mil_importance;
 	};
 
 	/// draws tiles, map background, routes
@@ -56,8 +71,9 @@ namespace simciv
 
 	struct RoadInfo
 	{
-		RoadInfo() : id(0) {}
-		int id;
+		//RoadInfo() : id(0) {}
+		RoadInfo() {}
+		//int id;
 		std::set<RoadView*> roads;
 	};
 
@@ -89,7 +105,6 @@ namespace simciv
 	protected:
 		void clear_new_route();
 		cocos2d::SpriteBatchNode* roads_node;
-		int road_index;
 		std::vector<RoadInfo> roads;
 		std::vector<RoadView*> new_route; ///< temporal route's RoadViews
 		int new_route_level;
