@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Comment CommentText="Map">
+    <Position X="2.683" Y="1.933" Height="0.291" Width="2.95" />
+  </Comment>
+  <Comment CommentText="Left Menu">
+    <Position X="0.5" Y="0.5" Height="0.291" Width="2" />
+  </Comment>
+  <Comment CommentText="create_option_panels">
+    <Position X="4.25" Y="1" Height="0.325" Width="1.492" />
+  </Comment>
+  <Comment CommentText="create_play_panel">
+    <Position X="4.25" Y="0.558" Height="0.333" Width="1.492" />
+  </Comment>
+  <Class Name="simciv::WorldUI">
+    <Position X="0.5" Y="0.75" Width="2" />
+    <Members>
+      <Field Name="_color_layer" Hidden="true" />
+      <Field Name="_color_layers_options" Hidden="true" />
+      <Field Name="_cursor" Hidden="true" />
+      <Field Name="_drag_start" Hidden="true" />
+      <Field Name="_drag_start_area" Hidden="true" />
+      <Field Name="_economy_view" Hidden="true" />
+      <Field Name="_factory_layer" Hidden="true" />
+      <Field Name="_factory_layers_options" Hidden="true" />
+      <Field Name="_factory_view" Hidden="true" />
+      <Field Name="_industry_browser" Hidden="true" />
+      <Field Name="_industry_view" Hidden="true" />
+      <Field Name="_main_menu" Hidden="true" />
+      <Field Name="_map" Hidden="true" />
+      <Field Name="_menu_size" Hidden="true" />
+      <Field Name="_menu_space" Hidden="true" />
+      <Field Name="_military_menu" Hidden="true" />
+      <Field Name="_military_view" Hidden="true" />
+      <Field Name="_mouse_down_pos" Hidden="true" />
+      <Field Name="_on_state_build" Hidden="true" />
+      <Field Name="_on_state_factory" Hidden="true" />
+      <Field Name="_on_state_product" Hidden="true" />
+      <Field Name="_paused" Hidden="true" />
+      <Field Name="_play_panel" Hidden="true" />
+      <Field Name="_popup" Hidden="true" />
+      <Field Name="_products_browser" Hidden="true" />
+      <Field Name="_road_layer" Hidden="true" />
+      <Field Name="_roads_menu" Hidden="true" />
+      <Field Name="_speed" Hidden="true" />
+      <Field Name="_state" Hidden="true" />
+      <Field Name="_worker" Hidden="true" />
+      <Method Name="~WorldUI" Hidden="true" />
+      <Method Name="createScene" Hidden="true" />
+      <Method Name="doLayout" Hidden="true" />
+      <Method Name="find_child" Hidden="true" />
+      <Field Name="info" Hidden="true" />
+      <Method Name="is_inside_cell" Hidden="true" />
+      <Method Name="load_from_tmx" Hidden="true" />
+      <Method Name="menuCloseCallback" Hidden="true" />
+      <Method Name="onMouseMove" Hidden="true" />
+      <Method Name="onTouchMoved" Hidden="true" />
+      <Method Name="set_state" Hidden="true" />
+      <Method Name="tick" Hidden="true" />
+      <Method Name="update_popup" Hidden="true" />
+      <Method Name="update_ui" Hidden="true" />
+      <Field Name="views" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>IgDIITBRBIAGBQAAhAgMGACACAUghgYARMAiQEIgqSA=</HashCode>
+      <FileName>C:\Users\Gazda\Documents\Cocos\CocosProjects\simciv2\Classes\world_ui.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="simciv::RoadView" Collapsed="true">
+    <Position X="4.5" Y="3" Width="1.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAAAAAAAAAAAAAEAAAAQAADAAQAgAAE=</HashCode>
+      <FileName>C:\Users\Gazda\Documents\Cocos\CocosProjects\simciv2\Classes\sprites.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="simciv::RoadLayer" Collapsed="true">
+    <Position X="2.75" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAgEQAABAgAAAAAigAAgCAAAAAAAAEA=</HashCode>
+      <FileName>C:\Users\Gazda\Documents\Cocos\CocosProjects\simciv2\Classes\map_view.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="simciv::FactoryView" Collapsed="true">
+    <Position X="6" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAAAIAAAAAAAAAAAAAIAIAAEACIBAMAAA=</HashCode>
+      <FileName>C:\Users\Gazda\Documents\Cocos\CocosProjects\simciv2\Classes\controls.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="simciv::FactoryMapLayer" Collapsed="true">
+    <Position X="2.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAASAABAAAAAAAAAAAQAAAAAAAAAAgIAABAAAAAEAAA=</HashCode>
+      <FileName>C:\Users\Gazda\Documents\Cocos\CocosProjects\simciv2\Classes\map_view.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="simciv::TransportAnimation" Collapsed="true">
+    <Position X="4" Y="4.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAEAAAgAAAAAEAAABAkAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>C:\Users\Gazda\Documents\Cocos\CocosProjects\simciv2\Classes\sprites.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="simciv::IndustryView" Collapsed="true">
+    <Position X="6" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAgAABAEABAAgAAgAAAAAAAAAAACKAAAgAAAAAAAA=</HashCode>
+      <FileName>C:\Users\Gazda\Documents\Cocos\CocosProjects\simciv2\Classes\controls.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="simciv::MilitaryView" Collapsed="true">
+    <Position X="6" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAAAAAIAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>C:\Users\Gazda\Documents\Cocos\CocosProjects\simciv2\Classes\controls.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="simciv::EconomyView" Collapsed="true">
+    <Position X="2.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAAgAAAAAAAAAAAAAAAAIAAAAAAAACAAA=</HashCode>
+      <FileName>C:\Users\Gazda\Documents\Cocos\CocosProjects\simciv2\Classes\controls.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="simciv::ColorMapLayer" Collapsed="true">
+    <Position X="2.75" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAEAAAAAAAAAAAAAAAAIAQABAAAAEAQA=</HashCode>
+      <FileName>C:\Users\Gazda\Documents\Cocos\CocosProjects\simciv2\Classes\map_view.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="simciv::FactorySprite" Collapsed="true">
+    <Position X="4.5" Y="3.75" Width="1.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAEBAAAAAAAAAAAAAAAABCAAAAEAAAAAACgAAEAAA=</HashCode>
+      <FileName>C:\Users\Gazda\Documents\Cocos\CocosProjects\simciv2\Classes\sprites.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

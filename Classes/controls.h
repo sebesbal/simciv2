@@ -83,6 +83,7 @@ namespace simciv
 		virtual void onTouchEnded(Touch *touch, Event *unusedEvent) override;
 	};
 
+	/// Base class for menus (see left menu)
 	class RadioMenu : public ui::VBox
 	{
 	public:
@@ -173,6 +174,7 @@ namespace simciv
 		ui::VBox* _producer_views;
 	};
 
+	/// Show prices and storages for every product
 	class EconomyView : public Panel
 	{
 	public:

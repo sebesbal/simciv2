@@ -101,6 +101,11 @@ namespace simciv
 		set_state(UIS_BROWSING);
 	}
 
+	Vec2 WorldUI::get_tile(Area * a)
+	{
+		return Vec2(a->x, _grid_size.height - a->y - 1);
+	}
+
 	void WorldUI::tick(float f)
 	{
 		static int k = 0;
@@ -138,27 +143,45 @@ namespace simciv
 	{
 		TMXTiledMap* m = TMXTiledMap::create(tmx);
 		_map = m;
-		auto size = m->getMapSize();
+		_grid_size = m->getMapSize();
 		m->setAnchorPoint(Vec2(0.5, 0.5));
 		m->setScale(1.5);
 		this->addChild(_map);
 		_map->setPosition(getContentSize() / 2);
-
-		world.create(size.width, size.height, product_count);
-
 		auto layer = m->getLayer("Background");
+
+		world.create(_grid_size.width, _grid_size.height, product_count);
+		world.on_area_changed = [layer, this](Area* a) {
+			int gid;
+			switch (a->mil_state)
+			{
+			case MILS_EXPLORABLE:
+				gid = 12;
+				break;
+			case MILS_EXPLORED:
+				gid = a->ori_tile_gid;
+				break;
+			case MILS_UNEXPLORED:
+			default:
+				gid = 0;
+				break;
+			}
+			layer->setTileGID(gid, get_tile(a));
+		};
+
 		vector<int> w(world.areas().size());
-		for (int i = 0; i < size.width; ++i)
+		for (int i = 0; i < _grid_size.width; ++i)
 		{
-			for (int j = 0; j < size.height; ++j)
+			for (int j = 0; j < _grid_size.height; ++j)
 			{
 				Area* a = world.get_area(i, j);
-				auto v = Vec2(i, size.height - j - 1);
-				a->ori_tile_gid = layer->getTileGIDAt(v) - 1;
+				auto v = Vec2(i, _grid_size.height - j - 1);
+				a->ori_tile_gid = layer->getTileGIDAt(v);
 				a->tile_gid = 0;
-				//layer->setTileGID(0, v);
+				a->mil_state = MILS_UNEXPLORED;
+				layer->setTileGID(a->tile_gid, v);
 				int& level = w[a->id];
-				switch (a->tile_gid)
+				switch (a->ori_tile_gid - 1)
 				{
 				case 0:
 				case 1:
@@ -184,6 +207,9 @@ namespace simciv
 				}
 			}
 		}
+
+		auto a = world.get_area(12, 10);
+		world.set_explored(a);
 
 		for (TradeMap* m : world.trade_maps())
 		{
@@ -322,6 +348,29 @@ namespace simciv
 		auto p = touch->getLocation();
 		p = _map->convertToNodeSpace(p);
 		Area* a = _factory_layer->get_area(p);
+
+		if (a->mil_state == MILS_EXPLORABLE)
+		{
+			auto f = _factory_layer->update_or_create_factory(a, world._explorer);
+			if (f)
+			{
+				f->on_state_changed = [](Factory* f, FactoryState olds, FactoryState news) {
+					if (news == FS_RUN)
+					{
+						//Director::getInstance()->getScheduler()->performFunctionInCocosThread([f] {
+						//	world.set_explored(f->area);
+						//	g_factory_layer->delete_factory(f);
+						//});
+						RUNUI([f] {
+							world.set_explored(f->area);
+							g_factory_layer->delete_factory(f);
+						});
+					}
+				};
+			}
+			return;
+		}
+
 		auto& ml = a->mil_level;
 
 		switch (info.action)
@@ -332,7 +381,7 @@ namespace simciv
 				Industry* s = info.industry;
 				if (s)
 				{
-					_factory_layer->try_create_factory(a, s);
+					_factory_layer->update_or_create_factory(a, s);
 				}
 			}
 			break;
@@ -349,6 +398,9 @@ namespace simciv
 			if (ml > 0) --ml;
 			break;
 		case UIA_ROAD_ROUTE:
+			_road_layer->finish_route();
+			break;
+		case UIA_EXPLORE:
 			_road_layer->finish_route();
 			break;
 		default:
@@ -463,6 +515,7 @@ namespace simciv
 				break;
 			case 1:
 				this->set_state(UIS_FACTORY);
+				this->info.action = UIA_FACT_CREATE;
 				break;
 			case 2:
 				this->set_state(UIS_ROAD_AREA);

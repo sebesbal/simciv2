@@ -4,6 +4,7 @@
 
 namespace simciv
 {
+	struct Area;
 	struct Road;
 	struct RoadMap;
 	struct AreaData;
@@ -25,11 +26,42 @@ namespace simciv
 		MILIMP_HIGH
 	};
 
+	enum MilitaryState
+	{
+		MILS_UNEXPLORED,	
+		MILS_EXPLORABLE,	// it's adjacent to explored areas
+		MILS_EXPLORED
+
+		// MILS_CONTROLLED,	// my territory
+		// MILS_ALLIED,		// trade + military use
+		//MILS_FRIENDLY,		// trad
+		//MILS_UNFRIENDLY,	// no trade
+		//MILS_ENEMY
+	};
+
 	struct MilData
 	{
 		MilitaryImportance importance;
 		double health;
 
+	};
+
+	enum PlayerState
+	{
+		PLAYS_NONE,
+		PLAYS_ME,
+		PLAYS_ALLIED,		// trade + military use
+		PLAYS_FRIENDLY,		// trade
+		PLAYS_UNFRIENDLY,	// no trade
+		PLAYS_ENEMY
+	};
+
+	struct Player
+	{
+		int id;
+		std::string name;
+		PlayerState state;
+		//std::vector<Area*> areas;
 	};
 
 	/// One cell of the map
@@ -45,6 +77,8 @@ namespace simciv
 		std::vector<Area*> adjs;	///< unsorted adjacent areas
 		int road_level;				///< level of road infrastructure on this area. Road->cost is calculated from this.
 		int mil_level;				///< military importance of the area. 0=nothing, 1=explore, 2=low, 3=medium, 4=high
+		MilitaryState mil_state;	///< friendly, enemy etc.
+		Player* owner;
 		RoadMap* map;				///< routes from this road
 		AreaData& data(Product* p); ///< trade data for every Product
 		AreaData& data(int prod_id);  ///< trade data for every Product
@@ -56,7 +90,6 @@ namespace simciv
 		std::vector<Area*> sorted_adjs();	///< adjacent areas sorted in direction, filtered by road_level > 0
 		std::vector<Road*> sorted_roads();	///< sorted and filtered roads to the sorted_adjs() Areas
 		std::vector<Area*> connected_adjs(); ///< unsorted filtered adjacendt Areas
-
 	};
 
 	/// Road between two adjacent Area

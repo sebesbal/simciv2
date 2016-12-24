@@ -15,6 +15,12 @@
     </produce>
   </service>
   
+  <industry id="explorer" name="Explorer" image="icons/explore.png">
+	<build>
+		<in product="manpow" vol="5" />
+	</build>
+  </industry>
+  
   <industry id="city_1" gid="1" name="Village" image="icons/village.png">
 	<maint>
 		<in product="manpow" vol="1" />

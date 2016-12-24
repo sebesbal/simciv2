@@ -47,9 +47,12 @@ namespace simciv
 		cocos2d::Sprite* sprite;
 	};
 
+	/// Factory icon + progressbar.
+	/// It's not a Node, because it doesn't want to be the parent of the children (because of sprite-drawing performance causes)
 	struct FactorySprite
 	{
 		FactorySprite();
+		~FactorySprite();
 		virtual void update(float dt);
 		void set_show_progressbar(bool show);
 		void setPosition(const cocos2d::Vec2& p);

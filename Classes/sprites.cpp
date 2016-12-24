@@ -55,6 +55,14 @@ namespace simciv
 	{
 	}
 
+	FactorySprite::~FactorySprite()
+	{
+		for (auto n : _nodes)
+		{
+			n->removeFromParent();
+		}
+	}
+
 	void FactorySprite::update(float dt)
 	{
 		switch (_factory->state)

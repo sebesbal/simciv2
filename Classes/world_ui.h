@@ -11,6 +11,8 @@
 namespace simciv
 {
 
+#define RUNUI(f) Director::getInstance()->getScheduler()->performFunctionInCocosThread(f)
+
 class TransportAnimation;
 class RoadView;
 
@@ -44,27 +46,37 @@ protected:
 	cocos2d::Size _menu_size;
 	int _menu_space;
 	std::vector<cocos2d::Node*> views;
-	cocos2d::Node* _map;
+	// cocos2d::Node* _map;
 	bool _drag_start;
 	cocos2d::Vec2 _mouse_down_pos;
 	Area* _drag_start_area;
 
+	// left menu
 	RadioMenu* _main_menu;
 	RadioMenu* _industry_browser;
 	RadioMenu* _products_browser;
 	RadioMenu* _roads_menu;
 	RadioMenu* _military_menu;
 
+	// right panels
 	IndustryView* _industry_view;
 	FactoryView* _factory_view;
+	MilitaryView* _military_view;
+
+	// top panels
 	EconomyView* _economy_view;
+	Panel* _factory_layers_options;
+	Panel* _color_layers_options;
+
+	// map layers
+	TMXTiledMap* _map;
+	Size _grid_size;
 	ColorMapLayer* _color_layer;
 	RoadLayer* _road_layer;
 	FactoryMapLayer* _factory_layer;
-	MilitaryView* _military_view;
+	Vec2 get_tile(Area* a);
 
-	Panel* _factory_layers_options;
-	Panel* _color_layers_options;
+	// pause, play
 	cocos2d::ui::HBox* _play_panel;
 	cocos2d::Sprite* _cursor;
 
@@ -74,6 +86,7 @@ protected:
 
 	void tick(float f);
 	void load_from_tmx(std::string tmx);
+	// Vec2 
 	virtual bool onTouchBegan(cocos2d::Touch* touch, Event *event);
 	virtual void onTouchEnded(cocos2d::Touch* touch, Event *event);
 	virtual void onTouchMoved(cocos2d::Touch* touch, Event *event);

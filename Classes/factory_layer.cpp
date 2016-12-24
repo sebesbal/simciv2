@@ -59,7 +59,7 @@ Factory* FactoryMapLayer::create_factory(Area* a, Industry * s)
 	return f;
 }
 
-Factory * FactoryMapLayer::try_create_factory(Area * a, Industry * industry)
+Factory * FactoryMapLayer::update_or_create_factory(Area * a, Industry * industry)
 {
 	auto v = world.find_factories(a);
 	for (auto f: v)
@@ -99,6 +99,21 @@ void FactoryMapLayer::create_sprites_from_model()
 	{
 		create_sprite(f);
 	}
+}
+
+void FactoryMapLayer::delete_factory(Factory * f)
+{
+	auto it = find_if(_factory_sprites.begin(), _factory_sprites.end(), [f](FactorySprite* fs) {
+		return fs->_factory == f;
+	});
+
+	if (it != _factory_sprites.end())
+	{
+		delete *it;
+		_factory_sprites.erase(it);
+	}
+
+	world.delete_factory(f);
 }
 
 }

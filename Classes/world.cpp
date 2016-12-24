@@ -108,6 +108,17 @@ namespace simciv
 		return find(upgrades.begin(), upgrades.end(), ind) != upgrades.end();
 	}
 
+	bool Industry::can_create_factory(Area * a)
+	{
+		return world.find_factories(a).size() == 0;
+	}
+
+	Factory * Industry::create_factory(Area * a)
+	{
+		Factory* f = new Factory(this);
+		return f;
+	}
+
 	void Industry::find_best_prod_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit)
 	{
 		double best_profit = 0;
@@ -258,6 +269,24 @@ namespace simciv
 		product = get_product();
 	}
 
+	Industry * Industry::create(rapidxml::xml_node<>* node)
+	{
+		Industry* result;
+		if (auto a = node->first_attribute("id"))
+		{
+			if (strcmp(a->value(), "explorer") == 0)
+			{
+				result = new Explorer();
+			}
+			else
+			{
+				result = new Industry();
+			}
+		}
+		result->load(node);
+		return result;
+	}
+
 	Product* Industry::get_product()
 	{
 		if (prod_rules.size() == 1)
@@ -329,7 +358,16 @@ namespace simciv
 		default:
 			break;
 		}
-		this->state = state;
+
+		if (state != this->state)
+		{
+			auto old_state = state;
+			this->state = state;
+			if (on_state_changed)
+			{
+				on_state_changed(this, old_state, this->state);
+			}
+		}
 	}
 
 	void Factory::set_industry(Industry * industry)
@@ -511,8 +549,9 @@ string ExePath() {
 		int x = 12, y = 10;
 
 		auto s1 = get_industry("city_1");
+		auto a = get_area(x, y);
 		if (!s1) throw("Industry not found!");
-		auto f = create_factory(get_area(x, y), s1);
+		auto f = create_factory(a, s1);
 		f->set_state(FS_RUN);
 		f->health = 1;
 		f->buyers[world.get_product("food_1")->id]->set_storage(1000);
@@ -524,8 +563,8 @@ string ExePath() {
 
 	Factory* World::create_factory(Area* a, Industry* industry)
 	{
-		if (find_factories(a).size() > 0) return NULL;
-		Factory* f = new Factory(industry);
+		if (!industry->can_create_factory(a)) return nullptr;
+		Factory* f = industry->create_factory(a);
 		factories.push_back(f);
 		f->area = a;
 		if (industry->product)
@@ -551,6 +590,17 @@ string ExePath() {
 		}
 
 		return f;
+	}
+
+	void World::delete_factory(Factory * f)
+	{
+		factories.erase(std::find(factories.begin(), factories.end(), f));
+	}
+
+	Factory * World::create_explorer(Area * a, Industry * industry)
+	{
+		//create_factory(a, );
+		return nullptr;
 	}
 
 	vector<Factory*> World::find_factories(Area* a)
@@ -665,9 +715,14 @@ string ExePath() {
 			string name = item->name();
 			if (name == "industry")
 			{
-				Industry* s = new Industry();
-				s->load(item);
+				Industry* s = Industry::create(item);
+				// s->load(item);
 				add_industry(s);
+				auto e = dynamic_cast<Explorer*>(s);
+				if (e)
+				{
+					_explorer = e;
+				}
 			}
 			else if (name == "product")
 			{
@@ -802,6 +857,25 @@ string ExePath() {
 		return _fuel_map->_area_buyers[a->id][0];
 	}
 
+	void World::set_mil_state(Area * a, MilitaryState state)
+	{
+
+	}
+
+	void World::set_explored(Area * a)
+	{
+		a->mil_state = MILS_EXPLORED;
+		on_area_changed(a);
+		for (Area* b : a->adjs)
+		{
+			if (b->mil_state == MILS_UNEXPLORED)
+			{
+				b->mil_state = MILS_EXPLORABLE;
+				on_area_changed(b);
+			}
+		}
+	}
+
 	double consume_articles(std::vector<Trader*>& storage, Prices & prices, std::vector<ProductionRule>& rules, double volume, double & full_expense)
 	{
 		typedef std::pair<double, ProductionRule*> pair_t;
@@ -855,5 +929,10 @@ string ExePath() {
 			}
 			if (rate == 0) return;
 		}
+	}
+	bool Explorer::can_create_factory(Area * a)
+	{
+		return a->mil_state == MILS_EXPLORABLE
+			&& world.find_factories(a).size() == 0;
 	}
 }

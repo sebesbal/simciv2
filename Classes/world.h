@@ -2,6 +2,7 @@
 
 #include <map>
 #include <mutex>
+#include <functional>
 
 #include "map.h"
 #include "trade.h"
@@ -87,6 +88,8 @@ namespace simciv
 		Industry* base;									///< lower level variant of this industry
 		std::vector<Industry*> upgrades;				///< higher level variants of this industry
 		bool can_upgrade_to(Industry* ind);
+		virtual bool can_create_factory(Area* a);
+		virtual Factory* create_factory(Area* a);
 		
 		std::vector<ProductionRule> prod_rules;			///< product products form products
 
@@ -99,10 +102,19 @@ namespace simciv
 		double get_build_cost(const Prices& prices);
 		std::string icon_file;
 		Product* product;
-		void load(rapidxml::xml_node<>* node);
+		static Industry* create(rapidxml::xml_node<>* node);
+		
 		Product* get_product();
 		static const int default_lifetime = 5;
 		static const int default_buildtime = 5;
+
+	protected:
+		void load(rapidxml::xml_node<>* node);
+	};
+
+	struct Explorer : public Industry
+	{
+		virtual bool can_create_factory(Area* a) override;
 	};
 
 	enum FactoryState
@@ -142,6 +154,8 @@ namespace simciv
 		void find_best_prod_rule(const Prices& prices, ProductionRule*& rule, double& profit);
 		Prices get_prices();
 		void income(double money);
+
+		std::function<void(Factory*, FactoryState old_state, FactoryState new_state)> on_state_changed;
 	};
 
 #define MULTITHREAD
@@ -172,6 +186,8 @@ namespace simciv
 		void load_from_file(std::string file_name);
 		virtual void update() override;
 		Factory* create_factory(Area* a, Industry* industry);
+		void delete_factory(Factory* f);
+		Factory* create_explorer(Area* a, Industry* industry);
 		std::vector<Factory*> find_factories(Area* a);
 		std::vector<Factory*>& get_factories() { return factories; }
 		std::vector<Industry*>& get_industries() { return industries; }
@@ -191,8 +207,13 @@ namespace simciv
 		double transport_cost(Area* a, Area* b);
 		//double fuel_price(Area* a);
 		Trader* fuel_buyer(Area* a);
+		void set_mil_state(Area* a, MilitaryState state);
+		void set_explored(Area* a);
 
 		MilitaryData mil_data;
+
+		std::function<void(Area*)> on_area_changed;
+		Explorer* _explorer;
 	protected:
 		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
 		void add_industry(Industry* industry) { this->industries.push_back(industry); }
@@ -204,6 +225,7 @@ namespace simciv
 		std::vector<TradeMap*> _trade_maps;
 		TradeMap* _fuel_map;
 		int _fuel_id;
+		
 	};
 
 	extern World world;
