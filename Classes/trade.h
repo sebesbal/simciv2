@@ -18,6 +18,7 @@ namespace simciv
 		Trader();
 		Product* product;
 		Area* area;
+		int ref_count;
 		//Factory* owner;
 		Trader* storage_pair;					///< the other trader of a seller-buyer pair (for a Factory-Product)
 		bool is_buyer;							///< this is a buyer (not seller)
@@ -37,7 +38,7 @@ namespace simciv
 		void pay(double d) { }
 		void update_price();
 		void update_volume();
-		void synchronize_price();
+		//void synchronize_price();
 		void update_storage();
 		double free_capacity() { return storage_capacity - _storage; }
 
@@ -80,6 +81,8 @@ namespace simciv
 	/// A trade route between two Trader
 	struct Transport
 	{
+		Transport() : marked_as_deleted(false) { }
+		bool marked_as_deleted;
 		Trader* seller;
 		Trader* buyer;
 		Trader* fuel_buyer;
@@ -120,6 +123,7 @@ namespace simciv
 		WorldTradeData& get_world_data() { return data; }
 		Product& product;
 		void TradeMap::update_data();
+		void sync_area_traders(Area* a);
 	protected:
 		WorldTradeData data;
 		int update_count;

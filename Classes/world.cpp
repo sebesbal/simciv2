@@ -170,6 +170,9 @@ namespace simciv
 
 	void Industry::load(rapidxml::xml_node<>* node)
 	{
+		// always buy fuel
+		buy_products.emplace(7); // TODO: 7 = _fuel_id
+
 		if (auto a = node->first_attribute("id"))
 		{
 			name = a->value();
@@ -220,12 +223,24 @@ namespace simciv
 			build_cost.duration = default_buildtime * stoi(a->value()) / 100.0;
 		}
 
+		auto process_rule = [this](ProductionRule& rule) {
+			for (auto& p : rule.input)
+			{
+				buy_products.emplace(p.first);
+			}
+			for (auto& p : rule.output)
+			{
+				sell_products.emplace(p.first);
+			}
+		};
+
 		auto n = node->first_node("produce");
 		while (n)
 		{
 			ProductionRule rule;
 			rule.load(n);
 			prod_rules.push_back(rule);
+			process_rule(rule);
 			n = n->next_sibling("produce");
 		}
 
@@ -236,7 +251,8 @@ namespace simciv
 		{
 			ProductionRule rule;
 			rule.load(n);
-			rule.output[0] = 1;
+			//rule.output[0] = 1;
+			process_rule(rule);
 			maint_cost.per_turn.push_back(rule);
 			n = n->next_sibling("maint");
 		}
@@ -255,7 +271,8 @@ namespace simciv
 			{
 				ProductionRule rule;
 				rule.load(n);
-				rule.output[0] = 1;
+				//rule.output[0] = 1;
+				process_rule(rule);
 				this->build_cost.total.push_back(rule);
 				n = n->next_sibling("build");
 			}
@@ -344,8 +361,10 @@ namespace simciv
 	{
 		for (int i = 0; i < product_count; ++i)
 		{
-			world.trade_maps()[i]->remove_prod(sellers[i]);
-			world.trade_maps()[i]->remove_prod(buyers[i]);
+			//world.trade_maps()[i]->remove_prod(sellers[i]);
+			//world.trade_maps()[i]->remove_prod(buyers[i]);
+			if (sellers[i]) --sellers[i]->ref_count;
+			if (buyers[i]) --buyers[i]->ref_count;
 		}
 	}
 	
@@ -492,8 +511,8 @@ namespace simciv
 		Prices p;
 		for (int i = 0; i < product_count; ++i)
 		{
-			p.sell[i] = this->sellers[i]->price;
-			p.buy[i] = this->buyers[i]->price;
+			if (sellers[i]) p.sell[i] = sellers[i]->price;
+			if (buyers[i]) p.buy[i] = buyers[i]->price;
 		}
 		return p;
 	}
@@ -548,11 +567,6 @@ string ExePath() {
 	return string(buffer).substr(0, pos);
 }
 
-ting::upgrade_lock<ting::upgrade_mutex> World::lock_factories()
-{
-	return ting::upgrade_lock<ting::upgrade_mutex>(factories_mutex);
-}
-
 void World::generate_industry()
 	{
 		CCLOG("ExePath() %s", ExePath());
@@ -569,11 +583,24 @@ void World::generate_industry()
 		auto f = create_factory(a, s1);
 		f->set_state(FS_RUN);
 		f->health = 1;
-		f->buyers[world.get_product("food_1")->id]->set_storage(1000);
-		f->buyers[world.get_product("manpow")->id]->set_storage(1000);
-		f->buyers[world.get_product("wood_1")->id]->set_storage(1000);
-		f->buyers[world.get_product("stone_1")->id]->set_storage(1000);
-		f->buyers[world.get_product("fuel_1")->id]->set_storage(1000);
+
+		auto g = [f, this](string s) {
+			int id = world.get_product(s)->id;
+			f->buyers[id] = _trade_maps[id]->create_prod(f->area, true, 50);
+			f->buyers[id]->set_storage(1000);
+		};
+
+		g("food_1");
+		g("manpow");
+		g("wood_1");
+		g("stone_1");
+		g("fuel_1");
+
+		//f->buyers[world.get_product("food_1")->id]->set_storage(1000);
+		//f->buyers[world.get_product("manpow")->id]->set_storage(1000);
+		//f->buyers[world.get_product("wood_1")->id]->set_storage(1000);
+		//f->buyers[world.get_product("stone_1")->id]->set_storage(1000);
+		//f->buyers[world.get_product("fuel_1")->id]->set_storage(1000);
 	}
 
 	Factory* World::create_factory(Area* a, Industry* industry)
@@ -590,35 +617,32 @@ void World::generate_industry()
 		// create all producers:
 		for (int i = 0; i < product_count; ++i)
 		{
-			auto p = f->sellers[i] = _trade_maps[i]->create_prod(a, false, 50);
-			p->storage_capacity = 10000;
-			auto q = f->buyers[i] = _trade_maps[i]->create_prod(a, true, 50);
-			q->storage_capacity = 10000;
-			p->storage_pair = q;
-			q->storage_pair = p;
-			// p->owner = q->owner = f;
-			if (industry->type == IT_STORAGE)
+			if (industry->sell_products.find(i) != industry->sell_products.end())
 			{
-				// p->set_storage(p->storage_capacity / 2);
-				q->ideal_fullness = p->ideal_fullness = 0.5;
+				auto p = f->sellers[i] = _trade_maps[i]->create_prod(a, false, 50);
+				++p->ref_count;
+				p->storage_capacity = 10000;
 			}
+			if (industry->buy_products.find(i) != industry->buy_products.end())
+			{
+				auto q = f->buyers[i] = _trade_maps[i]->create_prod(a, true, 50);
+				++q->ref_count;
+				q->storage_capacity = 10000;
+			}
+			
+			_trade_maps[i]->sync_area_traders(a);
 		}
 
-		{
-			//auto lock = lock_factories();
-			factories.push_back(f);
-		}
+		factories.push_back(f);
 
 		return f;
 	}
 
 	void World::delete_factory(Factory * f)
 	{
-		{
-			//auto lock = lock_factories();
-			//factories.erase(std::find(factories.begin(), factories.end(), f));
-			f->marked_as_deleted = true;
-		}
+		//for (auto t : f->buyers) if (t) --t->ref_count;
+		//for (auto t : f->sellers) if (t) --t->ref_count;
+		f->marked_as_deleted = true;
 	}
 
 	Factory * World::create_explorer(Area * a, Industry * industry)
@@ -660,6 +684,41 @@ void World::generate_industry()
 			return false;
 		}), factories.end());
 
+		for (auto& map : _trade_maps)
+		{
+			auto& v = map->_transports;
+			v.erase(remove_if(v.begin(), v.end(), [](Transport* t) {
+				if (t->seller->ref_count == 0 || t->buyer->ref_count == 0)
+				{
+					t->marked_as_deleted = true;
+					return true;
+				}
+				return false;
+			}), v.end());
+
+			auto& b = map->_buyers;
+			b.erase(remove_if(b.begin(), b.end(), [map](Trader* t) { 
+				if (t->ref_count == 0)
+				{
+					auto& x = map->_area_buyers[t->area->id];
+					x.erase(find(x.begin(), x.end(), t));
+					return true;
+				}
+				return false;
+			}), b.end());
+
+			auto& s = map->_buyers;
+			s.erase(remove_if(s.begin(), s.end(), [map](Trader* t) {
+				if (t->ref_count == 0)
+				{
+					auto& x = map->_area_sellers[t->area->id];
+					x.erase(find(x.begin(), x.end(), t));
+					return true;
+				}
+				return false;
+			}), s.end());
+		}
+
 		update_road_maps();
 
 		for (TradeMap* product : _trade_maps)
@@ -688,7 +747,6 @@ void World::generate_industry()
 		}
 
 		{
-			ting::shared_lock<ting::upgrade_mutex> lock(factories_mutex);
 			for (Factory* f : factories)
 			{
 				Prices prices = f->get_prices();

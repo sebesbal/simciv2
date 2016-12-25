@@ -20,6 +20,7 @@ namespace simciv
 	}
 
 	Trader::Trader() :
+		ref_count(0),
 		_storage(0),
 		storage_last(0),
 		storage_capacity(10000),
@@ -121,24 +122,24 @@ void Trader::update_volume()
 	}
 }
 
-	void Trader::synchronize_price()
-	{
-		if (storage_pair)
-		{
-			double p = pow(this->price * storage_pair->price, 0.5);
-			const double a = 1.05;
-			if (is_buyer)
-			{
-				this->price = p / a;
-				storage_pair->price = p * a;
-			}
-			else 
-			{
-				this->price = p * a;
-				storage_pair->price = p / a;
-			}
-		}
-	}
+	//void Trader::synchronize_price()
+	//{
+	//	if (storage_pair)
+	//	{
+	//		double p = pow(this->price * storage_pair->price, 0.5);
+	//		const double a = 1.05;
+	//		if (is_buyer)
+	//		{
+	//			this->price = p / a;
+	//			storage_pair->price = p * a;
+	//		}
+	//		else 
+	//		{
+	//			this->price = p * a;
+	//			storage_pair->price = p / a;
+	//		}
+	//	}
+	//}
 
 	void Trader::update_storage()
 	{
@@ -537,8 +538,43 @@ void Trader::update_volume()
 		data.storage = s;
 	}
 
+	void TradeMap::sync_area_traders(Area * a)
+	{
+		auto& p = _area_buyers[a->id];
+		auto& q = _area_sellers[a->id];
+		if (p.size() > 0)
+		{
+			if (q.size() > 0)
+			{
+				p[0]->storage_pair = q[0];
+				q[0]->storage_pair = p[0];
+			}
+			else
+			{
+				p[0]->storage_pair = nullptr;
+			}
+		}
+		else
+		{
+			if (q.size() > 0)
+			{
+				q[0]->storage_pair = nullptr;
+			}
+		}
+	}
+
 	Trader* TradeMap::create_prod(Area* area, bool consumer, double price)
 	{
+		// There is at most only one seller and buyer on an area for a product.
+		if (consumer)
+		{
+			if (_area_buyers[area->id].size() > 0) return _area_buyers[area->id][0];
+		}
+		else
+		{
+			if (_area_sellers[area->id].size() > 0) return _area_sellers[area->id][0];
+		}
+
 		Trader* p = new Trader();
 		p->product = &product;
 		p->price = price;
@@ -546,9 +582,9 @@ void Trader::update_volume()
 		p->area = area;
 		world.area_changed(area);
 
-		auto& v = p->is_buyer ? _buyers : _sellers;
-		AreaData& a = get_trade(area);
-		auto it = std::find_if(v.begin(), v.end(), [area](Trader* p) { return p->area == area; });
+		//auto& v = p->is_buyer ? _buyers : _sellers;
+		//AreaData& a = get_trade(area);
+		//auto it = std::find_if(v.begin(), v.end(), [area](Trader* p) { return p->area == area; });
 
 		if (p->is_buyer)
 		{
@@ -557,7 +593,6 @@ void Trader::update_volume()
 		}
 		else
 		{
-			// p->volume *= a.resource;
 			_sellers.push_back(p);
 			_area_sellers[area->id].push_back(p);
 		}

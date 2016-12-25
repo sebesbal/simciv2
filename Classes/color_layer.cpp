@@ -42,6 +42,7 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	int i = 0; \
 	for (Area* area : world.areas()) \
 	{ \
+		if (!area->is_explored()) continue; \
 		double v = exp; \
 		min = std::min(min, v); \
 		max = std::max(max, v); \
@@ -53,6 +54,7 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	{ \
 		for (Area* a : world.areas()) \
 		{ \
+			if (!a->is_explored()) continue; \
 			draw_rect(a->x, a->y, min, 1); \
 		} \
 	} \
@@ -60,6 +62,7 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	{ \
 		for (Area* a : world.areas()) \
 		{ \
+			if (!a->is_explored()) continue; \
 			draw_rect(a->x, a->y, (u[i++] - min) / d, 1); \
 		} \
 	} \
@@ -103,6 +106,7 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	int i = 0; \
 	for (Area* area : world.areas()) \
 	{ \
+		if (!area->is_explored()) continue; \
 		double e = exp; \
 		u[i++] = e == -1 ? -1 : std::min(max_, std::max(e, min_)); \
 	} \
@@ -112,6 +116,7 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	{ \
 		for (Area* a : world.areas()) \
 		{ \
+			if (!a->is_explored()) continue; \
 			draw_rect(a->x, a->y, min_, 1); \
 		} \
 	} \
@@ -119,6 +124,7 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	{ \
 		for (Area* a : world.areas()) \
 		{ \
+			if (!a->is_explored()) continue; \
 			draw_rect(a->x, a->y, (u[i++] - min_) / d, 1); \
 		} \
 	} \
@@ -204,11 +210,12 @@ void ColorMapLayer::update(float delta)
 		{
 			Transport* t = it->first;
 			TransportAnimation*& f = it->second;
-			if (t->volume == 0 && t->active_time + 5 < world.time)
+			if (t->marked_as_deleted || t->volume == 0 && t->active_time + 5 < world.time)
 			{
 				f->stop();
 				it = transports.erase(it);
 				delete f;
+				// TODO delete Transport (use shared ptr)
 				continue;
 			}
 			else if (f->time < t->creation_time)
@@ -297,7 +304,8 @@ void TransportAnimation::update_route(MapView * map)
 	Vector<FiniteTimeAction*> v;
 	CCFiniteTimeAction* actionMove = CCMoveTo::create(0, ccp(a->x * cs + cs / 2, a->y * cs + cs / 2));
 	v.pushBack(actionMove);
-	for (auto r : transport->route->roads)
+	auto u = transport->route->roads; // TODO. thread...
+	for (auto r : u)
 	{
 		Area* b = r->other(a);
 		int i = abs(b->x - a->x) + abs(b->y - a->y);

@@ -90,6 +90,7 @@ namespace simciv
 		std::vector<Area*> sorted_adjs();	///< adjacent areas sorted in direction, filtered by road_level > 0
 		std::vector<Road*> sorted_roads();	///< sorted and filtered roads to the sorted_adjs() Areas
 		std::vector<Area*> connected_adjs(); ///< unsorted filtered adjacendt Areas
+		bool is_explored() { return mil_state == MILS_EXPLORED; }
 	};
 
 	/// Road between two adjacent Area

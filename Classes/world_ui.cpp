@@ -316,7 +316,7 @@ namespace simciv
 		_mouse_down_pos = p;
 
 		Area* a = _factory_layer->get_area(p);
-		if (a->mil_state != MILS_EXPLORED) return true;
+		if (!a->is_explored()) return true;
 
 		if (_state == UIS_ROAD_AREA || _state == UIS_ROAD_ROUTE)
 		{
@@ -358,6 +358,7 @@ namespace simciv
 		Area* a = _factory_layer->get_area(p);
 
 		if (try_start_exploration(a)) return;
+		if (!a->is_explored()) return;
 
 		auto& ml = a->mil_level;
 
@@ -389,7 +390,7 @@ namespace simciv
 			_road_layer->finish_route();
 			break;
 		case UIA_EXPLORE:
-			_road_layer->finish_route();
+			// _road_layer->finish_route();
 			break;
 		default:
 			break;
@@ -420,6 +421,8 @@ namespace simciv
 		if (_drag_start)
 		{
 			if (try_start_exploration(a)) return;
+			
+
 			if (info.action == UIA_ROAD_PLUS || info.action == UIA_ROAD_MINUS)
 			{
 				static Area* last_area = NULL;
@@ -431,12 +434,15 @@ namespace simciv
 			switch (info.action)
 			{
 			case UIA_ROAD_PLUS:
+				if (!a->is_explored()) return;
 				_road_layer->add_road(a);
 				break;
 			case UIA_ROAD_MINUS:
+				if (!a->is_explored()) return;
 				_road_layer->remove_road(a);
 				break;
 			case UIA_ROAD_ROUTE:
+				if (!a->is_explored()) return;
 				if (a != _drag_start_area)
 				{
 					auto route = world.create_route(_drag_start_area, a);

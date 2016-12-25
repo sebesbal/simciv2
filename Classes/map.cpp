@@ -301,6 +301,10 @@ namespace simciv
 		{
 			create_road_map(start);
 		}
+		if (!dest->map)
+		{
+			create_road_map(dest);
+		}
 
 		Node* n = &map->g[dest->id];
 		Area* a = dest;
