@@ -105,6 +105,7 @@ namespace simciv
 		AreaData& get_trade(Area* a) { return (*_production)[a->id]; }
 		AreaData& get_new_prod(Area* a) { return (*_new_production)[a->id]; }
 		Trader* create_prod(Area* area, bool consumer, double price);
+		void remove_prod(Trader* t);
 		void generate_resources();
 		std::vector<Transport*>& transports() { return _transports; }
 		void update_transports(); ///< find possible trade routes

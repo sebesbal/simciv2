@@ -3,6 +3,7 @@
 #include <map>
 #include <mutex>
 #include <functional>
+#include "shared_mutex"
 
 #include "map.h"
 #include "trade.h"
@@ -132,7 +133,9 @@ namespace simciv
 	struct Factory
 	{
 		Factory(Industry* industry);
+		~Factory();
 		Industry* industry;
+		bool marked_as_deleted;
 		std::vector<Trader*> sellers;
 		std::vector<Trader*> buyers;
 		double money;
@@ -214,6 +217,7 @@ namespace simciv
 
 		std::function<void(Area*)> on_area_changed;
 		Explorer* _explorer;
+		ting::upgrade_lock<ting::upgrade_mutex> lock_factories();
 	protected:
 		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
 		void add_industry(Industry* industry) { this->industries.push_back(industry); }
@@ -225,6 +229,7 @@ namespace simciv
 		std::vector<TradeMap*> _trade_maps;
 		TradeMap* _fuel_map;
 		int _fuel_id;
+		ting::upgrade_mutex factories_mutex;
 		
 	};
 

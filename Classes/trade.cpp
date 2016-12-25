@@ -564,4 +564,22 @@ void Trader::update_volume()
 
 		return p;
 	}
+	void TradeMap::remove_prod(Trader * t)
+	{
+		if (t)
+		{
+			if (t->is_buyer)
+			{
+				_buyers.erase(find(_buyers.begin(), _buyers.end(), t));
+				auto& x = _area_buyers[t->area->id];
+				x.erase(find(x.begin(), x.end(), t));
+			}
+			else
+			{
+				_sellers.erase(find(_sellers.begin(), _sellers.end(), t));
+				auto& x = _area_sellers[t->area->id];
+				x.erase(find(x.begin(), x.end(), t));
+			}
+		}
+	}
 }

@@ -11,8 +11,9 @@
 namespace simciv
 {
 
-#define RUNUI(f) Director::getInstance()->getScheduler()->performFunctionInCocosThread(f)
+// #define RUNUI(f) Director::getInstance()->getScheduler()->performFunctionInCocosThread( f )
 
+void RUNUI(std::function<void(void)> f);
 class TransportAnimation;
 class RoadView;
 
@@ -91,6 +92,8 @@ protected:
 	virtual void onTouchEnded(cocos2d::Touch* touch, Event *event);
 	virtual void onTouchMoved(cocos2d::Touch* touch, Event *event);
 	virtual void onMouseMove(cocos2d::Event  *event);
+
+	bool try_start_exploration(Area* a);
 
 	bool is_inside_cell(cocos2d::Vec2& p, Area* a = NULL);
 

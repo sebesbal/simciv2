@@ -12,6 +12,11 @@
 
 namespace simciv
 {
+	void RUNUI(std::function<void(void)> f)
+	{
+		Director::getInstance()->getScheduler()->performFunctionInCocosThread(f);
+	}
+
 	Scene* WorldUI::createScene()
 	{
 		// 'scene' is an autorelease object
@@ -28,14 +33,13 @@ namespace simciv
 		return scene;
 	}
 
-
 	bool WorldUI::init()
 	{
 		if (!Layout::init()) return false;
 		_menu_size = Size(64, 64);
 		_drag_start = false;
 		_paused = false;
-		_speed = 20;
+		_speed = 5;
 		_popup = NULL;
 		auto visibleSize = Director::getInstance()->getVisibleSize();
 		setContentSize(visibleSize);
@@ -166,7 +170,10 @@ namespace simciv
 				gid = 0;
 				break;
 			}
-			layer->setTileGID(gid, get_tile(a));
+
+			RUNUI([layer, this, gid, a] {
+				layer->setTileGID(gid, get_tile(a));
+			});
 		};
 
 		vector<int> w(world.areas().size());
@@ -309,6 +316,7 @@ namespace simciv
 		_mouse_down_pos = p;
 
 		Area* a = _factory_layer->get_area(p);
+		if (a->mil_state != MILS_EXPLORED) return true;
 
 		if (_state == UIS_ROAD_AREA || _state == UIS_ROAD_ROUTE)
 		{
@@ -349,27 +357,7 @@ namespace simciv
 		p = _map->convertToNodeSpace(p);
 		Area* a = _factory_layer->get_area(p);
 
-		if (a->mil_state == MILS_EXPLORABLE)
-		{
-			auto f = _factory_layer->update_or_create_factory(a, world._explorer);
-			if (f)
-			{
-				f->on_state_changed = [](Factory* f, FactoryState olds, FactoryState news) {
-					if (news == FS_RUN)
-					{
-						//Director::getInstance()->getScheduler()->performFunctionInCocosThread([f] {
-						//	world.set_explored(f->area);
-						//	g_factory_layer->delete_factory(f);
-						//});
-						RUNUI([f] {
-							world.set_explored(f->area);
-							g_factory_layer->delete_factory(f);
-						});
-					}
-				};
-			}
-			return;
-		}
+		if (try_start_exploration(a)) return;
 
 		auto& ml = a->mil_level;
 
@@ -431,6 +419,7 @@ namespace simciv
 		
 		if (_drag_start)
 		{
+			if (try_start_exploration(a)) return;
 			if (info.action == UIA_ROAD_PLUS || info.action == UIA_ROAD_MINUS)
 			{
 				static Area* last_area = NULL;
@@ -466,6 +455,30 @@ namespace simciv
 	{
 		EventMouse* mouseEvent = dynamic_cast<EventMouse*>(event);
 		update_popup(mouseEvent->getLocationInView());
+	}
+
+	bool simciv::WorldUI::try_start_exploration(Area * a)
+	{
+		if (a->mil_state == MILS_EXPLORABLE)
+		{
+			auto f = _factory_layer->create_factory(a, world._explorer);
+			if (f)
+			{
+				f->on_state_changed = [](Factory* f, FactoryState olds, FactoryState news) {
+					if (news == FS_RUN)
+					{
+						RUNUI([f] {
+							GUARD_LOCK_WORLD
+								world.set_explored(f->area);
+							g_factory_layer->delete_factory(f);
+						});
+					}
+				};
+			}
+			return true;
+		}
+
+		return false;
 	}
 
 	bool WorldUI::is_inside_cell(Vec2 & p, Area* a)

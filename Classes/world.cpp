@@ -326,7 +326,8 @@ namespace simciv
 		money(100000000), 
 		efficiency(1), 
 		state(FS_UNDER_CONTRUCTION),
-		health(0)
+		health(0),
+		marked_as_deleted(false)
 	{
 		set_industry(industry);
 		for (int i = 0; i < product_count; ++i)
@@ -336,6 +337,15 @@ namespace simciv
 		for (int i = 0; i < product_count; ++i)
 		{
 			buyers.push_back(NULL);
+		}
+	}
+
+	Factory::~Factory()
+	{
+		for (int i = 0; i < product_count; ++i)
+		{
+			world.trade_maps()[i]->remove_prod(sellers[i]);
+			world.trade_maps()[i]->remove_prod(buyers[i]);
 		}
 	}
 	
@@ -451,7 +461,7 @@ namespace simciv
 			if (health <= 0)
 			{
 				health = 0;
-				set_state(FS_DEAD);
+				//set_state(FS_DEAD);
 			}
 			break;
 		}
@@ -538,7 +548,12 @@ string ExePath() {
 	return string(buffer).substr(0, pos);
 }
 
-	void World::generate_industry()
+ting::upgrade_lock<ting::upgrade_mutex> World::lock_factories()
+{
+	return ting::upgrade_lock<ting::upgrade_mutex>(factories_mutex);
+}
+
+void World::generate_industry()
 	{
 		CCLOG("ExePath() %s", ExePath());
 		load_from_file("res/mod3.xml");
@@ -564,8 +579,8 @@ string ExePath() {
 	Factory* World::create_factory(Area* a, Industry* industry)
 	{
 		if (!industry->can_create_factory(a)) return nullptr;
+
 		Factory* f = industry->create_factory(a);
-		factories.push_back(f);
 		f->area = a;
 		if (industry->product)
 		{
@@ -589,12 +604,21 @@ string ExePath() {
 			}
 		}
 
+		{
+			//auto lock = lock_factories();
+			factories.push_back(f);
+		}
+
 		return f;
 	}
 
 	void World::delete_factory(Factory * f)
 	{
-		factories.erase(std::find(factories.begin(), factories.end(), f));
+		{
+			//auto lock = lock_factories();
+			//factories.erase(std::find(factories.begin(), factories.end(), f));
+			f->marked_as_deleted = true;
+		}
 	}
 
 	Factory * World::create_explorer(Area * a, Industry * industry)
@@ -605,6 +629,7 @@ string ExePath() {
 
 	vector<Factory*> World::find_factories(Area* a)
 	{
+		// ting::shared_lock<ting::upgrade_mutex> lock(factories_mutex);
 		vector<Factory*> result;
 		for (auto f : factories)
 		{
@@ -625,6 +650,15 @@ string ExePath() {
 
 		static int k = 0;
 		++time;
+
+		factories.erase(remove_if(factories.begin(), factories.end(), [](Factory* f) {
+			if (f->marked_as_deleted)
+			{
+				delete f;
+				return true;
+			}
+			return false;
+		}), factories.end());
 
 		update_road_maps();
 
@@ -647,30 +681,33 @@ string ExePath() {
 		//	product->update_area_prices();
 		//}
 
-		if (k % 10 == 0)
+		if (k % 1 == 0)
 		for (TradeMap* product : _trade_maps)
 		{
-			product->update_area_prices2(k % 100);
+			product->update_area_prices2(k % 1);
 		}
 
-		for (Factory* f : factories)
 		{
-			Prices prices = f->get_prices();
-
-			if (f->state == FS_RUN)
+			ting::shared_lock<ting::upgrade_mutex> lock(factories_mutex);
+			for (Factory* f : factories)
 			{
-				ProductionRule* rule;
-				double profit;
-				f->find_best_prod_rule(prices, rule, profit);
-				if (rule)
+				Prices prices = f->get_prices();
+
+				if (f->state == FS_RUN)
 				{
-					f->apply_rule(rule, profit, f->efficiency);
+					ProductionRule* rule;
+					double profit;
+					f->find_best_prod_rule(prices, rule, profit);
+					if (rule)
+					{
+						f->apply_rule(rule, profit, f->efficiency);
+					}
 				}
-			}
 
-			if (f->state == FS_RUN || f->state == FS_UNDER_CONTRUCTION || f->state == FS_UPGRADE)
-			{
-				double expense = f->consume_articles(prices);
+				if (f->state == FS_RUN || f->state == FS_UNDER_CONTRUCTION || f->state == FS_UPGRADE)
+				{
+					double expense = f->consume_articles(prices);
+				}
 			}
 		}
 
@@ -795,6 +832,7 @@ string ExePath() {
 		static int k = 0;
 		int n = _areas.size();
 		int old_k = k;
+		clock_t start = clock();
 
 		for (int l = 0; l < 20;)
 		{
@@ -812,6 +850,8 @@ string ExePath() {
 			}
 			k = (k + 1) % n;
 			if (k == old_k) break;
+
+			if (clock() - start > 100) break;
 		}
 	}
 	void World::area_changed(Area * a)
