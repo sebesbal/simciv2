@@ -164,17 +164,6 @@ void Trader::update_volume()
 		//generate_resources();
 	}
 
-	void TradeMap::update()
-	{
-		if (update_count++ % 10 == 0)
-		{
-			update_transports();
-		}
-		update_area_prices();
-		update_producer_prices();
-		update_producer_storages();
-	}
-
 	Transport* TradeMap::get_transport(Trader* src, Trader* dst)
 	{
 		auto it = std::find_if(_transports.begin(), _transports.end(), [src, dst](const Transport* t) { return t->seller == src && t->buyer == dst; });
@@ -327,50 +316,6 @@ void Trader::update_volume()
 		}
 	}
 
-	void TradeMap::update_area_prices()
-	{
-		for (Area* a : world.areas())
-		{
-			auto& p = get_new_prod(a);
-			double new_supply_price = 0; // the highest price in this area what can a supplier use (to sell the product).
-			auto& v = _area_buyers[a->id];
-			if (v.size() > 0)
-			{
-				auto it = std::max_element(v.begin(), v.end(), [](Trader* a, Trader* b){ return a->worst_price < b->worst_price; });
-				new_supply_price = (*it)->worst_price;
-			}
-
-			for (Road* r: a->roads)
-			{
-				Area* b = r->other(a);
-				auto& bp = get_trade(b);
-				new_supply_price = std::max(new_supply_price, bp.p_sell - r->cost);
-			}
-			p.p_sell = new_supply_price;
-
-			double new_cons_price = max_price; // the lowest price in this area what can a supplier use (to sell the product).
-			auto& u = _area_sellers[a->id];
-			if (u.size() > 0)
-			{
-				auto it = std::min_element(u.begin(), u.end(), [](Trader* a, Trader* b){ return a->worst_price < b->worst_price; });
-				new_cons_price = (*it)->worst_price;
-			}
-
-			for (Road* r: a->roads)
-			{
-				Area* b = r->other(a);
-				auto& bp = get_trade(b);
-				new_cons_price = std::min(new_cons_price, bp.p_buy + r->cost);
-			}
-			p.p_buy = new_cons_price;
-
-			p.p = (p.p_buy + p.p_sell) / 2;
-		}
-
-		//*_production = *_new_production;
-		std::swap(_production, _new_production);
-	}
-
 	void TradeMap::update_area_prices2(bool full_update)
 	{
 		if (full_update)
@@ -441,9 +386,13 @@ void Trader::update_volume()
 				else
 				{
 					prod.best_buyer = *std::max_element(v.begin(), v.end(), [](pair_t& a, pair_t& b) { return a.first < b.first; });
-					prod.best_buyer.first = prod.best_seller.second->price - prod.best_buyer.first;
+					prod.best_buyer.first = prod.best_buyer.second->price - prod.best_buyer.first;
 				}
 			}
+
+			auto& prod1 = get_trade(a);
+			prod1.best_buyer = prod.best_buyer;
+			prod1.best_seller = prod.best_seller;
 		}
 	}
 

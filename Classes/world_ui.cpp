@@ -184,8 +184,13 @@ namespace simciv
 				Area* a = world.get_area(i, j);
 				auto v = Vec2(i, _grid_size.height - j - 1);
 				a->ori_tile_gid = layer->getTileGIDAt(v);
-				a->tile_gid = 0;
-				a->mil_state = MILS_UNEXPLORED;
+				
+				//a->tile_gid = 0;
+				//a->mil_state = MILS_UNEXPLORED;
+
+				a->tile_gid = a->ori_tile_gid;
+				a->mil_state = MILS_EXPLORED;
+				
 				layer->setTileGID(a->tile_gid, v);
 				int& level = w[a->id];
 				switch (a->ori_tile_gid - 1)

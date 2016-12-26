@@ -587,6 +587,8 @@ void World::generate_industry()
 		auto g = [f, this](string s) {
 			int id = world.get_product(s)->id;
 			f->buyers[id] = _trade_maps[id]->create_prod(f->area, true, 50);
+			f->sellers[id] = _trade_maps[id]->create_prod(f->area, false, 50);
+			_trade_maps[id]->sync_area_traders(f->area);
 			f->buyers[id]->set_storage(1000);
 		};
 
@@ -743,7 +745,7 @@ void World::generate_industry()
 		if (k % 1 == 0)
 		for (TradeMap* product : _trade_maps)
 		{
-			product->update_area_prices2(k % 1);
+			product->update_area_prices2(! (k % 10));
 		}
 
 		{

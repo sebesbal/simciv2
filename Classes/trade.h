@@ -104,7 +104,6 @@ namespace simciv
 
 	public:
 		TradeMap(Product& p);
-		void update();
 		AreaData& get_trade(Area* a) { return (*_production)[a->id]; }
 		AreaData& get_new_prod(Area* a) { return (*_new_production)[a->id]; }
 		Trader* create_prod(Area* area, bool consumer, double price);
@@ -115,7 +114,6 @@ namespace simciv
 		void update_trade(); ///< calculate trade on the routes
 		void update_producer_prices();
 		void before_rules();
-		void update_area_prices(); ///< calculate price info on every area
 		void update_area_prices2(bool full_update = false);
 		void find_best_producers_for_areas();
 		void update_producer_storages();
