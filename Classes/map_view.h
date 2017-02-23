@@ -85,6 +85,7 @@ namespace simciv
 		virtual void onDraw(const cocos2d::Mat4 &transform, uint32_t flags);
 
 		void draw_rect(int x, int y, float rate, float alpha);
+		void draw_rect(int x, int y, Color3B& col);
 		void draw_rect_green(int x, int y, float rate, float alpha);
 		void draw_triangles(int x, int y, float a, float b);
 		void draw_circles(int x, int y, float a, float b);

@@ -155,6 +155,7 @@ void Trader::update_volume()
 		update_count(0),
 		product(p)
 	{
+		p.map = this;
 		int n = world.areas().size();
 		_production->resize(n);
 		_new_production->resize(n);

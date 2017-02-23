@@ -66,6 +66,12 @@ void TileMapView::draw_rect(int x, int y, float rate, float alpha)
 	}
 }
 
+void TileMapView::draw_rect(int x, int y, Color3B & col)
+{
+	Rect r = get_rect(x, y);
+	DrawPrimitives::drawSolidRect(Vec2(r.getMinX(), r.getMinY()), Vec2(r.getMaxX(), r.getMaxY()), Color4F(col));
+}
+
 void TileMapView::draw_triangles(int x, int y, float a, float b)
 {
 	Rect r = get_rect(x, y);

@@ -80,6 +80,7 @@ namespace simciv
 		MilitaryState mil_state;	///< friendly, enemy etc.
 		Player* owner;
 		RoadMap* map;				///< routes from this road
+		Color3B	color;
 		AreaData& data(Product* p); ///< trade data for every Product
 		AreaData& data(int prod_id);  ///< trade data for every Product
 		int dir(Area * a);			///< get the direction for a given area
@@ -91,6 +92,9 @@ namespace simciv
 		std::vector<Road*> sorted_roads();	///< sorted and filtered roads to the sorted_adjs() Areas
 		std::vector<Area*> connected_adjs(); ///< unsorted filtered adjacendt Areas
 		bool is_explored() { return mil_state == MILS_EXPLORED; }
+
+		vector<int> in, out;
+		vector<Color3B> color_in, color_out;
 	};
 
 	/// Road between two adjacent Area

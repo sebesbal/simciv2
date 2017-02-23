@@ -68,7 +68,8 @@ namespace simciv
 		std::string group;			///< gid in the xml file
 		std::string display_name;	///< display name
 		std::string icon_file;
-		map<AreaType, double> tile_res;	///< tile guid -> resource modifier map
+		TradeMap* map;
+		std::map<AreaType, double> tile_res;	///< tile guid -> resource modifier map
 		void load(rapidxml::xml_node<>* node);
 
 		double average_price;
@@ -213,6 +214,7 @@ namespace simciv
 		Trader* fuel_buyer(Area* a);
 		void set_mil_state(Area* a, MilitaryState state);
 		void set_explored(Area* a);
+		void generate_resources();
 
 		MilitaryData mil_data;
 

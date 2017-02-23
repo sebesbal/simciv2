@@ -222,11 +222,7 @@ namespace simciv
 
 		auto a = world.get_area(12, 10);
 		world.set_explored(a);
-
-		for (TradeMap* m : world.trade_maps())
-		{
-			m->generate_resources();
-		}
+		world.generate_resources();
 
 		for (Road* r : world.roads())
 		{

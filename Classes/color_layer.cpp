@@ -130,6 +130,15 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	} \
 }
 
+#define DRAW_AREAS_COLOR \
+{ \
+	for (Area* a : world.areas()) \
+	{ \
+		if (!a->is_explored()) continue; \
+		draw_rect(a->x, a->y, a->color); \
+	} \
+}
+
 void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 {
 	// calculate roads
@@ -181,7 +190,8 @@ void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		if (info.industry) DRAW_AREAS(area, world.get_build_cost(info.industry, area));
 		break;
 	case MM_SPECIES_RESOURCES:
-		if (info.industry) DRAW_AREAS(area, world.get_resources(info.industry, area));
+		//if (info.industry) DRAW_AREAS(area, world.get_resources(info.industry, area));
+		if (info.industry) DRAW_AREAS_COLOR;
 		break;
 	case MM_PROFIT_RES:
 		if (info.industry) DRAW_AREAS_2(area,

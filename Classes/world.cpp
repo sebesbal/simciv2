@@ -976,6 +976,63 @@ void World::generate_industry()
 		}
 	}
 
+	void World::generate_resources()
+	{
+		for (TradeMap* m : _trade_maps)
+		{
+			m->generate_resources();
+		}
+
+		const int n = 3;
+		const cocos2d::Color3B cols[n] = { Color3B(255, 0, 0), Color3B(0, 255, 0), Color3B(0, 0, 255) };
+
+		vector<TradeMap*> tms;
+
+		tms.push_back(get_product("food_1")->map);
+		tms.push_back(get_product("wood_1")->map);
+		tms.push_back(get_product("fuel_1")->map);
+
+		for (auto a : _areas)
+		{
+			auto it = max_element(tms.begin(), tms.end(),
+				[a](TradeMap* ta, TradeMap* tb) { return ta->get_trade(a).resource <= tb->get_trade(a).resource; });
+			auto tm = *it;
+			auto p = tm->product;
+			//if (p.id < n)
+			{
+				int id = find(tms.begin(), tms.end(), tm) - tms.begin();
+				Color3B c = cols[id];
+				double r = tm->get_trade(a).resource;
+				double& rr = tm->get_trade(a).resource;
+				if (r < 0.3)
+				{
+					r = 0; rr = 0;
+				}
+				else if (r < 0.35)
+				{
+					r = 0.2;
+					rr = 0.5;
+				}
+				else if (r < 0.4)
+				{
+					r = 0.6;
+					rr = 0.75;
+				}
+				else
+				{
+					r = 1;
+					rr = 1;
+				}
+
+				a->color = Color3B(r * c.r, r * c.g, r * c.b);
+			}
+			//else
+			//{
+			//	a->color = Color3B(0, 0, 0);
+			//}
+		}
+	}
+
 	double consume_articles(std::vector<Trader*>& storage, Prices & prices, std::vector<ProductionRule>& rules, double volume, double & full_expense)
 	{
 		typedef std::pair<double, ProductionRule*> pair_t;
