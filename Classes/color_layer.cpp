@@ -152,6 +152,8 @@ void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
     CHECK_GL_ERROR_DEBUG();
 	auto b = getBoundingBox();
 
+	DrawPrimitives::drawSolidRect(Vec2(b.getMinX(), b.getMinY()), Vec2(b.getMaxX(), b.getMaxY()), Color4F(0, 0, 0, 0.8));
+
 	if (info.show_grid)
 	{
 		glLineWidth(1);
@@ -191,7 +193,11 @@ void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		break;
 	case MM_SPECIES_RESOURCES:
 		//if (info.industry) DRAW_AREAS(area, world.get_resources(info.industry, area));
-		if (info.industry) DRAW_AREAS_COLOR;
+		//if (info.industry) DRAW_AREAS_COLOR;
+		if (info.industry) for (auto& a : world.areas())
+		{
+			draw_circles(a);
+		}
 		break;
 	case MM_PROFIT_RES:
 		if (info.industry) DRAW_AREAS_2(area,

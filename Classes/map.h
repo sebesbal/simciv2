@@ -94,7 +94,7 @@ namespace simciv
 		bool is_explored() { return mil_state == MILS_EXPLORED; }
 
 		vector<int> in, out;
-		vector<Color3B> color_in, color_out;
+		vector<Color4F> color_in, color_out;
 	};
 
 	/// Road between two adjacent Area

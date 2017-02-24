@@ -153,6 +153,7 @@ namespace simciv
 		this->addChild(_map);
 		_map->setPosition(getContentSize() / 2);
 		auto layer = m->getLayer("Background");
+		//_map->setVisible(false);
 
 		world.create(_grid_size.width, _grid_size.height, product_count);
 		world.on_area_changed = [layer, this](Area* a) {
@@ -239,7 +240,7 @@ namespace simciv
 		//v->setVisible(true);
 		//v->setAnchorPoint(Vec2(0, 0));
 		//v->setPosition(Vec2(0, 0));
-		//v->setContentSize(_map->getContentSize());
+		v->setContentSize(_map->getContentSize());
 		views.push_back(v);
 		_map->addChild(v);
 

@@ -300,7 +300,8 @@ void Trader::update_volume()
 		{
 			//AreaData& ap = (*_production)[i];
 			//(*_new_production)[i].resource = (*_production)[i].resource = pow( (double)rand() / RAND_MAX, 3);
-			v[a->id].resource = product.tile_res.at(a->type) * pow((double)rand() / RAND_MAX, 3);
+			//v[a->id].resource = product.tile_res.at(a->type) * pow((double)rand() / RAND_MAX, 3);
+			v[a->id].resource = product.tile_res.at(a->type) * (double)rand() / RAND_MAX;
 		}
 
 		for (Area* a : world.areas())

@@ -89,6 +89,7 @@ namespace simciv
 		void draw_rect_green(int x, int y, float rate, float alpha);
 		void draw_triangles(int x, int y, float a, float b);
 		void draw_circles(int x, int y, float a, float b);
+		void draw_circles(Area* a);
 	};
 
 	class RoadLayer : public MapView
