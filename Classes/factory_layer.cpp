@@ -78,18 +78,19 @@ Factory * FactoryMapLayer::update_or_create_factory(Area * a, Industry * industr
 Sprite * FactoryMapLayer::create_sprite(Factory * f)
 {
 	const int m = 4;
-	Sprite* s = Sprites::create(f->industry, Size(cell_size() - m, cell_size() - m), true);
+	//Sprite* s = Sprites::create(f->industry, Size(cell_size() - m, cell_size() - m), true);
 	Area* a = f->area;
 	auto p = get_point(a);;
-	_factories->addChild(s);
+	//_factories->addChild(s);
 
 	FactorySprite* fs = new FactorySprite();
 	fs->_factory = f;
-	fs->_nodes.push_back(s);
+	fs->_layer = _factories;
+	//fs->_nodes.push_back(s);
 	fs->setPosition(p);
 	_factory_sprites.push_back(fs);
 
-	return s;
+	return nullptr;
 }
 
 void FactoryMapLayer::create_sprites_from_model()

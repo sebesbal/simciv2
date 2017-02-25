@@ -89,7 +89,8 @@ namespace simciv
 			{
 				_progress_bar = DrawNode::create();
 				//_progress_bar->setScale(1 / _sprite->getScale());
-				_nodes[0]->getParent()->addChild(_progress_bar);
+				_layer->addChild(_progress_bar);
+				//_nodes[0]->getParent()->addChild(_progress_bar);
 				_nodes.push_back(_progress_bar);
 			}
 

@@ -9,6 +9,7 @@ namespace simciv
 	struct RoadMap;
 	struct AreaData;
 	struct Product;
+	struct Industry;
 
 	enum AreaType
 	{
@@ -67,6 +68,7 @@ namespace simciv
 	/// One cell of the map
 	struct Area
 	{
+		Area();
 		int id;						///< index in Map._areas
 		int x;						///< x coordinate
 		int y;						///< y coordinate
@@ -92,9 +94,13 @@ namespace simciv
 		std::vector<Road*> sorted_roads();	///< sorted and filtered roads to the sorted_adjs() Areas
 		std::vector<Area*> connected_adjs(); ///< unsorted filtered adjacendt Areas
 		bool is_explored() { return mil_state == MILS_EXPLORED; }
+		void update_colors();
 
 		vector<int> in, out;
 		vector<Color4F> color_in, color_out;
+		float rad_1, rad_2;
+		Industry* industry;
+		bool has_factory;
 	};
 
 	/// Road between two adjacent Area

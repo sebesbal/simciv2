@@ -14,6 +14,14 @@ namespace simciv
 {
 	int product_count;
 
+	Area::Area(): map(nullptr)
+		, road_level(0)
+		, mil_level(0)
+		, industry(nullptr)
+		, has_factory(false)
+	{
+	}
+
 	AreaData& Area::data(Product* p)
 	{
 		return world.get_trade(this, p->id);
@@ -69,6 +77,45 @@ namespace simciv
 			}
 		}
 		return result;
+	}
+
+	#define lofusz(col, w) col.r *= w; col.g *= w; col.b *= w;
+	void Area::update_colors()
+	{
+		color_in.clear();
+		color_out.clear();
+		if (!industry)
+		{
+			return;
+		}
+
+		const cocos2d::Color4F colsou[4] = { Color4F(1, 0, 0, 1), Color4F(0, 1, 0, 1), Color4F(0, 0, 1, 1), Color4F(0.7, 0.7, 0.7, 1) };
+		ProductionRule& r = industry->prod_rules[0];
+		for (auto& p : r.input)
+		{
+			color_in.push_back(colsou[p.first]);
+		}
+		for (auto& p : r.output) 
+		{
+			color_out.push_back(colsou[p.first]);
+		}
+
+		const float fact_w = 5;
+		float r_weight = (color_in.size() + color_out.size()) / 4.0f;
+		//float weight = (color_in.size() + color_out.size() + (has_factory ? fact_w : 0)) / (fact_w + 4.0f);
+		float weight = has_factory ? 1 : 0.4;
+		rad_1 = 0.8 / 2 * r_weight;
+		rad_2 = rad_1 + 0.15;
+
+		for (auto& c : color_in)
+		{
+			lofusz(c, weight);
+		}
+
+		for (auto& c : color_out)
+		{
+			lofusz(c, weight);
+		}
 	}
 
 	Road* Area::road(Area* b)
@@ -151,11 +198,8 @@ namespace simciv
 			{
 				Area* a = new Area();
 				a->id = _areas.size();
-				a->map = NULL;
 				a->x = x;
 				a->y = y;
-				a->road_level = 0;
-				a->mil_level = 0;
 				_areas.push_back(a);
 
 				if (x > 0)

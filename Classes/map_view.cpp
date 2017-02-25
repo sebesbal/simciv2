@@ -121,69 +121,96 @@ void drawPie(const Vec2& center, float radius, float startAngle, float endAngle,
 }
 
 #define lofusz(col, w) col.r *= w; col.g *= w; col.b *= w;
+//
+//void TileMapView::draw_circles(Area * a)
+//{
+//	Rect r = get_rect(a->x, a->y);
+//	int n = a->color_in.size();
+//	float dx = r.size.width / max(1, n);
+//	Vec2 u = Vec2(r.getMinX(), r.getMinY());
+//	Vec2 v = Vec2(r.getMinX() + dx, r.getMaxY());
+//	float weight = (a->color_in.size() + a->color_out.size()) / 4.0f;
+//
+//	float rad_out = 0.8 * cell_size() / 2 * weight;
+//
+//	// DrawPrimitives::drawSolidRect(u, Vec2(r.getMaxX(), r.getMaxY()), Color4F(0, 0, 0, 1));
+//
+//	if (n == 0)
+//	{
+//		//DrawPrimitives::drawSolidRect(u, v, Color4F(0, 0, 0, 1));
+//	}
+//	else
+//	{
+//		//for (auto c : a->color_in)
+//		//{
+//		//	lofusz(c, 0.4);
+//		//	//lofusz(c, weight);
+//		//	DrawPrimitives::drawSolidRect(u, v, c);
+//		//	u.x += dx;
+//		//	v.x += dx;
+//		//}
+//
+//		n = a->color_in.size();
+//		float rad = rad_out + cell_size() * 0.15;
+//		float f = M_PI / 2;
+//		float df = 2 * M_PI / n;
+//		for (auto c : a->color_in)
+//		{
+//			lofusz(c, weight);
+//			//lofusz(c, 0.4);
+//			// DrawPrimitives::setDrawColor4F(c.r, c.g, c.b, c.a);
+//			drawPie(get_point(a), rad, f, f + df, 30, 1, 1, c);
+//			f += df;
+//			//DrawPrimitives::drawSolidCircle(get_point(a), cell_size() / 4, df, 20);
+//		}
+//	}
+//	
+//	{
+//		n = a->color_out.size();
+//		//float rad = 0.8 * cell_size() / 2 * weight;
+//		float f = 0;
+//		float df = 2 * M_PI / n;
+//		for (auto c : a->color_out)
+//		{
+//			lofusz(c, weight);
+//			//lofusz(c, 0.4);
+//			// DrawPrimitives::setDrawColor4F(c.r, c.g, c.b, c.a);
+//			drawPie(get_point(a), rad_out, f, f + df, 30, 1, 1, c);
+//			f += df;
+//			//DrawPrimitives::drawSolidCircle(get_point(a), cell_size() / 4, df, 20);
+//		}
+//	}
+//
+//	// 
+//}
 
 void TileMapView::draw_circles(Area * a)
 {
 	Rect r = get_rect(a->x, a->y);
 	int n = a->color_in.size();
-	float dx = r.size.width / max(1, n);
-	Vec2 u = Vec2(r.getMinX(), r.getMinY());
-	Vec2 v = Vec2(r.getMinX() + dx, r.getMaxY());
-	float weight = (a->color_in.size() + a->color_out.size()) / 4.0f;
 
-	float rad_out = 0.8 * cell_size() / 2 * weight;
-
-	// DrawPrimitives::drawSolidRect(u, Vec2(r.getMaxX(), r.getMaxY()), Color4F(0, 0, 0, 1));
-
-	if (n == 0)
+	if (n > 0)
 	{
-		//DrawPrimitives::drawSolidRect(u, v, Color4F(0, 0, 0, 1));
-	}
-	else
-	{
-		//for (auto c : a->color_in)
-		//{
-		//	lofusz(c, 0.4);
-		//	//lofusz(c, weight);
-		//	DrawPrimitives::drawSolidRect(u, v, c);
-		//	u.x += dx;
-		//	v.x += dx;
-		//}
-
-		n = a->color_in.size();
-		float rad = rad_out + cell_size() * 0.15;
 		float f = M_PI / 2;
 		float df = 2 * M_PI / n;
 		for (auto c : a->color_in)
 		{
-			lofusz(c, weight);
-			//lofusz(c, 0.4);
-			// DrawPrimitives::setDrawColor4F(c.r, c.g, c.b, c.a);
-			drawPie(get_point(a), rad, f, f + df, 30, 1, 1, c);
+			drawPie(get_point(a), cell_size() * a->rad_2, f, f + df, 30, 1, 1, c);
 			f += df;
-			//DrawPrimitives::drawSolidCircle(get_point(a), cell_size() / 4, df, 20);
 		}
 	}
-	
+
 	{
 		n = a->color_out.size();
-		//float rad = 0.8 * cell_size() / 2 * weight;
 		float f = 0;
 		float df = 2 * M_PI / n;
 		for (auto c : a->color_out)
 		{
-			lofusz(c, weight);
-			//lofusz(c, 0.4);
-			// DrawPrimitives::setDrawColor4F(c.r, c.g, c.b, c.a);
-			drawPie(get_point(a), rad_out, f, f + df, 30, 1, 1, c);
+			drawPie(get_point(a), cell_size() * a->rad_1, f, f + df, 30, 1, 1, c);
 			f += df;
-			//DrawPrimitives::drawSolidCircle(get_point(a), cell_size() / 4, df, 20);
 		}
 	}
-
-	// 
 }
-
 void TileMapView::draw_rect_green(int x, int y, float rate, float alpha)
 {
 	Rect r = get_rect(x, y);

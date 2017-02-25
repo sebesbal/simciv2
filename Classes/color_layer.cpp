@@ -194,7 +194,7 @@ void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	case MM_SPECIES_RESOURCES:
 		//if (info.industry) DRAW_AREAS(area, world.get_resources(info.industry, area));
 		//if (info.industry) DRAW_AREAS_COLOR;
-		if (info.industry) for (auto& a : world.areas())
+		for (auto& a : world.areas())
 		{
 			draw_circles(a);
 		}

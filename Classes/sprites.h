@@ -61,5 +61,6 @@ namespace simciv
 		//cocos2d::Sprite* _sprite;
 		std::vector<cocos2d::Node*> _nodes;
 		cocos2d::Vec2 _position;
+		cocos2d::Node* _layer;
 	};
 }

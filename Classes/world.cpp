@@ -532,13 +532,13 @@ namespace simciv
 		{
 			auto tm = new TradeMap(*products[i]);
 			_trade_maps.push_back(tm);
-			if (products[i]->name == "fuel_1")
+			if (products[i]->name == "fuel")
 			{
 				_fuel_map = tm;
 				_fuel_id = i;
 			}
 		}
-		generate_factories();
+		//generate_factories();
 	}
 
 	/* 
@@ -577,10 +577,19 @@ void World::generate_industry()
 	{
 		int x = 12, y = 10;
 
-		auto s1 = get_industry("city_1");
 		auto a = get_area(x, y);
-		if (!s1) throw("Industry not found!");
-		auto f = create_factory(a, s1);
+		ProductionRule r;
+		for (int i = 0; i < 4; ++i)
+		{
+			r.output[i] = 1;
+		}
+		a->industry = new Industry();
+		a->industry->prod_rules.push_back(r);
+		a->has_factory = true;
+		a->update_colors();
+
+		//if (!s1) throw("Industry not found!");
+		auto f = create_factory(a, a->industry);
 		f->set_state(FS_RUN);
 		f->health = 1;
 
@@ -592,11 +601,10 @@ void World::generate_industry()
 			f->buyers[id]->set_storage(1000);
 		};
 
-		g("food_1");
-		g("manpow");
-		g("wood_1");
-		g("stone_1");
-		g("fuel_1");
+		g("prod_1");
+		g("prod_2");
+		g("prod_3");
+		g("fuel");
 
 		//f->buyers[world.get_product("food_1")->id]->set_storage(1000);
 		//f->buyers[world.get_product("manpow")->id]->set_storage(1000);
@@ -1047,10 +1055,10 @@ void World::generate_industry()
 
 		vector<TradeMap*> tms;
 
-		tms.push_back(get_product("food_1")->map);
-		tms.push_back(get_product("wood_1")->map);
-		tms.push_back(get_product("fuel_1")->map);
-		tms.push_back(get_product("stone_1")->map);
+		tms.push_back(get_product("prod_1")->map);
+		tms.push_back(get_product("prod_2")->map);
+		tms.push_back(get_product("prod_3")->map);
+		tms.push_back(get_product("fuel")->map);
 
 		for (auto a : _areas)
 		{
@@ -1059,6 +1067,8 @@ void World::generate_industry()
 
 			//sort(tms.begin(), tms.end(),
 			//	[a](TradeMap* ta, TradeMap* tb) { return ta->get_trade(a).resource <= tb->get_trade(a).resource; });
+
+			set<int> in, out;
 
 			int i = 0;
 			double d = 0.2;
@@ -1084,21 +1094,45 @@ void World::generate_industry()
 				}
 				else if (r < 0.37)
 				{
-					if (a->color_in.size() < 2) a->color_in.push_back(colsou[i]);
+					//if (a->color_in.size() < 2) a->color_in.push_back(colsou[i]);
+					if (in.size() < 2) in.emplace(i);
 				}
 				else if (r > 0.55)
 				{
-					if (a->color_out.size() < 2) a->color_out.push_back(colsou[i]);
+					//if (a->color_out.size() < 2) a->color_out.push_back(colsou[i]);
+					if (out.size() < 2) out.emplace(i);
 				}
 
 				++i;
 			}
 
-			if (a->color_out.size() == 0)
+			//if (a->color_out.size() == 0)
+			//{
+			//	a->color_in.clear();
+			//}
+			if (out.size() == 0)
 			{
-				a->color_in.clear();
+				continue;
 			}
+
+			ProductionRule r; 
+			for (int i: in)
+			{
+				r.input[i] = 1;
+				//a->color_in.push_back(colsou[i]);
+			}
+			for (int i : out)
+			{
+				r.output[i] = 2;
+				//a->color_out.push_back(colsou[i]);
+			}
+			a->industry = new Industry();
+			a->industry->prod_rules.push_back(r);
+
+			a->update_colors();
 		}
+
+		generate_factories();
 	}
 
 
