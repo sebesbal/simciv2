@@ -52,6 +52,8 @@ void FactoryMapLayer::update(float dt)
 Factory* FactoryMapLayer::create_factory(Area* a, Industry * s)
 {
 	Factory* f = world.create_factory(a, s);
+	a->has_factory = true;
+	a->update_colors();
 	if (f)
 	{
 		create_sprite(f);

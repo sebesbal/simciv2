@@ -278,10 +278,11 @@ namespace simciv
 			}
 		}
 
-		for (auto& r : build_cost.total)
-		{
-			build_cost.per_turn.push_back(r.multiply(1.0 / build_cost.duration, 1));
-		}
+		build_cost.calc_per_turn();
+		//for (auto& r : build_cost.total)
+		//{
+		//	build_cost.per_turn.push_back(r.multiply(1.0 / build_cost.duration, 1));
+		//}
 
 		product = get_product();
 	}
@@ -579,12 +580,14 @@ void World::generate_industry()
 
 		auto a = get_area(x, y);
 		ProductionRule r;
+		a->industry = new Industry();
 		for (int i = 0; i < 4; ++i)
 		{
 			r.output[i] = 1;
+			a->industry->sell_products.emplace(i);
 		}
-		a->industry = new Industry();
 		a->industry->prod_rules.push_back(r);
+		a->industry->buy_products.emplace(_fuel_id);
 		a->has_factory = true;
 		a->update_colors();
 
@@ -772,7 +775,8 @@ void World::generate_industry()
 					}
 				}
 
-				if (f->state == FS_RUN || f->state == FS_UNDER_CONTRUCTION || f->state == FS_UPGRADE)
+				//if (f->state == FS_RUN || f->state == FS_UNDER_CONTRUCTION || f->state == FS_UPGRADE)
+				if (f->state == FS_UNDER_CONTRUCTION || f->state == FS_UPGRADE)
 				{
 					double expense = f->consume_articles(prices);
 				}
@@ -1075,60 +1079,47 @@ void World::generate_industry()
 			for (auto& t : tms)
 			{
 				double r = t->get_trade(a).resource;
-				//if (r < 0.47)
-				//{
-				//	// Skip
-				//}
-				//else if (r < 0.5 && a->color_in.size() < 2)
-				//{
-				//	a->color_in.push_back(colsou[i]);
-				//}
-				//else if (r < 0.6 && a->color_out.size() < 2)
-				//{
-				//	a->color_out.push_back(colsou[i]);
-				//}
-
 				if (r == 0)
 				{
 
 				}
 				else if (r < 0.37)
 				{
-					//if (a->color_in.size() < 2) a->color_in.push_back(colsou[i]);
 					if (in.size() < 2) in.emplace(i);
 				}
 				else if (r > 0.55)
 				{
-					//if (a->color_out.size() < 2) a->color_out.push_back(colsou[i]);
 					if (out.size() < 2) out.emplace(i);
 				}
 
 				++i;
 			}
 
-			//if (a->color_out.size() == 0)
-			//{
-			//	a->color_in.clear();
-			//}
 			if (out.size() == 0)
 			{
 				continue;
 			}
 
-			ProductionRule r; 
+			ProductionRule r, b;
+			a->industry = new Industry();
 			for (int i: in)
 			{
 				r.input[i] = 1;
+				b.input[i] = 1;
+				a->industry->buy_products.emplace(i);
 				//a->color_in.push_back(colsou[i]);
 			}
 			for (int i : out)
 			{
 				r.output[i] = 2;
+				a->industry->sell_products.emplace(i);
 				//a->color_out.push_back(colsou[i]);
 			}
-			a->industry = new Industry();
+			a->industry->buy_products.emplace(_fuel_id);
 			a->industry->prod_rules.push_back(r);
-
+			a->industry->build_cost.duration = 10;
+			a->industry->build_cost.total.push_back(b);
+			a->industry->build_cost.calc_per_turn();
 			a->update_colors();
 		}
 
@@ -1194,5 +1185,12 @@ void World::generate_industry()
 	{
 		return a->mil_state == MILS_EXPLORABLE
 			&& world.find_factories(a).size() == 0;
+	}
+	void ProductionCost::calc_per_turn()
+	{
+		for (auto& r : total)
+		{
+			per_turn.push_back(r.multiply(1.0 / duration, 1));
+		}
 	}
 }

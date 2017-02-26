@@ -52,6 +52,7 @@ namespace simciv
 		std::vector<ProductionRule> per_turn;
 		std::vector<ProductionRule> total;		///< cost_per_turn * duration
 		double duration;
+		void calc_per_turn();
 	};
 
 	enum IndustryType

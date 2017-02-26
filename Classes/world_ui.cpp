@@ -369,7 +369,8 @@ namespace simciv
 		case UIA_FACT_CREATE:
 			if (!_drag_start)
 			{
-				Industry* s = info.industry;
+				// Industry* s = info.industry;
+				Industry* s = a->industry;
 				if (s)
 				{
 					_factory_layer->update_or_create_factory(a, s);
