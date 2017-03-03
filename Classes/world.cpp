@@ -583,7 +583,7 @@ void World::generate_industry()
 		a->industry = new Industry();
 		for (int i = 0; i < 4; ++i)
 		{
-			r.output[i] = 1;
+			r.output[i] = 0.1;
 			a->industry->sell_products.emplace(i);
 		}
 		a->industry->prod_rules.push_back(r);
@@ -601,7 +601,7 @@ void World::generate_industry()
 			f->buyers[id] = _trade_maps[id]->create_prod(f->area, true, 50);
 			f->sellers[id] = _trade_maps[id]->create_prod(f->area, false, 50);
 			_trade_maps[id]->sync_area_traders(f->area);
-			f->buyers[id]->set_storage(1000);
+			f->buyers[id]->set_storage(10);
 		};
 
 		g("prod_1");
@@ -775,8 +775,8 @@ void World::generate_industry()
 					}
 				}
 
-				//if (f->state == FS_RUN || f->state == FS_UNDER_CONTRUCTION || f->state == FS_UPGRADE)
-				if (f->state == FS_UNDER_CONTRUCTION || f->state == FS_UPGRADE)
+				if (f->state == FS_RUN || f->state == FS_UNDER_CONTRUCTION || f->state == FS_UPGRADE)
+				//if (f->state == FS_UNDER_CONTRUCTION || f->state == FS_UPGRADE)
 				{
 					double expense = f->consume_articles(prices);
 				}
@@ -1100,18 +1100,21 @@ void World::generate_industry()
 				continue;
 			}
 
-			ProductionRule r, b;
+			ProductionRule r, b, m;
 			a->industry = new Industry();
-			for (int i: in)
+			for (int i : in)
 			{
 				r.input[i] = 1;
 				b.input[i] = 1;
 				a->industry->buy_products.emplace(i);
 				//a->color_in.push_back(colsou[i]);
 			}
+
+			double x[3] = {0.2, 1.5, 4};
+
 			for (int i : out)
 			{
-				r.output[i] = 2;
+				r.output[i] = x[in.size()];
 				a->industry->sell_products.emplace(i);
 				//a->color_out.push_back(colsou[i]);
 			}
@@ -1120,6 +1123,10 @@ void World::generate_industry()
 			a->industry->build_cost.duration = 10;
 			a->industry->build_cost.total.push_back(b);
 			a->industry->build_cost.calc_per_turn();
+
+			m.input[0] = 0.1;
+			a->industry->maint_cost.per_turn.push_back(m);
+			a->industry->buy_products.emplace(0);
 			a->update_colors();
 		}
 
@@ -1129,6 +1136,8 @@ void World::generate_industry()
 
 	double consume_articles(std::vector<Trader*>& storage, Prices & prices, std::vector<ProductionRule>& rules, double volume, double & full_expense)
 	{
+		if (rules.size() == 0) return 0;
+
 		typedef std::pair<double, ProductionRule*> pair_t;
 		std::vector<pair_t> v;
 

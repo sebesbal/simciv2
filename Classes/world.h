@@ -15,7 +15,7 @@ namespace rapidxml
 
 namespace simciv
 {
-	const double distance_cost = 0.01;
+	const double distance_cost = 0.2;
 	const double max_price = 100000000000;
 	extern int product_count; ///< The number of product types
 
