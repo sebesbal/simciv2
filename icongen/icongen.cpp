@@ -14,7 +14,7 @@ class TileSet
 public:
 	TileSet(int cols, int rows, int tile_width, int tile_height, int margin, int space);
 	~TileSet();
-	virtual void draw() = 0;
+	//virtual void draw() { }
 	void save(const std::wstring filename);
 protected:
 	int cols;
@@ -50,7 +50,7 @@ class RoadTileSet: public TileSet
 public:
 	RoadTileSet(int cols, int rows, int tile_width, int tile_height, int margin, int space, std::vector<double>& line_width) :
 		TileSet(cols, line_width.size() * rows, tile_width, tile_height, margin, space), line_width(line_width) { }
-	virtual void draw() override;
+	virtual void draw(double r, double g, double b, double a);
 	std::vector<double> line_width;
 };
 
@@ -60,14 +60,17 @@ int main()
 	v.push_back(2);
 	v.push_back(5);
 	v.push_back(8);
+	double gray = 0.7;
+	double c[5][3] = { {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, { gray, gray, gray }, { 0, 0, 0 } };
 	// v.push_back(9);
 	// v.push_back(11);
 
-	RoadTileSet map(6, 6, 50, 50, 1, 1, v);
-	map.draw();
-	map.save(L"../Resources/res/roads4.png");
-
-	
+	for (int i = 0; i < 5; ++i)
+	{
+		RoadTileSet map(6, 6, 50, 50, 1, 1, v);
+		map.draw(c[i][0], c[i][1], c[i][2], 1);
+		map.save(L"../Resources/res/roads_" + std::to_wstring(i) + L".png");
+	}
     return 0;
 }
 
@@ -165,13 +168,13 @@ void Road::drawto(cairo_t* g, cairo_surface_t * surf)
 	//cairo_stroke(g);
 }
 
-void RoadTileSet::draw()
+void RoadTileSet::draw(double r, double green, double b, double a)
 {
 	//cairo_set_source_rgba(g, 0, 0, 0, 1);
 	//cairo_rectangle(g, 0, 0, pixel_width, pixel_height);
 	//cairo_fill(g);
 
-	cairo_set_source_rgba(g, 0, 0, 0, 1);
+	cairo_set_source_rgba(g, r, green, b, a);
 	//cairo_set_antialias(g, CAIRO_ANTIALIAS_GOOD);
 
 	int k = 0;

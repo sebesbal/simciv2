@@ -155,7 +155,7 @@ namespace simciv
 		auto layer = m->getLayer("Background");
 		//_map->setVisible(false);
 
-		world.create(_grid_size.width, _grid_size.height, product_count);
+		world.create(_grid_size.width, _grid_size.height);
 		world.on_area_changed = [layer, this](Area* a) {
 			int gid;
 			switch (a->mil_state)

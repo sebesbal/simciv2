@@ -101,12 +101,16 @@ namespace simciv
 		void remove_road(Area* a);
 		void update_roads();
 		void add_road(RoadView* rw);
+		void add_tmp_road(RoadView* rw, int color);
 		void clear_roadviews(Area* a);
 		void add_route(Route* route, int level);
+		void add_tmp_route(Route* route, int level, int color);
 		void finish_route();
+		void clear_tmp_roads();
 	protected:
 		void clear_new_route();
 		cocos2d::SpriteBatchNode* roads_node;
+		cocos2d::SpriteBatchNode* tmp_roads_node[5];
 		std::vector<RoadInfo> roads;
 		std::vector<RoadView*> new_route; ///< temporal route's RoadViews
 		int new_route_level;

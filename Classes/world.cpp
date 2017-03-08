@@ -524,12 +524,12 @@ namespace simciv
 		if (this->money < 0) this->money = 0;
 	}
 
-	void World::create(int width, int height, int prod_count)
+	void World::create(int width, int height)
 	{
 		generate_industry();
-		prod_count = product_count;
-		Map::create(width, height, prod_count);
-		for (int i = 0; i < prod_count; ++i)
+		// prod_count = product_count;
+		Map::create(width, height);
+		for (int i = 0; i < product_count; ++i)
 		{
 			auto tm = new TradeMap(*products[i]);
 			_trade_maps.push_back(tm);
@@ -572,6 +572,7 @@ void World::generate_industry()
 	{
 		CCLOG("ExePath() %s", ExePath());
 		load_from_file("res/mod3.xml");
+		init_col_industries();
 	}
 
 	void World::generate_factories()
@@ -579,7 +580,8 @@ void World::generate_industry()
 		int x = 12, y = 10;
 
 		auto a = get_area(x, y);
-		ProductionRule r;
+		ProductionRule r, b;
+		b.input[0] = 0;
 		a->industry = new Industry();
 		for (int i = 0; i < 4; ++i)
 		{
@@ -588,6 +590,8 @@ void World::generate_industry()
 		}
 		a->industry->prod_rules.push_back(r);
 		a->industry->buy_products.emplace(_fuel_id);
+		a->industry->build_cost.total.push_back(b);
+		a->industry->build_cost.calc_per_turn();
 		a->has_factory = true;
 		a->update_colors();
 
@@ -851,6 +855,24 @@ void World::generate_industry()
 		product_count = products.size();
 	}
 
+	void World::init_col_industries()
+	{
+		// simciv::product_count = product_count;
+		const cocos2d::Color4F c[7] = {
+			Color4F(1, 0, 0, 1), 
+			Color4F(0, 1, 0, 1), 
+			Color4F(0, 0, 1, 1), 
+			Color4F(0.7, 0.7, 0.7, 1),
+			Color4F(1, 1, 0, 1),
+			Color4F(1, 0, 1, 1),
+			Color4F(0, 1, 1, 1)
+		};
+		for (int i = 0; i < product_count; ++i)
+		{
+			colors.push_back(c[i]);
+		}
+	}
+
 	Prices World::get_prices(Area* a)
 	{
 		Prices p;
@@ -1055,7 +1077,7 @@ void World::generate_industry()
 		const int n = 4;
 		float a = 0.6;
 		// const cocos2d::Color4F colsin[n] = { Color4F(a, 0, 0, 1), Color4F(0, a, 0, 1), Color4F(0, 0, a, 1) };
-		const cocos2d::Color4F colsou[n] = { Color4F(1, 0, 0, 1), Color4F(0, 1, 0, 1), Color4F(0, 0, 1, 1), Color4F(0.7, 0.7, 0.7, 1) };
+		//const cocos2d::Color4F colsou[n] = { Color4F(1, 0, 0, 1), Color4F(0, 1, 0, 1), Color4F(0, 0, 1, 1), Color4F(0.7, 0.7, 0.7, 1) };
 
 		vector<TradeMap*> tms;
 

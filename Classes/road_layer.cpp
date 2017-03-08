@@ -12,14 +12,28 @@ namespace simciv
 
 	RoadLayer::RoadLayer() : roads(world.areas().size())
 	{
-		roads_node = RoadView::create_batch_node("res/roads4.png");
-		addChild(roads_node);
+		//roads_node = RoadView::create_batch_node("res/roads4.png");
+		//addChild(roads_node);
+
+		for (int i = 0; i < 5; ++i)
+		{
+			tmp_roads_node[i] = RoadView::create_batch_node("res/roads_" + to_string(i) + ".png");
+			addChild(tmp_roads_node[i]);
+		}
+		roads_node = tmp_roads_node[4];
 	}
 
 	void RoadLayer::add_road(RoadView * road)
 	{
 		roads_node->addChild(road);
 		roads[road->area->id].roads.emplace(road);
+		Area* a = road->area;
+		road->setPosition(get_point(a->x, a->y));
+	}
+
+	void RoadLayer::add_tmp_road(RoadView * road, int color)
+	{
+		tmp_roads_node[color]->addChild(road);
 		Area* a = road->area;
 		road->setPosition(get_point(a->x, a->y));
 	}
@@ -57,6 +71,26 @@ namespace simciv
 		}
 	}
 
+	void RoadLayer::add_tmp_route(Route * route, int level, int color)
+	{
+		auto as = route->areas();
+		int n = as.size();
+		if (n > 1)
+		{
+			auto rv = RoadView::create(as[1], as[0], NULL, level);
+			add_tmp_road(rv, color);
+
+			rv = RoadView::create(as[n - 2], as[n - 1], NULL, level);
+			add_tmp_road(rv, color);
+
+			for (int i = 1; i < n - 1; ++i)
+			{
+				auto rv = RoadView::create(as[i - 1], as[i], as[i + 1], level);
+				add_tmp_road(rv, color);
+			}
+		}
+	}
+
 	void RoadLayer::finish_route()
 	{
 		for (RoadView* r : new_route)
@@ -66,6 +100,14 @@ namespace simciv
 		}
 		clear_new_route();
 		update_roads();
+	}
+
+	void RoadLayer::clear_tmp_roads()
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+
+		}
 	}
 
 	void RoadLayer::clear_new_route()

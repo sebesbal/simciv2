@@ -5,20 +5,21 @@
 
 namespace simciv
 {
-	Sprite * Sprites::create(Industry * i, const Size& s, bool use_bck)
+	cocos2d::Node * Sprites::create(Industry * i, const Size& s, bool use_bck)
 	{
 		return create(i->icon_file, s, use_bck);
 	}
 
-	Sprite * Sprites::create(Product * f, const Size & s, bool use_bck)
+	cocos2d::Node * Sprites::create(Product * f, const Size & s, bool use_bck)
 	{
 		return create(f->icon_file, s, use_bck);
 	}
 
-	Sprite * Sprites::create(std::string file_name, const Size & s, bool use_bck)
+	cocos2d::Node * Sprites::create(std::string file_name, const Size & s, bool use_bck)
 	{
 		Sprite* sprite = Sprite::create(file_name);
-		if (!sprite) throw "File not found: " + file_name;
+		//if (!sprite) throw "File not found: " + file_name;
+		if (!sprite) return cocos2d::Node::create();
 
 		if (use_bck)
 		{
@@ -36,7 +37,7 @@ namespace simciv
 		}
 	}
 
-	void Sprites::set_scale(Sprite * sprite, const Size & size)
+	void Sprites::set_scale(cocos2d::Node * sprite, const Size & size)
 	{
 		auto s = sprite->getContentSize();
 		if (s.width / s.height > size.width / size.height)

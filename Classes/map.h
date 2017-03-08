@@ -150,7 +150,7 @@ namespace simciv
 	{
 	public:
 		Map();
-		virtual void create(int width, int height, int prod_count);
+		virtual void create(int width, int height);
 		const std::vector<Road*>& roads() { return _roads; }
 		const std::vector<Area*>& areas() { return _areas; }
 		virtual void update();

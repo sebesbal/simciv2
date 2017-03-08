@@ -89,15 +89,15 @@ namespace simciv
 			return;
 		}
 
-		const cocos2d::Color4F colsou[4] = { Color4F(1, 0, 0, 1), Color4F(0, 1, 0, 1), Color4F(0, 0, 1, 1), Color4F(0.7, 0.7, 0.7, 1) };
+		//const cocos2d::Color4F colsou[4] = { Color4F(1, 0, 0, 1), Color4F(0, 1, 0, 1), Color4F(0, 0, 1, 1), Color4F(0.7, 0.7, 0.7, 1) };
 		ProductionRule& r = industry->prod_rules[0];
 		for (auto& p : r.input)
 		{
-			color_in.push_back(colsou[p.first]);
+			color_in.push_back(world.colors[p.first]);
 		}
 		for (auto& p : r.output) 
 		{
-			color_out.push_back(colsou[p.first]);
+			color_out.push_back(world.colors[p.first]);
 		}
 
 		const float fact_w = 5;
@@ -188,7 +188,7 @@ namespace simciv
 
 	}
 
-	void Map::create(int width, int height, int prod_count)
+	void Map::create(int width, int height)
 	{
 		_width = width;
 		_height = height;

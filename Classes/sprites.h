@@ -8,10 +8,10 @@ namespace simciv
 	class Sprites
 	{
 	public:
-		static cocos2d::Sprite* create(Industry* f, const Size& s, bool use_bck = false);
-		static cocos2d::Sprite* create(Product* f, const Size& s, bool use_bck = false);
-		static cocos2d::Sprite* create(std::string file_name, const Size& s, bool use_bck = false);
-		static void set_scale(cocos2d::Sprite* sprite, const Size& size);
+		static cocos2d::Node* create(Industry* f, const Size& s, bool use_bck = false);
+		static cocos2d::Node* create(Product* f, const Size& s, bool use_bck = false);
+		static cocos2d::Node* create(std::string file_name, const Size& s, bool use_bck = false);
+		static void set_scale(cocos2d::Node* sprite, const Size& size);
 	};
 
 	class RoadView : public cocos2d::Sprite
@@ -44,7 +44,7 @@ namespace simciv
 		int time;
 	private:
 		Transport* transport;
-		cocos2d::Sprite* sprite;
+		cocos2d::Node* sprite;
 	};
 
 	/// Factory icon + progressbar.

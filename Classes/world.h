@@ -19,6 +19,15 @@ namespace simciv
 	const double max_price = 100000000000;
 	extern int product_count; ///< The number of product types
 
+	//struct Color
+	//{
+	//	Color(double r, double g, double b, double a) : r(r), g(g), b(b), a(a) { }
+	//	double r;
+	//	double g;
+	//	double b;
+	//	double a;
+	//};
+
 	/// Just a vector with product_count size
 	class Products : public std::vector<double>
 	{
@@ -188,8 +197,9 @@ namespace simciv
 	class World : public Map
 	{
 	public:
-		virtual void create(int width, int height, int prod_count) override;
+		virtual void create(int width, int height) override;
 		void load_from_file(std::string file_name);
+		void init_col_industries();
 		virtual void update() override;
 		Factory* create_factory(Area* a, Industry* industry);
 		void delete_factory(Factory* f);
@@ -222,6 +232,8 @@ namespace simciv
 		std::function<void(Area*)> on_area_changed;
 		Explorer* _explorer;
 		int _fuel_id;
+
+		std::vector<Color4F> colors;
 	protected:
 		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
 		void add_industry(Industry* industry) { this->industries.push_back(industry); }
