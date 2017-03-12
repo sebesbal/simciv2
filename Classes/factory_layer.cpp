@@ -45,7 +45,7 @@ void FactoryMapLayer::update(float dt)
 	MapView::update(dt);
 	for (auto fs : _factory_sprites)
 	{
-		fs->update(dt);
+		if (fs->_factory) fs->update(dt);
 	}
 }
 
@@ -53,7 +53,7 @@ Factory* FactoryMapLayer::create_factory(Area* a, Industry * s)
 {
 	Factory* f = world.create_factory(a, s);
 	a->has_factory = true;
-	a->update_colors();
+	//a->update_colors();
 	if (f)
 	{
 		create_sprite(f);
@@ -77,19 +77,27 @@ Factory * FactoryMapLayer::update_or_create_factory(Area * a, Industry * industr
 	return create_factory(a, industry);
 }
 
-Sprite * FactoryMapLayer::create_sprite(Factory * f)
+Sprite * FactoryMapLayer::create_sprite(Factory * f, Industry* ind, Area* a)
 {
 	const int m = 4;
+	if (f)
+	{
+		ind = f->industry;
+		a = f->area;
+	}
 	//Sprite* s = Sprites::create(f->industry, Size(cell_size() - m, cell_size() - m), true);
-	Area* a = f->area;
+	auto s = CircleFactory::create(ind, Size(cell_size(), cell_size()));
 	auto p = get_point(a);;
-	//_factories->addChild(s);
+	_factories->addChild(s);
 
 	FactorySprite* fs = new FactorySprite();
 	fs->_factory = f;
 	fs->_layer = _factories;
-	//fs->_nodes.push_back(s);
+	fs->_nodes.push_back(s);
 	fs->setPosition(p);
+	fs->area = a;
+	s->has_factory = f;
+	s->update_colors();
 	_factory_sprites.push_back(fs);
 
 	return nullptr;
@@ -117,6 +125,19 @@ void FactoryMapLayer::delete_factory(Factory * f)
 	}
 
 	world.delete_factory(f);
+}
+
+FactorySprite * FactoryMapLayer::get_sprite(Area * a)
+{
+	for (auto& s : _factory_sprites)
+	{
+		if (s->area == a)
+		{
+			return s;
+		}
+	}
+	return nullptr;
+
 }
 
 }

@@ -75,6 +75,7 @@ protected:
 	ColorMapLayer* _color_layer;
 	RoadLayer* _road_layer;
 	FactoryMapLayer* _factory_layer;
+	Node* _map_labels;
 	Vec2 get_tile(Area* a);
 
 	// pause, play
@@ -110,6 +111,7 @@ protected:
 	void update_popup(const cocos2d::Vec2& p);
 	cocos2d::Node* find_child(const cocos2d::Node* node, const Vec2& wp);
 	void find_child(const cocos2d::Node* n, const cocos2d::Vec2& wp, cocos2d::Node*& child, int& z_order);
+	void show_routes(Factory* f);
 };
 
 }

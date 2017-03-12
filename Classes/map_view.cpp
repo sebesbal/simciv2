@@ -186,30 +186,30 @@ void drawPie(const Vec2& center, float radius, float startAngle, float endAngle,
 
 void TileMapView::draw_circles(Area * a)
 {
-	Rect r = get_rect(a->x, a->y);
-	int n = a->color_in.size();
+	//Rect r = get_rect(a->x, a->y);
+	//int n = a->color_in.size();
 
-	if (n > 0)
-	{
-		float f = M_PI / 2;
-		float df = 2 * M_PI / n;
-		for (auto c : a->color_in)
-		{
-			drawPie(get_point(a), cell_size() * a->rad_2, f, f + df, 30, 1, 1, c);
-			f += df;
-		}
-	}
+	//if (n > 0)
+	//{
+	//	float f = M_PI / 2;
+	//	float df = 2 * M_PI / n;
+	//	for (auto c : a->color_in)
+	//	{
+	//		drawPie(get_point(a), cell_size() * a->rad_2, f, f + df, 30, 1, 1, c);
+	//		f += df;
+	//	}
+	//}
 
-	{
-		n = a->color_out.size();
-		float f = 0;
-		float df = 2 * M_PI / n;
-		for (auto c : a->color_out)
-		{
-			drawPie(get_point(a), cell_size() * a->rad_1, f, f + df, 30, 1, 1, c);
-			f += df;
-		}
-	}
+	//{
+	//	n = a->color_out.size();
+	//	float f = 0;
+	//	float df = 2 * M_PI / n;
+	//	for (auto c : a->color_out)
+	//	{
+	//		drawPie(get_point(a), cell_size() * a->rad_1, f, f + df, 30, 1, 1, c);
+	//		f += df;
+	//	}
+	//}
 }
 void TileMapView::draw_rect_green(int x, int y, float rate, float alpha)
 {

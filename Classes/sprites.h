@@ -1,8 +1,10 @@
 #pragma once
 #include "world.h"
+#include "controls.h"
 
 namespace simciv
 {
+	const int cs = 32; // cell size
 	class MapView;
 
 	class Sprites
@@ -62,5 +64,42 @@ namespace simciv
 		std::vector<cocos2d::Node*> _nodes;
 		cocos2d::Vec2 _position;
 		cocos2d::Node* _layer;
+		Area* area;
+	};
+
+	class Circle : public cocos2d::ui::ImageView
+	{
+	public:
+		static Circle* create(int prod_id, bool filled, int size)
+		CREATE_FUNC_BODY(Circle, prod_id, filled, size)
+		bool init(int prod_id, bool filled, int size);
+		// virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
+	protected:
+		bool filled;
+		int prod_id;
+	};
+
+	class CircleNumber : public Circle
+	{
+	public:
+		static CircleNumber* create(double val, int prod_id, bool filled, int size)
+		CREATE_FUNC_BODY(CircleNumber, val, prod_id, filled, size)
+		bool init(double val, int prod_id, bool filled, int size);
+	protected:
+		ui::Text* text;
+	};
+
+	class CircleFactory : public DrawNode
+	{
+	public:
+		static CircleFactory* create(Industry* ind, Size& size)
+		CREATE_FUNC_BODY(CircleFactory, ind, size)
+		bool init(Industry* ind, Size& size);
+		void update_colors();
+		bool has_factory;
+	protected:
+		vector<Color4F> color_in, color_out;
+		Industry* industry;
+		float rad_1, rad_2;
 	};
 }

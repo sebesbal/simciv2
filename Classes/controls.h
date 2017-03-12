@@ -174,16 +174,23 @@ namespace simciv
 		ui::VBox* _producer_views;
 	};
 
+	class TablePanel : public Panel
+	{
+	public:
+		CREATE_FUNC(TablePanel)
+		virtual bool init() override;
+		virtual void doLayout() override;
+	protected:
+		Table* _table;
+	};
+
 	/// Show prices and storages for every product
-	class EconomyView : public Panel
+	class EconomyView : public TablePanel
 	{
 	public:
 		CREATE_FUNC(EconomyView)
 		virtual bool init() override;
-		virtual void doLayout() override;
 		void add(Product* p);
-	protected:
-		Table* _table;
 	};
 
 	class MilitaryView : public Panel
@@ -194,6 +201,24 @@ namespace simciv
 		virtual void doLayout() override;
 	protected:
 		Slider* _global_mil_level;
+	};
+
+	class TradePartnerPanel : public TablePanel
+	{
+	public:
+		static TradePartnerPanel* create(const ProductMap& in, const ProductMap& out)
+		CREATE_FUNC_BODY(TradePartnerPanel, in, out)
+		virtual bool init(const ProductMap& in, const ProductMap& out);
+	};
+
+	class AreaProductPanel : public cocos2d::Node
+	{
+	public:
+		static AreaProductPanel* create(const Products& ps)
+		CREATE_FUNC_BODY(AreaProductPanel, ps)
+		virtual bool init(const Products& ps);
+	protected:
+		DrawNode* bck;
 	};
 
 	class Diagram : public ui::Layout

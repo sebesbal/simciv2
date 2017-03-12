@@ -204,6 +204,24 @@ void Trader::update_volume()
 		}
 	}
 
+	void TradeMap::get_transports(Area* a, std::vector<Transport*>& in, std::vector<Transport*>& out)
+	{
+		for (auto t : _transports)
+		{
+			if (t->active_time + 5 > world.time)
+			{
+				if (t->seller->area == a)
+				{
+					out.push_back(t);
+				}
+				else if (t->buyer->area == a)
+				{
+					in.push_back(t);
+				}
+			}
+		}
+	}
+
 	void TradeMap::update_transports()
 	{
 		for (Trader* p: _sellers)

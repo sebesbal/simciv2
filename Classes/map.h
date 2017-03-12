@@ -94,11 +94,11 @@ namespace simciv
 		std::vector<Road*> sorted_roads();	///< sorted and filtered roads to the sorted_adjs() Areas
 		std::vector<Area*> connected_adjs(); ///< unsorted filtered adjacendt Areas
 		bool is_explored() { return mil_state == MILS_EXPLORED; }
-		void update_colors();
+		// void update_colors();
 
 		vector<int> in, out;
-		vector<Color4F> color_in, color_out;
-		float rad_1, rad_2;
+		// vector<Color4F> color_in, color_out;
+		//float rad_1, rad_2;
 		Industry* industry;
 		bool has_factory;
 	};

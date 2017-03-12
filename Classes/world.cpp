@@ -97,7 +97,8 @@ namespace simciv
 
 	Industry::Industry():
 		type(IndustryType::IT_NONE),
-		base(NULL)
+		base(NULL),
+		product(nullptr)
 	{
 		build_cost.duration = default_buildtime;
 		maint_cost.duration = default_lifetime;
@@ -593,31 +594,57 @@ void World::generate_industry()
 		a->industry->build_cost.total.push_back(b);
 		a->industry->build_cost.calc_per_turn();
 		a->has_factory = true;
-		a->update_colors();
+		//a->update_colors();
 
-		//if (!s1) throw("Industry not found!");
-		auto f = create_factory(a, a->industry);
-		f->set_state(FS_RUN);
-		f->health = 1;
-
-		auto g = [f, this](string s) {
+		auto g = [this](Factory* f, string s) {
 			int id = world.get_product(s)->id;
 			f->buyers[id] = _trade_maps[id]->create_prod(f->area, true, 50);
 			f->sellers[id] = _trade_maps[id]->create_prod(f->area, false, 50);
 			_trade_maps[id]->sync_area_traders(f->area);
 			f->buyers[id]->set_storage(10);
+
 		};
 
-		g("prod_1");
-		g("prod_2");
-		g("prod_3");
-		g("fuel");
+		auto fact = [&](int x, int y) {
+			Area* a = get_area(x, y);
+			if (!a->industry) return;
+			auto f = create_factory(a, a->industry);
+			a->has_factory = true;
+			//a->update_colors();
+			f->set_state(FS_RUN);
+			f->health = 1;
+
+			g(f, "prod_1");
+			g(f, "prod_2");
+			g(f, "prod_3");
+			g(f, "fuel");
+		};
+
+		//if (!s1) throw("Industry not found!");
+		//auto f = create_factory(a, a->industry);
+		//f->set_state(FS_RUN);
+		//f->health = 1;
+
+
+
+		//g(f, "prod_1");
+		//g(f, "prod_2");
+		//g(f, "prod_3");
+		//g(f, "fuel");
 
 		//f->buyers[world.get_product("food_1")->id]->set_storage(1000);
 		//f->buyers[world.get_product("manpow")->id]->set_storage(1000);
 		//f->buyers[world.get_product("wood_1")->id]->set_storage(1000);
 		//f->buyers[world.get_product("stone_1")->id]->set_storage(1000);
 		//f->buyers[world.get_product("fuel_1")->id]->set_storage(1000);
+
+		// some other starting factory
+
+		fact(x, y);
+		fact(x - 2, y + 1);
+		fact(x + 2, y + 1);
+		fact(x - 2, y );
+		fact(x - 1, y + 1);
 	}
 
 	Factory* World::create_factory(Area* a, Industry* industry)
@@ -981,6 +1008,14 @@ void World::generate_industry()
 		return distance_cost * d * fuel_price;
 	}
 
+	void World::get_transports(Area * a, std::vector<Transport*>& in, std::vector<Transport*>& out)
+	{
+		for (auto m : _trade_maps)
+		{
+			m->get_transports(a, in, out);
+		}
+	}
+
 	//double World::fuel_price(Area * a)
 	//{
 	//	return _fuel_map->get_trade(a).p_buy;
@@ -1149,7 +1184,7 @@ void World::generate_industry()
 			m.input[0] = 0.1;
 			a->industry->maint_cost.per_turn.push_back(m);
 			a->industry->buy_products.emplace(0);
-			a->update_colors();
+			//a->update_colors();
 		}
 
 		generate_factories();

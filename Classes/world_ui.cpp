@@ -102,7 +102,9 @@ namespace simciv
 		_cursor->setAnchorPoint(Vec2(0.5, 0.5));
 		_map->addChild(_cursor);
 
-		set_state(UIS_BROWSING);
+		//set_state(UIS_BROWSING);
+		set_state(UIS_FACTORY);
+		info.action = UIA_FACT_CREATE;
 	}
 
 	Vec2 WorldUI::get_tile(Area * a)
@@ -244,11 +246,7 @@ namespace simciv
 		views.push_back(v);
 		_map->addChild(v);
 
-		_road_layer = RoadLayer::create();
-		_road_layer->setAnchorPoint(Vec2(0, 0));
-		_road_layer->setPosition(Vec2(0, 0));
-		_road_layer->setContentSize(_map->getContentSize());
-		_map->addChild(_road_layer);
+
 		// ---------------------- TEST ----------------------
 
 		//int n = 3;
@@ -289,10 +287,35 @@ namespace simciv
 
 
 		v = _factory_layer = g_factory_layer = FactoryMapLayer::create();
-		_factory_layer->create_sprites_from_model();
+		//_factory_layer->create_sprites_from_model();
 		v->setContentSize(_map->getContentSize()); // without this, find_child doesn't find _factory_layer
 		views.push_back(v);
 		_map->addChild(v);
+
+
+		_road_layer = RoadLayer::create();
+		_road_layer->setAnchorPoint(Vec2(0, 0));
+		_road_layer->setPosition(Vec2(0, 0));
+		_road_layer->setContentSize(_map->getContentSize());
+		_map->addChild(_road_layer);
+
+
+		v = _map_labels = Node::create();
+		_map->addChild(v);
+
+
+		for (auto& a : world.areas())
+		{
+			if (a->has_factory)
+			{
+				auto v = world.find_factories(a);
+				_factory_layer->create_sprite(v[0]);
+			}
+			else if (a->industry)
+			{
+				_factory_layer->create_sprite(nullptr, a->industry, a);
+			}
+		}
 	}
 
 	void WorldUI::menuCloseCallback(Ref* sender)
@@ -330,6 +353,7 @@ namespace simciv
 			Factory* f = v.size() > 0 ? v[0] : nullptr;
 			_factory_view->set_factory(f);
 			_factory_view->setVisible(true);
+			show_routes(f);
 			if (f)
 			{
 				Industry* s = f->industry;
@@ -883,6 +907,93 @@ namespace simciv
 				}
 			}
 			find_child(c, wp, child, z_order);
+		}
+	}
+
+	void WorldUI::show_routes(Factory * f)
+	{
+		static vector<Node*> fos;
+		for (auto a : fos) a->setVisible(true);
+			
+		_road_layer->clear_tmp_roads();
+		_map_labels->removeAllChildren();
+
+		if (f)
+		{
+			vector<Transport*> v; // in, out;
+			world.get_transports(f->area, v, v);
+
+			//typedef pair<ProductMap, ProductMap> partner_data;
+			//map<Area*, partner_data> partners;
+			//for (auto t : v)
+			//{
+			//	_road_layer->add_tmp_route(t->route, 1, t->seller->product->id);
+			//	int prod_id = t->seller->product->id;
+
+			//	auto b = t->seller->area;
+			//	auto a = f->area;
+			//	if (b == a)
+			//	{
+			//		b = t->buyer->area;
+			//		partners[a].second[prod_id] = t->volume;
+			//		partners[b].first[prod_id] = t->volume;
+			//	}
+			//	else
+			//	{
+			//		partners[a].first[prod_id] = t->volume;
+			//		partners[b].second[prod_id] = t->volume;
+			//	}
+			//}
+
+			//for (auto& p : partners)
+			//{
+			//	Area* a = p.first;
+			//	partner_data& data = p.second;
+			//	auto tv = TradePartnerPanel::create(data.first, data.second);
+			//	tv->setPosition(_color_layer->get_point(a));
+			//	_map_labels->addChild(tv);
+			//}
+
+			map<Area*, Products> partners;
+			for (auto t : v)
+			{
+				if (t->volume == 0) continue;
+				_road_layer->add_tmp_route(t->route, 1, t->seller->product->id);
+				int prod_id = t->seller->product->id;
+
+				auto b = t->seller->area;
+				auto a = f->area;
+				auto d = 10 * t->volume;
+				if (b == a)
+				{
+					b = t->buyer->area;
+					partners[a][prod_id] += d;
+					partners[b][prod_id] -= d;
+				}							
+				else
+				{
+					partners[a][prod_id] -= d;
+					partners[b][prod_id] += d;
+				}
+			}
+
+			for (auto& p : partners)
+			{
+				Area* a = p.first;
+				Products& ps = p.second;
+				auto tv = AreaProductPanel::create(ps);
+				tv->setPosition(_color_layer->get_point(a));
+				_map_labels->addChild(tv);
+
+				auto s = _factory_layer->get_sprite(a);
+				if (s)
+				{
+					//for (auto& n : s->_nodes) n->setPosition(n->getPosition() + Vec2(20,20));
+					auto c = s->_nodes[0];
+					//c->setVisible(false);
+					//fos.push_back(c);
+				}
+			}
 		}
 	}
 

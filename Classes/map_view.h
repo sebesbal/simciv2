@@ -66,7 +66,7 @@ namespace simciv
 		int cell_size() { return cs; }
 		Vec2 dir(Area* a, Area* b);
 	protected:
-		static const int cs = 32; // cell size
+		//static const int cs = 32; // cell size
 	};
 
 	struct RoadInfo
@@ -139,9 +139,10 @@ namespace simciv
 		virtual void update(float dt) override;
 		Factory* create_factory(Area* a, Industry* industry);
 		Factory* update_or_create_factory(Area* a, Industry* industry);
-		cocos2d::Sprite* create_sprite(Factory* f);
+		cocos2d::Sprite* create_sprite(Factory* f, Industry* ind = nullptr, Area* a = nullptr);
 		void create_sprites_from_model();
 		void delete_factory(Factory* f);
+		FactorySprite* get_sprite(Area* a);
 	protected:
 		cocos2d::Node* _factories;
 		std::vector<FactorySprite*> _factory_sprites;

@@ -248,7 +248,7 @@ void ColorMapLayer::update(float delta)
 			auto& v = prod->transports();
 			for (auto transport : v)
 			{
-				if (transport->volume == 0) continue;
+				if (transport->volume == 0 || transport->marked_as_deleted) continue; // TODO: crash, transport->marked_as_delete = true, already deleted
 				auto it = transports.find(transport);
 				if (it == transports.end())
 				{

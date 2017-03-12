@@ -221,6 +221,7 @@ namespace simciv
 		void area_changed(Area* a);
 		bool is_used(Area* a);
 		double transport_cost(Area* a, Area* b);
+		void get_transports(Area* a, std::vector<Transport*>& in, std::vector<Transport*>& out);
 		//double fuel_price(Area* a);
 		Trader* fuel_buyer(Area* a);
 		void set_mil_state(Area* a, MilitaryState state);

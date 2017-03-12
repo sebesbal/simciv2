@@ -958,12 +958,10 @@ void ProductStringView::add_item(Product* p, double volume)
 
 bool EconomyView::init()
 {
-	if (!Panel::init()) return false;
-	_table = Table::create();
+	if (!TablePanel::init()) return false;
 	_table->add_column(40);
 	_table->set_margins(5, 5, 5, 5, 5, 5);
 	_table->set_default_row_height(20);
-	addChild(_table);
 	auto icon = _table->create_row(); // icons
 	auto storage = _table->create_row(); // storage
 	auto price = _table->create_row(); // price
@@ -978,15 +976,6 @@ bool EconomyView::init()
 	}
 
 	return true;
-}
-
-void EconomyView::doLayout()
-{
-	Panel::doLayout();
-	_table->setPosition(Vec2(0, 0));
-	_table->doLayout();
-	Size s = _table->getContentSize();
-	setContentSize(s);
 }
 
 void EconomyView::add(Product * p)
@@ -1037,12 +1026,12 @@ void Table::set_margins(float pad_x, float pad_y, float left, float top, float r
 
 void Table::doLayout()
 {
-	float x, y = top;
+	float x, y = top + 2;
 	auto& rows = getChildren();
 	for (auto it = rows.rbegin(); it != rows.rend(); ++it)
 	{
 		auto& row = *it;
-		x = left;
+		x = left - 1;
 		int col = 0;
 		float cell_height = row->getContentSize().height;
 		for (Node* cell : row->getChildren())
@@ -1054,6 +1043,15 @@ void Table::doLayout()
 			{
 				cell->setContentSize(Size(col_width, cell_height));
 			}
+
+			//float col_width = col < col_sizes.size() ? col_sizes[col] : col_sizes.back();
+			//cell->setPosition(Vec2(x + col_width / 2, y + cell_height / 2));
+			//cell->setAnchorPoint(Vec2(0.5, 0.5));
+			//
+			//if (!dynamic_cast<ui::ImageView*>(cell))
+			//{
+			//	cell->setContentSize(Size(col_width, cell_height));
+			//}
 			x += pad_x + col_width;
 		}
 		y += cell_height + pad_y;
@@ -1149,6 +1147,121 @@ void MilitaryView::doLayout()
 	Panel::doLayout();
 	_global_mil_level->setPosition(Vec2(10, 10));
 	_global_mil_level->setSize(Size(60, 20));
+}
+
+bool TablePanel::init()
+{
+	if (!Panel::init()) return false;
+	_table = Table::create();
+	addChild(_table);
+	return true;
+}
+
+void TablePanel::doLayout()
+{
+	Panel::doLayout();
+	_table->setPosition(Vec2(0, 0));
+	_table->doLayout();
+	Size s = _table->getContentSize();
+	setContentSize(s);
+}
+
+//bool TradePartnerPanel::init()
+//{
+//	return false;
+//}
+
+bool TradePartnerPanel::init(const ProductMap & in, const ProductMap & out)
+{
+	if (!TablePanel::init()) return false;
+	setAnchorPoint(Vec2(0.5, 0.5));
+	int s = 8;
+
+	_table->add_column(s);
+	_table->add_column(s);
+	_table->set_default_row_height(s);
+	int m = 5;
+	_table->set_margins(1, 1, m, m, m, m);
+
+	for (auto& p : out)
+	{
+		auto row = _table->create_row();
+		//row->addChild(CircleNumber::create(p.second, p.first, true, s));
+		row->addChild(Circle::create(p.first, true, s));
+		auto text = ui::Text::create(to_string((int)(p.second * 10)), "Arial", 8);
+		text->ignoreContentAdaptWithSize(false);
+		row->addChild(text);
+	}
+	for (auto& p : in)
+	{
+		auto row = _table->create_row();
+		// row->addChild(CircleNumber::create(p.second, p.first, false, s));
+		row->addChild(Circle::create(p.first, false, s));
+		auto text = ui::Text::create(to_string((int)(p.second * 10)), "Arial", 8);
+		text->ignoreContentAdaptWithSize(false);
+		row->addChild(text);
+	}
+
+	//auto sv = ProductStringView::create(20);
+	//sv->set_map(in);
+	//auto in_row = _table->create_row();
+	//in_row->addChild(sv);
+
+	//auto sv_out = ProductStringView::create(20);
+	//sv_out->set_map(out);
+	//auto out_row = _table->create_row();
+	//out_row->addChild(sv_out);
+
+	return true;
+}
+
+
+
+bool AreaProductPanel::init(const Products & ps)
+{
+	if (!cocos2d::Node::init()) return false;
+
+	const float c = cs / 2.0;
+	const float a = cs / 8.0;
+	const float b = a / sqrt(3);
+	Vec2 pos[4][4] = {
+		{ Vec2(c, c), Vec2(), Vec2(), Vec2() },
+		{ Vec2(c - a, c), Vec2(c + a, c), Vec2(), Vec2() },
+		{ Vec2(c - a, c - b), Vec2(c + a, c - b), Vec2(c, c + 2 * b), Vec2() },
+		{ Vec2(c - a, c + a), Vec2(c + a, c + a), Vec2(c - a, c - a), Vec2(c + a, c - a) }
+	};
+
+	//float a = cs / 4.0;
+	setContentSize(Size(cs, cs));
+	setAnchorPoint(Vec2(0.5, 0.5));
+	//Vec2 pos[4] = { Vec2(a, 3 * a), Vec2(3 * a, 3 * a), Vec2(a, a), Vec2(3 * a, a) };
+
+	//bck = DrawNode::create();
+	//addChild(bck);
+	//bck->drawSolidRect(Vec2(0, 0), getContentSize(), Color4F(1, 1, 1, 0.7));
+	//bck->setZOrder(-1);
+
+	int n = 0;
+	for (double d : ps)
+	{
+		if (d != 0) ++n;
+	}
+
+	int k = 0;
+	int i = 0;
+	for (double d : ps)
+	{
+		if (d != 0)
+		{
+			//auto cn = CircleNumber::create(abs(d), i, d > 0, 2*a);
+			auto cn = Circle::create(i, d > 0, 2*a);
+			cn->setPosition(pos[n - 1][k]);
+			addChild(cn);
+			++k;
+		}
+		++i;
+	}
+	return true;
 }
 
 }

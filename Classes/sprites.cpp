@@ -125,4 +125,164 @@ namespace simciv
 			n->setPosition(p);
 		}
 	}
+
+	bool Circle::init(int prod_id, bool filled, int size)
+	{	
+		auto file = world.get_products()[prod_id]->icon_file;
+		if (!ImageView::init(file)) return false;
+
+		setContentSize(Size(size, size));
+		setAnchorPoint(Vec2(0.5, 0.5));
+		this->filled = filled;
+		this->prod_id = prod_id; 
+		//auto c = world.colors[prod_id];
+		//float r = size / 2.0;
+		//drawCircle(Vec2(r, r), r, 2 * M_PI, 40, false, c);
+		
+		
+		//auto iv = ImageView::create(file);
+		//iv->setContentSize(Size(size, size));
+		ignoreContentAdaptWithSize(false);
+		//addChild(iv);
+
+		if (!filled)
+		{ 
+			auto hole = ImageView::create("img/shapes/circle_black.png");
+			auto s2 = size / 2.0;
+			hole->ignoreContentAdaptWithSize(false);
+			hole->setContentSize(Size(s2, s2));
+			hole->setAnchorPoint(Vec2(0.5, 0.5));
+			hole->setPosition(Vec2(size/2, size/2));
+			hole->setZOrder(1);
+			addChild(hole);
+		}
+
+		return true;
+	}
+	bool CircleNumber::init(double val, int prod_id, bool filled, int size)
+	{
+		if (!Circle::init(prod_id, filled, size)) return false;
+		
+		// text->setText(to_string(val));
+		text = ui::Text::create(to_string((int)val), "Arial", 11);
+		text->ignoreContentAdaptWithSize(true);
+		text->setContentSize(this->getContentSize());
+		text->setAnchorPoint(Vec2(0.5, 0.5));
+		text->setPosition(this->getContentSize() / 2);
+		text->setZOrder(2);
+		addChild(text);
+		return true;
+	}
+
+
+	void drawPie(DrawNode* node, const Vec2& center, float radius, float startAngle, float endAngle, unsigned int segments, float scaleX, float scaleY, const Color4F &color)
+	{
+		segments++;
+		// auto draw = DrawNode::create();
+		const float coef = (endAngle - startAngle) / (segments - 2);
+
+		Vec2 *vertices = new (std::nothrow) Vec2[segments];
+
+		for (unsigned int i = 0; i < segments - 1; i++)
+		{
+			float rads = i*coef;
+			GLfloat j = radius * cosf(rads + startAngle) * scaleX + center.x;
+			GLfloat k = radius * sinf(rads + startAngle) * scaleY + center.y;
+
+			vertices[i].x = j;
+			vertices[i].y = k;
+		}
+
+		vertices[segments - 1].x = center.x;
+		vertices[segments - 1].y = center.y;
+
+		node->drawSolidPoly(vertices, segments, color);
+
+		CC_SAFE_DELETE_ARRAY(vertices);
+	}
+
+	bool CircleFactory::init(Industry * ind, Size& size)
+	{
+		if (!DrawNode::init()) return false;
+		setContentSize(size);
+		this->industry = ind;
+		has_factory = false;
+		update_colors();
+		return true;
+	}
+
+	#define lofusz(col, w) col.r *= w; col.g *= w; col.b *= w;
+	void CircleFactory::update_colors()
+	{
+		color_in.clear();
+		color_out.clear();
+		clear();
+
+		if (!industry)
+		{
+			return;
+		}
+
+		//const cocos2d::Color4F colsou[4] = { Color4F(1, 0, 0, 1), Color4F(0, 1, 0, 1), Color4F(0, 0, 1, 1), Color4F(0.7, 0.7, 0.7, 1) };
+		ProductionRule& r = industry->prod_rules[0];
+		for (auto& p : r.input)
+		{
+			color_in.push_back(world.colors[p.first]);
+		}
+		for (auto& p : r.output)
+		{
+			color_out.push_back(world.colors[p.first]);
+		}
+
+		const float fact_w = 5;
+		float r_weight = (color_in.size() + color_out.size()) / 4.0f;
+		//float weight = (color_in.size() + color_out.size() + (has_factory ? fact_w : 0)) / (fact_w + 4.0f);
+		float weight = has_factory ? 1 : 0.4;
+		rad_1 = 0.8 / 2 * r_weight;
+		rad_2 = rad_1 + 0.15;
+
+		for (auto& c : color_in)
+		{
+			lofusz(c, weight);
+		}
+
+		for (auto& c : color_out)
+		{
+			lofusz(c, weight);
+		}
+
+
+		// draw
+		float size = getContentSize().width;
+		int n = color_in.size();
+		Vec2 center(0, 0);
+
+		if (n > 0)
+		{
+			float f = M_PI / 2;
+			float df = 2 * M_PI / n;
+			for (auto c : color_in)
+			{
+				drawPie(this, center, size * rad_2, f, f + df, 30, 1, 1, c);
+				f += df;
+			}
+		}
+
+		{
+			n = color_out.size();
+			float f = 0;
+			float df = 2 * M_PI / n;
+			for (auto c : color_out)
+			{
+				drawPie(this, center, size * rad_1, f, f + df, 30, 1, 1, c);
+				f += df;
+			}
+		}
+	}
+
+	//void Circle::draw(Renderer * renderer, const Mat4 & transform, uint32_t flags)
+	//{
+	//	auto c = world.colors[prod_id];
+	//	drawCircle(getPosition(), getContentSize().width / 2, 2 * M_PI, 40, false, c);
+	//}
 }

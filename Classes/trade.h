@@ -127,6 +127,7 @@ namespace simciv
 		int update_count;
 		bool unique_mode;
 		Transport* get_transport(Trader* src, Trader* dst);
+		void get_transports(Area* a, std::vector<Transport*>& in, std::vector<Transport*>& out);
 		std::vector<Trader*> _sellers;
 		std::vector<Trader*> _buyers;
 		std::vector<std::vector<Trader*>> _area_sellers;
