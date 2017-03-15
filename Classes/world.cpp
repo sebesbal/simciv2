@@ -818,7 +818,7 @@ void World::generate_industry()
 		{
 			for (TradeMap* product : _trade_maps)
 			{
-				product->update_trade();
+				product->update_trade_volume();
 			}
 		}
 

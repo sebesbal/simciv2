@@ -236,7 +236,7 @@ void Trader::update_volume()
 		}
 	}
 
-	void TradeMap::update_trade()
+	void TradeMap::update_trade_volume()
 	{
 		for (Trader* p : _sellers)
 		{
@@ -295,6 +295,9 @@ void Trader::update_volume()
 				seller = std::min(seller, r->profit);
 				auto& con = r->buyer->worst_profit;
 				con = std::min(con, r->profit);
+
+				const double alpha = 0.9;
+				r->smooth_volume = alpha * r->smooth_volume + (1 - alpha) * r->volume;
 			}
 		}
 

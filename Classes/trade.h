@@ -95,6 +95,8 @@ namespace simciv
 		double profit;
 		int active_time;
 		int creation_time;
+
+		double smooth_volume;
 	};
 
 	/// Manages Traders of one Product on the map
@@ -111,7 +113,7 @@ namespace simciv
 		void generate_resources();
 		std::vector<Transport*>& transports() { return _transports; }
 		void update_transports(); ///< find possible trade routes
-		void update_trade(); ///< calculate trade on the routes
+		void update_trade_volume(); ///< calculate trade on the routes
 		void update_producer_prices();
 		void before_rules();
 		void update_area_prices2(bool full_update = false);

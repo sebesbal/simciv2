@@ -957,13 +957,13 @@ namespace simciv
 			map<Area*, Products> partners;
 			for (auto t : v)
 			{
-				if (t->volume == 0) continue;
+				if (t->smooth_volume < 0.01) continue;
 				_road_layer->add_tmp_route(t->route, 1, t->seller->product->id);
 				int prod_id = t->seller->product->id;
 
 				auto b = t->seller->area;
 				auto a = f->area;
-				auto d = 10 * t->volume;
+				auto d = 10 * t->smooth_volume;
 				if (b == a)
 				{
 					b = t->buyer->area;

@@ -271,11 +271,11 @@ TransportAnimation::TransportAnimation() : sprite(NULL), transport(NULL)
 }
 
 void TransportAnimation::set_route(Product* prod, Transport* transport, MapView* map)
-{
+{ 
 	if (sprite) return;
 
 	Area* a = transport->seller->area;
-	sprite = Sprites::create(prod, Size(map->cell_size(), map->cell_size()) * 0.2);
+	sprite = Sprites::create(prod, Size(map->cell_size(), map->cell_size()) * 0.1);
 	Rect r = map->get_rect(a->x, a->y);
 	map->addChild(sprite);
 
