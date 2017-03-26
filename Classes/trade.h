@@ -22,9 +22,9 @@ namespace simciv
 		//Factory* owner;
 		Trader* storage_pair;					///< the other trader of a seller-buyer pair (for a Factory-Product)
 		bool is_buyer;							///< this is a buyer (not seller)
-		double vol_in;							///< the value what the owner Factory wanted to put in/take out from this Trader.
-		double vol_out;							///< the value what the partners wanted to buy/sell from this Trader. (so, there are possible partners on this price)
-		double volume;							///< the value what Trader wants to buy/sell in one turn. This is a combined value of val_in and val_out, considering the fullness of the storage too.
+		double vol_in;							///< the volume what the owner Factory wanted to put in/take out from this Trader.
+		double vol_out;							///< the volume what the partners wanted to buy/sell from this Trader. (so, there are possible partners on this price)
+		double volume;							///< the volume what Trader wants to buy/sell in one turn. This is a combined value of val_in and val_out, considering the fullness of the storage too.
 		double free_volume;						///< volume - actually traded volume. (the partners didn't want to buy/sell this volume)
 		double price;							///< the current price
 		double worst_profit;					///< the profit of the worst transport. (used for Area's price calculation)

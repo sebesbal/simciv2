@@ -57,17 +57,17 @@ namespace simciv
 void Trader::update_price()
 {
 	double price_d = 1;
+	double b = 1.1;
+	double eps = 0; // 0.1;
 
 	if (is_buyer)
 	{
-		price += max(-10.0, min(10.0, price_d * (volume - vol_out - 0.01 * _storage)));
+		price *= pow(b, volume - vol_out + eps);
 	}
 	else
 	{
-		price += max(-10.0, min(10.0, price_d * (vol_out - volume - 0.01 * _storage)));
+		price *= pow(b, vol_out - volume - eps);
 	}
-
-	price = std::max(1.0, price);
 
 history:
 	history_price.push_back(price);
@@ -78,47 +78,17 @@ history:
 
 void Trader::update_volume()
 {
+	const double a = 1.01;
+	const double ideal_storage = 50.0;
 	if (is_buyer)
 	{
-		if (vol_in == 0)
-		{
-			volume = 0;
-		}
-		else if (vol_out > vol_in)
-		{
-			if (_storage < 50.0)
-			{
-				volume = vol_out;
-			}
-			else
-			{
-				volume = vol_in;
-			}
-		}
-		else
-		{
-			volume = vol_in;
-		}
-		volume = std::min(volume, free_capacity());
+		volume = vol_in * pow(a, ideal_storage - _storage);
+		volume = min(volume, free_capacity());
 	}
 	else
 	{
-		if (vol_out > vol_in)
-		{
-			if (_storage > 50.0)
-			{
-				volume = vol_out;
-			}
-			else
-			{
-				volume = vol_in;
-			}
-		}
-		else
-		{
-			volume = vol_in;
-		}
-		volume = std::min(volume, _storage);
+		volume = vol_in * pow(a, _storage - ideal_storage);
+		volume = min(volume, _storage);
 	}
 }
 
@@ -296,8 +266,7 @@ void Trader::update_volume()
 				auto& con = r->buyer->worst_profit;
 				con = std::min(con, r->profit);
 
-				const double alpha = 0.9;
-				r->smooth_volume = alpha * r->smooth_volume + (1 - alpha) * r->volume;
+				smooth_change(r->smooth_volume, r->volume);
 			}
 		}
 

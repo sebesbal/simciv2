@@ -18,6 +18,9 @@ namespace simciv
 	const double distance_cost = 0.2;
 	const double max_price = 100000000000;
 	extern int product_count; ///< The number of product types
+	const double alpha = 0.9;
+	const double beta = 1 - alpha;
+	void smooth_change(double& smooth_value, const double current_value, double a = alpha);
 
 	//struct Color
 	//{
@@ -158,6 +161,7 @@ namespace simciv
 		ProductionCost current_healing_cost;					///< cost for build/repair/upgrade
 
 		double health;
+		double utilization;
 		void set_state(FactoryState state);
 		void set_industry(Industry* industry);
 		void start_upgrade_to(Industry* industry);

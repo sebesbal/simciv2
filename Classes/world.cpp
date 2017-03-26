@@ -346,7 +346,8 @@ namespace simciv
 		efficiency(1), 
 		state(FS_UNDER_CONTRUCTION),
 		health(0),
-		marked_as_deleted(false)
+		marked_as_deleted(false),
+		utilization(0)
 	{
 		set_industry(industry);
 		for (int i = 0; i < product_count; ++i)
@@ -422,7 +423,10 @@ namespace simciv
 
 	double Factory::apply_rule(ProductionRule* rule, double profit, double ideal_rate)
 	{
-		double rate = ideal_rate;
+		// TODO:
+		// buyers->vol_in should be: the volume what we want to buy. it depends on seller->vol_out
+
+		double rate = ideal_rate; // ideal_rate == 1 always, TODO
 		//if (rate == 0) return 0;
 		//check_buyer_storage(rule->input, rate);
 		check_storage(true, buyers, rule->input, rate);
@@ -447,6 +451,7 @@ namespace simciv
 			sellers[prod_id]->vol_in += rate2 * vol;
 		}
 
+		smooth_change(utilization, rate);
 		return rate;
 	}
 
@@ -1190,6 +1195,11 @@ void World::generate_industry()
 		generate_factories();
 	}
 
+
+	void smooth_change(double & smooth_value, const double current_value, double a)
+	{
+		smooth_value = a * smooth_value + (1 - a) * current_value;
+	}
 
 	double consume_articles(std::vector<Trader*>& storage, Prices & prices, std::vector<ProductionRule>& rules, double volume, double & full_expense)
 	{
