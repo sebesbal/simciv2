@@ -159,7 +159,7 @@ namespace simciv
 		FactoryState state;		///< firstly the Factory is under construction
 		Products built_in;				///< if built_in == industry.build_cost, the factory is completed
 		ProductionCost current_healing_cost;					///< cost for build/repair/upgrade
-
+		double _profit;
 		double health;
 		double utilization;
 		void set_state(FactoryState state);

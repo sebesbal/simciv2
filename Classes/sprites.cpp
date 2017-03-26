@@ -225,22 +225,27 @@ namespace simciv
 
 		//const cocos2d::Color4F colsou[4] = { Color4F(1, 0, 0, 1), Color4F(0, 1, 0, 1), Color4F(0, 0, 1, 1), Color4F(0.7, 0.7, 0.7, 1) };
 		ProductionRule& r = industry->prod_rules[0];
+		float in = 0, out = 0;
 		for (auto& p : r.input)
 		{
 			color_in.push_back(world.colors[p.first]);
+			in += p.second;
 		}
 		for (auto& p : r.output)
 		{
 			color_out.push_back(world.colors[p.first]);
+			out += p.second;
 		}
 
-		const float fact_w = 5;
-		float r_weight = (color_in.size() + color_out.size()) / 4.0f;
-		//float weight = (color_in.size() + color_out.size() + (has_factory ? fact_w : 0)) / (fact_w + 4.0f);
-		float weight = has_factory ? 1 : 0.4;
-		rad_1 = 0.8 / 2 * r_weight;
-		rad_2 = rad_1 + 0.15;
+		//const float fact_w = 5;
+		//float r_weight = (color_in.size() + color_out.size()) / 4.0f;
+		//rad_1 = 0.8 / 2 * r_weight;
+		//rad_2 = rad_1 + 0.15;
 
+		float rad_2 = max(0.15f, min(0.4f, sqrt(in + out) / 6));
+		float rad_1 = rad_2 * sqrt(out) / sqrt(in + out);
+
+		float weight = has_factory ? 1 : 0.4;
 		for (auto& c : color_in)
 		{
 			lofusz(c, weight);

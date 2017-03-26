@@ -136,10 +136,10 @@ namespace simciv
 		rule = best_rule;
 		profit = best_profit;
 
-		if (product)
-		{
-			profit *= area->data(product).resource;
-		}
+		//if (product)
+		//{
+		//	profit *= area->data(product).resource;
+		//}
 	}
 
 	void Industry::find_best_maint_rule(const Prices& prices, ProductionRule*& rule, double& price)
@@ -347,7 +347,8 @@ namespace simciv
 		state(FS_UNDER_CONTRUCTION),
 		health(0),
 		marked_as_deleted(false),
-		utilization(0)
+		utilization(0),
+		_profit(0)
 	{
 		set_industry(industry);
 		for (int i = 0; i < product_count; ++i)
@@ -425,7 +426,7 @@ namespace simciv
 	{
 		// TODO:
 		// buyers->vol_in should be: the volume what we want to buy. it depends on seller->vol_out
-
+		
 		double rate = ideal_rate; // ideal_rate == 1 always, TODO
 		//if (rate == 0) return 0;
 		//check_buyer_storage(rule->input, rate);
@@ -452,6 +453,7 @@ namespace simciv
 		}
 
 		smooth_change(utilization, rate);
+		//smooth_change(_profit, rate * profit);
 		return rate;
 	}
 
@@ -459,7 +461,7 @@ namespace simciv
 	{
 		double full_expense = 0;
 
-		if (health < 1)
+		if (health < 1 && _profit > 0)
 		{
 			// Build / Repair / Upgrade
 			double volume = min((1 - health) * current_healing_cost.duration, 1.0);
@@ -482,7 +484,7 @@ namespace simciv
 		case simciv::FS_RUN:
 		{
 			// Maintenance
-			double unconsumed_volume = consume_articles(prices, industry->maint_cost.per_turn, 1, full_expense);
+			double unconsumed_volume = _profit < 0 ? 1 : consume_articles(prices, industry->maint_cost.per_turn, 1, full_expense);
 			health -= unconsumed_volume / industry->maint_cost.duration;
 			if (health <= 0)
 			{
@@ -800,14 +802,19 @@ void World::generate_industry()
 			{
 				Prices prices = f->get_prices();
 
-				if (f->state == FS_RUN)
+				if (f->state == FS_RUN || f->state == FS_UNDER_CONTRUCTION)
 				{
 					ProductionRule* rule;
 					double profit;
 					f->find_best_prod_rule(prices, rule, profit);
 					if (rule)
 					{
+						f->_profit = profit;
 						f->apply_rule(rule, profit, f->efficiency);
+					}
+					else
+					{
+						f->_profit = -1;
 					}
 				}
 
@@ -1128,39 +1135,91 @@ void World::generate_industry()
 
 		for (auto a : _areas)
 		{
+			if (a->type == AT_SEA) continue;
+
 			//auto it = max_element(tms.begin(), tms.end(),
 			//	[a](TradeMap* ta, TradeMap* tb) { return ta->get_trade(a).resource <= tb->get_trade(a).resource; });
 
 			//sort(tms.begin(), tms.end(),
 			//	[a](TradeMap* ta, TradeMap* tb) { return ta->get_trade(a).resource <= tb->get_trade(a).resource; });
 
-			set<int> in, out;
+			//set<int> in, out;
 
-			int i = 0;
-			double d = 0.2;
-			for (auto& t : tms)
-			{
-				double r = t->get_trade(a).resource;
-				if (r == 0)
+			//int i = 0;
+			//double d = 0.2;
+			//for (auto& t : tms)
+			//{
+			//	double r = t->get_trade(a).resource;
+			//	if (r == 0)
+			//	{
+
+			//	}
+			//	else if (r < 0.41)
+			//	{
+			//		if (in.size() < 3) in.emplace(i);
+			//	}
+			//	else if (r > 0.55)
+			//	{
+			//		if (out.size() < 2) out.emplace(i);
+			//	}
+
+			//	++i;
+			//}
+
+			auto get_n = [](const int p[5]) {
+				int x = 100 * random() / RAND_MAX;
+				int a = 0;
+				for (int i = 0; i < 4; ++i)
 				{
-
+					a += p[i];
+					if (a > x) return i;
 				}
-				else if (r < 0.37)
+				return 4; // never happens
+			};
+
+			//const int in_p[5] = { 65, 20, 10, 5, 0 };
+			const int in_p[5] = { 20, 30, 30, 20, 0 };
+			//const int out_p[5] = { 70, 3, 6, 9, 12 };
+			const int out_p[5] = { 60, 15, 10, 10, 5 };
+			int out_n = get_n(out_p);
+			if (out_n == 0) continue;
+			int in_n = get_n(in_p);
+
+			vector<int> s;
+			for (int i = 0; i < 4; ++i) s.push_back(i);
+
+			auto f = [](vector<int>& s, int n) {
+				set<int> result;
+				int k = s.size();
+				for (int i = 0; i < n && k > 0; ++i)
 				{
-					if (in.size() < 2) in.emplace(i);
+					int id = random(0, k - 1);
+					auto it = s.begin() + id;
+					result.emplace(*it);
+					s.erase(it);
+					--k;
 				}
-				else if (r > 0.55)
-				{
-					if (out.size() < 2) out.emplace(i);
-				}
+				return result;
+			};
 
-				++i;
-			}
+			auto out = f(s, out_n);
+			auto in = f(s, in_n);
+			//for (int i = 0; i < 4; ++i)
+			//{
+			//	if (0.3 * random() < RAND_MAX)
+			//	{
+			//		in.emplace(i);
+			//	}
+			//	else if (0.3 * random() < RAND_MAX)
+			//	{
+			//		out.emplace(i);
+			//	}
+			//}
 
-			if (out.size() == 0)
-			{
-				continue;
-			}
+			//if (out.size() == 0)
+			//{
+			//	continue;
+			//}
 
 			ProductionRule r, b, m;
 			a->industry = new Industry();
@@ -1172,11 +1231,11 @@ void World::generate_industry()
 				//a->color_in.push_back(colsou[i]);
 			}
 
-			double x[3] = {0.2, 1.5, 4};
+			double x[4] = {1.0, 2.0, 4.0, 8.0};
 
 			for (int i : out)
 			{
-				r.output[i] = x[in.size()];
+				r.output[i] = 0.5 * x[in.size()] / x[out.size() - 1];
 				a->industry->sell_products.emplace(i);
 				//a->color_out.push_back(colsou[i]);
 			}
