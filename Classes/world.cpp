@@ -461,7 +461,7 @@ namespace simciv
 	{
 		double full_expense = 0;
 
-		if (health < 1 && _profit > 0)
+		if (health < 1 && (state == simciv::FS_UNDER_CONTRUCTION || _profit > 0))
 		{
 			// Build / Repair / Upgrade
 			double volume = min((1 - health) * current_healing_cost.duration, 1.0);
@@ -1178,9 +1178,9 @@ void World::generate_industry()
 			};
 
 			//const int in_p[5] = { 65, 20, 10, 5, 0 };
-			const int in_p[5] = { 20, 30, 30, 20, 0 };
+			const int in_p[5] = { 0, 50, 50, 0, 0 };
 			//const int out_p[5] = { 70, 3, 6, 9, 12 };
-			const int out_p[5] = { 60, 15, 10, 10, 5 };
+			const int out_p[5] = { 90, 5, 5, 0, 0 };
 			int out_n = get_n(out_p);
 			if (out_n == 0) continue;
 			int in_n = get_n(in_p);
