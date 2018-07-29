@@ -67,6 +67,14 @@ namespace simciv
 		Area* area;
 	};
 
+	class CircleShape : public DrawNode
+	{
+	public:
+		static CircleShape* create(Color4F& color, Size& size)
+		CREATE_FUNC_BODY(CircleShape, color, size)
+		bool init(Color4F& color, Size& size);
+	};
+
 	class Circle : public cocos2d::ui::ImageView
 	{
 	public:

@@ -285,6 +285,14 @@ namespace simciv
 		}
 	}
 
+	bool CircleShape::init(Color4F & color, Size & size)
+	{
+		if (!DrawNode::init()) return false;
+		Vec2 center(0, 0);
+		drawPie(this, center, size.width / 2, 0, 2 * M_PI, 30, 1, 1, color);
+		return true;
+	}
+
 	//void Circle::draw(Renderer * renderer, const Mat4 & transform, uint32_t flags)
 	//{
 	//	auto c = world.colors[prod_id];

@@ -2,6 +2,7 @@
 
 #include "AppDelegate.h"
 #include "world_ui.h"
+#include "indgen_ui.h"
 
 USING_NS_CC;
 
@@ -52,6 +53,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     // create a scene. it's an autorelease object
 	auto scene = simciv::WorldUI::createScene();
+	//auto scene = indgen::IndGenUI::createScene();
 
     // run
     director->runWithScene(scene);
