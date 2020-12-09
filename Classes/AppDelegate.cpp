@@ -34,7 +34,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	//auto size = director->getWinSizeInPixels();
 
     if(!glview) {
-        // glview = GLViewImpl::createWithRect("simciv", Rect(0, 0, 960, 640));
+        //glview = GLViewImpl::createWithRect("simciv", Rect(0, 0, 960, 640));
 		glview = GLViewImpl::createWithRect("simciv", Rect(0, 0, size.width, size.height));
 		//glview = GLViewImpl::createWithFullScreen("simciv");
 		//glview = GLViewImpl::create("simciv");

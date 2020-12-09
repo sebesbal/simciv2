@@ -231,6 +231,7 @@ namespace simciv
 		void set_mil_state(Area* a, MilitaryState state);
 		void set_explored(Area* a);
 		void generate_resources();
+		void generate_resources_rand_ind();
 
 		MilitaryData mil_data;
 

@@ -1114,7 +1114,7 @@ void World::generate_industry()
 	//	}
 	//}
 
-	void World::generate_resources()
+	void World::generate_resources_rand_ind()
 	{
 		for (TradeMap* m : _trade_maps)
 		{
@@ -1136,35 +1136,6 @@ void World::generate_industry()
 		for (auto a : _areas)
 		{
 			if (a->type == AT_SEA) continue;
-
-			//auto it = max_element(tms.begin(), tms.end(),
-			//	[a](TradeMap* ta, TradeMap* tb) { return ta->get_trade(a).resource <= tb->get_trade(a).resource; });
-
-			//sort(tms.begin(), tms.end(),
-			//	[a](TradeMap* ta, TradeMap* tb) { return ta->get_trade(a).resource <= tb->get_trade(a).resource; });
-
-			//set<int> in, out;
-
-			//int i = 0;
-			//double d = 0.2;
-			//for (auto& t : tms)
-			//{
-			//	double r = t->get_trade(a).resource;
-			//	if (r == 0)
-			//	{
-
-			//	}
-			//	else if (r < 0.41)
-			//	{
-			//		if (in.size() < 3) in.emplace(i);
-			//	}
-			//	else if (r > 0.55)
-			//	{
-			//		if (out.size() < 2) out.emplace(i);
-			//	}
-
-			//	++i;
-			//}
 
 			auto get_n = [](const int p[5]) {
 				int x = 100 * random() / RAND_MAX;
@@ -1204,22 +1175,6 @@ void World::generate_industry()
 
 			auto out = f(s, out_n);
 			auto in = f(s, in_n);
-			//for (int i = 0; i < 4; ++i)
-			//{
-			//	if (0.3 * random() < RAND_MAX)
-			//	{
-			//		in.emplace(i);
-			//	}
-			//	else if (0.3 * random() < RAND_MAX)
-			//	{
-			//		out.emplace(i);
-			//	}
-			//}
-
-			//if (out.size() == 0)
-			//{
-			//	continue;
-			//}
 
 			ProductionRule r, b, m;
 			a->industry = new Industry();
@@ -1252,6 +1207,74 @@ void World::generate_industry()
 		}
 
 		generate_factories();
+	}
+
+	void World::generate_resources()
+	{
+		for (TradeMap* m : _trade_maps)
+		{
+			m->generate_resources();
+		}
+
+		const int n = 4;
+		float a = 0.6;
+		// const cocos2d::Color4F colsin[n] = { Color4F(a, 0, 0, 1), Color4F(0, a, 0, 1), Color4F(0, 0, a, 1) };
+		const cocos2d::Color4F colsou[n] = { Color4F(1, 0, 0, 1), Color4F(0, 1, 0, 1), Color4F(0, 0, 1, 1), Color4F(0.7, 0.7, 0.7, 1) };
+
+		vector<TradeMap*> tms;
+
+		tms.push_back(get_product("food_1")->map);
+		tms.push_back(get_product("wood_1")->map);
+		tms.push_back(get_product("fuel_1")->map);
+		tms.push_back(get_product("stone_1")->map);
+
+		for (auto a : _areas)
+		{
+			//auto it = max_element(tms.begin(), tms.end(),
+			//	[a](TradeMap* ta, TradeMap* tb) { return ta->get_trade(a).resource <= tb->get_trade(a).resource; });
+
+			//sort(tms.begin(), tms.end(),
+			//	[a](TradeMap* ta, TradeMap* tb) { return ta->get_trade(a).resource <= tb->get_trade(a).resource; });
+
+			int i = 0;
+			double d = 0.2;
+			for (auto& t : tms)
+			{
+				double r = t->get_trade(a).resource;
+				//if (r < 0.47)
+				//{
+				//	// Skip
+				//}
+				//else if (r < 0.5 && a->color_in.size() < 2)
+				//{
+				//	a->color_in.push_back(colsou[i]);
+				//}
+				//else if (r < 0.6 && a->color_out.size() < 2)
+				//{
+				//	a->color_out.push_back(colsou[i]);
+				//}
+
+				if (r == 0)
+				{
+
+				}
+				else if (r < 0.37)
+				{
+					if (a->color_in.size() < 2) a->color_in.push_back(colsou[i]);
+				}
+				else if (r > 0.55)
+				{
+					if (a->color_out.size() < 2) a->color_out.push_back(colsou[i]);
+				}
+
+				++i;
+			}
+
+			if (a->color_out.size() == 0)
+			{
+				a->color_in.clear();
+			}
+		}
 	}
 
 

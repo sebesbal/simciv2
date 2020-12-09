@@ -4,11 +4,11 @@
 #include "trade.h"
 
 #if _MSC_VER > 1800
-#pragma comment(lib,"libcocos2d_2015.lib")
-#pragma comment(lib,"libbox2d_2015.lib")
-#pragma comment(lib,"libSpine_2015.lib")
-#pragma comment(lib,"libbullet_2015.lib")
-#pragma comment(lib,"librecast_2015.lib")
+#pragma comment(lib,"libcocos2d.lib")
+#pragma comment(lib,"libbox2d.lib")
+#pragma comment(lib,"libSpine.lib")
+#pragma comment(lib,"libbullet.lib")
+#pragma comment(lib,"librecast.lib")
 #else
 #pragma comment(lib,"libcocos2d_2013.lib")
 #pragma comment(lib,"libbox2d_2013.lib")
@@ -86,7 +86,8 @@ Sprite * FactoryMapLayer::create_sprite(Factory * f, Industry* ind, Area* a)
 		a = f->area;
 	}
 	//Sprite* s = Sprites::create(f->industry, Size(cell_size() - m, cell_size() - m), true);
-	auto s = CircleFactory::create(ind, Size(cell_size(), cell_size()));
+	Sprite* s = Sprite::create(ind->icon_file);
+	//auto s = CircleFactory::create(ind, Size(cell_size(), cell_size()));
 	auto p = get_point(a);;
 	_factories->addChild(s);
 
@@ -96,8 +97,8 @@ Sprite * FactoryMapLayer::create_sprite(Factory * f, Industry* ind, Area* a)
 	fs->_nodes.push_back(s);
 	fs->setPosition(p);
 	fs->area = a;
-	s->has_factory = f;
-	s->update_colors();
+	//s->has_factory = f;
+	//s->update_colors();
 	_factory_sprites.push_back(fs);
 
 	return nullptr;
