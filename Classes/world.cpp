@@ -579,7 +579,7 @@ string ExePath() {
 void World::generate_industry()
 	{
 		CCLOG("ExePath() %s", ExePath());
-		load_from_file("res/mod3.xml");
+		load_from_file("res/mod4.xml");
 		init_col_industries();
 	}
 
@@ -1223,58 +1223,59 @@ void World::generate_industry()
 
 		vector<TradeMap*> tms;
 
+		// mod4
 		tms.push_back(get_product("food_1")->map);
 		tms.push_back(get_product("wood_1")->map);
 		tms.push_back(get_product("fuel_1")->map);
 		tms.push_back(get_product("stone_1")->map);
 
-		for (auto a : _areas)
-		{
-			//auto it = max_element(tms.begin(), tms.end(),
-			//	[a](TradeMap* ta, TradeMap* tb) { return ta->get_trade(a).resource <= tb->get_trade(a).resource; });
+		//for (auto a : _areas)
+		//{
+		//	//auto it = max_element(tms.begin(), tms.end(),
+		//	//	[a](TradeMap* ta, TradeMap* tb) { return ta->get_trade(a).resource <= tb->get_trade(a).resource; });
 
-			//sort(tms.begin(), tms.end(),
-			//	[a](TradeMap* ta, TradeMap* tb) { return ta->get_trade(a).resource <= tb->get_trade(a).resource; });
+		//	//sort(tms.begin(), tms.end(),
+		//	//	[a](TradeMap* ta, TradeMap* tb) { return ta->get_trade(a).resource <= tb->get_trade(a).resource; });
 
-			int i = 0;
-			double d = 0.2;
-			for (auto& t : tms)
-			{
-				double r = t->get_trade(a).resource;
-				//if (r < 0.47)
-				//{
-				//	// Skip
-				//}
-				//else if (r < 0.5 && a->color_in.size() < 2)
-				//{
-				//	a->color_in.push_back(colsou[i]);
-				//}
-				//else if (r < 0.6 && a->color_out.size() < 2)
-				//{
-				//	a->color_out.push_back(colsou[i]);
-				//}
+		//	int i = 0;
+		//	double d = 0.2;
+		//	for (auto& t : tms)
+		//	{
+		//		double r = t->get_trade(a).resource;
+		//		//if (r < 0.47)
+		//		//{
+		//		//	// Skip
+		//		//}
+		//		//else if (r < 0.5 && a->color_in.size() < 2)
+		//		//{
+		//		//	a->color_in.push_back(colsou[i]);
+		//		//}
+		//		//else if (r < 0.6 && a->color_out.size() < 2)
+		//		//{
+		//		//	a->color_out.push_back(colsou[i]);
+		//		//}
 
-				if (r == 0)
-				{
+		//		if (r == 0)
+		//		{
 
-				}
-				else if (r < 0.37)
-				{
-					if (a->color_in.size() < 2) a->color_in.push_back(colsou[i]);
-				}
-				else if (r > 0.55)
-				{
-					if (a->color_out.size() < 2) a->color_out.push_back(colsou[i]);
-				}
+		//		}
+		//		else if (r < 0.37)
+		//		{
+		//			if (a->color_in.size() < 2) a->color_in.push_back(colsou[i]);
+		//		}
+		//		else if (r > 0.55)
+		//		{
+		//			if (a->color_out.size() < 2) a->color_out.push_back(colsou[i]);
+		//		}
 
-				++i;
-			}
+		//		++i;
+		//	}
 
-			if (a->color_out.size() == 0)
-			{
-				a->color_in.clear();
-			}
-		}
+		//	if (a->color_out.size() == 0)
+		//	{
+		//		a->color_in.clear();
+		//	}
+		//}
 	}
 
 

@@ -104,9 +104,13 @@ namespace simciv
 
 	void RoadLayer::clear_tmp_roads()
 	{
-		for (int i = 0; i < product_count; ++i)
+		//for (int i = 0; i < tmp_roads_node.size(); ++i)
+		//{
+		//	tmp_roads_node[i]->removeAllChildren();
+		//}
+		for (auto& node: tmp_roads_node)
 		{
-			tmp_roads_node[i]->removeAllChildren();
+			node->removeAllChildren();
 		}
 	}
 
