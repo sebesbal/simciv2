@@ -53,12 +53,12 @@ void TileMapView::draw_rect(int x, int y, float rate, float alpha)
 
 	if (rate < 0)
 	{
-		DrawPrimitives::drawSolidRect(Vec2(r.getMinX(), r.getMinY()), Vec2(r.getMaxX(), r.getMaxY()), Color4F(0, 0, 0, 1));
+		DrawPrimitives::drawSolidRect(Vec2(r.getMinX(), r.getMinY()), Vec2(r.getMaxX(), r.getMaxY()), Color4F(0, 0, 0, alpha));
 	}
 	else
 	{
 		//DrawPrimitives::drawSolidRect( Vec2(r.getMinX(), r.getMinY()), Vec2(r.getMaxX(), r.getMaxY()), Color4F(1 - rate, rate, 0, alpha));
-		DrawPrimitives::drawSolidRect(Vec2(r.getMinX(), r.getMinY()), Vec2(r.getMaxX(), r.getMaxY()), Color4F(1 - rate, rate, 0, 0.5));
+		DrawPrimitives::drawSolidRect(Vec2(r.getMinX(), r.getMinY()), Vec2(r.getMaxX(), r.getMaxY()), Color4F(1 - rate, rate, 0, alpha));
 		//DrawPrimitives::drawSolidRect(Vec2(r.getMinX(), r.getMinY()), Vec2(r.getMaxX(), r.getMaxY()), Color4F(rate, rate, rate, 1));
 		//DrawPrimitives::drawSolidRect(Vec2(r.getMinX(), r.getMinY()), Vec2(r.getMaxX(), r.getMaxY()), Color4F(rate, 1- rate, 1-rate, 1));
 		//DrawPrimitives::drawSolidRect(Vec2(r.getMinX(), r.getMinY()), Vec2(r.getMaxX(), r.getMaxY()), Color4F(1-rate, 1 - rate, rate, 1));
@@ -85,6 +85,16 @@ void TileMapView::draw_triangles(int x, int y, float a, float b)
 	DrawPrimitives::drawSolidPoly(v, 3, Color4F(1 - b, b, 0, 0.8f));
 }
 
+void TileMapView::draw_triangle(int x, int y, float a, float alpha)
+{
+	Rect r = get_rect(x, y);
+	Vec2 v[3];
+	v[0] = Vec2(r.getMinX(), r.getMinY());
+	v[1] = Vec2(r.getMaxX(), r.getMinY());
+	v[2] = Vec2(r.getMinX(), r.getMaxY());
+	DrawPrimitives::drawSolidPoly(v, 3, Color4F(1 - a, a, 0, alpha));
+}
+
 void TileMapView::draw_circles(int x, int y, float a, float b)
 {
 	Rect r = get_rect(x, y);
@@ -92,6 +102,17 @@ void TileMapView::draw_circles(int x, int y, float a, float b)
 	//DrawPrimitives::setDrawColor4F(1 - b, b, 0, 1);
 	DrawPrimitives::setDrawColor4F(b, 1 - b, 0, 1);
 	DrawPrimitives::drawSolidCircle(Vec2(r.getMidX(), r.getMidY()), cell_size() / 3.0f, (float)(2 * M_PI), 20);
+}
+
+void TileMapView::draw_circles2(int x, int y, float a, float alpha)
+{
+	Rect r = get_rect(x, y);
+	a = std::max(0.02f, a);
+	//DrawPrimitives::drawSolidRect(Vec2(r.getMinX(), r.getMinY()), Vec2(r.getMaxX(), r.getMaxY()), Color4F(1 - a, a, 0, 1));
+	//DrawPrimitives::setDrawColor4F(1 - b, b, 0, 1);
+	DrawPrimitives::setDrawColor4F(1 - a, a, 0, alpha);
+	//DrawPrimitives::drawSolidCircle(Vec2(r.getMidX(), r.getMidY()), cell_size() / 3.0f, (float)(2 * M_PI), 20);
+	DrawPrimitives::drawSolidCircle(Vec2(r.getMidX(), r.getMidY()), a * cell_size() * 0.4, (float)(2 * M_PI), 20);
 }
 
 void drawPie(const Vec2& center, float radius, float startAngle, float endAngle, unsigned int segments, float scaleX, float scaleY, const Color4F &color)

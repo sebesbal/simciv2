@@ -17,6 +17,7 @@ using namespace ui;
 
 ColorMapLayer::ColorMapLayer(UIStateData& info) : info(info)
 {
+	//this->setcol
 }
 
 ColorMapLayer* ColorMapLayer::create(UIStateData& info)
@@ -36,6 +37,7 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 
 #define DRAW_AREAS(area, exp) \
 { \
+	const float alpha = 0.01; \
 	double min = std::numeric_limits<double>::max(); \
 	double max = std::numeric_limits<double>::min(); \
 	vector<double> u(world.areas().size()); \
@@ -55,7 +57,9 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 		for (Area* a : world.areas()) \
 		{ \
 			if (!a->is_explored()) continue; \
-			draw_rect(a->x, a->y, min, 1); \
+			/* draw_rect(a->x, a->y, min, alpha); */ \
+			/* draw_circles2(a->x, a->y, min, 1); */ \
+			draw_circles2(a->x, a->y, 0.1, 1); \
 		} \
 	} \
 	else \
@@ -63,7 +67,9 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 		for (Area* a : world.areas()) \
 		{ \
 			if (!a->is_explored()) continue; \
-			draw_rect(a->x, a->y, (u[i++] - min) / d, 1); \
+			/* draw_rect(a->x, a->y, (u[i++] - min) / d, alpha); */ \
+			/* draw_triangle(a->x, a->y, (u[i++] - min) / d, 0.01); */ \
+			draw_circles2(a->x, a->y, (u[i++] - min) / d, 1); \
 		} \
 	} \
 }
@@ -152,7 +158,7 @@ void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
     CHECK_GL_ERROR_DEBUG();
 	auto b = getBoundingBox();
 
-	DrawPrimitives::drawSolidRect(Vec2(b.getMinX(), b.getMinY()), Vec2(b.getMaxX(), b.getMaxY()), Color4F(0, 0, 0, 0.8));
+	DrawPrimitives::drawSolidRect(Vec2(b.getMinX(), b.getMinY()), Vec2(b.getMaxX(), b.getMaxY()), Color4F(0, 0, 0, 0.01));
 
 	if (info.show_grid)
 	{
@@ -192,12 +198,12 @@ void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 		if (info.industry) DRAW_AREAS(area, world.get_build_cost(info.industry, area));
 		break;
 	case MM_SPECIES_RESOURCES:
-		//if (info.industry) DRAW_AREAS(area, world.get_resources(info.industry, area));
+		if (info.industry) DRAW_AREAS(area, world.get_resources(info.industry, area));
 		//if (info.industry) DRAW_AREAS_COLOR;
-		for (auto& a : world.areas())
-		{
-			draw_circles(a);
-		}
+		//for (auto& a : world.areas())
+		//{
+		//	draw_circles(a);
+		//}
 		break;
 	case MM_PROFIT_RES:
 		if (info.industry) DRAW_AREAS_2(area,

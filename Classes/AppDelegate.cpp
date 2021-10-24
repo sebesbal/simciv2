@@ -29,7 +29,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // initialize director
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
-	auto size = Size(1400, 1100);
+	auto size = Size(1600, 1000);
 	//auto size = Size(1200, 1024);
 	//auto size = director->getWinSizeInPixels();
 

@@ -462,20 +462,23 @@ void Trader::update_volume()
 	void TradeMap::update_data()
 	{
 		data.storage = 0;
-		double v = 0, p = 0, s = 0;
+		double v = 0, p = 0, s = 0; 
 		for (auto t: _sellers)
 		{
 			v += t->volume;
 			p += t->volume * t->price;
 			s += t->_storage;
-		}
-		for (auto t : _sellers)
+		 }
+		for (auto t : _buyers)
 		{
 			v += t->volume;
 			p += t->volume * t->price;
 			s += t->_storage;
 		}
-		data.price = p / v;
+		if (v > 0)
+		{
+			data.price = p / v;
+		}
 		data.storage = s;
 	}
 

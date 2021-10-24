@@ -88,7 +88,9 @@ namespace simciv
 		void draw_rect(int x, int y, Color3B& col);
 		void draw_rect_green(int x, int y, float rate, float alpha);
 		void draw_triangles(int x, int y, float a, float b);
+		void draw_triangle(int x, int y, float a, float alpha);
 		void draw_circles(int x, int y, float a, float b);
+		void draw_circles2(int x, int y, float a, float alpha);
 		void draw_circles(Area* a);
 	};
 

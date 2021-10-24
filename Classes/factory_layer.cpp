@@ -52,10 +52,10 @@ void FactoryMapLayer::update(float dt)
 Factory* FactoryMapLayer::create_factory(Area* a, Industry * s)
 {
 	Factory* f = world.create_factory(a, s);
-	a->has_factory = true;
 	//a->update_colors();
 	if (f)
 	{
+		a->has_factory = true;
 		create_sprite(f);
 	}
 	return f;
@@ -85,8 +85,9 @@ Sprite * FactoryMapLayer::create_sprite(Factory * f, Industry* ind, Area* a)
 		ind = f->industry;
 		a = f->area;
 	}
-	//Sprite* s = Sprites::create(f->industry, Size(cell_size() - m, cell_size() - m), true);
-	Sprite* s = Sprite::create(ind->icon_file);
+	Node* s = Sprites::create(f->industry, Size(cell_size() - m, cell_size() - m), true);
+	//Sprite* s = Sprite::create(ind->icon_file);
+	//s->setScale(0.1, 0.1);
 	//auto s = CircleFactory::create(ind, Size(cell_size(), cell_size()));
 	auto p = get_point(a);;
 	_factories->addChild(s);

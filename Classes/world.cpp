@@ -112,6 +112,8 @@ namespace simciv
 	bool Industry::can_create_factory(Area * a)
 	{
 		return world.find_factories(a).size() == 0;
+		//float res = world.get_trade(a, product->id).resource;
+		//return res > 0 && world.find_factories(a).size() == 0;
 	}
 
 	Factory * Industry::create_factory(Area * a)
@@ -541,7 +543,7 @@ namespace simciv
 		{
 			auto tm = new TradeMap(*products[i]);
 			_trade_maps.push_back(tm);
-			if (products[i]->name == "fuel")
+			if (products[i]->name == "fuel_1")
 			{
 				_fuel_map = tm;
 				_fuel_id = i;
@@ -624,7 +626,7 @@ void World::generate_industry()
 			g(f, "prod_1");
 			g(f, "prod_2");
 			g(f, "prod_3");
-			g(f, "fuel");
+			g(f, "fuel_1");
 		};
 
 		//if (!s1) throw("Industry not found!");
@@ -1035,6 +1037,7 @@ void World::generate_industry()
 
 	Trader * World::fuel_buyer(Area * a)
 	{
+
 		return _fuel_map->_area_buyers[a->id][0];
 	}
 
@@ -1131,7 +1134,7 @@ void World::generate_industry()
 		tms.push_back(get_product("prod_1")->map);
 		tms.push_back(get_product("prod_2")->map);
 		tms.push_back(get_product("prod_3")->map);
-		tms.push_back(get_product("fuel")->map);
+		tms.push_back(get_product("fuel_1")->map);
 
 		for (auto a : _areas)
 		{

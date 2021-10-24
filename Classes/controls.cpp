@@ -217,7 +217,8 @@ MenuButton* MenuButton::create(std::string texture)
 {
 	//auto btn = MenuButton::create(Size(64, 64), texture, "Circle_Orange2.png", "Circle_Orange2_sel.png", "Circle_Blue2.png");
 	//auto btn = MenuButton::create(Size(64, 64), texture, "circle_blue3.png", "circle_blue3.png", "circle_blue3.png");
-	auto btn = MenuButton::create(Size(54, 54), texture, "circle_blue3.png", "circle_blue3.png", "circle_blue3.png");
+	//auto btn = MenuButton::create(Size(54, 54), texture, "circle_blue3.png", "circle_blue3.png", "circle_blue3.png");
+	auto btn = MenuButton::create(Size(54, 54), texture, "circle_blue3.png", "Circle_Orange2.png", "circle_blue3.png");
 	btn->setAnchorPoint(Vec2(0, 1));
 	btn->ignoreContentAdaptWithSize(false);
 	return btn;
@@ -363,6 +364,12 @@ void RadioMenu::add_radio_button(MenuButton* btn)
 	auto s = _row->getContentSize();
 	auto v = btn->getContentSize();
 	_row->setContentSize(Size(s.width + v.width, v.height));
+}
+
+MenuButton * RadioMenu::get_btn(int row, int col)
+{
+	auto r = getChildren().at(row);
+	return (MenuButton*)r->getChildren().at(col);
 }
 
 void RadioMenu::on_btn_clicked(Ref* btn, Widget::TouchEventType type)
@@ -1105,7 +1112,8 @@ float Label::font_size(const LabelSize & size)
 
 void Label::update(float delta)
 {
-	if (data) this->setText(to_string_with_precision(*data, 1));
+	//if (data) this->setText(to_string_with_precision(*data, 1));
+	if (data) this->setText(to_string_with_K(*data));
 }
 
 bool Popup::init()

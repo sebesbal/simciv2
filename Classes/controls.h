@@ -95,6 +95,7 @@ namespace simciv
 		void add_radio_button(MenuButton* btn);
 		void set_on_changed(button_cb cb) { _on_changed = cb; }
 		void set_toggle(bool toggle) { _toggle = toggle; }
+		MenuButton* get_btn(int row, int col);
 	protected:
 		ui::HBox* _row;
 		int _count;
@@ -244,6 +245,14 @@ namespace simciv
 		std::ostringstream out;
 		out << std::fixed << std::setprecision(n) << a_value;
 		return out.str();
+	}
+
+	template <typename T>
+	std::string to_string_with_K(const T a_value)
+	{
+		if (a_value > 1000000) return std::to_string((int)(a_value / 1000000)) + "M";
+		if (a_value > 1000) return std::to_string((int)(a_value / 1000)) + "K";
+		return std::to_string((int)(a_value));
 	}
 
 	enum LabelSize

@@ -103,8 +103,14 @@ namespace simciv
 		_map->addChild(_cursor);
 
 		//set_state(UIS_BROWSING);
+
+		_main_menu->set_selected_btn(_main_menu->get_btn(0, 0));
+		_industry_browser->set_selected_btn(_industry_browser->get_btn(0, 0));
+
 		set_state(UIS_FACTORY);
 		info.action = UIA_FACT_CREATE;
+
+		return true;
 	}
 
 	Vec2 WorldUI::get_tile(Area * a)
@@ -393,9 +399,9 @@ namespace simciv
 		case UIA_FACT_CREATE:
 			if (!_drag_start)
 			{
-				// Industry* s = info.industry;
-				Industry* s = a->industry;
-				if (s)
+				Industry* s = info.industry;
+				//Industry* s = a->industry;
+				if (s && a->type != AT_SEA)
 				{
 					_factory_layer->update_or_create_factory(a, s);
 				}
@@ -633,12 +639,14 @@ namespace simciv
 			result->add_radio_button(btn);
 		}
 
-		result->set_selected_btn(0);
 		result->set_on_changed([this](MenuButton* btn) {
-			Industry* s = (Industry*)btn->getUserData();
-			this->info.industry = s;
-			_industry_view->set_industry(s);
-			set_state(_state);
+			if (btn)
+			{
+				Industry* s = (Industry*)btn->getUserData();
+				this->info.industry = s;
+				_industry_view->set_industry(s);
+				set_state(_state);
+			}
 		});
 		return result;
 	}
@@ -754,8 +762,8 @@ namespace simciv
 
 		_economy_view->setPosition(Vec2(m + 64 + 200, h - m));
 
-		_factory_layers_options->setPosition(Vec2(m + 64 + 500, h - m));
-		_color_layers_options->setPosition(Vec2(m + 64 + 500, h - m));
+		_factory_layers_options->setPosition(Vec2(m + 64 + 600, h - m));
+		_color_layers_options->setPosition(Vec2(m + 64 + 600, h - m));
 		
 
 		_industry_view->setPosition(Vec2(var.width, h));
