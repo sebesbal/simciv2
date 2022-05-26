@@ -9,7 +9,7 @@
 #define defvec(vec, ...) \
 	static const string arr ## vec[] = { __VA_ARGS__ }; \
 	vector<string> vec (arr ## vec, arr ## vec + sizeof(arr ## vec) / sizeof(arr ## vec[0]) );
-
+ 
 namespace simciv
 {
 	void RUNUI(std::function<void(void)> f)
@@ -17,13 +17,13 @@ namespace simciv
 		Director::getInstance()->getScheduler()->performFunctionInCocosThread(f);
 	}
 
-	Scene* WorldUI::createScene()
+	Scene* WorldUI::createScene(const std::string & config, const std::string & tmx_map)
 	{
 		// 'scene' is an autorelease object
 		auto scene = Scene::create();
 
 		// 'layer' is an autorelease object
-		WorldUI *layer = WorldUI::create();
+		WorldUI *layer = WorldUI::create(config, tmx_map);
 		layer->setContentSize(scene->getContentSize());
 
 		// add layer as a child to scene
@@ -33,7 +33,23 @@ namespace simciv
 		return scene;
 	}
 
-	bool WorldUI::init()
+	WorldUI * WorldUI::create(const std::string & config, const std::string & tmx_map)
+	{
+		WorldUI *pRet = new WorldUI();
+		if (pRet && pRet->init(config, tmx_map))
+		{
+			pRet->autorelease();
+			return pRet;
+		}
+		else
+		{
+			delete pRet;
+			pRet = NULL;
+			return NULL;
+		}
+	}
+
+	bool WorldUI::init(const std::string& config, const std::string& tmx_map)
 	{
 		if (!Layout::init()) return false;
 		_menu_size = Size(64, 64);
@@ -56,7 +72,7 @@ namespace simciv
 		mouse->onMouseMove = CC_CALLBACK_1(WorldUI::onMouseMove, this);
 		_eventDispatcher->addEventListenerWithSceneGraphPriority(mouse, this);
 
-		load_from_tmx("simciv2.tmx");
+		load_from_file(config, tmx_map);
 
 		_main_menu = create_left_menu();
 		this->addChild(_main_menu);
@@ -76,7 +92,7 @@ namespace simciv
 		_industry_view = IndustryView::create();
 		_industry_view->setAnchorPoint(Vec2(1, 1));
 		this->addChild(_industry_view);
-		_industry_view->set_industry(world.get_industries().at(0));
+		_industry_view->set_industry(world->get_industries().at(0));
 
 		_factory_view = FactoryView::create();
 		_factory_view->setAnchorPoint(Vec2(1, 1));
@@ -129,11 +145,11 @@ namespace simciv
 			_worker = std::thread([]() {
 				working = true;
 				GUARD_LOCK_WORLD
-				world.update();
+				world->update();
 				working = false;
 			});
 #else
-			world.update();
+			world->update();
 #endif
 		}
 
@@ -151,9 +167,9 @@ namespace simciv
 		++k;
 	}
 
-	void WorldUI::load_from_tmx(std::string tmx)
+	void WorldUI::load_from_file(const std::string& config, const std::string& tmx_map)
 	{
-		TMXTiledMap* m = TMXTiledMap::create(tmx);
+		TMXTiledMap* m = TMXTiledMap::create(tmx_map);
 		_map = m;
 		_grid_size = m->getMapSize();
 		m->setAnchorPoint(Vec2(0.5, 0.5));
@@ -163,8 +179,8 @@ namespace simciv
 		auto layer = m->getLayer("Background");
 		//_map->setVisible(false);
 
-		world.create(_grid_size.width, _grid_size.height);
-		world.on_area_changed = [layer, this](Area* a) {
+		world = World::create_from_file(config, _grid_size.width, _grid_size.height);
+		world->on_area_changed = [layer, this](Area* a) {
 			int gid;
 			switch (a->mil_state)
 			{
@@ -185,12 +201,12 @@ namespace simciv
 			});
 		};
 
-		vector<int> w(world.areas().size());
+		vector<int> w(world->areas().size());
 		for (int i = 0; i < _grid_size.width; ++i)
 		{
 			for (int j = 0; j < _grid_size.height; ++j)
 			{
-				Area* a = world.get_area(i, j);
+				Area* a = world->get_area(i, j);
 				auto v = Vec2(i, _grid_size.height - j - 1);
 				a->ori_tile_gid = layer->getTileGIDAt(v);
 				
@@ -229,18 +245,18 @@ namespace simciv
 			}
 		}
 
-		auto a = world.get_area(12, 10);
-		world.set_explored(a);
-		world.generate_resources();
+		auto a = world->get_area(12, 10);
+		world->set_explored(a);
+		world->generate_resources();
 
-		for (Road* r : world.roads())
+		for (Road* r : world->roads())
 		{
 			//r->base_cost = (r->a->tile_gid + r->b->tile_gid) / 2;
 			r->base_cost = (w[r->a->id] + w[r->b->id]) / 2;
 			if (r->dir % 2 == 1) r->base_cost *= 1.414;
 		}
 
-		world.update_roads();
+		world->update_roads();
 
 
 		_color_layer = ColorMapLayer::create(info);
@@ -261,7 +277,7 @@ namespace simciv
 		//{
 		//	for (int j = -n; j <= n; ++j)
 		//	{
-		//		Area* a = world.get_area(x + i+j, y + i-j);
+		//		Area* a = world->get_area(x + i+j, y + i-j);
 		//		a->road_level = 1;
 		//	}
 		//}
@@ -269,7 +285,7 @@ namespace simciv
 		//{
 		//	for (int j = -n + 1; j <= n; ++j)
 		//	{
-		//		Area* a = world.get_area(x - 1 + i + j, y + i - j);
+		//		Area* a = world->get_area(x - 1 + i + j, y + i - j);
 		//		a->road_level = 1;
 		//	}
 		//}
@@ -277,13 +293,13 @@ namespace simciv
 		//{
 		//	for (int j = -n; j <= n; ++j)
 		//	{
-		//		Area* a = world.get_area(x + i + n, y + j);
+		//		Area* a = world->get_area(x + i + n, y + j);
 		//		a->road_level = 1;
 		//	}
 		//}
 		//for (int i = -n * 2; i <= 2 * n; ++i)
 		//{
-		//	Area* a = world.get_area(x + i, y + i);
+		//	Area* a = world->get_area(x + i, y + i);
 		//	a->road_level = 3;
 		//}
 		//_road_layer->update_roads();
@@ -310,11 +326,11 @@ namespace simciv
 		_map->addChild(v);
 
 
-		for (auto& a : world.areas())
+		for (auto& a : world->areas())
 		{
 			if (a->has_factory)
 			{
-				auto v = world.find_factories(a);
+				auto v = world->find_factories(a);
 				_factory_layer->create_sprite(v[0]);
 			}
 			else if (a->industry)
@@ -355,7 +371,7 @@ namespace simciv
 		}
 		else if (_state == UIS_BROWSING || _state == UIS_PRODUCT || _state == UIS_FACTORY)
 		{
-			auto v = world.find_factories(a);
+			auto v = world->find_factories(a);
 			Factory* f = v.size() > 0 ? v[0] : nullptr;
 			_factory_view->set_factory(f);
 			_factory_view->setVisible(true);
@@ -368,7 +384,7 @@ namespace simciv
 				Product* p = s->get_product();
 				if (p)
 				{
-					info.product = world.get_products()[p->id];
+					info.product = world->get_products()[p->id];
 				}
 				set_state(UIS_FACTORY);
 			}
@@ -478,7 +494,7 @@ namespace simciv
 				if (!a->is_explored()) return;
 				if (a != _drag_start_area)
 				{
-					auto route = world.create_route(_drag_start_area, a);
+					auto route = world->create_route(_drag_start_area, a);
 					_road_layer->add_route(route, 3);
 					delete route;
 				}
@@ -500,7 +516,7 @@ namespace simciv
 	{
 		if (a->mil_state == MILS_EXPLORABLE)
 		{
-			auto f = _factory_layer->create_factory(a, world._explorer);
+			auto f = _factory_layer->create_factory(a, world->_explorer);
 			if (f)
 			{
 				f->on_state_changed = [](Factory* f, FactoryState olds, FactoryState news) {
@@ -508,7 +524,7 @@ namespace simciv
 					{
 						RUNUI([f] {
 							GUARD_LOCK_WORLD
-								world.set_explored(f->area);
+								world->set_explored(f->area);
 							g_factory_layer->delete_factory(f);
 						});
 					}
@@ -624,7 +640,7 @@ namespace simciv
 	{
 		RadioMenu* result = RadioMenu::create();
 
-		auto& industry = world.get_industries();
+		auto& industry = world->get_industries();
 		string group = "";
 		for (auto i: industry)
 		{
@@ -654,7 +670,7 @@ namespace simciv
 	RadioMenu* WorldUI::create_products_browser()
 	{
 		RadioMenu* result = RadioMenu::create();
-		auto& products = world.get_products();
+		auto& products = world->get_products();
 		int i = 0;
 		string group;
 		for (auto product : products)
@@ -929,7 +945,7 @@ namespace simciv
 		if (f)
 		{
 			vector<Transport*> v; // in, out;
-			world.get_transports(f->area, v, v);
+			world->get_transports(f->area, v, v);
 
 			//typedef pair<ProductMap, ProductMap> partner_data;
 			//map<Area*, partner_data> partners;

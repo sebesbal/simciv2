@@ -51,7 +51,7 @@ void FactoryMapLayer::update(float dt)
 
 Factory* FactoryMapLayer::create_factory(Area* a, Industry * s)
 {
-	Factory* f = world.create_factory(a, s);
+	Factory* f = world->create_factory(a, s);
 	//a->update_colors();
 	if (f)
 	{
@@ -63,7 +63,7 @@ Factory* FactoryMapLayer::create_factory(Area* a, Industry * s)
 
 Factory * FactoryMapLayer::update_or_create_factory(Area * a, Industry * industry)
 {
-	auto v = world.find_factories(a);
+	auto v = world->find_factories(a);
 	for (auto f: v)
 	{
 		if (f->industry->can_upgrade_to(industry))
@@ -108,7 +108,7 @@ Sprite * FactoryMapLayer::create_sprite(Factory * f, Industry* ind, Area* a)
 void FactoryMapLayer::create_sprites_from_model()
 {
 	_factories->removeAllChildrenWithCleanup(true);
-	for (Factory* f : world.get_factories())
+	for (Factory* f : world->get_factories())
 	{
 		create_sprite(f);
 	}
@@ -126,7 +126,7 @@ void FactoryMapLayer::delete_factory(Factory * f)
 		_factory_sprites.erase(it);
 	}
 
-	world.delete_factory(f);
+	world->delete_factory(f);
 }
 
 FactorySprite * FactoryMapLayer::get_sprite(Area * a)

@@ -6,17 +6,17 @@
 
 USING_NS_CC;
 
-AppDelegate::AppDelegate() {
+SimCivApp::SimCivApp(const std::string& config, const std::string& tmx_map): m_config_file(config), m_tmx_map_file(tmx_map) {
 
 }
 
-AppDelegate::~AppDelegate() 
+SimCivApp::~SimCivApp() 
 {
 }
 
 //if you want a different context,just modify the value of glContextAttrs
 //it will takes effect on all platforms
-void AppDelegate::initGLContextAttrs()
+void SimCivApp::initGLContextAttrs()
 {
     //set OpenGL context attributions,now can only set six attributions:
     //red,green,blue,alpha,depth,stencil
@@ -25,7 +25,7 @@ void AppDelegate::initGLContextAttrs()
     GLView::setGLContextAttrs(glContextAttrs);
 }
 
-bool AppDelegate::applicationDidFinishLaunching() {
+bool SimCivApp::applicationDidFinishLaunching() {
     // initialize director
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
@@ -52,7 +52,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     FileUtils::getInstance()->addSearchPath("res");
 
     // create a scene. it's an autorelease object
-	auto scene = simciv::WorldUI::createScene();
+	auto scene = simciv::WorldUI::createScene(m_config_file, m_tmx_map_file);
 	//auto scene = indgen::IndGenUI::createScene();
 
     // run
@@ -60,9 +60,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     return true;
 }
-
+ 
 // This function will be called when the app is inactive. When comes a phone call,it's be invoked too
-void AppDelegate::applicationDidEnterBackground() {
+void SimCivApp::applicationDidEnterBackground() {
     Director::getInstance()->stopAnimation();
 
     // if you use SimpleAudioEngine, it must be pause
@@ -70,7 +70,7 @@ void AppDelegate::applicationDidEnterBackground() {
 }
 
 // this function will be called when the app is active again
-void AppDelegate::applicationWillEnterForeground() {
+void SimCivApp::applicationWillEnterForeground() {
     Director::getInstance()->startAnimation();
 
     // if you use SimpleAudioEngine, it must resume here

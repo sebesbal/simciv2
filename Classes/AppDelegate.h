@@ -8,11 +8,11 @@
 
 The reason for implement as private inheritance is to hide some interface call by Director.
 */
-class  AppDelegate : private cocos2d::Application
+class  SimCivApp : private cocos2d::Application
 {
 public:
-    AppDelegate();
-    virtual ~AppDelegate();
+    SimCivApp(const std::string& config, const std::string& tmx_map);
+    virtual ~SimCivApp();
 
     virtual void initGLContextAttrs();
 
@@ -34,6 +34,10 @@ public:
     @param  the pointer of the application
     */
     virtual void applicationWillEnterForeground();
+
+protected:
+	std::string m_config_file;
+	std::string m_tmx_map_file;
 };
 
 #endif // _APP_DELEGATE_H_

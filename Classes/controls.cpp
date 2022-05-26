@@ -52,7 +52,7 @@ Layout* labelled_cb(std::string text, bool checked, CheckBox::ccCheckBoxCallback
 
 std::string get_product_texture(int id)
 {
-	return world.get_products()[id]->icon_file;
+	return world->get_products()[id]->icon_file;
 }
 
 Layout* combobox(const std::string* labels)
@@ -856,7 +856,7 @@ void ProductStringView::set_vector(const Products& v, int size)
 	int x = size / 2;
 	for (auto& d : v)
 	{
-		Product* p = world.get_products()[i];
+		Product* p = world->get_products()[i];
 		int m = d;
 		if (m > 4)
 		{
@@ -903,7 +903,7 @@ void ProductStringView::set_map(const ProductMap& map)
 	setContentSize(Size(0, _size));
 	for (auto& p : map)
 	{
-		add_item(world.get_products()[p.first], p.second);
+		add_item(world->get_products()[p.first], p.second);
 	}
 }
 
@@ -973,7 +973,7 @@ bool EconomyView::init()
 	auto storage = _table->create_row(); // storage
 	auto price = _table->create_row(); // price
 
-	for (auto& map : world.trade_maps())
+	for (auto& map : world->trade_maps())
 	{
 		Product& p = map->product;
 		auto& data = map->get_world_data();

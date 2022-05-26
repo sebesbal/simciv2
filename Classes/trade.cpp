@@ -126,7 +126,7 @@ void Trader::update_volume()
 		product(p)
 	{
 		p.map = this;
-		int n = world.areas().size();
+		int n = world->areas().size();
 		_production->resize(n);
 		_new_production->resize(n);
 		_area_buyers.resize(n);
@@ -141,12 +141,12 @@ void Trader::update_volume()
 		if (it == _transports.end())
 		{
 			Transport* t = new Transport();
-			t->creation_time = world.time;
-			t->route = world.create_route(src->area, dst->area);
+			t->creation_time = world->time;
+			t->route = world->create_route(src->area, dst->area);
 			t->fuel_volume = distance_cost * t->route->cost;
 			t->buyer = dst;
 			t->seller = src;
-			t->fuel_buyer = world.fuel_buyer(src->area);
+			t->fuel_buyer = world->fuel_buyer(src->area);
 			t->cost = t->fuel_volume * t->fuel_buyer->price;
 			t->profit = dst->price - src->price - t->cost;
 			_transports.push_back(t);
@@ -161,10 +161,10 @@ void Trader::update_volume()
 				Area* b = dst->area;
 				if (a->map->time > time || b->map->time > time)
 				{
-					t->creation_time = world.time;
+					t->creation_time = world->time;
 					t->route = NULL;
 					delete t->route;
-					t->route = world.create_route(a, b);
+					t->route = world->create_route(a, b);
 					t->fuel_volume = distance_cost * t->route->cost;
 					t->cost = t->fuel_volume * t->fuel_buyer->price;
 					t->profit = dst->price - src->price - t->cost;
@@ -178,7 +178,7 @@ void Trader::update_volume()
 	{
 		for (auto t : _transports)
 		{
-			if (t->active_time + 5 > world.time)
+			if (t->active_time + 5 > world->time)
 			{
 				if (t->seller->area == a)
 				{
@@ -260,7 +260,7 @@ void Trader::update_volume()
 				v_buy -= v;
 				//v_fuel -= v * fuel_rate;
 				r->volume = v;
-				r->active_time = world.time;
+				r->active_time = world->time;
 				auto& seller = r->seller->worst_profit;
 				seller = std::min(seller, r->profit);
 				auto& con = r->buyer->worst_profit;
@@ -286,7 +286,7 @@ void Trader::update_volume()
 	{
 		auto& v = *_production;
 
-		for (Area* a: world.areas())
+		for (Area* a: world->areas())
 		{
 			//AreaData& ap = (*_production)[i];
 			//(*_new_production)[i].resource = (*_production)[i].resource = pow( (double)rand() / RAND_MAX, 3);
@@ -294,7 +294,7 @@ void Trader::update_volume()
 			v[a->id].resource = product.tile_res.at(a->type) * (double)rand() / RAND_MAX;
 		}
 
-		for (Area* a : world.areas())
+		for (Area* a : world->areas())
 		{
 			int i = a->id;
 			int k = 1;
@@ -315,7 +315,7 @@ void Trader::update_volume()
 			find_best_producers_for_areas();
 		}
 
-		for (Area* a : world.areas())
+		for (Area* a : world->areas())
 		{
 			auto& prod = get_new_prod(a);
 			prod.p_buy = prod.best_seller.second ? prod.best_seller.second->price + prod.best_seller.first : max_price;
@@ -329,7 +329,7 @@ void Trader::update_volume()
 
 	void TradeMap::find_best_producers_for_areas()
 	{
-		for (Area* a : world.areas())
+		for (Area* a : world->areas())
 		{
 			auto& prod = get_new_prod(a);
 
@@ -340,8 +340,8 @@ void Trader::update_volume()
 				std::vector<pair_t> v;
 				for (auto p : _sellers)
 				{
-					// double dist = world.distance(a, p->area);
-					double dist = world.transport_cost(a, p->area);
+					// double dist = world->distance(a, p->area);
+					double dist = world->transport_cost(a, p->area);
 					double price = p->price + dist;
 					v.push_back(pair_t(price, p));
 				}
@@ -363,8 +363,8 @@ void Trader::update_volume()
 				std::vector<pair_t> v;
 				for (auto p : _buyers)
 				{
-					//double dist = world.distance(a, p->area);
-					double dist = world.transport_cost(a, p->area);
+					//double dist = world->distance(a, p->area);
+					double dist = world->transport_cost(a, p->area);
 
 					double price = p->price - dist;
 					v.push_back(pair_t(price, p));
@@ -524,7 +524,7 @@ void Trader::update_volume()
 		p->price = price;
 		p->is_buyer = consumer;
 		p->area = area;
-		world.area_changed(area);
+		world->area_changed(area);
 
 		//auto& v = p->is_buyer ? _buyers : _sellers;
 		//AreaData& a = get_trade(area);

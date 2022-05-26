@@ -24,12 +24,12 @@ namespace simciv
 
 	AreaData& Area::data(Product* p)
 	{
-		return world.get_trade(this, p->id);
+		return world->get_trade(this, p->id);
 	}
 
 	AreaData& Area::data(int prod_id)
 	{
-		return world.get_trade(this, prod_id);
+		return world->get_trade(this, prod_id);
 	}
 
 	std::vector<Area*> Area::sorted_adjs()
@@ -93,11 +93,11 @@ namespace simciv
 	//	ProductionRule& r = industry->prod_rules[0];
 	//	for (auto& p : r.input)
 	//	{
-	//		color_in.push_back(world.colors[p.first]);
+	//		color_in.push_back(world->colors[p.first]);
 	//	}
 	//	for (auto& p : r.output) 
 	//	{
-	//		color_out.push_back(world.colors[p.first]);
+	//		color_out.push_back(world->colors[p.first]);
 	//	}
 
 	//	const float fact_w = 5;

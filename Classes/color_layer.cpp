@@ -40,9 +40,9 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	const float alpha = 0.01; \
 	double min = std::numeric_limits<double>::max(); \
 	double max = std::numeric_limits<double>::min(); \
-	vector<double> u(world.areas().size()); \
+	vector<double> u(world->areas().size()); \
 	int i = 0; \
-	for (Area* area : world.areas()) \
+	for (Area* area : world->areas()) \
 	{ \
 		if (!area->is_explored()) continue; \
 		double v = exp; \
@@ -54,7 +54,7 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	i = 0; \
 	if (d == 0) \
 	{ \
-		for (Area* a : world.areas()) \
+		for (Area* a : world->areas()) \
 		{ \
 			if (!a->is_explored()) continue; \
 			/* draw_rect(a->x, a->y, min, alpha); */ \
@@ -64,7 +64,7 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	} \
 	else \
 	{ \
-		for (Area* a : world.areas()) \
+		for (Area* a : world->areas()) \
 		{ \
 			if (!a->is_explored()) continue; \
 			/* draw_rect(a->x, a->y, (u[i++] - min) / d, alpha); */ \
@@ -80,10 +80,10 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	double max1 = std::numeric_limits<double>::min(); \
 	double min2 = std::numeric_limits<double>::max(); \
 	double max2 = std::numeric_limits<double>::min(); \
-	vector<double> u1(world.areas().size()); \
-	vector<double> u2(world.areas().size()); \
+	vector<double> u1(world->areas().size()); \
+	vector<double> u2(world->areas().size()); \
 	int i = 0; \
-	for (Area* area : world.areas()) \
+	for (Area* area : world->areas()) \
 		{ \
 		double v1 = exp1; \
 		double v2 = exp2; \
@@ -100,17 +100,17 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	i = 0; \
 	if (d1 == 0) \
 	{ \
-		if (d2 == 0)	for (Area* a : world.areas()) draw_circles(a->x, a->y, min1, min2); \
-		else			for (Area* a : world.areas()) draw_circles(a->x, a->y, min1, (u2[i++] - min2) / d2); \
+		if (d2 == 0)	for (Area* a : world->areas()) draw_circles(a->x, a->y, min1, min2); \
+		else			for (Area* a : world->areas()) draw_circles(a->x, a->y, min1, (u2[i++] - min2) / d2); \
 	} \
-	else for (Area* a : world.areas()) draw_circles(a->x, a->y, (u1[i] - min1) / d1, (u2[i++] - min2) / d2); \
+	else for (Area* a : world->areas()) draw_circles(a->x, a->y, (u1[i] - min1) / d1, (u2[i++] - min2) / d2); \
 }
 
 #define DRAW_AREAS_3(area, exp, min_, max_) \
 { \
-	vector<double> u(world.areas().size()); \
+	vector<double> u(world->areas().size()); \
 	int i = 0; \
-	for (Area* area : world.areas()) \
+	for (Area* area : world->areas()) \
 	{ \
 		if (!area->is_explored()) continue; \
 		double e = exp; \
@@ -120,7 +120,7 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	i = 0; \
 	if (d == 0) \
 	{ \
-		for (Area* a : world.areas()) \
+		for (Area* a : world->areas()) \
 		{ \
 			if (!a->is_explored()) continue; \
 			draw_rect(a->x, a->y, min_, 1); \
@@ -128,7 +128,7 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 	} \
 	else \
 	{ \
-		for (Area* a : world.areas()) \
+		for (Area* a : world->areas()) \
 		{ \
 			if (!a->is_explored()) continue; \
 			draw_rect(a->x, a->y, (u[i++] - min_) / d, 1); \
@@ -138,7 +138,7 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 
 #define DRAW_AREAS_COLOR \
 { \
-	for (Area* a : world.areas()) \
+	for (Area* a : world->areas()) \
 	{ \
 		if (!a->is_explored()) continue; \
 		draw_rect(a->x, a->y, a->color); \
@@ -148,7 +148,7 @@ ColorMapLayer* ColorMapLayer::create(UIStateData& info)
 void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 {
 	// calculate roads
-	// if (info.product) world.trade_maps()[info.product->id]->routes_to_areas();
+	// if (info.product) world->trade_maps()[info.product->id]->routes_to_areas();
 
     Director* director = Director::getInstance();
     director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
@@ -164,12 +164,12 @@ void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	{
 		glLineWidth(1);
 		float x = b.getMinX();
-		for (int i = 0; i <= world.width(); ++i, x += cs)
+		for (int i = 0; i <= world->width(); ++i, x += cs)
 		{
 			DrawPrimitives::drawLine( Vec2(x, b.getMinY()), Vec2(x, b.getMaxY()));
 		}
 		float y = b.getMinY();
-		for (int i = 0; i <= world.height(); ++i, y += cs)
+		for (int i = 0; i <= world->height(); ++i, y += cs)
 		{
 			DrawPrimitives::drawLine( Vec2(b.getMinX(), y), Vec2(b.getMaxX(), y));
 		}
@@ -183,32 +183,32 @@ void ColorMapLayer::onDraw(const Mat4 &transform, uint32_t flags)
 	switch (info.mode)
 	{
 	case MM_PRICE_SELL:
-		if (info.product) DRAW_AREAS(area, world.get_trade(area, info.product->id).p_sell);
+		if (info.product) DRAW_AREAS(area, world->get_trade(area, info.product->id).p_sell);
 		break;
 	case MM_PRICE_BUY:
-		if (info.product) DRAW_AREAS(area, world.get_trade(area, info.product->id).p_buy);
+		if (info.product) DRAW_AREAS(area, world->get_trade(area, info.product->id).p_buy);
 		break;
 	case MM_PLANT_RESOURCES:
-		if (info.product) DRAW_AREAS(area, world.get_trade(area, info.product->id).resource);
+		if (info.product) DRAW_AREAS(area, world->get_trade(area, info.product->id).resource);
 		break;
 	case MM_PROFIT:
-		if (info.industry) DRAW_AREAS_3(area, world.get_profit(info.industry, area), 0.0, 50.0);
+		if (info.industry) DRAW_AREAS_3(area, world->get_profit(info.industry, area), 0.0, 50.0);
 		break;
 	case MM_BUILD_COST:
-		if (info.industry) DRAW_AREAS(area, world.get_build_cost(info.industry, area));
+		if (info.industry) DRAW_AREAS(area, world->get_build_cost(info.industry, area));
 		break;
 	case MM_SPECIES_RESOURCES:
-		if (info.industry) DRAW_AREAS(area, world.get_resources(info.industry, area));
+		if (info.industry) DRAW_AREAS(area, world->get_resources(info.industry, area));
 		//if (info.industry) DRAW_AREAS_COLOR;
-		//for (auto& a : world.areas())
+		//for (auto& a : world->areas())
 		//{
 		//	draw_circles(a);
 		//}
 		break;
 	case MM_PROFIT_RES:
 		if (info.industry) DRAW_AREAS_2(area,
-			world.get_trade(area, info.product->id).resource,
-			world.get_profit(info.industry, area));
+			world->get_trade(area, info.product->id).resource,
+			world->get_profit(info.industry, area));
 		break;
 	case MM_ROAD:
 		DRAW_AREAS_3(area, area->road_level, 0.0, 3.0);
@@ -232,7 +232,7 @@ void ColorMapLayer::update(float delta)
 		{
 			Transport* t = it->first;
 			TransportAnimation*& f = it->second;
-			if (t->marked_as_deleted || t->volume == 0 && t->active_time + 5 < world.time)
+			if (t->marked_as_deleted || t->volume == 0 && t->active_time + 5 < world->time)
 			{
 				f->stop();
 				it = transports.erase(it);
@@ -250,7 +250,7 @@ void ColorMapLayer::update(float delta)
 		// create new transport animations
 		for (int prod_id = 0; prod_id < product_count; ++prod_id)
 		{
-			TradeMap* prod = world.trade_maps()[prod_id];
+			TradeMap* prod = world->trade_maps()[prod_id];
 			auto& v = prod->transports();
 			for (auto transport : v)
 			{
@@ -261,7 +261,7 @@ void ColorMapLayer::update(float delta)
 					if (transport->route->roads.size() > 0)
 					{
 						TransportAnimation* f = new TransportAnimation();
-						f->set_route(world.get_products()[prod_id], transport, this);
+						f->set_route(world->get_products()[prod_id], transport, this);
 						transports[transport] = f;
 					}
 				}
@@ -273,7 +273,7 @@ void ColorMapLayer::update(float delta)
 
 TransportAnimation::TransportAnimation() : sprite(NULL), transport(NULL)
 {
-	time = world.time;
+	time = world->time;
 }
 
 void TransportAnimation::set_route(Product* prod, Transport* transport, MapView* map)

@@ -8,7 +8,7 @@ namespace simciv
 {
 	std::recursive_mutex g_mutex;
 	//const int industry_count = 12;
-	World world;
+	World* world;
 	int max_road_level = 5;
 	using namespace std;
 
@@ -21,7 +21,7 @@ namespace simciv
 		while (item)
 		{
 			string id = item->first_attribute("product")->value();
-			int index = world.get_product(id)->id;
+			int index = world->get_product(id)->id;
 			double vol = stod(item->first_attribute("vol")->value());
 			string name = item->name();
 			if (name == "in")
@@ -111,9 +111,9 @@ namespace simciv
 
 	bool Industry::can_create_factory(Area * a)
 	{
-		return world.find_factories(a).size() == 0;
-		//float res = world.get_trade(a, product->id).resource;
-		//return res > 0 && world.find_factories(a).size() == 0;
+		return world->find_factories(a).size() == 0;
+		//float res = world->get_trade(a, product->id).resource;
+		//return res > 0 && world->find_factories(a).size() == 0;
 	}
 
 	Factory * Industry::create_factory(Area * a)
@@ -179,7 +179,7 @@ namespace simciv
 		if (auto a = node->first_attribute("id"))
 		{
 			name = a->value();
-			product = world.get_product(name);
+			product = world->get_product(name);
 		}
 
 		if (auto a = node->first_attribute("gid"))
@@ -207,7 +207,7 @@ namespace simciv
 
 		if (auto a = node->first_attribute("base"))
 		{
-			base = world.get_industry(a->value());
+			base = world->get_industry(a->value());
 			auto i = base;
 			while (i)
 			{
@@ -313,7 +313,7 @@ namespace simciv
 		if (prod_rules.size() == 1)
 		{
 			int product_id = prod_rules[0].output.begin()->first;
-			return world.get_products()[product_id];
+			return world->get_products()[product_id];
 		}
 		return NULL;
 	}
@@ -367,8 +367,8 @@ namespace simciv
 	{
 		for (int i = 0; i < product_count; ++i)
 		{
-			//world.trade_maps()[i]->remove_prod(sellers[i]);
-			//world.trade_maps()[i]->remove_prod(buyers[i]);
+			//world->trade_maps()[i]->remove_prod(sellers[i]);
+			//world->trade_maps()[i]->remove_prod(buyers[i]);
 			if (sellers[i]) --sellers[i]->ref_count;
 			if (buyers[i]) --buyers[i]->ref_count;
 		}
@@ -534,23 +534,57 @@ namespace simciv
 		if (this->money < 0) this->money = 0;
 	}
 
-	void World::create(int width, int height)
+	World * World::create_from_file(const std::string & file_name, int width, int height)
 	{
-		generate_industry();
-		// prod_count = product_count;
-		Map::create(width, height);
-		for (int i = 0; i < product_count; ++i)
+		World* result = nullptr;
+		rapidxml::xml_document<> doc;
+		std::ifstream file(file_name);
+		if (!file.is_open())
 		{
-			auto tm = new TradeMap(*products[i]);
-			_trade_maps.push_back(tm);
-			if (products[i]->name == "fuel_1")
-			{
-				_fuel_map = tm;
-				_fuel_id = i;
-			}
+			throw "File not found: " + file_name;
 		}
-		//generate_factories();
+		std::stringstream buffer;
+		buffer << file.rdbuf();
+		file.close();
+		std::string content(buffer.str());
+		doc.parse<0>(&content[0]);
+		auto *root = doc.first_node("simciv");
+		auto mode = root->first_attribute("mode");
+		string mode_str = mode ? mode->value() : "default";
+		if (mode_str == "default")
+		{
+			result = new World();
+
+		}
+		else if (mode_str == "mvp")
+		{
+			result = new MvpWorld();
+		}
+
+		world = result;
+		result->init(doc, width, height);
+		return result;
 	}
+
+	//void World::create(int width, int height)
+	//{
+	//	generate_industry();
+	//	// prod_count = product_count;
+	//	Map::create(width, height);
+
+	//	// create trade maps
+	//	for (int i = 0; i < product_count; ++i)
+	//	{
+	//		auto tm = new TradeMap(*products[i]);
+	//		_trade_maps.push_back(tm);
+	//		if (products[i]->name == "fuel_1")
+	//		{
+	//			_fuel_map = tm;
+	//			_fuel_id = i;
+	//		}
+	//	}
+	//	//generate_factories();
+	//}
 
 	/* 
 	materials:
@@ -571,19 +605,19 @@ namespace simciv
 
 	*/
 
-string ExePath() {
+	string ExePath() {
 	char buffer[MAX_PATH];
 	GetModuleFileNameA(NULL, buffer, MAX_PATH);
 	string::size_type pos = string(buffer).find_last_of("\\/");
 	return string(buffer).substr(0, pos);
 }
 
-void World::generate_industry()
-	{
-		CCLOG("ExePath() %s", ExePath());
-		load_from_file("res/mod4.xml");
-		init_col_industries();
-	}
+	//void World::generate_industry()
+	//{
+	//	CCLOG("ExePath() %s", ExePath());
+	//	load_from_file("res/mod4.xml");
+	//	init_col_industries();
+	//}
 
 	void World::generate_factories()
 	{
@@ -606,7 +640,7 @@ void World::generate_industry()
 		//a->update_colors();
 
 		auto g = [this](Factory* f, string s) {
-			int id = world.get_product(s)->id;
+			int id = world->get_product(s)->id;
 			f->buyers[id] = _trade_maps[id]->create_prod(f->area, true, 50);
 			f->sellers[id] = _trade_maps[id]->create_prod(f->area, false, 50);
 			_trade_maps[id]->sync_area_traders(f->area);
@@ -641,11 +675,11 @@ void World::generate_industry()
 		//g(f, "prod_3");
 		//g(f, "fuel");
 
-		//f->buyers[world.get_product("food_1")->id]->set_storage(1000);
-		//f->buyers[world.get_product("manpow")->id]->set_storage(1000);
-		//f->buyers[world.get_product("wood_1")->id]->set_storage(1000);
-		//f->buyers[world.get_product("stone_1")->id]->set_storage(1000);
-		//f->buyers[world.get_product("fuel_1")->id]->set_storage(1000);
+		//f->buyers[world->get_product("food_1")->id]->set_storage(1000);
+		//f->buyers[world->get_product("manpow")->id]->set_storage(1000);
+		//f->buyers[world->get_product("wood_1")->id]->set_storage(1000);
+		//f->buyers[world->get_product("stone_1")->id]->set_storage(1000);
+		//f->buyers[world->get_product("fuel_1")->id]->set_storage(1000);
 
 		// some other starting factory
 
@@ -852,15 +886,15 @@ void World::generate_industry()
 	using namespace rapidxml;
 	using namespace std;
 
-	void World::load_from_file(std::string file_name)
+	void World::init(const rapidxml::xml_document<>& doc, int width, int height)
 	{
-		rapidxml::xml_document<> doc; // character type defaults to char
-		std::ifstream file(file_name);
-		std::stringstream buffer;
-		buffer << file.rdbuf();
-		file.close();
-		std::string content(buffer.str());
-		doc.parse<0>(&content[0]);
+		//load_from_file("res/mod4.xml");
+		//init_col_industries();
+		// prod_count = product_count;
+		Map::create(width, height);
+
+		//generate_factories();
+
 		xml_node<> *root = doc.first_node("simciv");
 
 		xml_node<> *item = root->first_node();
@@ -894,6 +928,18 @@ void World::generate_industry()
 		}
 
 		product_count = products.size();
+
+		// create trade maps
+		for (int i = 0; i < product_count; ++i)
+		{
+			auto tm = new TradeMap(*products[i]);
+			_trade_maps.push_back(tm);
+			if (products[i]->name == "fuel_1")
+			{
+				_fuel_map = tm;
+				_fuel_id = i;
+			}
+		}
 	}
 
 	void World::init_col_industries()
@@ -1346,7 +1392,7 @@ void World::generate_industry()
 	bool Explorer::can_create_factory(Area * a)
 	{
 		return a->mil_state == MILS_EXPLORABLE
-			&& world.find_factories(a).size() == 0;
+			&& world->find_factories(a).size() == 0;
 	}
 	void ProductionCost::calc_per_turn()
 	{

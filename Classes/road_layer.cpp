@@ -10,7 +10,7 @@ namespace simciv
 	USING_NS_CC;
 	using namespace std;
 
-	RoadLayer::RoadLayer() : roads(world.areas().size())
+	RoadLayer::RoadLayer() : roads(world->areas().size())
 	{
 		//roads_node = RoadView::create_batch_node("res/roads4.png");
 		//addChild(roads_node);
@@ -126,9 +126,9 @@ namespace simciv
 
 	void RoadLayer::add_road(Area * a)
 	{
-		if (a->road_level == world.max_road_level) return;
+		if (a->road_level == world->max_road_level) return;
 		++a->road_level;
-		world.area_changed(a);
+		world->area_changed(a);
 		auto& da = roads[a->id];
 		update_roads();
 	}
@@ -137,7 +137,7 @@ namespace simciv
 	{
 		if (a->road_level == 0) return;
 		--a->road_level;
-		world.area_changed(a);
+		world->area_changed(a);
 		if (a->road_level == 0)
 		{
 			clear_roadviews(a);
@@ -159,7 +159,7 @@ namespace simciv
 	vector<bool> roads2;
 	vector<Area*> areas;
 
-#define AREA(a) for (Area* a: world.areas())
+#define AREA(a) for (Area* a: world->areas())
 
 
 
@@ -320,9 +320,9 @@ namespace simciv
 
 	void RoadLayer::update_roads()
 	{
-		world.update_roads();
-		orientations.assign(world.areas().size(), O_NONE);
-		roads2.assign(world.roads().size(), false);
+		world->update_roads();
+		orientations.assign(world->areas().size(), O_NONE);
+		roads2.assign(world->roads().size(), false);
 		areas.clear();
 		set_orientations();
 
@@ -394,9 +394,9 @@ namespace simciv
 		int k = 0;
 		Sprite* tmp = Sprite::create(file);
 		auto size = tmp->getContentSize();
-		world.max_road_level = (int)((size.height - 2*m + s) / (cols * (w + s)));
+		world->max_road_level = (int)((size.height - 2*m + s) / (cols * (w + s)));
 
-		for (int level = 0; level < world.max_road_level; ++level)
+		for (int level = 0; level < world->max_road_level; ++level)
 		{
 			for (int i = 0; i < 9; ++i)
 			{

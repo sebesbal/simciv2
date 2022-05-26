@@ -198,11 +198,12 @@ namespace simciv
 		double actual_size;
 	};
 
+	/// Non visual. Main model of the game.
 	class World : public Map
 	{
 	public:
-		virtual void create(int width, int height) override;
-		void load_from_file(std::string file_name);
+		static World* create_from_file(const std::string& file, int width, int height);
+		//virtual void create(int width, int height) override;
 		void init_col_industries();
 		virtual void update() override;
 		Factory* create_factory(Area* a, Industry* industry);
@@ -241,9 +242,10 @@ namespace simciv
 
 		std::vector<Color4F> colors;
 	protected:
+		void init(const rapidxml::xml_document<>& doc, int width, int height);
 		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
 		void add_industry(Industry* industry) { this->industries.push_back(industry); }
-		void generate_industry();
+		//void generate_industry();
 		void generate_factories();
 		std::vector<Industry*> industries;
 		std::vector<Product*> products;
@@ -253,17 +255,22 @@ namespace simciv
 		
 	};
 
-	extern World world;
+	class MvpWorld : public World
+	{
+
+	};
+
+	extern World* world;
 	extern int max_road_level;
 
 	class Info
 	{
 	public:
-		static double price_buy(Area* a, Product* p) { return world.get_trade(a, p->id).p_buy; }
-		static double price_sell(Area* a, Product* p) { return world.get_trade(a, p->id).p_sell; }
-		static double resources(Area* a, Product* p) { return world.get_trade(a, p->id).resource; }
+		static double price_buy(Area* a, Product* p) { return world->get_trade(a, p->id).p_buy; }
+		static double price_sell(Area* a, Product* p) { return world->get_trade(a, p->id).p_sell; }
+		static double resources(Area* a, Product* p) { return world->get_trade(a, p->id).resource; }
 
-		static double profit(Area* a, Industry* s) { return world.get_profit(s, a); }
-		static double build_cost(Area* a, Industry* s) { return world.get_build_cost(s, a); }
+		static double profit(Area* a, Industry* s) { return world->get_profit(s, a); }
+		static double build_cost(Area* a, Industry* s) { return world->get_build_cost(s, a); }
 	};
 }

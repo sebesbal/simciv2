@@ -32,10 +32,11 @@ enum UIState
 class WorldUI : public cocos2d::ui::Layout
 {
 public:
-	CREATE_FUNC(WorldUI)
+	// CREATE_FUNC(WorldUI)
+	static WorldUI* create(const std::string& config, const std::string& tmx_map);
 	~WorldUI() { if (_worker.joinable()) _worker.join(); }
-	virtual bool init() override;
-	static cocos2d::Scene* createScene();
+	virtual bool init(const std::string& config, const std::string& tmx_map);
+	static cocos2d::Scene* createScene(const std::string & config, const std::string & tmx_map);
     void menuCloseCallback(Ref* sender);
 protected:
 	std::thread _worker;
@@ -87,7 +88,7 @@ protected:
 	std::function<void()> _on_state_factory;
 
 	void tick(float f);
-	void load_from_tmx(std::string tmx);
+	void load_from_file(const std::string& config, const std::string& tmx_map);
 	// Vec2 
 	virtual bool onTouchBegan(cocos2d::Touch* touch, Event *event);
 	virtual void onTouchEnded(cocos2d::Touch* touch, Event *event);

@@ -128,14 +128,14 @@ namespace simciv
 
 	bool Circle::init(int prod_id, bool filled, int size)
 	{	
-		auto file = world.get_products()[prod_id]->icon_file;
+		auto file = world->get_products()[prod_id]->icon_file;
 		if (!ImageView::init(file)) return false;
 
 		setContentSize(Size(size, size));
 		setAnchorPoint(Vec2(0.5, 0.5));
 		this->filled = filled;
 		this->prod_id = prod_id; 
-		//auto c = world.colors[prod_id];
+		//auto c = world->colors[prod_id];
 		//float r = size / 2.0;
 		//drawCircle(Vec2(r, r), r, 2 * M_PI, 40, false, c);
 		
@@ -228,12 +228,12 @@ namespace simciv
 		float in = 0, out = 0;
 		for (auto& p : r.input)
 		{
-			color_in.push_back(world.colors[p.first]);
+			color_in.push_back(world->colors[p.first]);
 			in += p.second;
 		}
 		for (auto& p : r.output)
 		{
-			color_out.push_back(world.colors[p.first]);
+			color_out.push_back(world->colors[p.first]);
 			out += p.second;
 		}
 
@@ -295,7 +295,7 @@ namespace simciv
 
 	//void Circle::draw(Renderer * renderer, const Mat4 & transform, uint32_t flags)
 	//{
-	//	auto c = world.colors[prod_id];
+	//	auto c = world->colors[prod_id];
 	//	drawCircle(getPosition(), getContentSize().width / 2, 2 * M_PI, 40, false, c);
 	//}
 }

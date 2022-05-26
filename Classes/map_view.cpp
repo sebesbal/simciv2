@@ -30,7 +30,7 @@ Area* MapView::get_area(Vec2 p)
 {
 	int x = p.x / cs;
 	int y = p.y / cs;
-	return world.get_area(x, y);
+	return world->get_area(x, y);
 }
 
 Vec2 MapView::dir(Area * a, Area * b)
