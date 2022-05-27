@@ -888,23 +888,16 @@ namespace simciv
 
 	void World::init(const rapidxml::xml_document<>& doc, int width, int height)
 	{
-		//load_from_file("res/mod4.xml");
-		//init_col_industries();
-		// prod_count = product_count;
 		Map::create(width, height);
-
-		//generate_factories();
-
 		xml_node<> *root = doc.first_node("simciv");
-
 		xml_node<> *item = root->first_node();
+		_fuel_id = -1;
 		while (item)
 		{
 			string name = item->name();
 			if (name == "industry")
 			{
 				Industry* s = Industry::create(item);
-				// s->load(item);
 				add_industry(s);
 				auto e = dynamic_cast<Explorer*>(s);
 				if (e)
@@ -922,6 +915,12 @@ namespace simciv
 				product->tile_res[AT_SEA] = 0;
 				product->tile_res[AT_PLAIN] = 1;
 				product->tile_res[AT_MOUNTAIN] = 0.5;
+
+				auto is_fuel = item->first_attribute("is_fuel");
+				if (is_fuel && string(is_fuel->value()) == "true")
+				{
+					_fuel_id = product->id;
+				}
 			}
 
 			item = item->next_sibling();
@@ -934,10 +933,9 @@ namespace simciv
 		{
 			auto tm = new TradeMap(*products[i]);
 			_trade_maps.push_back(tm);
-			if (products[i]->name == "fuel_1")
+			if (i == _fuel_id)
 			{
 				_fuel_map = tm;
-				_fuel_id = i;
 			}
 		}
 	}
