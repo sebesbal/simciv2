@@ -155,7 +155,7 @@ xcopy /Y /Q "$(COCOS_FRAMEWORKS)\cocos2d-x-3.8\build\Release.win32\*.*" "$(OutDi
     <ClCompile Include="..\Classes\factory_layer.cpp" />
     <ClCompile Include="..\Classes\indgen.cpp" />
     <ClCompile Include="..\Classes\indgen_ui.cpp" />
-    <ClCompile Include="..\Classes\map.cpp" />
+    <ClCompile Include="..\Classes\sc_map.cpp" />
     <ClCompile Include="..\Classes\map_view.cpp" />
     <ClCompile Include="..\Classes\road_layer.cpp" />
     <ClCompile Include="..\Classes\sprites.cpp" />
@@ -172,7 +172,7 @@ xcopy /Y /Q "$(COCOS_FRAMEWORKS)\cocos2d-x-3.8\build\Release.win32\*.*" "$(OutDi
     <ClInclude Include="..\Classes\AppDelegate.h" />
     <ClInclude Include="..\Classes\indgen.h" />
     <ClInclude Include="..\Classes\indgen_ui.h" />
-    <ClInclude Include="..\Classes\map.h" />
+    <ClInclude Include="..\Classes\sc_map.h" />
     <ClInclude Include="..\Classes\map_view.h" />
     <ClInclude Include="..\Classes\sprites.h" />
     <ClInclude Include="..\Classes\stdafx.h" />

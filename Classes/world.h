@@ -4,7 +4,7 @@
 #include <mutex>
 #include <functional>
 
-#include "map.h"
+#include "sc_map.h"
 #include "trade.h"
 
 namespace rapidxml
@@ -103,6 +103,7 @@ namespace simciv
 		bool can_upgrade_to(Industry* ind);
 		virtual bool can_create_factory(Area* a);
 		virtual Factory* create_factory(Area* a);
+		void add_rule(const ProductionRule& rule);
 		
 		std::vector<ProductionRule> prod_rules;			///< product products form products
 
@@ -115,7 +116,7 @@ namespace simciv
 		double get_build_cost(const Prices& prices);
 		std::string icon_file;
 		Product* product;
-		static Industry* create(rapidxml::xml_node<>* node);
+		static Industry* create(rapidxml::xml_node<>* node = nullptr);
 		
 		Product* get_product();
 		static const int default_lifetime = 5;
@@ -242,9 +243,9 @@ namespace simciv
 
 		std::vector<Color4F> colors;
 	protected:
-		void init(const rapidxml::xml_document<>& doc, int width, int height);
-		void add_product(Product* product) { product->id = products.size(); products.push_back(product); }
-		void add_industry(Industry* industry) { this->industries.push_back(industry); }
+		virtual void init(const rapidxml::xml_document<>& doc, int width, int height);
+		void add_product(Product* product);
+		void add_industry(Industry* industry);
 		//void generate_industry();
 		void generate_factories();
 		std::vector<Industry*> industries;
@@ -257,7 +258,8 @@ namespace simciv
 
 	class MvpWorld : public World
 	{
-
+	protected:
+		virtual void init(const rapidxml::xml_document<>& doc, int width, int height) override;
 	};
 
 	extern World* world;

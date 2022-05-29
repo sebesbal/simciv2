@@ -3,7 +3,7 @@
 #include "ui/UIHBox.h"
 #include "ui/UIVBox.h"
 
-#include "map.h"
+#include "sc_map.h"
 #include "controls.h"
 #include "sprites.h"
 #include "map_view.h"

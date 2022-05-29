@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "world.h"
+#include <map>
 
 using namespace std;;
 
@@ -120,6 +121,19 @@ namespace simciv
 	{
 		Factory* f = new Factory(this);
 		return f;
+	}
+
+	void Industry::add_rule(const ProductionRule & rule)
+	{
+		for (auto& p : rule.input)
+		{
+			buy_products.emplace(p.first);
+		}
+		for (auto& p : rule.output)
+		{
+			sell_products.emplace(p.first);
+		}
+		prod_rules.push_back(rule);
 	}
 
 	void Industry::find_best_prod_rule(const Prices& prices, Area* area, ProductionRule*& rule, double& profit)
@@ -293,18 +307,25 @@ namespace simciv
 	Industry * Industry::create(rapidxml::xml_node<>* node)
 	{
 		Industry* result;
-		if (auto a = node->first_attribute("id"))
+		if (node)
 		{
-			if (strcmp(a->value(), "explorer") == 0)
+			if (auto a = node->first_attribute("id"))
 			{
-				result = new Explorer();
+				if (strcmp(a->value(), "explorer") == 0)
+				{
+					result = new Explorer();
+				}
+				else
+				{
+					result = new Industry();
+				}
 			}
-			else
-			{
-				result = new Industry();
-			}
+			result->load(node);
 		}
-		result->load(node);
+		else
+		{
+			result = new Industry();
+		}
 		return result;
 	}
 
@@ -911,11 +932,6 @@ namespace simciv
 				product->load(item);
 				add_product(product);
 
-				product->tile_res[AT_NONE] = 1;
-				product->tile_res[AT_SEA] = 0;
-				product->tile_res[AT_PLAIN] = 1;
-				product->tile_res[AT_MOUNTAIN] = 0.5;
-
 				auto is_fuel = item->first_attribute("is_fuel");
 				if (is_fuel && string(is_fuel->value()) == "true")
 				{
@@ -936,6 +952,38 @@ namespace simciv
 			if (i == _fuel_id)
 			{
 				_fuel_map = tm;
+			}
+		}
+	}
+
+	void World::add_product(Product * product)
+	{
+		product->id = products.size();
+		products.push_back(product);
+		product->tile_res[AT_NONE] = 1;
+		product->tile_res[AT_SEA] = 0;
+		product->tile_res[AT_PLAIN] = 1;
+		product->tile_res[AT_MOUNTAIN] = 0.5;
+	}
+
+	void World::add_industry(Industry * industry)
+	{
+		industries.push_back(industry);
+		industry->product = industry->get_product();
+		industry->build_cost.calc_per_turn();
+		industry->buy_products.emplace(_fuel_id);
+		for (const auto& rule: industry->maint_cost.total)
+		{
+			for (auto& p : rule.input)
+			{
+				industry->buy_products.emplace(p.first);
+			}
+		}
+		for (const auto& rule : industry->build_cost.total)
+		{
+			for (auto& p : rule.input)
+			{
+				industry->buy_products.emplace(p.first);
 			}
 		}
 	}
@@ -1262,69 +1310,7 @@ namespace simciv
 		{
 			m->generate_resources();
 		}
-
-		const int n = 4;
-		float a = 0.6;
-		// const cocos2d::Color4F colsin[n] = { Color4F(a, 0, 0, 1), Color4F(0, a, 0, 1), Color4F(0, 0, a, 1) };
-		const cocos2d::Color4F colsou[n] = { Color4F(1, 0, 0, 1), Color4F(0, 1, 0, 1), Color4F(0, 0, 1, 1), Color4F(0.7, 0.7, 0.7, 1) };
-
-		vector<TradeMap*> tms;
-
-		// mod4
-		tms.push_back(get_product("food_1")->map);
-		tms.push_back(get_product("wood_1")->map);
-		tms.push_back(get_product("fuel_1")->map);
-		tms.push_back(get_product("stone_1")->map);
-
-		//for (auto a : _areas)
-		//{
-		//	//auto it = max_element(tms.begin(), tms.end(),
-		//	//	[a](TradeMap* ta, TradeMap* tb) { return ta->get_trade(a).resource <= tb->get_trade(a).resource; });
-
-		//	//sort(tms.begin(), tms.end(),
-		//	//	[a](TradeMap* ta, TradeMap* tb) { return ta->get_trade(a).resource <= tb->get_trade(a).resource; });
-
-		//	int i = 0;
-		//	double d = 0.2;
-		//	for (auto& t : tms)
-		//	{
-		//		double r = t->get_trade(a).resource;
-		//		//if (r < 0.47)
-		//		//{
-		//		//	// Skip
-		//		//}
-		//		//else if (r < 0.5 && a->color_in.size() < 2)
-		//		//{
-		//		//	a->color_in.push_back(colsou[i]);
-		//		//}
-		//		//else if (r < 0.6 && a->color_out.size() < 2)
-		//		//{
-		//		//	a->color_out.push_back(colsou[i]);
-		//		//}
-
-		//		if (r == 0)
-		//		{
-
-		//		}
-		//		else if (r < 0.37)
-		//		{
-		//			if (a->color_in.size() < 2) a->color_in.push_back(colsou[i]);
-		//		}
-		//		else if (r > 0.55)
-		//		{
-		//			if (a->color_out.size() < 2) a->color_out.push_back(colsou[i]);
-		//		}
-
-		//		++i;
-		//	}
-
-		//	if (a->color_out.size() == 0)
-		//	{
-		//		a->color_in.clear();
-		//	}
-		//}
 	}
-
 
 	void smooth_change(double & smooth_value, const double current_value, double a)
 	{
@@ -1397,6 +1383,162 @@ namespace simciv
 		for (auto& r : total)
 		{
 			per_turn.push_back(r.multiply(1.0 / duration, 1));
+		}
+	}
+	void MvpWorld::init(const rapidxml::xml_document<>& doc, int width, int height)
+	{
+		Map::create(width, height);
+		_fuel_id = -1;
+		int brick_id = -1;
+		vector<string> color_names;
+		xml_node<> *root = doc.first_node("simciv");
+		auto col_node = root->first_node("color");
+		while (col_node)
+		{
+			color_names.push_back(col_node->first_attribute("name")->value());
+			col_node = col_node->next_sibling("color");
+		}
+		int colors = color_names.size();
+
+		int levels = stoi(root->first_attribute("levels")->value());
+		map<int, map<int, Product*>> prods;
+		map<int, map<int, int>> ids;
+		map<int, int> ep_ids;
+
+		auto icon_file = [](int color, int level){
+			return "img/shapes/shape_" + to_string(level) + "_" + to_string(color) + ".png";
+		};
+
+		auto name = [&](int color, int level) {
+			return color_names[color] + "_" + to_string(level);
+		};
+
+		// commodities
+		for (int color = 0; color < colors; ++color)
+		{
+			for (int level = 0; level < levels; ++level)
+			{
+				Product* product = new Product();
+				add_product(product);
+				prods[color][level] = product;
+				ids[color][level] = product->id;
+				product->name = name(color, level);
+				product->display_name = product->name;
+				product->group = to_string(color + 1);
+				product->icon_file = icon_file(color, level);
+			}
+		}
+
+		// end products
+		auto ep_node = root->first_node("end_product");
+		int i = 0;
+		string ep_group = to_string(colors + 1);
+		while (ep_node)
+		{
+			Product* product = new Product();
+			add_product(product);
+			ep_ids[i] = product->id;
+			product->name = ep_node->first_attribute("name")->value();
+			product->display_name = product->name;
+			product->group = ep_group;
+			product->icon_file = icon_file(colors + i, 0);
+
+			auto is_fuel = ep_node->first_attribute("is_fuel");
+			if (is_fuel && string(is_fuel->value()) == "true")
+			{
+				_fuel_id = product->id;
+			}
+
+			auto is_brick = ep_node->first_attribute("is_brick");
+			if (is_brick && string(is_brick->value()) == "true")
+			{
+				brick_id = product->id;
+			}
+
+			ep_node = ep_node->next_sibling("end_product");
+			i += 1;
+		}
+
+		ProductionRule defaultBuild;
+		defaultBuild.input[brick_id] = 1;
+
+		// Industries, commodities
+		for (int color = 0; color < colors; ++color)
+		{
+			string color_name = color_names[color];
+			
+			Industry* s = Industry::create();
+			s->icon_file = icon_file(color, 0);
+			Product* prod = products[ids[color][0]];
+			s->name = prod->name;
+			s->display_name = s->name;
+			s->group = prod->group;
+			s->maint_cost.total.push_back(defaultBuild);
+			s->build_cost.total.push_back(defaultBuild);
+			ProductionRule rule;
+			rule.output[ids[color][0]] = 1;
+			s->add_rule(rule);
+			add_industry(s);
+
+			for (int level = 1; level < levels; ++level)
+			{
+				Industry* s = Industry::create();
+				s->icon_file = icon_file(color, level);
+				Product* prod = products[ids[color][level]];
+				s->name = prod->name;
+				s->display_name = s->name;
+				s->group = prod->group;
+				s->maint_cost.total.push_back(defaultBuild);
+				s->build_cost.total.push_back(defaultBuild);
+				ProductionRule rule;
+				rule.input[ids[color][level - 1]] = 0.5;
+				rule.input[ids[(color + 1) % colors][level - 1]] = 0.5;
+				rule.output[ids[color][level]] = 1;
+				s->add_rule(rule);
+				add_industry(s);
+			}
+		}
+
+		// Industries, end products
+		for (auto p : ep_ids)
+		{
+			int ep_id = p.first;
+			int prod_id = p.second;
+			for (int level = 0; level < levels; ++level)
+			{
+				Industry* s = Industry::create();
+				s->icon_file = icon_file(colors + ep_id, level);
+				Product* prod = products[ep_ids[ep_id]];
+				s->name = prod->name;
+				s->display_name = s->name;
+				s->group = prod->group;
+				s->maint_cost.total.push_back(defaultBuild);
+				s->build_cost.total.push_back(defaultBuild);
+				for (int level_input = 0; level_input < level; ++level_input)
+				{
+					for (int color = 0; color < colors; ++color)
+					{
+						ProductionRule rule;
+						rule.input[ids[color][level_input]] = 1;
+						rule.output[prod_id] = 1;
+						s->add_rule(rule);
+					}
+				}
+				add_industry(s);
+			}
+		}
+		
+		product_count = products.size();
+
+		// create trade maps
+		for (int i = 0; i < product_count; ++i)
+		{
+			auto tm = new TradeMap(*products[i]);
+			_trade_maps.push_back(tm);
+			if (i == _fuel_id)
+			{
+				_fuel_map = tm;
+			}
 		}
 	}
 }

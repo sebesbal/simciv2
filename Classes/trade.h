@@ -2,7 +2,7 @@
 #include <vector>
 #include <queue>
 
-#include "map.h"
+#include "sc_map.h"
 
 namespace simciv
 {

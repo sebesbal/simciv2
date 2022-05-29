@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<simciv mode="mvp" levels="4">
+	<color name="Red"/>
+	<color name="Green"/>
+	<color name="Blue"/>
+	<end_product name="Fuel" is_fuel="true"/>
+	<end_product name="Brick" is_brick="true"/>
+</simciv>
