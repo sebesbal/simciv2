@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <simciv>
   <product id="manpow" gid="1" name="Manpower" image="icons/manpow.png" />
-  <product id="food_1" gid="2" name="Food I" image="icons/food_5.png" />
+  <product id="food_1" gid="2" name="Food I" image="icons/food_5.png" is_resource="true" />
   <product id="food_2" gid="2" name="Food II" image="icons/bread.png" />
-  <product id="wood_1" gid="3" name="Wood" image="icons/wood_2.png" />
+  <product id="wood_1" gid="3" name="Wood" image="icons/wood_2.png" is_resource="true"/>
   <product id="wood_2" gid="3" name="Wood II" image="icons/wood_5.png" />
-  <product id="stone_1" gid="4" name="Stone I" image="icons/stone_3.png" />
+  <product id="stone_1" gid="4" name="Stone I" image="icons/stone_3.png" is_resource="true"/>
   <product id="stone_2" gid="4" name="Stone II" image="icons/brick_2.png" />
-  <product id="fuel_1" gid="5" name="Fuel" image="icons/fuel_2.png" is_fuel="true" />
+  <product id="fuel_1" gid="5" name="Fuel" image="icons/fuel_2.png" is_fuel="true" is_resource="true"/>
   
   <service id="transport">
     <produce>

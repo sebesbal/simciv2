@@ -362,6 +362,15 @@ namespace simciv
 		{
 			display_name = a->value();
 		}
+
+		if (auto a = node->first_attribute("is_resource"))
+		{
+			is_resource = string(a->value()) == "true";
+		}
+		else
+		{
+			is_resource = false;
+		}
 	}
 
 	Factory::Factory(Industry* industry) :
@@ -445,12 +454,12 @@ namespace simciv
 
 	}
 
-	double Factory::apply_rule(ProductionRule* rule, double profit, double ideal_rate)
+	double Factory::apply_rule(ProductionRule* rule, double profit, double max_rate)
 	{
 		// TODO:
 		// buyers->vol_in should be: the volume what we want to buy. it depends on seller->vol_out
 		
-		double rate = ideal_rate; // ideal_rate == 1 always, TODO
+		double rate = max_rate; // ideal_rate == 1 always, TODO
 		//if (rate == 0) return 0;
 		//check_buyer_storage(rule->input, rate);
 		check_storage(true, buyers, rule->input, rate);
@@ -464,7 +473,7 @@ namespace simciv
 			int prod_id = p.first;
 			double vol = p.second;
 			buyers[prod_id]->modify_storage(rate * vol);
-			buyers[prod_id]->vol_in += ideal_rate * vol;
+			buyers[prod_id]->vol_in += max_rate * vol;
 		}
 
 		for (auto& p : rule->output)
@@ -484,7 +493,8 @@ namespace simciv
 	{
 		double full_expense = 0;
 
-		if (health < 1 && (state == simciv::FS_UNDER_CONTRUCTION || _profit > 0))
+		//if (health < 1 && (state == simciv::FS_UNDER_CONTRUCTION || _profit > 0))
+		if (health < 1)
 		{
 			// Build / Repair / Upgrade
 			double volume = min((1 - health) * current_healing_cost.duration, 1.0);
@@ -717,9 +727,13 @@ namespace simciv
 
 		Factory* f = industry->create_factory(a);
 		f->area = a;
-		if (industry->product)
+		if (industry->product && industry->product->is_resource)
 		{
 			f->efficiency = a->data(industry->product).resource;
+		}
+		else
+		{
+			f->efficiency = 1;
 		}
 
 		// create all producers:
@@ -867,7 +881,7 @@ namespace simciv
 					if (rule)
 					{
 						f->_profit = profit;
-						f->apply_rule(rule, profit, f->efficiency);
+						f->apply_rule(rule, profit, f->efficiency * f->health);
 					}
 					else
 					{
@@ -930,6 +944,7 @@ namespace simciv
 			{
 				Product* product = new Product();
 				product->load(item);
+				product->is_resource = true;
 				add_product(product);
 
 				auto is_fuel = item->first_attribute("is_fuel");
@@ -1426,9 +1441,10 @@ namespace simciv
 				product->display_name = product->name;
 				product->group = to_string(color + 1);
 				product->icon_file = icon_file(color, level);
+				product->is_resource = level == 0;
 			}
 		}
-
+		 
 		// end products
 		auto ep_node = root->first_node("end_product");
 		int i = 0;
@@ -1440,8 +1456,9 @@ namespace simciv
 			ep_ids[i] = product->id;
 			product->name = ep_node->first_attribute("name")->value();
 			product->display_name = product->name;
-			product->group = ep_group;
+			product->group = to_string(colors + i + 1);
 			product->icon_file = icon_file(colors + i, 0);
+			product->is_resource = false;
 
 			auto is_fuel = ep_node->first_attribute("is_fuel");
 			if (is_fuel && string(is_fuel->value()) == "true")
@@ -1460,7 +1477,7 @@ namespace simciv
 		}
 
 		ProductionRule defaultBuild;
-		defaultBuild.input[brick_id] = 1;
+		defaultBuild.input[brick_id] = 0.01;
 
 		// Industries, commodities
 		for (int color = 0; color < colors; ++color)
@@ -1514,7 +1531,7 @@ namespace simciv
 				s->group = prod->group;
 				s->maint_cost.total.push_back(defaultBuild);
 				s->build_cost.total.push_back(defaultBuild);
-				for (int level_input = 0; level_input < level; ++level_input)
+				for (int level_input = 0; level_input <= level; ++level_input)
 				{
 					for (int color = 0; color < colors; ++color)
 					{
@@ -1529,6 +1546,32 @@ namespace simciv
 		}
 		
 		product_count = products.size();
+
+		// capital
+		{
+			Industry* s = Industry::create();
+			s->icon_file = "img/shapes/circle_white.png";
+			s->name = "Capital";
+			s->display_name = s->name;
+			s->group = to_string(colors + ep_ids.size() + 1);
+			//s->maint_cost.total.push_back(defaultBuild);
+			//s->build_cost.total.push_back(defaultBuild);
+			for (int color = 0; color < colors; ++color)
+			{
+				ProductionRule rule;
+				//rule.input[ids[color][level_input]] = 1;
+				rule.output[ids[color][0]] = 0.2;
+				s->add_rule(rule);
+			}
+			for (auto& p : ep_ids)
+			{
+				ProductionRule rule;
+				//rule.input[ids[color][level_input]] = 1;
+				rule.output[p.second] = 0.2;
+				s->add_rule(rule);
+			}
+			add_industry(s);
+		}
 
 		// create trade maps
 		for (int i = 0; i < product_count; ++i)

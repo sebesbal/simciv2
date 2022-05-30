@@ -105,7 +105,8 @@ namespace simciv
 		this->addChild(_military_view);
 
 		_economy_view = EconomyView::create();
-		_economy_view->setAnchorPoint(Vec2(0, 1));
+		//_economy_view->setAnchorPoint(Vec2(0, 1));
+		_economy_view->setAnchorPoint(Vec2(0.5, 1));
 		_economy_view->setVisible(true);
 		this->addChild(_economy_view);
 
@@ -776,7 +777,8 @@ namespace simciv
 		_roads_menu->setPosition(Vec2(m + 64 + 10, h - m));
 		_military_menu->setPosition(Vec2(m + 64 + 10, h - m));
 
-		_economy_view->setPosition(Vec2(m + 64 + 200, h - m));
+		//_economy_view->setPosition(Vec2(m + 64 + 200, h - m));
+		_economy_view->setPosition(Vec2(var.width / 2, h - m - 50));
 
 		_factory_layers_options->setPosition(Vec2(m + 64 + 600, h - m));
 		_color_layers_options->setPosition(Vec2(m + 64 + 600, h - m));

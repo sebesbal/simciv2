@@ -81,6 +81,7 @@ namespace simciv
 		std::string group;			///< gid in the xml file
 		std::string display_name;	///< display name
 		std::string icon_file;
+		bool is_resource;
 		TradeMap* map;
 		std::map<AreaType, double> tile_res;	///< tile guid -> resource modifier map
 		void load(rapidxml::xml_node<>* node);
@@ -167,7 +168,7 @@ namespace simciv
 		void set_industry(Industry* industry);
 		void start_upgrade_to(Industry* industry);
 		void update();
-		double apply_rule(ProductionRule* rule, double profit, double ideal_rate); ///< tries to apply the rule with "rate" times. returns the applicable rate. (depending on the storage)
+		double apply_rule(ProductionRule* rule, double profit, double max_rate); ///< tries to apply the rule with "rate" times. returns the applicable rate. (depending on the storage)
 		double consume_articles(Prices& prices);
 		double consume_articles(Prices& prices, std::vector<ProductionRule>& rules, double volume, double& full_expense);
 		void check_money(double price, double& rate);
