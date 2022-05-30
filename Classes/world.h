@@ -98,6 +98,7 @@ namespace simciv
 		std::string display_name;	///< display name
 		//int level;
 		IndustryType type;
+		Products start_storage;
 
 		Industry* base;									///< lower level variant of this industry
 		std::vector<Industry*> upgrades;				///< higher level variants of this industry

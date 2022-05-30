@@ -120,6 +120,10 @@ namespace simciv
 	Factory * Industry::create_factory(Area * a)
 	{
 		Factory* f = new Factory(this);
+		//for (auto& t : f->sellers)
+		//{
+		//	t->set_storage(start_storage[t->product->id]);
+		//}
 		return f;
 	}
 
@@ -848,6 +852,7 @@ namespace simciv
 			product->before_rules();
 		}
 
+		// create/updates trade routes. (profits, fuel prices, route)
 		//if (k % 100 == 0)
 		{
 			for (TradeMap* product : _trade_maps)
@@ -862,6 +867,7 @@ namespace simciv
 		//	product->update_area_prices();
 		//}
 
+		// find best seller and buyer prices
 		if (k % 1 == 0)
 		for (TradeMap* product : _trade_maps)
 		{
@@ -1537,7 +1543,7 @@ namespace simciv
 					{
 						ProductionRule rule;
 						rule.input[ids[color][level_input]] = 1;
-						rule.output[prod_id] = 1;
+						rule.output[prod_id] = pow(2, level);
 						s->add_rule(rule);
 					}
 				}
@@ -1554,10 +1560,12 @@ namespace simciv
 			s->name = "Capital";
 			s->display_name = s->name;
 			s->group = to_string(colors + ep_ids.size() + 1);
+			
 			//s->maint_cost.total.push_back(defaultBuild);
 			//s->build_cost.total.push_back(defaultBuild);
 			for (int color = 0; color < colors; ++color)
 			{
+				s->start_storage[ids[color][0]] = 50;
 				ProductionRule rule;
 				//rule.input[ids[color][level_input]] = 1;
 				rule.output[ids[color][0]] = 0.2;

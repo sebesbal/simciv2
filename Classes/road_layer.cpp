@@ -43,7 +43,7 @@ namespace simciv
 		auto& rs = roads[a->id];
 		for (RoadView* r : rs.roads)
 		{
-			r->removeFromParentAndCleanup(false);
+			r->removeFromParentAndCleanup(true);
 		}
 		rs.roads.clear();
 	}

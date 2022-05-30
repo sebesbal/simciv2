@@ -938,6 +938,9 @@ namespace simciv
 
 	void WorldUI::show_routes(Factory * f)
 	{
+		// works with 3 colors only
+		return;
+
 		static vector<Node*> fos;
 		for (auto a : fos) a->setVisible(true);
 			
