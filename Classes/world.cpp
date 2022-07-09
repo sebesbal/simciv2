@@ -345,8 +345,6 @@ namespace simciv
 
 	void Product::load(rapidxml::xml_node<>* node)
 	{
-		average_price = 42;
-
 		if (auto a = node->first_attribute("id"))
 		{
 			name = a->value();
@@ -572,7 +570,6 @@ namespace simciv
 	World * World::create_from_file(const std::string & file_name, int width, int height)
 	{
 		World* result = nullptr;
-		rapidxml::xml_document<> doc;
 		std::ifstream file(file_name);
 		if (!file.is_open())
 		{
@@ -582,7 +579,9 @@ namespace simciv
 		buffer << file.rdbuf();
 		file.close();
 		std::string content(buffer.str());
-		doc.parse<0>(&content[0]);
+		rapidxml::xml_document<> doc;
+		//auto& doc = result->m_settings;
+		doc.parse<0>(doc.allocate_string(&content[0]));  // without allocate_string, it takes over the ownership of the string
 		auto *root = doc.first_node("simciv");
 		auto mode = root->first_attribute("mode");
 		string mode_str = mode ? mode->value() : "default";
@@ -596,8 +595,9 @@ namespace simciv
 			result = new MvpWorld();
 		}
 
+		result->m_settings.parse<0>(doc.allocate_string(&content[0])); // this is ugly, but we have to parse again as doc doesn't have copy constructor
 		world = result;
-		result->init(doc, width, height);
+		result->init(width, height);
 		return result;
 	}
 
@@ -654,76 +654,76 @@ namespace simciv
 	//	init_col_industries();
 	//}
 
-	void World::generate_factories()
-	{
-		int x = 12, y = 10;
+	//void World::generate_factories()
+	//{
+	//	int x = 12, y = 10;
 
-		auto a = get_area(x, y);
-		ProductionRule r, b;
-		b.input[0] = 0;
-		a->industry = new Industry();
-		for (int i = 0; i < 4; ++i)
-		{
-			r.output[i] = 0.1;
-			a->industry->sell_products.emplace(i);
-		}
-		a->industry->prod_rules.push_back(r);
-		a->industry->buy_products.emplace(_fuel_id);
-		a->industry->build_cost.total.push_back(b);
-		a->industry->build_cost.calc_per_turn();
-		a->has_factory = true;
-		//a->update_colors();
+	//	auto a = get_area(x, y);
+	//	ProductionRule r, b;
+	//	b.input[0] = 0;
+	//	a->industry = new Industry();
+	//	for (int i = 0; i < 4; ++i)
+	//	{
+	//		r.output[i] = 0.1;
+	//		a->industry->sell_products.emplace(i);
+	//	}
+	//	a->industry->prod_rules.push_back(r);
+	//	a->industry->buy_products.emplace(_fuel_id);
+	//	a->industry->build_cost.total.push_back(b);
+	//	a->industry->build_cost.calc_per_turn();
+	//	a->has_factory = true;
+	//	//a->update_colors();
 
-		auto g = [this](Factory* f, string s) {
-			int id = world->get_product(s)->id;
-			f->buyers[id] = _trade_maps[id]->create_prod(f->area, true, 50);
-			f->sellers[id] = _trade_maps[id]->create_prod(f->area, false, 50);
-			_trade_maps[id]->sync_area_traders(f->area);
-			f->buyers[id]->set_storage(10);
+	//	auto g = [this](Factory* f, string s) {
+	//		int id = world->get_product(s)->id;
+	//		f->buyers[id] = _trade_maps[id]->create_prod(f->area, true, 50);
+	//		f->sellers[id] = _trade_maps[id]->create_prod(f->area, false, 50);
+	//		_trade_maps[id]->sync_area_traders(f->area);
+	//		f->buyers[id]->set_storage(10);
 
-		};
+	//	};
 
-		auto fact = [&](int x, int y) {
-			Area* a = get_area(x, y);
-			if (!a->industry) return;
-			auto f = create_factory(a, a->industry);
-			a->has_factory = true;
-			//a->update_colors();
-			f->set_state(FS_RUN);
-			f->health = 1;
+	//	auto fact = [&](int x, int y) {
+	//		Area* a = get_area(x, y);
+	//		if (!a->industry) return;
+	//		auto f = create_factory(a, a->industry);
+	//		a->has_factory = true;
+	//		//a->update_colors();
+	//		f->set_state(FS_RUN);
+	//		f->health = 1;
 
-			g(f, "prod_1");
-			g(f, "prod_2");
-			g(f, "prod_3");
-			g(f, "fuel_1");
-		};
+	//		g(f, "prod_1");
+	//		g(f, "prod_2");
+	//		g(f, "prod_3");
+	//		g(f, "fuel_1");
+	//	};
 
-		//if (!s1) throw("Industry not found!");
-		//auto f = create_factory(a, a->industry);
-		//f->set_state(FS_RUN);
-		//f->health = 1;
+	//	//if (!s1) throw("Industry not found!");
+	//	//auto f = create_factory(a, a->industry);
+	//	//f->set_state(FS_RUN);
+	//	//f->health = 1;
 
 
 
-		//g(f, "prod_1");
-		//g(f, "prod_2");
-		//g(f, "prod_3");
-		//g(f, "fuel");
+	//	//g(f, "prod_1");
+	//	//g(f, "prod_2");
+	//	//g(f, "prod_3");
+	//	//g(f, "fuel");
 
-		//f->buyers[world->get_product("food_1")->id]->set_storage(1000);
-		//f->buyers[world->get_product("manpow")->id]->set_storage(1000);
-		//f->buyers[world->get_product("wood_1")->id]->set_storage(1000);
-		//f->buyers[world->get_product("stone_1")->id]->set_storage(1000);
-		//f->buyers[world->get_product("fuel_1")->id]->set_storage(1000);
+	//	//f->buyers[world->get_product("food_1")->id]->set_storage(1000);
+	//	//f->buyers[world->get_product("manpow")->id]->set_storage(1000);
+	//	//f->buyers[world->get_product("wood_1")->id]->set_storage(1000);
+	//	//f->buyers[world->get_product("stone_1")->id]->set_storage(1000);
+	//	//f->buyers[world->get_product("fuel_1")->id]->set_storage(1000);
 
-		// some other starting factory
+	//	// some other starting factory
 
-		fact(x, y);
-		fact(x - 2, y + 1);
-		fact(x + 2, y + 1);
-		fact(x - 2, y );
-		fact(x - 1, y + 1);
-	}
+	//	fact(x, y);
+	//	fact(x - 2, y + 1);
+	//	fact(x + 2, y + 1);
+	//	fact(x - 2, y );
+	//	fact(x - 1, y + 1);
+	//}
 
 	Factory* World::create_factory(Area* a, Industry* industry)
 	{
@@ -760,7 +760,7 @@ namespace simciv
 		}
 
 		factories.push_back(f);
-
+		a->has_factory = true;
 		return f;
 	}
 
@@ -927,10 +927,11 @@ namespace simciv
 	using namespace rapidxml;
 	using namespace std;
 
-	void World::init(const rapidxml::xml_document<>& doc, int width, int height)
+	void World::init(int width, int height)
 	{
+		rapidxml::xml_document<> a, b;
 		Map::create(width, height);
-		xml_node<> *root = doc.first_node("simciv");
+		xml_node<> *root = m_settings.first_node("simciv");
 		xml_node<> *item = root->first_node();
 		_fuel_id = -1;
 		while (item)
@@ -1322,7 +1323,7 @@ namespace simciv
 			//a->update_colors();
 		}
 
-		generate_factories();
+		//generate_factories(doc);
 	}
 
 	void World::generate_resources()
@@ -1406,17 +1407,20 @@ namespace simciv
 			per_turn.push_back(r.multiply(1.0 / duration, 1));
 		}
 	}
-	void MvpWorld::init(const rapidxml::xml_document<>& doc, int width, int height)
+	void MvpWorld::init(int width, int height)
 	{
 		Map::create(width, height);
 		_fuel_id = -1;
 		int brick_id = -1;
 		vector<string> color_names;
-		xml_node<> *root = doc.first_node("simciv");
+		map<int, int> shape_id;  // prod.id -> id (shape_1_<id>.png)
+		xml_node<> *root = m_settings.first_node("simciv");
 		auto col_node = root->first_node("color");
+		int i = 0;
 		while (col_node)
 		{
 			color_names.push_back(col_node->first_attribute("name")->value());
+			shape_id[i++] = stoi(col_node->first_attribute("shape_id")->value());
 			col_node = col_node->next_sibling("color");
 		}
 		int colors = color_names.size();
@@ -1441,30 +1445,37 @@ namespace simciv
 			{
 				Product* product = new Product();
 				add_product(product);
+				product->level = level;
 				prods[color][level] = product;
 				ids[color][level] = product->id;
 				product->name = name(color, level);
 				product->display_name = product->name;
 				product->group = to_string(color + 1);
-				product->icon_file = icon_file(color, level);
+				product->icon_file = icon_file(shape_id[color], level);
 				product->is_resource = level == 0;
+				product->is_end_product = false;
 			}
 		}
 		 
 		// end products
 		auto ep_node = root->first_node("end_product");
-		int i = 0;
+		i = 0;
 		string ep_group = to_string(colors + 1);
 		while (ep_node)
 		{
 			Product* product = new Product();
 			add_product(product);
+			product->level = 0;
 			ep_ids[i] = product->id;
 			product->name = ep_node->first_attribute("name")->value();
 			product->display_name = product->name;
 			product->group = to_string(colors + i + 1);
-			product->icon_file = icon_file(colors + i, 0);
+			shape_id[colors + i] = stoi(ep_node->first_attribute("shape_id")->value());
+			// product->icon_file = icon_file(colors + i, 0);
+			product->icon_file = icon_file(shape_id[colors + i], 0);
 			product->is_resource = false;
+			product->is_end_product = true;
+
 
 			auto is_fuel = ep_node->first_attribute("is_fuel");
 			if (is_fuel && string(is_fuel->value()) == "true")
@@ -1491,8 +1502,10 @@ namespace simciv
 			string color_name = color_names[color];
 			
 			Industry* s = Industry::create();
-			s->icon_file = icon_file(color, 0);
+			//s->icon_file = icon_file(color, 0);
+			s->icon_file = icon_file(shape_id[color], 0);
 			Product* prod = products[ids[color][0]];
+			s->level = prod->level;
 			s->name = prod->name;
 			s->display_name = s->name;
 			s->group = prod->group;
@@ -1506,7 +1519,9 @@ namespace simciv
 			for (int level = 1; level < levels; ++level)
 			{
 				Industry* s = Industry::create();
-				s->icon_file = icon_file(color, level);
+				s->level = prod->level;
+				//s->icon_file = icon_file(color, level);
+				s->icon_file = icon_file(shape_id[color], level);
 				Product* prod = products[ids[color][level]];
 				s->name = prod->name;
 				s->display_name = s->name;
@@ -1530,7 +1545,10 @@ namespace simciv
 			for (int level = 0; level < levels; ++level)
 			{
 				Industry* s = Industry::create();
-				s->icon_file = icon_file(colors + ep_id, level);
+				s->level = level;
+				//s->icon_file = icon_file(colors + ep_id, level);
+				//shape_id[colors + ep_id] = stoi(ep_node->first_attribute("icon_group")->value());
+				s->icon_file = icon_file(shape_id[colors + ep_id], level);
 				Product* prod = products[ep_ids[ep_id]];
 				s->name = prod->name;
 				s->display_name = s->name;
@@ -1556,6 +1574,7 @@ namespace simciv
 		// capital
 		{
 			Industry* s = Industry::create();
+			s->level = 0;
 			s->icon_file = "img/shapes/circle_white.png";
 			s->name = "Capital";
 			s->display_name = s->name;
@@ -1590,6 +1609,25 @@ namespace simciv
 			{
 				_fuel_map = tm;
 			}
+		}
+	}
+	void MvpWorld::generate_factories()
+	{
+		auto *root = m_settings.first_node("simciv");
+		auto fact_node = root->first_node("factory");
+		while (fact_node)
+		{
+			int col = stoi(fact_node->first_attribute("col")->value());
+			int row = stoi(fact_node->first_attribute("row")->value());
+			int level = stoi(fact_node->first_attribute("level")->value());
+			string group = fact_node->first_attribute("industry")->value();
+			auto industry = std::find_if(industries.begin(), industries.end(), [level, group](Industry* a) {
+				return a->group == group && a->level == level;
+			});
+
+			this->create_factory(get_area(col, row), *industry);
+
+			fact_node = fact_node->next_sibling("factory");
 		}
 	}
 }

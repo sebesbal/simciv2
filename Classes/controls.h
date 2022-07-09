@@ -250,6 +250,7 @@ namespace simciv
 	template <typename T>
 	std::string to_string_with_K(const T a_value)
 	{
+		if (a_value == std::numeric_limits<double>::infinity()) return "-";
 		if (a_value > 1000000) return std::to_string((int)(a_value / 1000000)) + "M";
 		if (a_value > 1000) return std::to_string((int)(a_value / 1000)) + "K";
 		return std::to_string((int)(a_value));
@@ -268,11 +269,14 @@ namespace simciv
 	public:
 		static Label* create(const std::string& text, const LabelSize& size = LS_NORMAL) CREATE_FUNC_BODY(Label, text, size);
 		static Label* create(double* data, const LabelSize& size = LS_NORMAL) CREATE_FUNC_BODY(Label, data, size);
+		static Label* create(double* data1, double* data2, const LabelSize& size = LS_NORMAL) CREATE_FUNC_BODY(Label, data1, data2, size);
 		bool init(const std::string& text, const LabelSize& size = LS_NORMAL);
 		bool init(double* data, const LabelSize& size = LS_NORMAL);
+		bool init(double* data1, double* data2, const LabelSize& size = LS_NORMAL);
 		static float font_size(const LabelSize& size);
 		virtual void update(float delta) override;
 		double* data;
+		double* data2;
 	};
 
 	class Table : public ui::Layout

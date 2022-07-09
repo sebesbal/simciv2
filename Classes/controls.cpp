@@ -969,20 +969,33 @@ void ProductStringView::add_item(Product* p, double volume)
 bool EconomyView::init()
 {
 	if (!TablePanel::init()) return false;
-	_table->add_column(40);
+	//_table->add_column(40);
 	_table->set_margins(5, 5, 5, 5, 5, 5);
 	_table->set_default_row_height(20);
 	auto icon = _table->create_row(); // icons
-	auto storage = _table->create_row(); // storage
-	auto price = _table->create_row(); // price
+	auto price = _table->create_row();
+	auto volume = _table->create_row();
+	auto storage = _table->create_row();
 
 	for (auto& map : world->trade_maps())
 	{
 		Product& p = map->product;
 		auto& data = map->get_world_data();
 		icon->addChild(ProductSprite::create(&p, 20));
+
+		if (p.is_end_product)
+		{
+			_table->add_column(80);
+			price->addChild(Label::create(&data.price, &data.max_price));
+			volume->addChild(Label::create(&data.vol, &data.max_vol));
+		}
+		else
+		{
+			_table->add_column(40);
+			price->addChild(Label::create(&data.price));
+			volume->addChild(Label::create(&data.vol));
+		}
 		storage->addChild(Label::create(&data.storage));
-		price->addChild(Label::create(&data.price));
 	}
 
 	return true;
@@ -1063,6 +1076,7 @@ void Table::doLayout()
 			//	cell->setContentSize(Size(col_width, cell_height));
 			//}
 			x += pad_x + col_width;
+			++col;
 		}
 		y += cell_height + pad_y;
 	}
@@ -1080,6 +1094,9 @@ cocos2d::Node * Table::create_row(float height)
 
 bool Label::init(const std::string & text, const LabelSize & size)
 {
+	data = nullptr;
+	data2 = nullptr;
+
 	if (Text::init(text, "verdana", font_size(size)))
 	{
 		scheduleUpdate();
@@ -1094,6 +1111,17 @@ bool Label::init(double * data, const LabelSize& size)
 	if (init("", size))
 	{
 		this->data = data;
+		return true;
+	}
+	return false;
+}
+
+bool Label::init(double * data1, double * data2, const LabelSize & size)
+{
+	if (init("", size))
+	{
+		this->data = data1;
+		this->data2 = data2;
 		return true;
 	}
 	return false;
@@ -1115,8 +1143,17 @@ float Label::font_size(const LabelSize & size)
 
 void Label::update(float delta)
 {
-	//if (data) this->setText(to_string_with_precision(*data, 1));
-	if (data) this->setText(to_string_with_K(*data));
+	if (data)
+	{
+		if (data2)
+		{
+			this->setText(to_string_with_K(*data) + " / " + to_string_with_K(*data2));
+		}
+		else
+		{
+			this->setText(to_string_with_K(*data));
+		}
+	}
 }
 
 bool Popup::init()

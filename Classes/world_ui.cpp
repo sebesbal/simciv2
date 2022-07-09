@@ -326,6 +326,7 @@ namespace simciv
 		v = _map_labels = Node::create();
 		_map->addChild(v);
 
+		world->generate_factories();
 
 		for (auto& a : world->areas())
 		{

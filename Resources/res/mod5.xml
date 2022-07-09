@@ -1,8 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <simciv mode="mvp" levels="4">
-	<color name="Red"/>
-	<color name="Green"/>
-	<color name="Blue"/>
-	<end_product name="Fuel" is_fuel="true"/>
-	<end_product name="Brick" is_brick="true"/>
+	<color shape_id="0" name="Red"/>
+	<color shape_id="1" name="Green"/>
+	<color shape_id="2" name="Blue"/>
+	<end_product shape_id="3" name="Fuel" is_fuel="true"/>
+	<end_product shape_id="5" name="Brick" is_brick="true"/>
+	<end_product shape_id="4" name="Research"/>
+	
+	<factory row="15" col="11" industry="7" level="0"/>
+	
+	<factory row="15" col="10" industry="1" level="0"/>
+	<factory row="16" col="11" industry="2" level="0"/>
+	<factory row="18" col="13" industry="3" level="0"/>
+	
+	<factory row="15" col="12" industry="4" level="0"/>
+	<factory row="14" col="11" industry="5" level="0"/>
+	<factory row="16" col="12" industry="6" level="0"/>
 </simciv>

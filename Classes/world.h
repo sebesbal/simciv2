@@ -79,14 +79,14 @@ namespace simciv
 		int id;						///< index in the ProductMap
 		std::string name;			///< id in the xml file
 		std::string group;			///< gid in the xml file
+		int level;
 		std::string display_name;	///< display name
+		bool is_end_product;		///< End product: the player controls the price of this prod.
 		std::string icon_file;
-		bool is_resource;
+		bool is_resource;			///< Resource: it can be "mined". Areas have resources.
 		TradeMap* map;
 		std::map<AreaType, double> tile_res;	///< tile guid -> resource modifier map
 		void load(rapidxml::xml_node<>* node);
-
-		double average_price;
 	};
 
 	/// The type of a Factory.
@@ -96,7 +96,7 @@ namespace simciv
 		std::string name;			///< id in the xml file
 		std::string group;			///< gid in the xml file
 		std::string display_name;	///< display name
-		//int level;
+		int level;
 		IndustryType type;
 		Products start_storage;
 
@@ -236,6 +236,7 @@ namespace simciv
 		void set_explored(Area* a);
 		void generate_resources();
 		void generate_resources_rand_ind();
+		virtual void generate_factories() { }
 
 		MilitaryData mil_data;
 
@@ -245,23 +246,24 @@ namespace simciv
 
 		std::vector<Color4F> colors;
 	protected:
-		virtual void init(const rapidxml::xml_document<>& doc, int width, int height);
+		virtual void init(int width, int height);
 		void add_product(Product* product);
 		void add_industry(Industry* industry);
 		//void generate_industry();
-		void generate_factories();
+		//void generate_factories();
 		std::vector<Industry*> industries;
 		std::vector<Product*> products;
 		std::vector<Factory*> factories;
 		std::vector<TradeMap*> _trade_maps;
 		TradeMap* _fuel_map;
-		
+		rapidxml::xml_document<> m_settings;
 	};
 
 	class MvpWorld : public World
 	{
 	protected:
-		virtual void init(const rapidxml::xml_document<>& doc, int width, int height) override;
+		virtual void init(int width, int height) override;
+		virtual void generate_factories() override;
 	};
 
 	extern World* world;

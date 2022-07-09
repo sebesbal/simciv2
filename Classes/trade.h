@@ -74,8 +74,11 @@ namespace simciv
 	struct WorldTradeData
 	{
 		double storage;
-		double d_storage;
-		double price;
+		//double d_storage;
+		double price;		///< avg. price
+		double max_price = 100;	///< max avg. price
+		double vol;
+		double max_vol = std::numeric_limits<double>::infinity();
 	};
 
 	/// A trade route between two Trader
