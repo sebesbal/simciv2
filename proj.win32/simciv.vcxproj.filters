@@ -60,9 +60,6 @@
     <ClCompile Include="..\Classes\sprites.cpp">
       <Filter>src\UI\Map</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\stdafx.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\Classes\indgen.cpp">
       <Filter>src\IndGen</Filter>
     </ClCompile>
@@ -71,6 +68,9 @@
     </ClCompile>
     <ClCompile Include="..\Classes\sc_map.cpp">
       <Filter>src\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\stdafx.cpp">
+      <Filter>src\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

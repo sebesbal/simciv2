@@ -34,7 +34,6 @@ namespace simciv
 		void set_storage(double vol);
 
 		double& storage() { return _storage; }
-		double money() { return 1; }
 		void pay(double d) { }
 		void update_price();
 		void update_volume();
@@ -51,6 +50,48 @@ namespace simciv
 		double storage_last;
 		double _storage;
 		double _d_storage;
+	};
+
+	class Trader2;
+
+	struct Contract
+	{
+		double vol;
+		double price;
+		bool operator < (const Contract& contract) const;
+		Trader2* buyer;
+		Trader2* seller;
+		Trader2* another(Trader2* trader) { return (trader == buyer ? seller : buyer); }
+
+	};
+
+	class Trader2
+	{
+	public:
+		enum State {
+			NONE, OK, NO_SUPPLY_DEMAND, CHANGING
+		};
+		const double vol_step = 0.1;
+		const double price_step = 0.1;
+		Trader2();
+		Product* product;
+		Area* area;
+		int ref_count;
+		bool is_buyer;  ///< this is a buyer (not seller)
+		double goal_vol;
+		double goal_price;
+		double vol;
+		double price;
+		State state;
+		std::priority_queue<Contract> contracts;
+		std::vector<std::shared_ptr<Contract>> contract_candidates;
+		Contract* best_next_contract;
+		void set_goals(double vol, double price);
+		void update_contracts();
+		void sign_contract();
+		void delete_contract();
+		void add_contract_candidate(std::shared_ptr<Contract>& contract);
+		void remove_contract_candidate(std::shared_ptr<Contract>& contract);
 	};
 
 	/// Trade data of an Area-Product
@@ -122,10 +163,10 @@ namespace simciv
 		void update_area_prices2(bool full_update = false);
 		void find_best_producers_for_areas();
 		void update_producer_storages();
-		bool is_used(Area* a);
-		WorldTradeData& get_world_data() { return data; }
+		bool is_used(Area* a);  ///< The product is sold ot bought on this area
+		WorldTradeData& get_world_data() { return data; }  ///< Global production and average prices
 		Product& product;
-		void TradeMap::update_data();
+		void TradeMap::update_data();  ///< Computes global prudction and average prices 
 		void sync_area_traders(Area* a);
 	protected:
 		WorldTradeData data;

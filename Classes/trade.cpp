@@ -237,7 +237,6 @@ void Trader::update_volume()
 		for (Transport* r : _transports)
 		{
 			if (r->profit < 0) break;
-			if (r->buyer->money() <= 0) continue;
 			double& v_sell = r->seller->free_volume;
 			double& v_buy = r->buyer->free_volume;
 			double& v_fuel = r->fuel_buyer->storage();
@@ -565,5 +564,63 @@ void Trader::update_volume()
 				x.erase(find(x.begin(), x.end(), t));
 			}
 		}
+	}
+
+	bool Contract::operator < (const Contract& contract) const
+	{
+		return price < contract.price;
+	}
+
+	Trader2::Trader2(): best_next_contract(nullptr)
+	{
+		goal_price = 0;
+		goal_vol = 0;
+	}
+	void Trader2::set_goals(double vol, double price)
+	{
+		goal_vol = vol;
+		goal_price = price;
+	}
+	void Trader2::update_contracts()
+	{
+		if (vol < goal_vol)
+		{
+			if (contract_candidates.size() > 0)
+			{
+				sign_contract();
+				state = State::CHANGING;
+			}
+			else
+			{
+				state = State::NO_SUPPLY_DEMAND;
+			}
+		}
+		else if (vol == goal_vol)
+		{
+			state = State::OK;
+		}
+		else
+		{
+			delete_contract();
+			state = State::CHANGING;
+		}
+	}
+	void Trader2::sign_contract()
+	{
+		auto& best_candidate = contract_candidates[0];
+		double best_price = is_buyer ? -best_candidate->price : best_candidate->price;
+		double vol = (goal_vol * goal_price - this->vol * this->price) / best_price;
+		auto contract = best_candidate;
+		contract->vol = min(vol, vol_step);
+		contract->another(this)->sign_contract();
+	}
+	void Trader2::delete_contract()
+	{
+	}
+	void Trader2::add_contract_candidate(std::shared_ptr<Contract>& contract)
+	{
+	}
+	void Trader2::remove_contract_candidate(std::shared_ptr<Contract>& contract)
+	{
 	}
 }
