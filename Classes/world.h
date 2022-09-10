@@ -21,6 +21,7 @@ namespace simciv
 	const double alpha = 0.9;
 	const double beta = 1 - alpha;
 	void smooth_change(double& smooth_value, const double current_value, double a = alpha);
+	const double ideal_storage = 50;
 
 	//struct Color
 	//{
@@ -52,6 +53,8 @@ namespace simciv
 	{
 		ProductMap input;						///< The id's and volumes of the input products
 		ProductMap output;						///< The id's and volumes of the output products
+		ProductMap products;
+		void end_init();
 		void load(rapidxml::xml_node<>* node);
 		double profit(const Prices& prices);	///< used for prod rules
 		double expense(const Prices& prices);	///< used for maint. rules
@@ -162,13 +165,14 @@ namespace simciv
 		FactoryState state;		///< firstly the Factory is under construction
 		Products built_in;				///< if built_in == industry.build_cost, the factory is completed
 		ProductionCost current_healing_cost;					///< cost for build/repair/upgrade
+		ProductionRule* best_rule;
 		double _profit;
 		double health;
 		double utilization;
 		void set_state(FactoryState state);
 		void set_industry(Industry* industry);
 		void start_upgrade_to(Industry* industry);
-		void update();
+		void update();  ///< Updates: best_rule, utilization, goal_vol of traders
 		double apply_rule(ProductionRule* rule, double profit, double max_rate); ///< tries to apply the rule with "rate" times. returns the applicable rate. (depending on the storage)
 		double consume_articles(Prices& prices);
 		double consume_articles(Prices& prices, std::vector<ProductionRule>& rules, double volume, double& full_expense);

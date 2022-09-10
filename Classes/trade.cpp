@@ -54,66 +54,13 @@ namespace simciv
 		}
 	}
 
-void Trader::update_price()
-{
-	double price_d = 1;
-	double b = 1.1;
-	double eps = 0; // 0.1;
-
-	if (is_buyer)
-	{
-		price *= pow(b, volume - vol_out + eps);
-	}
-	else
-	{
-		price *= pow(b, vol_out - volume - eps);
-	}
-
-history:
-	history_price.push_back(price);
-	history_trade.push_back(volume - free_volume);
-	if (history_price.size() > history_count) history_price.pop_front();
-	if (history_trade.size() > history_count) history_trade.pop_front();
-}
-
-void Trader::update_volume()
-{
-	const double a = 1.01;
-	const double ideal_storage = 50.0;
-	if (is_buyer)
-	{
-		volume = vol_in * pow(a, ideal_storage - _storage);
-		volume = min(volume, free_capacity());
-	}
-	else
-	{
-		volume = vol_in * pow(a, _storage - ideal_storage);
-		volume = min(volume, _storage);
-	}
-}
-
-	//void Trader::synchronize_price()
-	//{
-	//	if (storage_pair)
-	//	{
-	//		double p = pow(this->price * storage_pair->price, 0.5);
-	//		const double a = 1.05;
-	//		if (is_buyer)
-	//		{
-	//			this->price = p / a;
-	//			storage_pair->price = p * a;
-	//		}
-	//		else 
-	//		{
-	//			this->price = p * a;
-	//			storage_pair->price = p / a;
-	//		}
-	//	}
-	//}
-
-	void Trader::update_storage()
+	void Trader::update_history()
 	{
 		_storage = std::max(0.0, _storage);
+		history_price.push_back(price);
+		history_trade.push_back(vol);
+		if (history_price.size() > history_count) history_price.pop_front();
+		if (history_trade.size() > history_count) history_trade.pop_front();
 		history_storage.push_back(_storage);
 		if (history_storage.size() > history_count) history_storage.pop_front();
 	}
@@ -445,11 +392,11 @@ void Trader::update_volume()
 
 		for (Trader* p : _sellers)
 		{
-			p->update_storage();
+			p->update_history();
 		}
 		for (Trader* p : _buyers)
 		{
-			p->update_storage();
+			p->update_history();
 		}
 	}
 

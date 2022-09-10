@@ -15,6 +15,8 @@ namespace simciv
 	/// Every Factory has two Trader for every Product: a buyer (to buy inputs), and a seller (to sell output). (most of them are unused)
 	struct Trader
 	{
+		const double vol_step = 0.1;
+		const double price_step = 0.1;
 		Trader();
 		Product* product;
 		Area* area;
@@ -22,23 +24,25 @@ namespace simciv
 		//Factory* owner;
 		Trader* storage_pair;					///< the other trader of a seller-buyer pair (for a Factory-Product)
 		bool is_buyer;							///< this is a buyer (not seller)
-		double vol_in;							///< the volume what the owner Factory wanted to put in/take out from this Trader.
-		double vol_out;							///< the volume what the partners wanted to buy/sell from this Trader. (so, there are possible partners on this price)
-		double volume;							///< the volume what Trader wants to buy/sell in one turn. This is a combined value of val_in and val_out, considering the fullness of the storage too.
-		double free_volume;						///< volume - actually traded volume. (the partners didn't want to buy/sell this volume)
-		double price;							///< the current price
+		//double vol_in;							///< the volume what the owner Factory wanted to put in/take out from this Trader.
+		//double vol_out;							///< the volume what the partners wanted to buy/sell from this Trader. (so, there are possible partners on this price)
+		//double volume;							///< the volume what Trader wants to buy/sell in one turn. This is a combined value of val_in and val_out, considering the fullness of the storage too.
+		//double free_volume;						///< volume - actually traded volume. (the partners didn't want to buy/sell this volume)
+		//double price;							///< the current price
 		double worst_profit;					///< the profit of the worst transport. (used for Area's price calculation)
 		double worst_price;						///< the price of the worst transport. (used for Area's price calculation)
+
+		double goal_vol;		///< The trade won't be larger than the goal
+		double goal_price;		///< The price can't be larger (for a buyer) or lower (for a seller) than the goal
+		double vol;				///< Current volume
+		double price;			///< Current price
 
 		void modify_storage(double vol);
 		void set_storage(double vol);
 
 		double& storage() { return _storage; }
 		void pay(double d) { }
-		void update_price();
-		void update_volume();
-		//void synchronize_price();
-		void update_storage();
+		void update_history();
 		double free_capacity() { return storage_capacity - _storage; }
 
 		history_t history_trade;

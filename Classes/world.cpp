@@ -13,6 +13,27 @@ namespace simciv
 	int max_road_level = 5;
 	using namespace std;
 
+	void ProductionRule::end_init()
+	{
+		for (auto& p: input)
+		{
+			//int prod = p.first;
+			products[p.first] = -p.second;
+			//if (find(products.begin(), products.end(), prod) == products.end())
+			//{
+			//	products.push_back(prod);
+			//}
+		}
+		for (auto& p : output)
+		{
+			products[p.first] = p.second;
+			//if (find(products.begin(), products.end(), prod) == products.end())
+			//{
+			//	products.push_back(prod);
+			//}
+		}
+	}
+
 	void ProductionRule::load(rapidxml::xml_node<>* node)
 	{
 		this->input.clear();
@@ -33,6 +54,7 @@ namespace simciv
 			{
 				this->output[index] = vol;
 			}
+
 			item = item->next_sibling();
 		}
 
@@ -45,6 +67,8 @@ namespace simciv
 		//	this->input[id] = vol;
 		//	item = item->next_sibling("dose");
 		//}
+
+		end_init();
 	}
 
 	double ProductionRule::profit(const Prices& prices)
@@ -382,7 +406,8 @@ namespace simciv
 		health(0),
 		marked_as_deleted(false),
 		utilization(0),
-		_profit(0)
+		_profit(0),
+		best_rule(nullptr)
 	{
 		set_industry(industry);
 		for (int i = 0; i < product_count; ++i)
@@ -453,7 +478,58 @@ namespace simciv
 
 	void Factory::update()
 	{
+		Prices prices = get_prices();
+		double profit;
+		find_best_prod_rule(prices, best_rule, profit);
 
+		auto stor_func = [](double dstor) {
+			if (-ideal_storage / 2 < dstor && dstor < ideal_storage / 2) return 0.0;
+			else return dstor;
+		};
+
+		if (best_rule)
+		{
+			// compute utilization
+			vector<double> delta_stores(product_count, 0.0);
+			double sum_g_pvol = 0;
+			double min_utilization = 1;
+			for (auto& p: best_rule->products)
+			{
+				int prod = p.first;
+				double storage = sellers[prod]->storage();				// current storage
+				double import = buyers[prod]->vol - sellers[prod]->vol;	// import (export) volume
+				double delta_storage = stor_func(ideal_storage - storage) * 0.1; // we want to increase (decrease) the storage by this volume
+				delta_stores[prod] = delta_storage;
+				double goal_consumption = import - delta_storage;		// We need to consume (produce) around goal_cons. (import - goal_cons = delta_stor)
+				bool is_buyer = p.second < 0;
+				if (!is_buyer)
+				{
+					goal_consumption = -goal_consumption; // it is production actually
+				}
+				goal_consumption = max(0.0, goal_consumption);
+				double utilization = abs(goal_consumption / p.second);	// We need this utilization for this product
+				min_utilization = min(min_utilization, utilization);
+			}
+			utilization = min_utilization;
+
+			double profit = 0;
+			double profit_coef = 1;
+			if (profit < 0) profit_coef = 0;
+
+			for (auto& p : best_rule->products)
+			{
+				int prod = p.first;
+				double rule_consumption = -p.second;
+				bool is_buyer = rule_consumption > 0;
+				double delta_storage = delta_stores[prod];
+				double consumption = rule_consumption * utilization;	// actual consumption
+				double goal_import = delta_storage + profit_coef * consumption;
+				double new_goal_vol = is_buyer ? goal_import : -goal_import;
+				new_goal_vol = max(0.0, new_goal_vol);
+				double& goal_vol = (is_buyer ? buyers[prod]->goal_vol : sellers[prod]->goal_vol);
+				goal_vol = alpha * goal_vol + beta * new_goal_vol;
+			}
+		}
 	}
 
 	double Factory::apply_rule(ProductionRule* rule, double profit, double max_rate)
@@ -475,7 +551,7 @@ namespace simciv
 			int prod_id = p.first;
 			double vol = p.second;
 			buyers[prod_id]->modify_storage(rate * vol);
-			buyers[prod_id]->vol_in += max_rate * vol;
+			//buyers[prod_id]->vol_in += max_rate * vol;
 		}
 
 		for (auto& p : rule->output)
@@ -483,7 +559,7 @@ namespace simciv
 			int prod_id = p.first;
 			double vol = p.second;
 			sellers[prod_id]->modify_storage(rate * vol);
-			sellers[prod_id]->vol_in += rate2 * vol;
+			//sellers[prod_id]->vol_in += rate2 * vol;
 		}
 
 		smooth_change(utilization, rate);
@@ -1495,6 +1571,7 @@ namespace simciv
 
 		ProductionRule defaultBuild;
 		defaultBuild.input[brick_id] = 0.01;
+		defaultBuild.end_init();
 
 		// Industries, commodities
 		for (int color = 0; color < colors; ++color)
@@ -1513,6 +1590,7 @@ namespace simciv
 			s->build_cost.total.push_back(defaultBuild);
 			ProductionRule rule;
 			rule.output[ids[color][0]] = 1;
+			rule.end_init();
 			s->add_rule(rule);
 			add_industry(s);
 
@@ -1532,6 +1610,7 @@ namespace simciv
 				rule.input[ids[color][level - 1]] = 0.5;
 				rule.input[ids[(color + 1) % colors][level - 1]] = 0.5;
 				rule.output[ids[color][level]] = 1;
+				rule.end_init();
 				s->add_rule(rule);
 				add_industry(s);
 			}
@@ -1562,6 +1641,7 @@ namespace simciv
 						ProductionRule rule;
 						rule.input[ids[color][level_input]] = 1;
 						rule.output[prod_id] = pow(2, level);
+						rule.end_init();
 						s->add_rule(rule);
 					}
 				}
@@ -1588,6 +1668,7 @@ namespace simciv
 				ProductionRule rule;
 				//rule.input[ids[color][level_input]] = 1;
 				rule.output[ids[color][0]] = 0.2;
+				rule.end_init();
 				s->add_rule(rule);
 			}
 			for (auto& p : ep_ids)
@@ -1595,6 +1676,7 @@ namespace simciv
 				ProductionRule rule;
 				//rule.input[ids[color][level_input]] = 1;
 				rule.output[p.second] = 0.2;
+				rule.end_init();
 				s->add_rule(rule);
 			}
 			add_industry(s);
