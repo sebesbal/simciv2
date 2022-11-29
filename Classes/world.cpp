@@ -1415,6 +1415,11 @@ namespace simciv
 		smooth_value = a * smooth_value + (1 - a) * current_value;
 	}
 
+	void update_var(double & moving_average, const double & current_value)
+	{
+		moving_average = alpha * moving_average + beta * current_value;
+	}
+
 	double consume_articles(std::vector<Trader*>& storage, Prices & prices, std::vector<ProductionRule>& rules, double volume, double & full_expense)
 	{
 		if (rules.size() == 0) return 0;

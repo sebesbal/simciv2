@@ -33,6 +33,11 @@ namespace simciv
 	{
 	}
 
+	void Trader::update()
+	{
+
+	}
+
 	void Trader::modify_storage(double vol)
 	{
 		if (is_buyer)
@@ -56,13 +61,28 @@ namespace simciv
 
 	void Trader::update_history()
 	{
+		update_var(avg_remote_vol, remote_vol);
+		update_var(avg_local_vol, local_vol);
+
 		_storage = std::max(0.0, _storage);
 		history_price.push_back(price);
 		history_trade.push_back(vol);
+		history_storage.push_back(_storage);
 		if (history_price.size() > history_count) history_price.pop_front();
 		if (history_trade.size() > history_count) history_trade.pop_front();
-		history_storage.push_back(_storage);
 		if (history_storage.size() > history_count) history_storage.pop_front();
+	}
+
+	bool Trader::storage_is_ok()
+	{
+		if (is_buyer)
+		{
+			return _storage > 10;
+		}
+		else
+		{
+			return _storage < storage_capacity - 10;
+		}
 	}
 
 	TradeMap::TradeMap(Product& p) :
@@ -386,8 +406,8 @@ namespace simciv
 			b->set_storage(b->storage() + vol);
 			c->set_storage(c->storage() - vol * t->fuel_volume);
 
-			a->pay(- vol * a->price);
-			b->pay(vol * b->price);
+			a->add_money(- vol * a->price);
+			b->add_money(vol * b->price);
 		}
 
 		for (Trader* p : _sellers)

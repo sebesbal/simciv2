@@ -24,5 +24,5 @@
 #include "rapidxml_print.hpp"
 
 using namespace cocos2d;
-using namespace ui;
+using namespace cocos2d::ui;
 using namespace std;

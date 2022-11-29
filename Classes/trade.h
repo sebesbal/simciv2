@@ -36,18 +36,30 @@ namespace simciv
 		double goal_price;		///< The price can't be larger (for a buyer) or lower (for a seller) than the goal
 		double vol;				///< Current volume
 		double price;			///< Current price
+		double max_remote_vol;	///< Maximum tradeable volume
+		double max_local_vol;	///< Maximum consumeable (produceable) volume
+		double remote_vol;		///< Current remote volume
+		double local_vol;		///< Current local volume
+		double avg_remote_vol;	///< Moving average of the actual remote volume
+		double avg_local_vol;	///< Moving average of the actual local volume
+
+		void update();
 
 		void modify_storage(double vol);
 		void set_storage(double vol);
 
 		double& storage() { return _storage; }
-		void pay(double d) { }
+		void add_money(double d) { }
 		void update_history();
 		double free_capacity() { return storage_capacity - _storage; }
+
+		bool storage_is_ok();	///< Storage is "OK" (not too low in case of buyer, not too high in case of seller)
 
 		history_t history_trade;
 		history_t history_storage;
 		history_t history_price;
+		history_t history_remote_vol;
+		history_t history_local_vol;
 
 		double storage_capacity;
 		double ideal_fullness; ///< 0..1, negative value means auto control

@@ -22,6 +22,7 @@ namespace simciv
 	const double beta = 1 - alpha;
 	void smooth_change(double& smooth_value, const double current_value, double a = alpha);
 	const double ideal_storage = 50;
+	void update_var(double& moving_average, const double& current_value);
 
 	//struct Color
 	//{

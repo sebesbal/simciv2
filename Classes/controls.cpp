@@ -2,13 +2,15 @@
 
 #include "controls.h"
 #include "world_ui.h"
+#include "cocos2d.h"
+
+using namespace std;
+using namespace ui;
 
 namespace simciv
 {
 
 USING_NS_CC;
-using namespace std;
-using namespace ui;
 
 //const string def_font = "verdana";
 //const int def_font_size = 12;
